@@ -1,0 +1,21 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "b44f6337-f9d2-42fe-b3e0-c1bce9f703d6": {
+      "ProjectGuid": "b44f6337-f9d2-42fe-b3e0-c1bce9f703d6",
+      "DisplayName": "JankSQL",
+      "ColorIndex": 0
+    },
+    "d9c0e14c-dad3-49f2-b6ce-dfe60f21446a": {
+      "ProjectGuid": "d9c0e14c-dad3-49f2-b6ce-dfe60f21446a",
+      "DisplayName": "Parsing",
+      "ColorIndex": 1
+    },
+    "07f69422-e71f-4541-825e-60461dc4f723": {
+      "ProjectGuid": "07f69422-e71f-4541-825e-60461dc4f723",
+      "DisplayName": "Solution Items",
+      "ColorIndex": 2
+    }
+  },
+  "NextColorIndex": 3
+}

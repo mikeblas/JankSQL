@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "JankSQL": {
+      "commandName": "Project",
+      "workingDirectory": "C:\\Projects\\JankSQL"
+    }
+  }
+}

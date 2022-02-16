@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JankSQL", "JankSQL\JankSQL.csproj", "{B44F6337-F9D2-42FE-B3E0-C1BCE9F703D6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Parsing", "Parsing\Parsing.csproj", "{D9C0E14C-DAD3-49F2-B6CE-DFE60F21446A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{07F69422-E71F-4541-825E-60461DC4F723}"
+	ProjectSection(SolutionItems) = preProject
+		mytable.csv = mytable.csv
+		README.md = README.md
+		sys_tables.csv = sys_tables.csv
+		t.sql = t.sql
+		t2.sql = t2.sql
+		t3.sql = t3.sql
+		t4.sql = t4.sql
+		t5.sql = t5.sql
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B44F6337-F9D2-42FE-B3E0-C1BCE9F703D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B44F6337-F9D2-42FE-B3E0-C1BCE9F703D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B44F6337-F9D2-42FE-B3E0-C1BCE9F703D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B44F6337-F9D2-42FE-B3E0-C1BCE9F703D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9C0E14C-DAD3-49F2-B6CE-DFE60F21446A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9C0E14C-DAD3-49F2-B6CE-DFE60F21446A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9C0E14C-DAD3-49F2-B6CE-DFE60F21446A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9C0E14C-DAD3-49F2-B6CE-DFE60F21446A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E27126B5-1906-42C1-A5EE-01B1A5DF6E83}
+	EndGlobalSection
+EndGlobal
