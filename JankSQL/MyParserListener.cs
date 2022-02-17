@@ -61,6 +61,7 @@ namespace JankSQL
                 Console.Write($"[{n.ToString()}] ");
             }
             Console.WriteLine();
+            selectListContext.EndExpressionList();
             // expressionList.Clear();
 
             base.ExitExpression_elem(context);
@@ -95,33 +96,37 @@ namespace JankSQL
             base.ExitSCALAR_FUNCTION(context);
         }
 
-        public override void EnterBracket_expression([NotNull] TSqlParser.Bracket_expressionContext context)
-        {
-            /*
-            ExpressionNode x = new ExpressionOperator("(");
-            expressionList.Add(x);
-            */
-
-            base.EnterBracket_expression(context);
-        }
-
         public override void ExitSelect_list_elem([NotNull] TSqlParser.Select_list_elemContext context)
         {
-            // selectListContext.ExpressionList.Clear();
+            string rowsetColumnName = null;
+
+            if (selectListContext.CurrentAlias != null)
+            {
+                rowsetColumnName = selectListContext.CurrentAlias;
+            }
+            else if (context.expression_elem() != null && context.expression_elem().column_alias() != null)
+            {
+                rowsetColumnName = context.expression_elem().column_alias().GetText();
+            }
+             else if (context.column_elem() != null)
+            {
+                rowsetColumnName = context.column_elem().full_column_name().GetText();
+            }
+
+            if (rowsetColumnName != null)
+                selectListContext.AddRowsetColumnName(Program.GetEffectiveName(rowsetColumnName));
+            else
+                selectListContext.AddUnknownRowsetColumnName();
+
             base.ExitSelect_list_elem(context);
         }
 
-        public override void ExitBracket_expression([NotNull] TSqlParser.Bracket_expressionContext context)
+        public override void ExitAs_column_alias([NotNull] TSqlParser.As_column_aliasContext context)
         {
-            /*
-            ExpressionNode y = new ExpressionOperator(")");
-            expressionList.Add(y);
-            */
-
-            base.ExitBracket_expression(context);
+            selectListContext.CurrentAlias = context.column_alias().GetText();
+            Console.WriteLine($"alias == {context.column_alias().GetText()}");
+            base.ExitAs_column_alias(context);
         }
-
-
 
         public override void ExitCase_expression(TSqlParser.Case_expressionContext context)
         {

@@ -32,8 +32,17 @@ namespace JankSQL
     {
         static void Main(string[] args)
         {
-            const string sqlFile = "t5.sql";
 
+            // workFile("t5.sql");
+
+            ExecutionContext ec = Parser.ParseSQLFile("SELECT [city_name],  [population] FROM [mytable];");
+            ResultSet rs = ec.Execute();
+            rs.Dump();
+        }
+
+
+        static void workFile(string sqlFile)
+        {
             using (TextReader str = new StreamReader(sqlFile))
             {
                 var lexer = new TSqlLexer(new AntlrInputStream(str));

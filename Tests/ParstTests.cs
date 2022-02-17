@@ -10,34 +10,34 @@ namespace Tests
         [TestMethod]
         public void TestSelectStarSysTables()
         {
-            var listener = Parser.ParseSQLFile("SELECT * FROM [sys_tables];");
+            var ec = Parser.ParseSQLFile("SELECT * FROM [sys_tables];");
 
-            Assert.IsNotNull(listener);
+            Assert.IsNotNull(ec);
         }
 
         [TestMethod]
         public void TestSelectStarMyTyable()
         {
-            var listener = Parser.ParseSQLFile("SELECT * FROM [mytable];");
+            var ec = Parser.ParseSQLFile("SELECT * FROM [mytable];");
 
-            Assert.IsNotNull(listener);
+            Assert.IsNotNull(ec);
         }
 
         [TestMethod]
         public void TestSelectExpressionAddition()
         {
-            var listener = Parser.ParseSQLFile("SELECT 3+5 FROM [mytable];");
+            var ec = Parser.ParseSQLFile("SELECT 3+5 FROM [mytable];");
 
-            Assert.IsNotNull(listener);
+            Assert.IsNotNull(ec);
         }
 
 
         [TestMethod]
         public void TestSelectExpressionParenthesis()
         {
-            var listener = Parser.ParseSQLFile("SELECT 2*(6+4) FROM [mytable];");
+            var ec = Parser.ParseSQLFile("SELECT 2*(6+4) FROM [mytable];");
 
-            Assert.IsNotNull(listener);
+            Assert.IsNotNull(ec);
         }
 
 
@@ -45,26 +45,61 @@ namespace Tests
         [TestMethod]
         public void TestSelectExpressionSquareRoot()
         {
-            var listener = Parser.ParseSQLFile("SELECT SQRT(2) FROM [mytable];");
+            var ec = Parser.ParseSQLFile("SELECT SQRT(2) FROM [mytable];");
 
-            Assert.IsNotNull(listener);
+            Assert.IsNotNull(ec);
         }
 
         [TestMethod]
         public void TestSelectExpressionPower()
         {
-            var listener = Parser.ParseSQLFile("SELECT POWER(5, 3) FROM [mytable];");
+            var ec = Parser.ParseSQLFile("SELECT POWER(5, 3) FROM [mytable];");
 
-            Assert.IsNotNull(listener);
+            Assert.IsNotNull(ec);
         }
 
         [TestMethod]
         public void TestSelectExpressionPowerExpressionParams()
         {
-            var listener = Parser.ParseSQLFile("SELECT POWER((10/2), 15/5) FROM [mytable];");
+            var ec = Parser.ParseSQLFile("SELECT POWER((10/2), 15/5) FROM [mytable];");
 
-            Assert.IsNotNull(listener);
+            Assert.IsNotNull(ec);
         }
+
+        [TestMethod]
+        public void TestSelectList()
+        {
+            var ec = Parser.ParseSQLFile("SELECT [city_name], [population] FROM [mytable];");
+
+            Assert.IsNotNull(ec);
+        }
+
+
+        [TestMethod]
+        public void TestSelectListExpressionDivide()
+        {
+            var ec = Parser.ParseSQLFile("SELECT [city_name] / [population] FROM [mytable];");
+
+            Assert.IsNotNull(ec);
+        }
+
+
+        [TestMethod]
+        public void TestSelectExpressionTwoExpressions()
+        {
+            var ec = Parser.ParseSQLFile("SELECT 3+5, 92 * 6 FROM [mytable];");
+
+            Assert.IsNotNull(ec);
+        }
+
+        [TestMethod]
+        public void TestSelectExpressionThreeExpressions()
+        {
+            var ec = Parser.ParseSQLFile("SELECT 355/113, 867-5309, (123 + 456 - 111) / 3 FROM [mytable];");
+
+            Assert.IsNotNull(ec);
+        }
+
 
     }
 }

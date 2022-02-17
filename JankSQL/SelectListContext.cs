@@ -9,8 +9,15 @@ namespace JankSQL
 
     internal class SelectListContext
     {
-        List<ExpressionNode> expressionList = new List<ExpressionNode>();
-        internal List<ExpressionNode> ExpressionList { get { return expressionList; } }
+        List<List<ExpressionNode>> expressionLists = new List<List<ExpressionNode>>();
+
+        List<ExpressionNode> currentExpressionList = new List<ExpressionNode>();
+
+        string currentAlias = null;
+        int unknownColumnID = 1001;
+        List<string> rowsetColumnNames = new List<string>();
+
+        internal List<ExpressionNode> ExpressionList { get { return currentExpressionList; } }
 
         TSqlParser.Select_listContext context;
 
@@ -19,14 +26,43 @@ namespace JankSQL
             this.context = context;
         }
 
-        internal ExpressionOperand Execute()
+        internal void EndExpressionList()
         {
+            expressionLists.Add(currentExpressionList);
+            currentExpressionList = new List<ExpressionNode>();
+        }
 
+        internal void EndElement()
+        {
+            currentAlias = null;
+        }
+
+        internal void AddRowsetColumnName(string rowsetColumnName)
+        {
+            rowsetColumnNames.Add(rowsetColumnName);
+        }
+
+        internal void AddUnknownRowsetColumnName()
+        {
+            AddRowsetColumnName($"Anonymous{unknownColumnID}");
+            unknownColumnID += 1;
+        }
+
+        internal int RowsetColumnNamesCount { get { return rowsetColumnNames.Count; } }
+
+        internal string RowsetColumnName(int idx) { return rowsetColumnNames[idx]; }
+
+        internal int ExpressionListCount { get { return expressionLists.Count; } }
+
+        internal string CurrentAlias { get { return currentAlias; } set { currentAlias = value; } }
+
+        internal ExpressionOperand Execute(int index)
+        {
             Stack<ExpressionNode> stack = new Stack<ExpressionNode>();
 
             do
             {
-                foreach (ExpressionNode n in expressionList)
+                foreach (ExpressionNode n in expressionLists[index])
                 {
                     if (n is ExpressionOperand)
                         stack.Push(n);

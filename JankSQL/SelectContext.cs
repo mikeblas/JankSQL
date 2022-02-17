@@ -50,12 +50,13 @@ namespace JankSQL
                 Console.WriteLine($"Table {effectiveName} does not exist");
             else
             {
-                // load that table
+                // found the source table, so load it
                 Engines.DynamicCSV table = new Engines.DynamicCSV(sysTables.Row(foundRow)[1]);
                 table.Load();
 
                 // get an effective column list ...
                 List<string> effectiveColumns = new List<string>();
+                int resultSetColumnIndex = 0;
                 foreach (var c in querySpecs.select_list().select_list_elem())
                 {
                     if (c.asterisk() != null)
@@ -67,13 +68,23 @@ namespace JankSQL
 
                         }
                     }
-                    else if (c.column_elem() != null)
+                    else
+                    {
+                        effectiveColumns.Add(selectList.RowsetColumnName(resultSetColumnIndex++));
+                    }
+                    /*
+                    if (c.column_elem() != null)
                     {
                         Console.WriteLine($"column element! {c.column_elem().full_column_name().column_name.SQUARE_BRACKET_ID()}");
                         effectiveColumns.Add(Program.GetEffectiveName(c.column_elem().full_column_name().column_name.SQUARE_BRACKET_ID().GetText()));
                     }
+                    */
                 }
 
+                resultSet.SetColumnNames(effectiveColumns);
+
+
+                /*
                 for (int i = 0; i < table.RowCount; i++)
                 {
                     string[] thisRow = table.Row(i);
@@ -84,7 +95,10 @@ namespace JankSQL
                         if (!first)
                             Console.Write(", ");
                         first = false;
-                        Console.Write($"{thisRow[idx]}");
+                        if (idx == -1)
+                            Console.Write($"{columnName} not found");
+                        else
+                            Console.Write($"{thisRow[idx]}");
                     }
                     Console.WriteLine();
 
@@ -92,15 +106,43 @@ namespace JankSQL
 
                 for (int i = 0; i < table.RowCount; i++)
                 {
+                    ExpressionOperand[] rowResults = new ExpressionOperand[selectList.ExpressionListCount];
+                    for (int exprIndex = 0; exprIndex < selectList.ExpressionListCount; exprIndex++)
+                    {
+                        ExpressionOperand result = selectList.Execute(exprIndex);
+                        rowResults[exprIndex] = result;
 
-                    ExpressionOperand result = selectList.Execute();
-                    ExpressionOperand[] rowResults = new ExpressionOperand[1];
-                    rowResults[0] = result;
+                        // for each row, for each column list ...
+                        // querySpecs.select_list().select_list_elem();
+                    }
 
                     resultSet.AddRow(rowResults);
+                }
+                */
 
-                    // for each row, for each column list ...
-                    // querySpecs.select_list().select_list_elem();
+                for (int i = 0; i < table.RowCount; i++)
+                {
+                    int exprIndex = 0;
+                    int rsIndex = 0;
+                    string[] thisRow = table.Row(i);
+                    ExpressionOperand[] rowResults = new ExpressionOperand[effectiveColumns.Count];
+                    foreach (string columnName in effectiveColumns)
+                    {
+                        int idx = table.ColumnIndex(columnName);
+                        if (idx == -1)
+                        {
+                            ExpressionOperand result = selectList.Execute(exprIndex);
+                            rowResults[rsIndex] = result;
+                            exprIndex++;
+                        }
+                        else
+                        {
+                            rowResults[rsIndex] = ExpressionOperand.NVARCHARFromString(thisRow[idx]);
+                        }
+                        rsIndex++;
+                    }
+
+                    resultSet.AddRow(rowResults);
                 }
             }
 
