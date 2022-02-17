@@ -7,6 +7,12 @@ namespace JankSQL
     {
         private int depth = 0;
 
+        ExecutionContext executionContext = new ExecutionContext();
+        // List<ExpressionNode> expressionList = new List<ExpressionNode>();
+        SelectListContext selectListContext = null;
+
+        internal ExecutionContext ExecutionContext { get { return executionContext; } }
+
         public override void EnterEveryRule([NotNull] ParserRuleContext context)
         {
             var s = new string(' ', depth);
@@ -25,82 +31,23 @@ namespace JankSQL
 
         public override void ExitSelect_statement(TSqlParser.Select_statementContext context)
         {
-            var expressions = context.query_expression();
-            var querySpecs = expressions.query_specification();
-            var sourceTable = querySpecs.table_sources().table_source().First().GetText();
-            Console.WriteLine($"ExitSelect_Statement: {sourceTable}");
-
-            string effectiveName = Program.GetEffectiveName(sourceTable);
-
-
-            // get systables
-            Engines.DynamicCSV sysTables = new Engines.DynamicCSV("sys_tables.csv");
-            sysTables.Load();
-
-            // is this source table in there?
-            int idxName = sysTables.ColumnIndex("table_name");
-            int idxFile = sysTables.ColumnIndex("file_name");
-
-            int foundRow = -1;
-            for (int i = 0; i < sysTables.RowCount; i++)
-            {
-                if (sysTables.Row(i)[idxName].Equals(effectiveName, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    foundRow = i;
-                    break;
-                }
-            }
-
-            if (foundRow == -1)
-                Console.WriteLine($"Table {effectiveName} does not exist");
-            else
-            {
-                // load that table
-                Engines.DynamicCSV table = new Engines.DynamicCSV(sysTables.Row(foundRow)[1]);
-                table.Load();
-
-                // get an effective column list ...
-                List<string> effectiveColumns = new List<string>();
-                foreach (var c in querySpecs.select_list().select_list_elem())
-                {
-                    if (c.asterisk() != null)
-                    {
-                        Console.WriteLine("Asterisk!");
-                        for (int i = 0; i < table.ColumnCount; i++)
-                        {
-                            effectiveColumns.Add(table.ColumnName(i));
-
-                        }
-                    }
-                    else if (c.column_elem() != null)
-                    {
-                        Console.WriteLine($"column element! {c.column_elem().full_column_name().column_name.SQUARE_BRACKET_ID()}");
-                        effectiveColumns.Add(Program.GetEffectiveName(c.column_elem().full_column_name().column_name.SQUARE_BRACKET_ID().GetText()));
-                    }
-                }
-
-                for (int i = 0; i < table.RowCount; i++)
-                {
-                    string[] thisRow = table.Row(i);
-                    bool first = true;
-                    foreach(string columnName in effectiveColumns)
-                    {
-                        int idx = table.ColumnIndex(columnName);
-                        if (!first)
-                            Console.Write(", ");
-                        first = false;
-                        Console.Write($"{thisRow[idx]}");
-                    }
-                    Console.WriteLine();
-                }
-
-                // for each row, for each column list ...
-                // querySpecs.select_list().select_list_elem();
-
-            }
+            SelectContext selectContext = new SelectContext(context, selectListContext);
+            selectListContext = null;
+            executionContext.SelectContext = selectContext;
         }
 
-        List<ExpressionNode> expressionList = new List<ExpressionNode>();
+        public override void EnterSelect_statement_standalone([NotNull] TSqlParser.Select_statement_standaloneContext context)
+        {
+            base.EnterSelect_statement_standalone(context);
+
+        }
+
+        public override void EnterSelect_list([NotNull] TSqlParser.Select_listContext context)
+        {
+            base.EnterSelect_list(context);
+            selectListContext = new SelectListContext(context);
+        }
+
 
         public override void ExitExpression_elem([NotNull] TSqlParser.Expression_elemContext context)
         {
@@ -110,34 +57,12 @@ namespace JankSQL
             expressionList.Add(x);
             */
 
-            foreach (ExpressionNode n in expressionList)
+            foreach (ExpressionNode n in selectListContext.ExpressionList)
             {
                 Console.Write($"[{n.ToString()}] ");
             }
             Console.WriteLine();
             // expressionList.Clear();
-
-            Stack<ExpressionNode> stack = new Stack<ExpressionNode>();
-
-            do
-            {
-                foreach (ExpressionNode n in expressionList)
-                {
-                    if (n is ExpressionOperand)
-                        stack.Push(n);
-                    else
-                    {
-                        // it's an operator
-                        ExpressionOperator oper = (ExpressionOperator)n;
-                        ExpressionOperand r = oper.Evaluate(stack);
-                        stack.Push(r);
-                    }
-
-                }
-            } while (stack.Count > 1);
-
-            ExpressionOperand result = (ExpressionOperand) stack.Pop();
-            Console.WriteLine($"==> [{result}]");
 
             base.ExitExpression_elem(context);
         }
@@ -148,7 +73,7 @@ namespace JankSQL
             if (context.op != null)
             {
                 ExpressionNode x = new ExpressionOperator(context.op.Text);
-                expressionList.Add(x);
+                selectListContext.ExpressionList.Add(x);
             }
             base.ExitExpression(context);
         }
@@ -158,7 +83,7 @@ namespace JankSQL
             Console.WriteLine($"constant = {context.constant().DECIMAL()}");
 
             ExpressionNode x = ExpressionOperand.DecimalFromString(context.constant().DECIMAL().GetText());
-            expressionList.Add(x);
+            selectListContext.ExpressionList.Add(x);
 
             base.ExitPrimitive_expression(context);
         }
@@ -166,7 +91,7 @@ namespace JankSQL
         public override void ExitSCALAR_FUNCTION([NotNull] TSqlParser.SCALAR_FUNCTIONContext context)
         {
             ExpressionNode x = new ExpressionOperator(context.scalar_function_name().GetText());
-            expressionList.Add(x);
+            selectListContext.ExpressionList.Add(x);
 
             base.ExitSCALAR_FUNCTION(context);
         }
@@ -183,7 +108,7 @@ namespace JankSQL
 
         public override void ExitSelect_list_elem([NotNull] TSqlParser.Select_list_elemContext context)
         {
-            expressionList.Clear();
+            selectListContext.ExpressionList.Clear();
             base.ExitSelect_list_elem(context);
         }
 
@@ -225,7 +150,7 @@ namespace JankSQL
 
                 if (dt.unscaled_type is not null)
                 {
-                    string? typeName = (dt.unscaled_type.ID() is not null) ? dt.unscaled_type.ID().ToString() : dt.unscaled_type.keyword().GetText();
+                    string typeName = (dt.unscaled_type.ID() is not null) ? dt.unscaled_type.ID().ToString() : dt.unscaled_type.keyword().GetText();
 
                     Console.Write($"{id0.ID()}, {typeName} ");
                     if (typeName.Equals("INTEGER", StringComparison.OrdinalIgnoreCase) || typeName.Equals("INT", StringComparison.OrdinalIgnoreCase))

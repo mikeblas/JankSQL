@@ -11,7 +11,7 @@ namespace JankSQL.Engines
         private string filename;
 
         // list of column names
-        private string[]? columnNames;
+        private string[] columnNames = null;
 
         // list of lines; each line is a list of values
         private List<string[]> values;
