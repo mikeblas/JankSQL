@@ -94,6 +94,15 @@ namespace JankSQL
             selectListContext.ExpressionList.Add(x);
 
             base.ExitSCALAR_FUNCTION(context);
+
+        }
+
+        public override void ExitFull_column_name([NotNull] TSqlParser.Full_column_nameContext context)
+        {
+            ExpressionNode x = new ExpressionOperandFromColumn(Program.GetEffectiveName(context.column_name.GetText()));
+            selectListContext.ExpressionList.Add(x);
+
+            base.ExitFull_column_name(context);
         }
 
         public override void ExitSelect_list_elem([NotNull] TSqlParser.Select_list_elemContext context)

@@ -131,7 +131,7 @@ namespace JankSQL
                         int idx = table.ColumnIndex(columnName);
                         if (idx == -1)
                         {
-                            ExpressionOperand result = selectList.Execute(exprIndex);
+                            ExpressionOperand result = selectList.Execute(exprIndex, table, i);
                             rowResults[rsIndex] = result;
                             exprIndex++;
                         }

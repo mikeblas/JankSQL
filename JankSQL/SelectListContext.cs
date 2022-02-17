@@ -56,7 +56,7 @@ namespace JankSQL
 
         internal string CurrentAlias { get { return currentAlias; } set { currentAlias = value; } }
 
-        internal ExpressionOperand Execute(int index)
+        internal ExpressionOperand Execute(int index, Engines.DynamicCSV table, int rowIndex)
         {
             Stack<ExpressionNode> stack = new Stack<ExpressionNode>();
 
@@ -66,12 +66,26 @@ namespace JankSQL
                 {
                     if (n is ExpressionOperand)
                         stack.Push(n);
-                    else
+                    else if (n is ExpressionOperator)
                     {
                         // it's an operator
                         ExpressionOperator oper = (ExpressionOperator)n;
                         ExpressionOperand r = oper.Evaluate(stack);
                         stack.Push(r);
+                    }
+                    else if (n is ExpressionOperandFromColumn)
+                    {
+                        ExpressionOperandFromColumn r = (ExpressionOperandFromColumn)n;
+                        Console.WriteLine($"Need value from {r.ColumnName}");
+
+                        int idx = table.ColumnIndex(r.ColumnName);
+                        string[] thisRow = table.Row(rowIndex);
+                        ExpressionOperand val = new ExpressionOperandNVARCHAR(thisRow[idx]);
+                        stack.Push(val);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException();
                     }
 
                 }

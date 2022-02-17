@@ -153,13 +153,25 @@ namespace JankSQL
             return $"NVARCHAR({str})";
         }
 
-
         public override double AsDouble()
         {
             return Double.Parse(str);
         }
     }
 
+
+
+    internal class ExpressionOperandFromColumn : ExpressionNode
+    {
+        internal string columnName;
+
+        internal ExpressionOperandFromColumn(string columnName)
+        {
+            this.columnName = columnName;
+        }
+
+        internal string ColumnName { get { return columnName; } }
+    }
 }
 
 

@@ -75,10 +75,12 @@ namespace Tests
         [TestMethod]
         public void TestSelectListExpressionDivide()
         {
-            var ec = Parser.ParseSQLFile("SELECT [population] / [id] FROM [mytable];");
+            var ec = Parser.ParseSQLFile("SELECT [population] / [keycolumn] FROM [mytable];");
 
             ResultSet set = ec.Execute();
             set.Dump();
+            Assert.AreEqual(3, set.RowCount);
+            Assert.AreEqual(1, set.ColumnCount);
         }
     }
 }
