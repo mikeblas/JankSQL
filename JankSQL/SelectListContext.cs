@@ -19,7 +19,7 @@ namespace JankSQL
             this.context = context;
         }
 
-        internal void Execute()
+        internal ExpressionOperand Execute()
         {
 
             Stack<ExpressionNode> stack = new Stack<ExpressionNode>();
@@ -43,7 +43,8 @@ namespace JankSQL
 
             ExpressionOperand result = (ExpressionOperand)stack.Pop();
             Console.WriteLine($"==> [{result}]");
-        }
 
+            return result;
+        }
     }
 }

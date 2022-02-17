@@ -107,7 +107,7 @@ namespace JankSQL
 
         public override void ExitSelect_list_elem([NotNull] TSqlParser.Select_list_elemContext context)
         {
-            selectListContext.ExpressionList.Clear();
+            // selectListContext.ExpressionList.Clear();
             base.ExitSelect_list_elem(context);
         }
 
@@ -181,9 +181,9 @@ namespace JankSQL
             }
         }
 
-        public void Execute()
+        public ResultSet Execute()
         {
-            executionContext.Execute();
+            return executionContext.Execute();
         }
     }
 }

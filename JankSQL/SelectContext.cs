@@ -17,7 +17,7 @@ namespace JankSQL
             this.selectList = selectList;
         }
 
-        internal void Execute()
+        internal ResultSet Execute()
         {
             var expressions = statementContext.query_expression();
             var querySpecs = expressions.query_specification();
@@ -26,6 +26,7 @@ namespace JankSQL
 
             string effectiveName = Program.GetEffectiveName(sourceTable);
 
+            ResultSet resultSet = new ResultSet();
 
             // get systables
             Engines.DynamicCSV sysTables = new Engines.DynamicCSV("sys_tables.csv");
@@ -86,12 +87,24 @@ namespace JankSQL
                         Console.Write($"{thisRow[idx]}");
                     }
                     Console.WriteLine();
+
                 }
 
-                // for each row, for each column list ...
-                // querySpecs.select_list().select_list_elem();
+                for (int i = 0; i < table.RowCount; i++)
+                {
 
+                    ExpressionOperand result = selectList.Execute();
+                    ExpressionOperand[] rowResults = new ExpressionOperand[1];
+                    rowResults[0] = result;
+
+                    resultSet.AddRow(rowResults);
+
+                    // for each row, for each column list ...
+                    // querySpecs.select_list().select_list_elem();
+                }
             }
+
+            return resultSet;
         }
     }
 }

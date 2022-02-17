@@ -20,7 +20,8 @@ namespace Tests
         {
             var listener = Parser.ParseSQLFile("SELECT POWER((10/2), 15/5) FROM [mytable];");
 
-            listener.Execute();
+            ResultSet set = listener.Execute();
+            set.Dump();
         }
     }
 }
