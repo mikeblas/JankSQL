@@ -8,7 +8,6 @@ namespace JankSQL
         private int depth = 0;
 
         ExecutionContext executionContext = new ExecutionContext();
-        // List<ExpressionNode> expressionList = new List<ExpressionNode>();
         SelectListContext selectListContext = null;
 
         internal ExecutionContext ExecutionContext { get { return executionContext; } }
@@ -180,6 +179,11 @@ namespace JankSQL
                 else
                     Console.WriteLine("NOT NULL");
             }
+        }
+
+        public void Execute()
+        {
+            executionContext.Execute();
         }
     }
 }

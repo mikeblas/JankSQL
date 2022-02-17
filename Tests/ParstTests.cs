@@ -5,7 +5,7 @@ using JankSQL;
 namespace Tests
 {
     [TestClass]
-    public class UnitTest1
+    public class ParseTests
     {
         [TestMethod]
         public void TestSelectStarSysTables()
