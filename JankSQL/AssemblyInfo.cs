@@ -16,5 +16,5 @@ using System.Runtime.InteropServices;
 
 [assembly: Guid("a68a6abe-295b-4aaa-a7f1-5ede4dbad7a6")]
 
-[assembly: CLSCompliant(true)]
+[assembly: CLSCompliant(false)]
 
