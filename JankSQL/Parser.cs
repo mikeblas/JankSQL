@@ -13,9 +13,8 @@ namespace JankSQL
 {
     public class Parser
     {
-        public static ExecutionContext ParseSQLFile(string str)
+        private static ExecutionContext ParseTreeFromLexer(TSqlLexer lexer)
         {
-            var lexer = new TSqlLexer(new AntlrInputStream(str));
             var tokenStream = new CommonTokenStream(lexer);
             var parser = new TSqlParser(tokenStream);
             var tree = parser.tsql_file();
@@ -25,5 +24,27 @@ namespace JankSQL
 
             return ml.ExecutionContext;
         }
+
+
+        public static ExecutionContext ParseSQLFileFromString(string str)
+        {
+            var lexer = new TSqlLexer(new AntlrInputStream(str));
+            return ParseTreeFromLexer(lexer);
+        }
+
+        public static ExecutionContext ParseSQLFileFromTextReader(TextReader reader)
+        {
+            var lexer = new TSqlLexer(new AntlrInputStream(reader));
+            return ParseTreeFromLexer(lexer);
+        }
+
+        public static ExecutionContext ParseSQLFileFromFileName(string strFileName)
+        {
+            using (TextReader str = new StreamReader(strFileName))
+            {
+                return Parser.ParseSQLFileFromTextReader(str);
+            }
+        }
+
     }
 }

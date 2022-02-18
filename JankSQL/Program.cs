@@ -1,5 +1,4 @@
 ﻿
-
 // Install-Package Antlr4.Runtime.Standard -Version 4.9.3
 
 // install, and setup Antlr (now, just setantlr.bat in c:\bin)
@@ -21,10 +20,6 @@
 // and now can build ...
 
 
-using Antlr4.Runtime;
-using Antlr4.Runtime.Tree;
-
-
 
 namespace JankSQL
 {
@@ -33,26 +28,11 @@ namespace JankSQL
         static void Main(string[] args)
         {
 
-            // workFile("t5.sql");
+            ExecutionContext ecFile = Parser.ParseSQLFileFromFileName("t5.sql");
 
-            ExecutionContext ec = Parser.ParseSQLFile("SELECT [city_name],  [population] FROM [mytable];");
-            ResultSet rs = ec.Execute();
+            ExecutionContext ecString = Parser.ParseSQLFileFromString("SELECT [city_name],  [population], [population]*2 FROM [mytable];");
+            ResultSet rs = ecString.Execute();
             rs.Dump();
-        }
-
-
-        static void workFile(string sqlFile)
-        {
-            using (TextReader str = new StreamReader(sqlFile))
-            {
-                var lexer = new TSqlLexer(new AntlrInputStream(str));
-                var tokenStream = new CommonTokenStream(lexer);
-                var parser = new TSqlParser(tokenStream);
-                var tree = parser.tsql_file();
-
-                var ml = new JankListener();
-                ParseTreeWalker.Default.Walk(ml, tree);
-            }
         }
 
 
