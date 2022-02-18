@@ -96,5 +96,19 @@ namespace JankSQL
 
             return result;
         }
+
+        internal void Dump()
+        {
+            Console.WriteLine($"rowsetColumnNames: {String.Join(", ", rowsetColumnNames)}");
+            for (int i = 0; i < ExpressionListCount; i++)
+            {
+                Console.Write($"  Expression {i}: ");
+                foreach (var x in expressionLists[i])
+                {
+                    Console.Write($"{x} ");
+                }
+                Console.WriteLine();
+            }
+        }
     }
 }

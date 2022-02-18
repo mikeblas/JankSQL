@@ -65,6 +65,9 @@ namespace JankSQL
                         for (int i = 0; i < table.ColumnCount; i++)
                         {
                             effectiveColumns.Add(table.ColumnName(i));
+                            ExpressionNode x = new ExpressionOperandFromColumn(table.ColumnName(i));
+                            selectList.ExpressionList.Add(x);
+                            selectList.EndExpressionList();
                         }
                     }
                     else
@@ -76,6 +79,11 @@ namespace JankSQL
                 resultSet.SetColumnNames(effectiveColumns);
 
 
+                selectList.Dump();
+
+
+
+                // for each row, for each column...
                 for (int i = 0; i < table.RowCount; i++)
                 {
                     int exprIndex = 0;
@@ -85,7 +93,7 @@ namespace JankSQL
                     foreach (string columnName in effectiveColumns)
                     {
                         int idx = table.ColumnIndex(columnName);
-                        if (idx == -1)
+                        if (idx == -1 || true )
                         {
                             ExpressionOperand result = selectList.Execute(exprIndex, table, i);
                             rowResults[rsIndex] = result;

@@ -171,6 +171,11 @@ namespace JankSQL
         }
 
         internal string ColumnName { get { return columnName; } }
+
+        public override string ToString()
+        {
+            return $"FromColumn({columnName})";
+        }
     }
 }
 

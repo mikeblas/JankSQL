@@ -16,7 +16,7 @@ namespace JankSQL
         {
             var s = new string(' ', depth);
             base.EnterEveryRule(context);
-            Console.WriteLine($"{s}{context.GetType().Name}, {context.GetText()}");
+            Console.WriteLine($"+{s}{context.GetType().Name}, {context.GetText()}");
             depth++;
         }
 
@@ -24,7 +24,7 @@ namespace JankSQL
         {
             var s = new string(' ', depth);
             base.ExitEveryRule(context);
-            Console.WriteLine($"{s}{context.GetType().Name}, {context.GetText()}");
+            Console.WriteLine($"-{s}{context.GetType().Name}, {context.GetText()}");
             depth--;
         }
 
@@ -50,19 +50,11 @@ namespace JankSQL
 
         public override void ExitExpression_elem([NotNull] TSqlParser.Expression_elemContext context)
         {
-            /*
-            Console.WriteLine($"operator = {context.expression().op.Text}");
-            ExpressionNode x = new ExpressionNode(context.expression().op.Text);
-            expressionList.Add(x);
-            */
-
             foreach (ExpressionNode n in selectListContext.ExpressionList)
             {
                 Console.Write($"[{n.ToString()}] ");
             }
             Console.WriteLine();
-            selectListContext.EndExpressionList();
-            // expressionList.Clear();
 
             base.ExitExpression_elem(context);
         }
@@ -107,25 +99,31 @@ namespace JankSQL
 
         public override void ExitSelect_list_elem([NotNull] TSqlParser.Select_list_elemContext context)
         {
-            string? rowsetColumnName = null;
+            // if this is an asterisk, it doesn't get an expression
+            if (context.asterisk() == null)
+            {
+                string? rowsetColumnName = null;
 
-            if (selectListContext.CurrentAlias != null)
-            {
-                rowsetColumnName = selectListContext.CurrentAlias;
-            }
-            else if (context.expression_elem() != null && context.expression_elem().column_alias() != null)
-            {
-                rowsetColumnName = context.expression_elem().column_alias().GetText();
-            }
-             else if (context.column_elem() != null)
-            {
-                rowsetColumnName = context.column_elem().full_column_name().GetText();
-            }
+                if (selectListContext.CurrentAlias != null)
+                {
+                    rowsetColumnName = selectListContext.CurrentAlias;
+                }
+                else if (context.expression_elem() != null && context.expression_elem().column_alias() != null)
+                {
+                    rowsetColumnName = context.expression_elem().column_alias().GetText();
+                }
+                else if (context.column_elem() != null)
+                {
+                    rowsetColumnName = context.column_elem().full_column_name().GetText();
+                }
 
-            if (rowsetColumnName != null)
-                selectListContext.AddRowsetColumnName(Program.GetEffectiveName(rowsetColumnName));
-            else
-                selectListContext.AddUnknownRowsetColumnName();
+                if (rowsetColumnName != null)
+                    selectListContext.AddRowsetColumnName(Program.GetEffectiveName(rowsetColumnName));
+                else
+                    selectListContext.AddUnknownRowsetColumnName();
+
+                selectListContext.EndExpressionList();
+            }
 
             base.ExitSelect_list_elem(context);
         }
