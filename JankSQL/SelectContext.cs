@@ -51,7 +51,7 @@ namespace JankSQL
             else
             {
                 // found the source table, so load it
-                Engines.DynamicCSV table = new Engines.DynamicCSV(sysTables.Row(foundRow)[1]);
+                Engines.DynamicCSV table = new Engines.DynamicCSV(sysTables.Row(foundRow)[idxFile]);
                 table.Load();
 
                 // get an effective column list ...
@@ -65,60 +65,16 @@ namespace JankSQL
                         for (int i = 0; i < table.ColumnCount; i++)
                         {
                             effectiveColumns.Add(table.ColumnName(i));
-
                         }
                     }
                     else
                     {
                         effectiveColumns.Add(selectList.RowsetColumnName(resultSetColumnIndex++));
                     }
-                    /*
-                    if (c.column_elem() != null)
-                    {
-                        Console.WriteLine($"column element! {c.column_elem().full_column_name().column_name.SQUARE_BRACKET_ID()}");
-                        effectiveColumns.Add(Program.GetEffectiveName(c.column_elem().full_column_name().column_name.SQUARE_BRACKET_ID().GetText()));
-                    }
-                    */
                 }
 
                 resultSet.SetColumnNames(effectiveColumns);
 
-
-                /*
-                for (int i = 0; i < table.RowCount; i++)
-                {
-                    string[] thisRow = table.Row(i);
-                    bool first = true;
-                    foreach (string columnName in effectiveColumns)
-                    {
-                        int idx = table.ColumnIndex(columnName);
-                        if (!first)
-                            Console.Write(", ");
-                        first = false;
-                        if (idx == -1)
-                            Console.Write($"{columnName} not found");
-                        else
-                            Console.Write($"{thisRow[idx]}");
-                    }
-                    Console.WriteLine();
-
-                }
-
-                for (int i = 0; i < table.RowCount; i++)
-                {
-                    ExpressionOperand[] rowResults = new ExpressionOperand[selectList.ExpressionListCount];
-                    for (int exprIndex = 0; exprIndex < selectList.ExpressionListCount; exprIndex++)
-                    {
-                        ExpressionOperand result = selectList.Execute(exprIndex);
-                        rowResults[exprIndex] = result;
-
-                        // for each row, for each column list ...
-                        // querySpecs.select_list().select_list_elem();
-                    }
-
-                    resultSet.AddRow(rowResults);
-                }
-                */
 
                 for (int i = 0; i < table.RowCount; i++)
                 {

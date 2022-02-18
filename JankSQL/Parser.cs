@@ -20,7 +20,7 @@ namespace JankSQL
             var parser = new TSqlParser(tokenStream);
             var tree = parser.tsql_file();
 
-            var ml = new MyParserListener();
+            var ml = new JankListener();
             ParseTreeWalker.Default.Walk(ml, tree);
 
             return ml.ExecutionContext;

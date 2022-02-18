@@ -3,7 +3,7 @@ using Antlr4.Runtime.Misc;
 
 namespace JankSQL
 {
-    public class MyParserListener : TSqlParserBaseListener
+    public class JankListener : TSqlParserBaseListener
     {
         private int depth = 0;
 
@@ -107,7 +107,7 @@ namespace JankSQL
 
         public override void ExitSelect_list_elem([NotNull] TSqlParser.Select_list_elemContext context)
         {
-            string rowsetColumnName = null;
+            string? rowsetColumnName = null;
 
             if (selectListContext.CurrentAlias != null)
             {
