@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 
 namespace JankSQL
 {
@@ -24,6 +20,24 @@ namespace JankSQL
         {
             predicateExpressionLists.Add(currentExpressionList);
             currentExpressionList = new List<ExpressionNode>();
+        }
+
+        internal void EndAndCombinePredicateExpressionList(int arguments)
+        {
+            EndPredicateExpressionList();
+
+            int firstIndex = predicateExpressionLists.Count - arguments -1;
+            List<List<ExpressionNode>> range = predicateExpressionLists.GetRange(firstIndex, arguments+1);
+            predicateExpressionLists.RemoveRange(firstIndex, arguments + 1);
+
+
+            List<ExpressionNode> newList = new List<ExpressionNode>();
+            foreach (var subList in range)
+            {
+                newList.AddRange(subList);
+            }
+
+            predicateExpressionLists.Add(newList);
         }
 
         internal void EndSelectListExpressionList()

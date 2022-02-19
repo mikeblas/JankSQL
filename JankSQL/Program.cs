@@ -34,8 +34,9 @@ namespace JankSQL
 
             // str = "SELECT [city_name],  [population], [population]*2 FROM [mytable];";
             // str = "SELECT * FROM [mytable];";
-            str = "SELECT * FROM [mytable] WHERE [population] > 30000;";
-
+            // str = "SELECT * FROM [mytable] WHERE [population] = 37000 OR [keycolumn] = 1;";
+            // str = "SELECT* FROM[mytable] WHERE[population] != 37000;";
+            str = "SELECT * FROM [mytable] WHERE [population] = 25000 AND [keycolumn] = 5-4;";
 
             ExecutionContext ecString = Parser.ParseSQLFileFromString(str);
             ResultSet rs = ecString.Execute();

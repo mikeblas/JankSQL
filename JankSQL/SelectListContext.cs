@@ -87,6 +87,12 @@ namespace JankSQL
                         ExpressionOperand r = oper.Evaluate(stack);
                         stack.Push(r);
                     }
+                    else if (n is ExpressionBooleanOperator)
+                    {
+                        ExpressionBooleanOperator oper = (ExpressionBooleanOperator)n;
+                        ExpressionOperand r = oper.Evaluate(stack);
+                        stack.Push(r);
+                    }
                     else
                     {
                         throw new InvalidOperationException();

@@ -91,7 +91,31 @@ namespace JankSQL
             selectContext.ExpressionList.Add(x);
 
             base.ExitSCALAR_FUNCTION(context);
+        }
 
+        public override void ExitSearch_condition([NotNull] TSqlParser.Search_conditionContext context)
+        {
+            if (context.AND() != null)
+            {
+                Console.WriteLine("Got AND");
+                ExpressionNode x = ExpressionBooleanOperator.GetAndOperator();
+                selectContext.ExpressionList.Add(x);
+                selectContext.EndAndCombinePredicateExpressionList(2);
+            }
+            else if (context.OR() != null)
+            {
+                Console.WriteLine("Got OR");
+                ExpressionNode x = ExpressionBooleanOperator.GetOrOperator();
+                selectContext.ExpressionList.Add(x);
+                selectContext.EndAndCombinePredicateExpressionList(2);
+            }
+            else
+            {
+                Console.WriteLine("Got neither");
+                selectContext.EndPredicateExpressionList();
+            }
+
+            base.ExitSearch_condition(context);
         }
 
         public override void ExitFull_column_name([NotNull] TSqlParser.Full_column_nameContext context)
@@ -138,8 +162,6 @@ namespace JankSQL
             Console.WriteLine($"Predicate comparison = {context.comparison_operator().GetText()}");
             ExpressionNode x = new ExpressionComparisonOperator(context.comparison_operator().GetText());
             selectContext.ExpressionList.Add(x);
-
-            selectContext.EndPredicateExpressionList();
             base.ExitPredicate(context);
         }
 

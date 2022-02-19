@@ -54,10 +54,10 @@ namespace JankSQL
             }
             else if (str == "-")
             {
-                ExpressionOperand op1 = (ExpressionOperand)stack.Pop();
-                ExpressionOperand op2 = (ExpressionOperand)stack.Pop();
+                ExpressionOperand right = (ExpressionOperand)stack.Pop();
+                ExpressionOperand left = (ExpressionOperand)stack.Pop();
 
-                double d = op1.AsDouble() - op2.AsDouble();
+                double d = left.AsDouble() - right.AsDouble();
                 ExpressionOperand result = ExpressionOperand.DecimalFromDouble(d);
                 return result;
             }
@@ -281,8 +281,73 @@ namespace JankSQL
             return new ExpressionOperandBoolean(result);
         }
     }
-}
 
+
+    internal class ExpressionBooleanOperator : ExpressionNode
+    {
+        enum BooleanOperatorType
+        {
+            AND, OR, NOT
+        }
+
+        BooleanOperatorType opType;
+
+        internal static ExpressionBooleanOperator GetOrOperator()
+        {
+            return new ExpressionBooleanOperator(BooleanOperatorType.OR);
+        }
+
+        internal static ExpressionBooleanOperator GetAndOperator()
+        {
+            return new ExpressionBooleanOperator(BooleanOperatorType.AND);
+        }
+
+        internal static ExpressionBooleanOperator GetNotOperator()
+        {
+            return new ExpressionBooleanOperator(BooleanOperatorType.NOT);
+        }
+
+        ExpressionBooleanOperator(BooleanOperatorType opType)
+        {
+            this.opType = opType;
+        }
+
+        public override String ToString()
+        {
+            return opType.ToString();
+        }
+
+        internal ExpressionOperand Evaluate(Stack<ExpressionNode> stack)
+        {
+            bool result = true;
+
+            ExpressionOperand right = (ExpressionOperand)stack.Pop();
+
+            switch (opType)
+            {
+                case BooleanOperatorType.AND:
+                    {
+                        ExpressionOperand left = (ExpressionOperand)stack.Pop();
+                        result = right.IsTrue() && left.IsTrue();
+                    }
+                    break;
+
+                case BooleanOperatorType.OR:
+                    {
+                        ExpressionOperand left = (ExpressionOperand)stack.Pop();
+                        result = right.IsTrue() || left.IsTrue();
+                    }
+                    break;
+
+                case BooleanOperatorType.NOT:
+                    result = !right.IsTrue();
+                    break;
+            }
+
+            return new ExpressionOperandBoolean(result);
+        }
+    }
+}
 
 
 

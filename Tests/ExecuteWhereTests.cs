@@ -53,6 +53,29 @@ namespace Tests
             Assert.AreEqual(4, set.ColumnCount);
         }
 
+
+        [TestMethod, Timeout(1000)]
+        public void TestSelectWhereEqualsMathA()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] = 12500 * 2;");
+
+            ResultSet set = ec.Execute();
+            set.Dump();
+            Assert.AreEqual(1, set.RowCount);
+            Assert.AreEqual(4, set.ColumnCount);
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestSelectWhereEqualsMathB()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] * 2 = 50000;");
+
+            ResultSet set = ec.Execute();
+            set.Dump();
+            Assert.AreEqual(1, set.RowCount);
+            Assert.AreEqual(4, set.ColumnCount);
+        }
+
         [TestMethod, Timeout(1000)]
         public void TestSelectWhereBangEqual()
         {
@@ -75,5 +98,39 @@ namespace Tests
             Assert.AreEqual(4, set.ColumnCount);
         }
 
+        [TestMethod, Timeout(1000)]
+        public void TestSelectWhereOR()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] = 37000 OR [keycolumn] = 1;");
+
+            ResultSet set = ec.Execute();
+            set.Dump();
+            Assert.AreEqual(2, set.RowCount);
+            Assert.AreEqual(4, set.ColumnCount);
+        }
+
+
+        [TestMethod, Timeout(1000)]
+        public void TestSelectWhereAND()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] = 25000 AND [keycolumn] = 1;");
+
+            ResultSet set = ec.Execute();
+            set.Dump();
+            Assert.AreEqual(1, set.RowCount);
+            Assert.AreEqual(4, set.ColumnCount);
+        }
+
+
+        [TestMethod, Timeout(1000)]
+        public void TestSelectWhereCompoundAND()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] = 25000 AND [keycolumn] = 5-4;");
+
+            ResultSet set = ec.Execute();
+            set.Dump();
+            Assert.AreEqual(1, set.RowCount);
+            Assert.AreEqual(4, set.ColumnCount);
+        }
     }
 }
