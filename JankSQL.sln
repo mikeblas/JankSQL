@@ -12,11 +12,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		mytable.csv = mytable.csv
 		README.md = README.md
 		sys_tables.csv = sys_tables.csv
-		t.sql = t.sql
-		t2.sql = t2.sql
-		t3.sql = t3.sql
-		t4.sql = t4.sql
-		t5.sql = t5.sql
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{B507F721-D5FB-4202-B2C4-C9C735F54A6F}"
