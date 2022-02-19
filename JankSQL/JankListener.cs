@@ -8,7 +8,8 @@ namespace JankSQL
         private int depth = 0;
 
         ExecutionContext executionContext = new ExecutionContext();
-        SelectListContext selectListContext = null;
+        // SelectListContext selectListContext = null;
+        SelectContext selectContext = null; 
 
         internal ExecutionContext ExecutionContext { get { return executionContext; } }
 
@@ -30,27 +31,26 @@ namespace JankSQL
 
         public override void ExitSelect_statement(TSqlParser.Select_statementContext context)
         {
-            SelectContext selectContext = new SelectContext(context, selectListContext);
-            selectListContext = null;
+            // selectListContext = null;
             executionContext.SelectContext = selectContext;
         }
 
-        public override void EnterSelect_statement_standalone([NotNull] TSqlParser.Select_statement_standaloneContext context)
+        public override void EnterSelect_statement([NotNull] TSqlParser.Select_statementContext context)
         {
-            base.EnterSelect_statement_standalone(context);
-
+            selectContext = new SelectContext(context);
+            base.EnterSelect_statement(context);
         }
 
         public override void EnterSelect_list([NotNull] TSqlParser.Select_listContext context)
         {
             base.EnterSelect_list(context);
-            selectListContext = new SelectListContext(context);
+            selectContext.SelectListContext = new SelectListContext(context);
         }
 
 
         public override void ExitExpression_elem([NotNull] TSqlParser.Expression_elemContext context)
         {
-            foreach (ExpressionNode n in selectListContext.ExpressionList)
+            foreach (ExpressionNode n in selectContext.ExpressionList)
             {
                 Console.Write($"[{n.ToString()}] ");
             }
@@ -65,7 +65,7 @@ namespace JankSQL
             if (context.op != null)
             {
                 ExpressionNode x = new ExpressionOperator(context.op.Text);
-                selectListContext.ExpressionList.Add(x);
+                selectContext.ExpressionList.Add(x);
             }
             base.ExitExpression(context);
         }
@@ -75,15 +75,20 @@ namespace JankSQL
             Console.WriteLine($"constant = {context.constant().DECIMAL()}");
 
             ExpressionNode x = ExpressionOperand.DecimalFromString(context.constant().DECIMAL().GetText());
-            selectListContext.ExpressionList.Add(x);
+            selectContext.ExpressionList.Add(x);
 
             base.ExitPrimitive_expression(context);
+        }
+
+        public override void ExitComparison_operator([NotNull] TSqlParser.Comparison_operatorContext context)
+        {
+            base.ExitComparison_operator(context);
         }
 
         public override void ExitSCALAR_FUNCTION([NotNull] TSqlParser.SCALAR_FUNCTIONContext context)
         {
             ExpressionNode x = new ExpressionOperator(context.scalar_function_name().GetText());
-            selectListContext.ExpressionList.Add(x);
+            selectContext.ExpressionList.Add(x);
 
             base.ExitSCALAR_FUNCTION(context);
 
@@ -92,7 +97,7 @@ namespace JankSQL
         public override void ExitFull_column_name([NotNull] TSqlParser.Full_column_nameContext context)
         {
             ExpressionNode x = new ExpressionOperandFromColumn(Program.GetEffectiveName(context.column_name.GetText()));
-            selectListContext.ExpressionList.Add(x);
+            selectContext.ExpressionList.Add(x);
 
             base.ExitFull_column_name(context);
         }
@@ -104,9 +109,9 @@ namespace JankSQL
             {
                 string? rowsetColumnName = null;
 
-                if (selectListContext.CurrentAlias != null)
+                if (selectContext.SelectListContext.CurrentAlias != null)
                 {
-                    rowsetColumnName = selectListContext.CurrentAlias;
+                    rowsetColumnName = selectContext.SelectListContext.CurrentAlias;
                 }
                 else if (context.expression_elem() != null && context.expression_elem().column_alias() != null)
                 {
@@ -118,19 +123,29 @@ namespace JankSQL
                 }
 
                 if (rowsetColumnName != null)
-                    selectListContext.AddRowsetColumnName(Program.GetEffectiveName(rowsetColumnName));
+                    selectContext.SelectListContext.AddRowsetColumnName(Program.GetEffectiveName(rowsetColumnName));
                 else
-                    selectListContext.AddUnknownRowsetColumnName();
+                    selectContext.SelectListContext.AddUnknownRowsetColumnName();
 
-                selectListContext.EndExpressionList();
+                selectContext.EndSelectListExpressionList();
             }
 
             base.ExitSelect_list_elem(context);
         }
 
+        public override void ExitPredicate([NotNull] TSqlParser.PredicateContext context)
+        {
+            Console.WriteLine($"Predicate comparison = {context.comparison_operator().GetText()}");
+            ExpressionNode x = new ExpressionComparisonOperator(context.comparison_operator().GetText());
+            selectContext.ExpressionList.Add(x);
+
+            selectContext.EndPredicateExpressionList();
+            base.ExitPredicate(context);
+        }
+
         public override void ExitAs_column_alias([NotNull] TSqlParser.As_column_aliasContext context)
         {
-            selectListContext.CurrentAlias = context.column_alias().GetText();
+            selectContext.SelectListContext.CurrentAlias = context.column_alias().GetText();
             Console.WriteLine($"alias == {context.column_alias().GetText()}");
             base.ExitAs_column_alias(context);
         }

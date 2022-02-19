@@ -24,10 +24,6 @@ namespace Tests
             set.Dump();
             Assert.AreEqual(3, set.RowCount);
             Assert.AreEqual(1, set.ColumnCount);
-
-            for (int n = 0; n < set.RowCount; n++)
-            {
-            }
         }
 
         [TestMethod, Timeout(1000)]

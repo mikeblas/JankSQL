@@ -36,8 +36,8 @@ namespace JankSQL
         {
             if (str == "/")
             {
-                ExpressionOperand right = (ExpressionOperand) stack.Pop();
-                ExpressionOperand left = (ExpressionOperand) stack.Pop();
+                ExpressionOperand right = (ExpressionOperand)stack.Pop();
+                ExpressionOperand left = (ExpressionOperand)stack.Pop();
 
                 double d = left.AsDouble() / right.AsDouble();
                 ExpressionOperand result = ExpressionOperand.DecimalFromDouble(d);
@@ -86,8 +86,10 @@ namespace JankSQL
                 ExpressionOperand result = ExpressionOperand.DecimalFromDouble(d);
                 return result;
             }
-
-            return new ExpressionOperandDecmial(0.0);
+            else
+            {
+                throw new NotImplementedException($"ExpressionOperator: no implementation for {str}");
+            }
         }
     }
 
@@ -115,6 +117,8 @@ namespace JankSQL
             nodeType = t;
         }
 
+        public abstract bool IsTrue();
+
         public abstract double AsDouble();
     }
 
@@ -137,6 +141,11 @@ namespace JankSQL
             return d;
         }
 
+        public override bool IsTrue()
+        {
+            throw new NotImplementedException();
+        }
+
     }
 
     internal class ExpressionOperandNVARCHAR : ExpressionOperand
@@ -157,9 +166,37 @@ namespace JankSQL
         {
             return Double.Parse(str);
         }
+
+        public override bool IsTrue()
+        {
+            throw new NotImplementedException();
+        }
     }
 
+    internal class ExpressionOperandBoolean : ExpressionOperand
+    {
+        internal bool b;
+        internal ExpressionOperandBoolean(bool b)
+            : base(ExpressionNodeType.NVARCHAR)
+        {
+            this.b = b;
+        }
 
+        public override string ToString()
+        {
+            return $"Boolean({b})";
+        }
+
+        public override double AsDouble()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool IsTrue()
+        {
+            return b;
+        }
+    }
 
     internal class ExpressionOperandFromColumn : ExpressionNode
     {
@@ -177,7 +214,55 @@ namespace JankSQL
             return $"FromColumn({columnName})";
         }
     }
+
+
+    internal class ExpressionComparisonOperator : ExpressionNode
+    {
+        internal string str;
+        internal ExpressionComparisonOperator(string str)
+        {
+            this.str = str;
+        }
+
+        public override String ToString()
+        {
+            return str;
+        }
+
+        internal ExpressionOperand Evaluate(Stack<ExpressionNode> stack)
+        {
+            bool result = true;
+
+            if (str == ">")
+            {
+                ExpressionOperand right = (ExpressionOperand)stack.Pop();
+                ExpressionOperand left = (ExpressionOperand)stack.Pop();
+
+                if (left.AsDouble() > right.AsDouble())
+                    result = true;
+                else
+                    result = false;
+            }
+            else if (str == "<")
+            {
+                ExpressionOperand right = (ExpressionOperand)stack.Pop();
+                ExpressionOperand left = (ExpressionOperand)stack.Pop();
+
+                if (left.AsDouble() < right.AsDouble())
+                    result = true;
+                else
+                    result = false;
+            }
+            else
+            {
+                throw new NotImplementedException($"ExpressionOperator: no implementation for {str}");
+            }
+
+            return new ExpressionOperandBoolean(result);
+        }
+    }
 }
+
 
 
 

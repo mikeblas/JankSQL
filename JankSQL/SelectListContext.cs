@@ -9,28 +9,26 @@ namespace JankSQL
 
     internal class SelectListContext
     {
+        TSqlParser.Select_listContext context;
+
         List<List<ExpressionNode>> expressionLists = new List<List<ExpressionNode>>();
 
-        List<ExpressionNode> currentExpressionList = new List<ExpressionNode>();
 
         string currentAlias = null;
         int unknownColumnID = 1001;
         List<string> rowsetColumnNames = new List<string>();
 
-        internal List<ExpressionNode> ExpressionList { get { return currentExpressionList; } }
-
-        TSqlParser.Select_listContext context;
 
         internal SelectListContext(TSqlParser.Select_listContext context)
         {
             this.context = context;
         }
 
-        internal void EndExpressionList()
+        internal void AddSelectListExpressionList(List<ExpressionNode> expressionList)
         {
-            expressionLists.Add(currentExpressionList);
-            currentExpressionList = new List<ExpressionNode>();
+            expressionLists.Add(expressionList);
         }
+
 
         internal void EndElement()
         {
@@ -56,13 +54,13 @@ namespace JankSQL
 
         internal string CurrentAlias { get { return currentAlias; } set { currentAlias = value; } }
 
-        internal ExpressionOperand Execute(int index, Engines.DynamicCSV table, int rowIndex)
+        internal static ExpressionOperand Execute(List<ExpressionNode> expressionList, Engines.DynamicCSV table, int rowIndex)
         {
             Stack<ExpressionNode> stack = new Stack<ExpressionNode>();
 
             do
             {
-                foreach (ExpressionNode n in expressionLists[index])
+                foreach (ExpressionNode n in expressionList)
                 {
                     if (n is ExpressionOperand)
                         stack.Push(n);
@@ -83,6 +81,12 @@ namespace JankSQL
                         ExpressionOperand val = new ExpressionOperandNVARCHAR(thisRow[idx]);
                         stack.Push(val);
                     }
+                    else if (n is ExpressionComparisonOperator)
+                    {
+                        ExpressionComparisonOperator oper = (ExpressionComparisonOperator)n;
+                        ExpressionOperand r = oper.Evaluate(stack);
+                        stack.Push(r);
+                    }
                     else
                     {
                         throw new InvalidOperationException();
@@ -95,14 +99,21 @@ namespace JankSQL
             Console.WriteLine($"==> [{result}]");
 
             return result;
+
+        }
+
+        internal ExpressionOperand Execute(int index, Engines.DynamicCSV table, int rowIndex)
+        {
+            return SelectListContext.Execute(expressionLists[index], table, rowIndex);
         }
 
         internal void Dump()
         {
             Console.WriteLine($"rowsetColumnNames: {String.Join(", ", rowsetColumnNames)}");
+            Console.WriteLine("SelectExpressions:");
             for (int i = 0; i < ExpressionListCount; i++)
             {
-                Console.Write($"  Expression {i}: ");
+                Console.Write($"  #{i}: ");
                 foreach (var x in expressionLists[i])
                 {
                     Console.Write($"{x} ");

@@ -11,11 +11,32 @@ namespace JankSQL
         TSqlParser.Select_statementContext statementContext;
         SelectListContext selectList;
 
-        internal SelectContext(TSqlParser.Select_statementContext context, SelectListContext selectList)
+        // for WHERE clauses
+        List<List<ExpressionNode>> predicateExpressionLists = new List<List<ExpressionNode>>();
+        List<ExpressionNode> currentExpressionList = new List<ExpressionNode>();
+
+        internal SelectContext(TSqlParser.Select_statementContext context)
         {
             statementContext = context;
-            this.selectList = selectList;
         }
+
+        internal void EndPredicateExpressionList()
+        {
+            predicateExpressionLists.Add(currentExpressionList);
+            currentExpressionList = new List<ExpressionNode>();
+        }
+
+        internal void EndSelectListExpressionList()
+        {
+            selectList.AddSelectListExpressionList(currentExpressionList);
+            currentExpressionList = new List<ExpressionNode>();
+        }
+
+        internal List<ExpressionNode> ExpressionList { get { return currentExpressionList; } }
+
+        internal int PredicateExpressionListCount { get { return predicateExpressionLists.Count; } }
+
+        internal SelectListContext SelectListContext { get { return selectList; } set { selectList = value; } }
 
         internal ResultSet Execute()
         {
@@ -66,8 +87,8 @@ namespace JankSQL
                         {
                             effectiveColumns.Add(table.ColumnName(i));
                             ExpressionNode x = new ExpressionOperandFromColumn(table.ColumnName(i));
-                            selectList.ExpressionList.Add(x);
-                            selectList.EndExpressionList();
+                            ExpressionList.Add(x);
+                            EndSelectListExpressionList();
                         }
                     }
                     else
@@ -79,13 +100,30 @@ namespace JankSQL
                 resultSet.SetColumnNames(effectiveColumns);
 
 
-                selectList.Dump();
+                Dump();
 
 
 
                 // for each row, for each column...
                 for (int i = 0; i < table.RowCount; i++)
                 {
+                    // evaluate the where clauses, if any
+                    bool predicatePassed = true;
+                    foreach (var p in predicateExpressionLists)
+                    {
+                        ExpressionOperand result = SelectListContext.Execute(p, table, i);
+
+                        if (!result.IsTrue())
+                        {
+                            predicatePassed = false;
+                            break;
+                        }
+                    }
+
+                    if (!predicatePassed)
+                        continue;
+
+                    // add the row to the result set
                     int exprIndex = 0;
                     int rsIndex = 0;
                     string[] thisRow = table.Row(i);
@@ -111,6 +149,23 @@ namespace JankSQL
             }
 
             return resultSet;
+        }
+
+
+        internal void Dump()
+        {
+            selectList.Dump();
+
+            Console.WriteLine("PredicateExpressions:");
+            for (int i = 0; i < PredicateExpressionListCount; i++)
+            {
+                Console.Write($"  #{i}: ");
+                foreach (var x in predicateExpressionLists[i])
+                {
+                    Console.Write($"{x} ");
+                }
+                Console.WriteLine();
+            }
         }
     }
 }
