@@ -253,6 +253,26 @@ namespace JankSQL
                 else
                     result = false;
             }
+            else if (str == "=")
+            {
+                ExpressionOperand right = (ExpressionOperand)stack.Pop();
+                ExpressionOperand left = (ExpressionOperand)stack.Pop();
+
+                if (left.AsDouble() == right.AsDouble())
+                    result = true;
+                else
+                    result = false;
+            }
+            else if (str == "<>" || str == "!=")
+            {
+                ExpressionOperand right = (ExpressionOperand)stack.Pop();
+                ExpressionOperand left = (ExpressionOperand)stack.Pop();
+
+                if (left.AsDouble() != right.AsDouble())
+                    result = true;
+                else
+                    result = false;
+            }
             else
             {
                 throw new NotImplementedException($"ExpressionOperator: no implementation for {str}");

@@ -20,7 +20,7 @@ namespace JankSQL
 
         public int RowCount { get { return rows.Count; } }
 
-        public int ColumnCount {  get { return rows[0].Length; } }
+        public int ColumnCount {  get { return columnNames.Count; } }
 
         internal void SetColumnNames(List<string> names)
         {
