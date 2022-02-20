@@ -28,11 +28,13 @@ I'd like to be test-driven in development of the server, so I'll have a variety 
 
 The project has just two prerequisites: the Antlr tool and an external T-SQL grammar for Antlr.
 
+This project uses .Net 6.0 and therefore requires Visual Studio 2022.
+
 ## Installing Antlr
 The first requirement is Antlr -- which, in turn, requires the Java run-time. The [Antlr installation instructions]( https://github.com/antlr/antlr4/blob/master/doc/getting-started.md) explain how to get Antlr going, and I just added the Antlr JAR file to my `\bin` directory, which is already on my path.
 
 ## The T-SQL Antlr Grammar
-Rather than write my own grammar as I go, I started with an available Antlr grammar for T-SQL. 
+Rather than write my own grammar as I go, I started with [an available Antlr grammar for T-SQL](https://github.com/antlr/grammars-v4/tree/master/sql/tsql). 
 
 The `grammars-v4` project on GitHub contains many grammars, including the [sql/tsql](https://github.com/antlr/grammars-v4/tree/master/sql/tsql) grammar I chose. It's more than adequate, though it's a annoyingly case-sensitive: `SELECT` is a token, but `select` is not.
 
