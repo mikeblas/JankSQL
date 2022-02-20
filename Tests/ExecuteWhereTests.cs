@@ -132,5 +132,50 @@ namespace Tests
             Assert.AreEqual(1, set.RowCount);
             Assert.AreEqual(4, set.ColumnCount);
         }
+
+        // 
+        [TestMethod, Timeout(1000)]
+        public void TestSelectWhereNOTParens()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE NOT ([population] = 37000);");
+
+            ResultSet set = ec.Execute();
+            set.Dump();
+            Assert.AreEqual(2, set.RowCount);
+            Assert.AreEqual(4, set.ColumnCount);
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestSelectWhereNOTMultiParens()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE NOT(NOT(NOT ([population] = 37000)));");
+
+            ResultSet set = ec.Execute();
+            set.Dump();
+            Assert.AreEqual(2, set.RowCount);
+            Assert.AreEqual(4, set.ColumnCount);
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestSelectWhereNOT()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE NOT [population] = 37000;");
+
+            ResultSet set = ec.Execute();
+            set.Dump();
+            Assert.AreEqual(2, set.RowCount);
+            Assert.AreEqual(4, set.ColumnCount);
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestSelectWhereNOTMulti()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE NOT NOT NOT NOT NOT [population] = 37000;");
+
+            ResultSet set = ec.Execute();
+            set.Dump();
+            Assert.AreEqual(2, set.RowCount);
+            Assert.AreEqual(4, set.ColumnCount);
+        }
     }
 }

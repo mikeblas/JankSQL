@@ -109,6 +109,20 @@ namespace JankSQL
                 selectContext.ExpressionList.Add(x);
                 selectContext.EndAndCombinePredicateExpressionList(2);
             }
+            else if (context.NOT(0) != null)
+            {
+                int n = 0;
+                do
+                {
+                    Console.WriteLine("Got NOT");
+                    ExpressionNode x = ExpressionBooleanOperator.GetNotOperator();
+                    selectContext.ExpressionList.Add(x);
+                    if (selectContext.ExpressionList.Count == 1)
+                        selectContext.EndAndCombinePredicateExpressionList(1);
+                    else
+                        selectContext.EndPredicateExpressionList();
+                } while (context.NOT(++n) != null);
+            }
             else
             {
                 Console.WriteLine("Got neither");

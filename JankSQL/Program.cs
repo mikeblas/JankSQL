@@ -36,7 +36,10 @@ namespace JankSQL
             // str = "SELECT * FROM [mytable];";
             // str = "SELECT * FROM [mytable] WHERE [population] = 37000 OR [keycolumn] = 1;";
             // str = "SELECT* FROM[mytable] WHERE[population] != 37000;";
-            str = "SELECT * FROM [mytable] WHERE [population] = 25000 AND [keycolumn] = 5-4;";
+            // str = "SELECT * FROM [mytable] WHERE [population] = 25000 AND [keycolumn] = 5-4;";
+            // str = "SELECT * FROM [mytable] WHERE NOT [population] = 37000;";
+            str = "SELECT * FROM [mytable] WHERE NOT(NOT(NOT ([population] = 37000)));";
+
 
             ExecutionContext ecString = Parser.ParseSQLFileFromString(str);
             ResultSet rs = ecString.Execute();
