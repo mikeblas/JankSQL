@@ -123,7 +123,7 @@ namespace Tests
 
 
         [TestMethod, Timeout(1000)]
-        public void TestSelectWhereCompoundAND()
+        public void TestSelectWhereComplexAND()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] = 25000 AND [keycolumn] = 5-4;");
 
@@ -144,6 +144,19 @@ namespace Tests
             Assert.AreEqual(2, set.RowCount);
             Assert.AreEqual(4, set.ColumnCount);
         }
+
+        [TestMethod, Timeout(1000)]
+        public void TestSelectWhereNOTCompoundParens()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE NOT ([population] = 37000 OR [keycolumn] = 1);");
+
+            ResultSet set = ec.Execute();
+            set.Dump();
+            Assert.AreEqual(1, set.RowCount);
+            Assert.AreEqual(4, set.ColumnCount);
+
+        }
+
 
         [TestMethod, Timeout(1000)]
         public void TestSelectWhereNOTMultiParens()
@@ -177,5 +190,28 @@ namespace Tests
             Assert.AreEqual(2, set.RowCount);
             Assert.AreEqual(4, set.ColumnCount);
         }
+
+        [TestMethod, Timeout(1000)]
+        public void TestSelectWhereNOTCompound()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE NOT [population] = 37000 OR [keycolumn] = 1;");
+
+            ResultSet set = ec.Execute();
+            set.Dump();
+            Assert.AreEqual(3, set.RowCount);
+            Assert.AreEqual(4, set.ColumnCount);
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestSelectWhereNOTCompound3Rows()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE NOT [population] = 37000 OR [keycolumn] = 2;");
+
+            ResultSet set = ec.Execute();
+            set.Dump();
+            Assert.AreEqual(3, set.RowCount);
+            Assert.AreEqual(4, set.ColumnCount);
+        }
+
     }
 }
