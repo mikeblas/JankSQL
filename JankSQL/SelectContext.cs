@@ -11,6 +11,16 @@ namespace JankSQL
         List<List<ExpressionNode>> predicateExpressionLists = new List<List<ExpressionNode>>();
         List<ExpressionNode> currentExpressionList = new List<ExpressionNode>();
 
+        List<JoinContext> joinContexts = new List<JoinContext>();
+
+
+        internal void AddJoin(JoinContext jc)
+        {
+            joinContexts.Add(jc);
+            jc.PredicateExpressions = predicateExpressionLists;
+            predicateExpressionLists = new List<List<ExpressionNode>>();
+        }
+
         internal SelectContext(TSqlParser.Select_statementContext context)
         {
             statementContext = context;
