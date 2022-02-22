@@ -198,7 +198,7 @@ namespace Tests
 
             ResultSet set = ec.Execute();
             set.Dump();
-            Assert.AreEqual(3, set.RowCount);
+            Assert.AreEqual(2, set.RowCount);
             Assert.AreEqual(4, set.ColumnCount);
         }
 

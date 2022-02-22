@@ -22,8 +22,8 @@ namespace Tests
 
             ResultSet set = ec.Execute();
             set.Dump();
-            Assert.AreEqual(3, set.RowCount);
-            Assert.AreEqual(1, set.ColumnCount);
+            Assert.AreEqual(3, set.RowCount, "row count mismatch");
+            Assert.AreEqual(1, set.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -33,8 +33,8 @@ namespace Tests
 
             ResultSet set = ec.Execute();
             set.Dump();
-            Assert.AreEqual(3, set.RowCount);
-            Assert.AreEqual(2, set.ColumnCount);
+            Assert.AreEqual(3, set.RowCount, "row count mismatch");
+            Assert.AreEqual(2, set.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -44,8 +44,8 @@ namespace Tests
 
             ResultSet set = ec.Execute();
             set.Dump();
-            Assert.AreEqual(3, set.RowCount);
-            Assert.AreEqual(3, set.ColumnCount);
+            Assert.AreEqual(3, set.RowCount, "row count mismatch");
+            Assert.AreEqual(3, set.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -55,8 +55,8 @@ namespace Tests
 
             ResultSet set = ec.Execute();
             set.Dump();
-            Assert.AreEqual(3, set.RowCount);
-            Assert.AreEqual(4, set.ColumnCount);
+            Assert.AreEqual(3, set.RowCount, "row count mismatch");
+            Assert.AreEqual(4, set.ColumnCount, "column count mismatch");
         }
 
 
@@ -67,8 +67,8 @@ namespace Tests
 
             ResultSet set = ec.Execute();
             set.Dump();
-            Assert.AreEqual(3, set.RowCount);
-            Assert.AreEqual(2, set.ColumnCount);
+            Assert.AreEqual(3, set.RowCount, "row count mismatch");
+            Assert.AreEqual(2, set.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -78,8 +78,8 @@ namespace Tests
 
             ResultSet set = ec.Execute();
             set.Dump();
-            Assert.AreEqual(3, set.RowCount);
-            Assert.AreEqual(3, set.ColumnCount);
+            Assert.AreEqual(3, set.RowCount, "row count mismatch");
+            Assert.AreEqual(3, set.ColumnCount, "column count mismatch");
         }
 
 
@@ -90,8 +90,8 @@ namespace Tests
 
             ResultSet set = ec.Execute();
             set.Dump();
-            Assert.AreEqual(3, set.RowCount);
-            Assert.AreEqual(1, set.ColumnCount);
+            Assert.AreEqual(3, set.RowCount, "row count mismatch");
+            Assert.AreEqual(1, set.ColumnCount, "column count mismatch");
         }
 
 
@@ -102,8 +102,8 @@ namespace Tests
 
             ResultSet set = ec.Execute();
             set.Dump();
-            Assert.AreEqual(3, set.RowCount);
-            Assert.AreEqual(1, set.ColumnCount);
+            Assert.AreEqual(3, set.RowCount, "row count mismatch");
+            Assert.AreEqual(1, set.ColumnCount, "column count mismatch");
         }
 
 
@@ -114,8 +114,8 @@ namespace Tests
 
             ResultSet set = ec.Execute();
             set.Dump();
-            Assert.AreEqual(3, set.RowCount);
-            Assert.AreEqual(1, set.ColumnCount);
+            Assert.AreEqual(3, set.RowCount, "row count mismatch");
+            Assert.AreEqual(1, set.ColumnCount, "column count mismatch");
         }
 
 
@@ -127,8 +127,8 @@ namespace Tests
 
             ResultSet set = ec.Execute();
             set.Dump();
-            Assert.AreEqual(3, set.RowCount);
-            Assert.AreEqual(1, set.ColumnCount);
+            Assert.AreEqual(3, set.RowCount, "row count mismatch");
+            Assert.AreEqual(1, set.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -138,8 +138,8 @@ namespace Tests
 
             ResultSet set = ec.Execute();
             set.Dump();
-            Assert.AreEqual(3, set.RowCount);
-            Assert.AreEqual(1, set.ColumnCount);
+            Assert.AreEqual(3, set.RowCount, "row count mismatch");
+            Assert.AreEqual(1, set.ColumnCount, "column count mismatch");
         }
     }
 }

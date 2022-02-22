@@ -18,6 +18,42 @@ namespace JankSQL
             columnNames = new List<string>();
         }
 
+        internal static ResultSet NewWithShape(ResultSet other)
+        {
+            ResultSet ret = new ResultSet();
+
+            ret.columnNames = other.columnNames;
+
+            return ret;
+        }
+
+        internal int ColumnIndex(string name)
+        {
+            return columnNames.IndexOf(name);
+        }
+
+        internal ExpressionOperand[] Row(int index)
+        {
+            return rows[index];
+        }
+
+        internal void Append(ResultSet other)
+        {
+            if (rows == null)
+            {
+                throw new InvalidOperationException();
+            }
+            if (rows.Count > 0  && rows[0].Length != other.rows[0].Length)
+            {
+                throw new InvalidOperationException();
+            }
+            if (columnNames != null && other.columnNames != null && other.columnNames.Count != columnNames.Count)
+            {
+                throw new InvalidOperationException();
+            }
+            rows.AddRange(other.rows);
+        }
+
         public int RowCount { get { return rows.Count; } }
 
         public int ColumnCount {  get { return columnNames.Count; } }
@@ -25,6 +61,11 @@ namespace JankSQL
         internal void SetColumnNames(List<string> names)
         {
             columnNames = names;
+        }
+
+        internal string GetColumnName(int index)
+        {
+            return columnNames[index];
         }
 
         internal  void AddRow(ExpressionOperand[] row)
@@ -36,7 +77,18 @@ namespace JankSQL
                     throw new InvalidOperationException();
                 }
             }
+
+            if (columnNames != null && columnNames.Count != row.Length)
+            {
+                throw new InvalidOperationException();
+            }
+
             rows.Add(row);
+        }
+
+        internal void AddRowFrom(ResultSet rs, int index)
+        {
+            AddRow(rs.Row(index));
         }
 
         public void Dump()

@@ -52,6 +52,69 @@ namespace JankSQL
 
         internal SelectListContext SelectListContext { get { return selectList; } set { selectList = value; } }
 
+        internal ResultSet Execute2()
+        {
+            ResultSet resultSet = null;
+
+            var expressions = statementContext.query_expression();
+            var querySpecs = expressions.query_specification();
+            var sourceTable = querySpecs.table_sources().table_source().First().GetText();
+            Console.WriteLine($"ExitSelect_Statement: {sourceTable}");
+
+            string effectiveName = Program.GetEffectiveName(sourceTable);
+
+            // get systables
+            Engines.DynamicCSV sysTables = new Engines.DynamicCSV("sys_tables.csv");
+            sysTables.Load();
+
+            // is this source table in there?
+            int idxName = sysTables.ColumnIndex("table_name");
+            int idxFile = sysTables.ColumnIndex("file_name");
+
+            int foundRow = -1;
+            for (int i = 0; i < sysTables.RowCount; i++)
+            {
+                if (sysTables.Row(i)[idxName].Equals(effectiveName, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    foundRow = i;
+                    break;
+                }
+            }
+
+            if (foundRow == -1)
+                Console.WriteLine($"Table {effectiveName} does not exist");
+            else
+            {
+                // found the source table, so load it
+                Engines.DynamicCSV table = new Engines.DynamicCSV(sysTables.Row(foundRow)[idxFile]);
+
+                // the table itself
+                TableSource tableSource = new TableSource(table);
+
+                // now the filter
+                Filter filter = new Filter();
+                filter.Input = tableSource;
+                filter.Predicates = predicateExpressionLists;
+
+                // then the select
+                Select select = new Select(querySpecs.select_list().select_list_elem(), selectList);
+                select.Input = filter;
+
+                while (true)
+                {
+                    ResultSet batch = select.GetRows(5);
+                    if (resultSet == null)
+                        resultSet = ResultSet.NewWithShape(batch);
+                    if (batch.RowCount == 0)
+                        break;
+                    resultSet.Append(batch);
+                }
+            }
+
+            return resultSet;
+        }
+
+
         internal ResultSet Execute()
         {
             var expressions = statementContext.query_expression();

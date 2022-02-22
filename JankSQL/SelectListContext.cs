@@ -108,9 +108,69 @@ namespace JankSQL
 
         }
 
+
+        internal static ExpressionOperand Execute2(List<ExpressionNode> expressionList, ResultSet resultSet, int rowIndex)
+        {
+            Stack<ExpressionNode> stack = new Stack<ExpressionNode>();
+
+            do
+            {
+                foreach (ExpressionNode n in expressionList)
+                {
+                    if (n is ExpressionOperand)
+                        stack.Push(n);
+                    else if (n is ExpressionOperator)
+                    {
+                        // it's an operator
+                        ExpressionOperator oper = (ExpressionOperator)n;
+                        ExpressionOperand r = oper.Evaluate(stack);
+                        stack.Push(r);
+                    }
+                    else if (n is ExpressionOperandFromColumn)
+                    {
+                        ExpressionOperandFromColumn r = (ExpressionOperandFromColumn)n;
+                        Console.WriteLine($"Need value from {r.ColumnName}");
+
+                        int idx = resultSet.ColumnIndex(r.ColumnName);
+                        ExpressionOperand[] thisRow = resultSet.Row(rowIndex);
+                        ExpressionOperand val = thisRow[idx];
+                        stack.Push(val);
+                    }
+                    else if (n is ExpressionComparisonOperator)
+                    {
+                        ExpressionComparisonOperator oper = (ExpressionComparisonOperator)n;
+                        ExpressionOperand r = oper.Evaluate(stack);
+                        stack.Push(r);
+                    }
+                    else if (n is ExpressionBooleanOperator)
+                    {
+                        ExpressionBooleanOperator oper = (ExpressionBooleanOperator)n;
+                        ExpressionOperand r = oper.Evaluate(stack);
+                        stack.Push(r);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException();
+                    }
+
+                }
+            } while (stack.Count > 1);
+
+            ExpressionOperand result = (ExpressionOperand)stack.Pop();
+            Console.WriteLine($"==> [{result}]");
+
+            return result;
+
+        }
+
         internal ExpressionOperand Execute(int index, Engines.DynamicCSV table, int rowIndex)
         {
             return SelectListContext.Execute(expressionLists[index], table, rowIndex);
+        }
+
+        internal ExpressionOperand Execute2(int index, ResultSet resultSet, int rowIndex)
+        {
+            return SelectListContext.Execute2(expressionLists[index], resultSet, rowIndex);
         }
 
         internal void Dump()
