@@ -86,7 +86,7 @@ namespace JankSQL
                 bool predicatePassed = true;
                 foreach (var p in predicateExpressionLists)
                 {
-                    ExpressionOperand result = SelectListContext.Execute2(p, rsInput, i);
+                    ExpressionOperand result = SelectListContext.Execute(p, rsInput, i);
 
                     if (!result.IsTrue())
                     {
@@ -169,7 +169,7 @@ namespace JankSQL
                     int idx = rsInput.ColumnIndex(columnName);
                     if (idx == -1 || true)
                     {
-                        ExpressionOperand result = selectList.Execute2(exprIndex, rsInput, i);
+                        ExpressionOperand result = selectList.Execute(exprIndex, rsInput, i);
                         rowResults[rsIndex] = result;
                         exprIndex++;
                     }

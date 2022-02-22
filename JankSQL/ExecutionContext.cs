@@ -13,14 +13,9 @@ namespace JankSQL
 
         public SelectContext SelectContext { get { return selectContext; } set { selectContext = value; } }
 
-        public ResultSet ExecuteOLD()
-        {
-            return selectContext.Execute();
-        }
-
         public ResultSet Execute()
         {
-            return selectContext.Execute2();
+            return selectContext.Execute();
         }
     }
 }

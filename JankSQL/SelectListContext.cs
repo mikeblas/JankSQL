@@ -54,62 +54,7 @@ namespace JankSQL
 
         internal string CurrentAlias { get { return currentAlias; } set { currentAlias = value; } }
 
-        internal static ExpressionOperand Execute(List<ExpressionNode> expressionList, Engines.DynamicCSV table, int rowIndex)
-        {
-            Stack<ExpressionNode> stack = new Stack<ExpressionNode>();
-
-            do
-            {
-                foreach (ExpressionNode n in expressionList)
-                {
-                    if (n is ExpressionOperand)
-                        stack.Push(n);
-                    else if (n is ExpressionOperator)
-                    {
-                        // it's an operator
-                        ExpressionOperator oper = (ExpressionOperator)n;
-                        ExpressionOperand r = oper.Evaluate(stack);
-                        stack.Push(r);
-                    }
-                    else if (n is ExpressionOperandFromColumn)
-                    {
-                        ExpressionOperandFromColumn r = (ExpressionOperandFromColumn)n;
-                        Console.WriteLine($"Need value from {r.ColumnName}");
-
-                        int idx = table.ColumnIndex(r.ColumnName);
-                        string[] thisRow = table.Row(rowIndex);
-                        ExpressionOperand val = new ExpressionOperandNVARCHAR(thisRow[idx]);
-                        stack.Push(val);
-                    }
-                    else if (n is ExpressionComparisonOperator)
-                    {
-                        ExpressionComparisonOperator oper = (ExpressionComparisonOperator)n;
-                        ExpressionOperand r = oper.Evaluate(stack);
-                        stack.Push(r);
-                    }
-                    else if (n is ExpressionBooleanOperator)
-                    {
-                        ExpressionBooleanOperator oper = (ExpressionBooleanOperator)n;
-                        ExpressionOperand r = oper.Evaluate(stack);
-                        stack.Push(r);
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException();
-                    }
-
-                }
-            } while (stack.Count > 1);
-
-            ExpressionOperand result = (ExpressionOperand)stack.Pop();
-            Console.WriteLine($"==> [{result}]");
-
-            return result;
-
-        }
-
-
-        internal static ExpressionOperand Execute2(List<ExpressionNode> expressionList, ResultSet resultSet, int rowIndex)
+        internal static ExpressionOperand Execute(List<ExpressionNode> expressionList, ResultSet resultSet, int rowIndex)
         {
             Stack<ExpressionNode> stack = new Stack<ExpressionNode>();
 
@@ -163,14 +108,9 @@ namespace JankSQL
 
         }
 
-        internal ExpressionOperand Execute(int index, Engines.DynamicCSV table, int rowIndex)
+        internal ExpressionOperand Execute(int index, ResultSet resultSet, int rowIndex)
         {
-            return SelectListContext.Execute(expressionLists[index], table, rowIndex);
-        }
-
-        internal ExpressionOperand Execute2(int index, ResultSet resultSet, int rowIndex)
-        {
-            return SelectListContext.Execute2(expressionLists[index], resultSet, rowIndex);
+            return SelectListContext.Execute(expressionLists[index], resultSet, rowIndex);
         }
 
         internal void Dump()
