@@ -6,6 +6,7 @@ It's just me working on it, so it'll take forever to implement As I go, I'll pic
 
 This project is completely silly: I have no goal aside from having something to do, and learning a bit as I go. JankSQL is *totally* [jank](https://www.urbandictionary.com/define.php?term=jank): redundant, un-finished, crooked, and a replacement of dubious quality.
 
+Let's have even more fun: "JankSQL" is promounced "janks queue ell".
 
 ## Approach
 
