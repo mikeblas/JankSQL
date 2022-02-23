@@ -1,4 +1,4 @@
-﻿keycolumn,city_name,state,population
-1,Monroeville,Pennsylvania,25000
-2,Sammamish,Washington,37000
-3,New York,New York,11500000
+﻿keycolumn,city_name,state_code,population
+1,Monroeville,PA,25000
+2,Sammamish,WA,37000
+3,New York,NY,11500000

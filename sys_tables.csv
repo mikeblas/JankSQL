@@ -1,3 +1,4 @@
 ﻿table_name,file_name
 sys_tables,sys_tables.csv
 mytable,mytable.csv
+states,states.csv
