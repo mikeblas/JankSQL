@@ -25,7 +25,7 @@ namespace JankSQL
         public ResultSet GetRows(int max)
         {
             ResultSet rs = new ResultSet();
-            List<string> columnNames = new List<string>();
+            List<FullColumnName> columnNames = new List<FullColumnName>();
             for (int n = 0; n < source.ColumnCount; n++)
                 columnNames.Add(source.ColumnName(n));
             rs.SetColumnNames(columnNames);

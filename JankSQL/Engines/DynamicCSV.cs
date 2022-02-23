@@ -11,7 +11,7 @@ namespace JankSQL.Engines
         private string filename;
 
         // list of column names
-        private string[] columnNames = null;
+        private FullColumnName[] columnNames = null;
 
         // list of lines; each line is a list of values
         private List<string[]> values;
@@ -33,7 +33,12 @@ namespace JankSQL.Engines
 
                 if (firstLine)
                 {
-                    columnNames = fields;
+                    columnNames = new FullColumnName[fields.Length];
+                    for (int i = 0; i < fields.Length; ++i)
+                    { 
+                        FullColumnName fcn = FullColumnName.FromColumnName(fields[i]);
+                        columnNames[i] = fcn;
+                    }
                     firstLine = false;
                 }
                 else
@@ -54,16 +59,17 @@ namespace JankSQL.Engines
             return values[n];
         }
 
-        public string ColumnName(int n)
+        internal FullColumnName ColumnName(int n)
         {
             return columnNames[n];
         }
 
         public int ColumnIndex(string columnName)
         {
+            FullColumnName fcnMatch = FullColumnName.FromColumnName(columnName);
             for (int i = 0; i < columnNames.Length; i++)
             {
-                if (columnName.Equals(columnNames[i], StringComparison.InvariantCultureIgnoreCase))
+                if (fcnMatch.Equals(columnNames[i]))
                 {
                     return i;
                 }
@@ -73,5 +79,4 @@ namespace JankSQL.Engines
         }
     }
 }
-
 

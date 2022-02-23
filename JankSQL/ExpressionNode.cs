@@ -200,14 +200,14 @@ namespace JankSQL
 
     internal class ExpressionOperandFromColumn : ExpressionNode
     {
-        internal string columnName;
+        internal FullColumnName columnName;
 
-        internal ExpressionOperandFromColumn(string columnName)
+        internal ExpressionOperandFromColumn(FullColumnName columnName)
         {
             this.columnName = columnName;
         }
 
-        internal string ColumnName { get { return columnName; } }
+        internal FullColumnName ColumnName { get { return columnName; } }
 
         public override string ToString()
         {

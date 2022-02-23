@@ -32,14 +32,14 @@ namespace JankSQL
 
             String str;
 
-            // str = "SELECT [city_name],  [population], [population]*2 FROM [mytable];";
+            str = "SELECT [city_name],  [population], [population]*2 FROM [mytable];";
             // str = "SELECT * FROM [mytable];";
             // str = "SELECT * FROM [mytable] WHERE [population] = 37000 OR [keycolumn] = 1;";
             // str = "SELECT* FROM[mytable] WHERE[population] != 37000;";
             // str = "SELECT * FROM [mytable] WHERE [population] = 25000 AND [keycolumn] = 5-4;";
             // str = "SELECT * FROM [mytable] WHERE NOT [population] = 37000;";
             // str = "SELECT * FROM [mytable] WHERE NOT(NOT(NOT ([population] = 37000)));";
-            str = "SELECT * FROM [table1] JOIN [table2] ON [table1].[state_id] = [table2].[state_id]";
+            // str = "SELECT * FROM [table1] JOIN [table2] ON [table1].[state_id] = [table2].[state_id]";
 
 
             ExecutionContext ecString = Parser.ParseSQLFileFromString(str);
