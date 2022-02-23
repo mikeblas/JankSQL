@@ -34,8 +34,8 @@ namespace JankSQL
             if (allColumnNames == null)
             {
                 allColumnNames = new List<FullColumnName>();
-                // allColumnNames.AddRange(leftRows.GetColumnNames());
-                // allColumnNames.AddRange(rightRows.GetColumnNames());
+                allColumnNames.AddRange(leftRows.GetColumnNames());
+                allColumnNames.AddRange(rightRows.GetColumnNames());
             }
 
             return allColumnNames;
@@ -44,14 +44,12 @@ namespace JankSQL
         bool FillLeftRows(int max)
         {
             leftRows = leftInput.GetRows(max);
-            leftIndex = 0;
             return (leftRows != null && leftRows.RowCount > 0);
         }
 
         bool FillRightRows(int max)
         {
             rightRows = rightInput.GetRows(max);
-            rightIndex = 0;
             return (rightRows != null && rightRows.RowCount > 0);
         }
 
@@ -60,8 +58,8 @@ namespace JankSQL
         {
             leftRows = null;
             rightRows = null;
-            // rightInput.Rewind();
-            // leftInput.Rewind();
+            rightInput.Rewind();
+            leftInput.Rewind();
         }
 
         public ResultSet GetRows(int max)
@@ -69,9 +67,15 @@ namespace JankSQL
             ResultSet outputSet = new ResultSet();
 
             if (leftRows == null)
+            {
                 FillLeftRows(max);
+                leftIndex = 0;
+            }
             if (rightRows == null)
+            {
                 FillRightRows(max);
+                rightIndex = 0;
+            }
 
             outputSet.SetColumnNames(GetAllColumnNames());
 
@@ -89,18 +93,19 @@ namespace JankSQL
                     totalRow[outColumnCount++] = rightRows.Row(rightIndex)[i];
                 }
                 outputSet.AddRow(totalRow);
+                Console.WriteLine($"{leftIndex}, {rightIndex}");
 
                 rightIndex += 1;
                 if (rightIndex == rightRows.RowCount)
                 {
                     if (!FillRightRows(max))
                     {
-
+                        rightInput.Rewind();
+                        FillRightRows(max);
+                        leftIndex += 1;
                     }
-                    leftIndex += 1;
+                    rightIndex = 0;
                 }
-                rightIndex += 1;
-                leftIndex += 1;
             }
 
             return outputSet;

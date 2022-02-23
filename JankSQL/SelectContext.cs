@@ -93,21 +93,21 @@ namespace JankSQL
             string sourceTable = querySpecs.table_sources().table_source().First().table_source_item_joined().table_source_item().GetText();
             Console.WriteLine($"ExitSelect_Statement: {sourceTable}");
 
-             string effectiveName = Program.GetEffectiveName(sourceTable);
+            string effectiveTableName = Program.GetEffectiveName(sourceTable);
 
             // get systables
             Engines.DynamicCSV sysTables = new Engines.DynamicCSV("sys_tables.csv", "sys_tables");
             sysTables.Load();
 
             // get the file name for our table
-            string? effectiveTableFileName = FileFromSysTables(sysTables, effectiveName);
+            string? effectiveTableFileName = FileFromSysTables(sysTables, effectiveTableName);
 
             if (effectiveTableFileName == null)
-                Console.WriteLine($"Table {effectiveName} does not exist");
+                Console.WriteLine($"Table {effectiveTableName} does not exist");
             else
             {
                 // found the source table, so load it
-                Engines.DynamicCSV table = new Engines.DynamicCSV(effectiveTableFileName, effectiveName);
+                Engines.DynamicCSV table = new Engines.DynamicCSV(effectiveTableFileName, effectiveTableName);
 
                 // the table itself
                 TableSource tableSource = new TableSource(table);
@@ -117,7 +117,8 @@ namespace JankSQL
                 foreach (var j in joinContexts)
                 {
                     // find the other table
-                    string? otherTableFileName = FileFromSysTables(sysTables, Program.GetEffectiveName(j.OtherTableName));
+                    string otherEffectiveTableName = Program.GetEffectiveName(j.OtherTableName);
+                    string? otherTableFileName = FileFromSysTables(sysTables, otherEffectiveTableName);
                     if (otherTableFileName == null)
                     {
                         Console.WriteLine($"Joined table {j.OtherTableName} does not exist");
@@ -125,7 +126,7 @@ namespace JankSQL
                     }
 
                     // get a table engine on it
-                    Engines.DynamicCSV otherTable = new Engines.DynamicCSV(otherTableFileName, effectiveName);
+                    Engines.DynamicCSV otherTable = new Engines.DynamicCSV(otherTableFileName, otherEffectiveTableName);
                     TableSource joinSource = new TableSource(otherTable);
 
                     // build a join operator with it
@@ -140,7 +141,7 @@ namespace JankSQL
                 // now the filter
                 Filter filter = new Filter
                 {
-                    Input = tableSource,
+                    Input = lastLeftOutput,
                     Predicates = predicateExpressionLists
                 };
 
