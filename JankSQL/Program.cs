@@ -32,7 +32,8 @@ namespace JankSQL
 
             String str;
 
-            str = "SELECT [city_name],  [population], [population]*2 FROM [mytable];";
+            // str = "SELECT [city_name],  [population], [population]*2 FROM [mytable];";
+            str = "SELECT [mytable].[city_name], [mytable].[population], [population]*2 FROM [mytable];";
             // str = "SELECT * FROM [mytable];";
             // str = "SELECT * FROM [mytable] WHERE [population] = 37000 OR [keycolumn] = 1;";
             // str = "SELECT* FROM[mytable] WHERE[population] != 37000;";
@@ -50,10 +51,10 @@ namespace JankSQL
 
         public static string GetEffectiveName(string objectName)
         {
-            if (objectName[0] != '[' || objectName[objectName.Length - 1] != ']')
+            if (objectName[0] != '[' || objectName[^1] != ']')
                 return objectName;
 
-            return objectName.Substring(1, objectName.Length - 2);
+            return objectName[1..^1];
         }
     }
 }

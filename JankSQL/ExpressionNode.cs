@@ -231,7 +231,7 @@ namespace JankSQL
 
         internal ExpressionOperand Evaluate(Stack<ExpressionNode> stack)
         {
-            bool result = true;
+            bool result;
 
             if (str == ">")
             {

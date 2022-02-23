@@ -30,7 +30,15 @@ namespace JankSQL
             return r;
         }
 
-        public override bool Equals(object o)
+        internal static FullColumnName FromTableColumnName(string tableName, string columnName)
+        {
+            var r = new FullColumnName();
+            r.columnName = Program.GetEffectiveName(columnName);
+            r.tableName = Program.GetEffectiveName(tableName);
+            return r;
+        }
+
+        public override bool Equals(object? o)
         {
             var other = o as FullColumnName;
             if (other == null)
@@ -66,25 +74,26 @@ namespace JankSQL
 
         public override string ToString()
         {
+            //REVIEW: is this right? could be that serverName != null but schemaName == null, and ...
             string ret = "";
             if (serverName != null)
-                ret = ret + $"[{serverName}]";
+                ret += $"[{serverName}]";
             if (schemaName != null)
             {
                 if (ret.Length > 0)
-                    ret = ret + ".";
-                ret = ret + $"[{schemaName}]";
+                    ret += ".";
+                ret += $"[{schemaName}]";
             }
             if (tableName != null)
             {
                 if (ret.Length > 0)
-                    ret = ret + ".";
-                ret = ret + $"[{tableName}]";
+                    ret += ".";
+                ret += $"[{tableName}]";
             }
 
             if (ret.Length > 0)
-                ret = ret + ".";
-            ret = ret + $"[{columnName}]";
+                ret += ".";
+            ret += $"[{columnName}]";
 
             return ret;
         }

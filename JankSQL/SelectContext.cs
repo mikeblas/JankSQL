@@ -74,7 +74,7 @@ namespace JankSQL
             string effectiveName = Program.GetEffectiveName(sourceTable);
 
             // get systables
-            Engines.DynamicCSV sysTables = new Engines.DynamicCSV("sys_tables.csv");
+            Engines.DynamicCSV sysTables = new Engines.DynamicCSV("sys_tables.csv", "sys_tables");
             sysTables.Load();
 
             // is this source table in there?
@@ -96,15 +96,17 @@ namespace JankSQL
             else
             {
                 // found the source table, so load it
-                Engines.DynamicCSV table = new Engines.DynamicCSV(sysTables.Row(foundRow)[idxFile]);
+                Engines.DynamicCSV table = new Engines.DynamicCSV(sysTables.Row(foundRow)[idxFile], effectiveName);
 
                 // the table itself
                 TableSource tableSource = new TableSource(table);
 
                 // now the filter
-                Filter filter = new Filter();
-                filter.Input = tableSource;
-                filter.Predicates = predicateExpressionLists;
+                Filter filter = new Filter
+                {
+                    Input = tableSource,
+                    Predicates = predicateExpressionLists
+                };
 
                 // then the select
                 Select select = new Select(querySpecs.select_list().select_list_elem(), selectList);

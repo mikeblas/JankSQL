@@ -9,6 +9,7 @@ namespace JankSQL.Engines
     public class DynamicCSV
     {
         private string filename;
+        private string tableName;
 
         // list of column names
         private FullColumnName[] columnNames = null;
@@ -16,10 +17,11 @@ namespace JankSQL.Engines
         // list of lines; each line is a list of values
         private List<string[]> values;
 
-        public DynamicCSV(string filename)
+        public DynamicCSV(string filename, string tableName)
         {
             this.filename = filename;
             this.values = new List<string[]>();
+            this.tableName = tableName;
         }
 
         public void Load()
@@ -36,7 +38,7 @@ namespace JankSQL.Engines
                     columnNames = new FullColumnName[fields.Length];
                     for (int i = 0; i < fields.Length; ++i)
                     { 
-                        FullColumnName fcn = FullColumnName.FromColumnName(fields[i]);
+                        FullColumnName fcn = FullColumnName.FromTableColumnName(tableName, fields[i]);
                         columnNames[i] = fcn;
                     }
                     firstLine = false;
@@ -69,7 +71,8 @@ namespace JankSQL.Engines
             FullColumnName fcnMatch = FullColumnName.FromColumnName(columnName);
             for (int i = 0; i < columnNames.Length; i++)
             {
-                if (fcnMatch.Equals(columnNames[i]))
+                if (columnNames[i].Equals(fcnMatch))
+                // if (fcnMatch.Equals(columnNames[i]))
                 {
                     return i;
                 }

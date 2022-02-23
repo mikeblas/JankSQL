@@ -67,13 +67,13 @@ namespace JankSQL
                     else if (n is ExpressionOperator)
                     {
                         // it's an operator
-                        ExpressionOperator oper = (ExpressionOperator)n;
+                        var oper = (ExpressionOperator)n;
                         ExpressionOperand r = oper.Evaluate(stack);
                         stack.Push(r);
                     }
                     else if (n is ExpressionOperandFromColumn)
                     {
-                        ExpressionOperandFromColumn r = (ExpressionOperandFromColumn)n;
+                        var r = (ExpressionOperandFromColumn)n;
                         Console.WriteLine($"Need value from {r.ColumnName}");
 
                         int idx = resultSet.ColumnIndex(r.ColumnName);
@@ -83,13 +83,13 @@ namespace JankSQL
                     }
                     else if (n is ExpressionComparisonOperator)
                     {
-                        ExpressionComparisonOperator oper = (ExpressionComparisonOperator)n;
+                        var oper = (ExpressionComparisonOperator)n;
                         ExpressionOperand r = oper.Evaluate(stack);
                         stack.Push(r);
                     }
                     else if (n is ExpressionBooleanOperator)
                     {
-                        ExpressionBooleanOperator oper = (ExpressionBooleanOperator)n;
+                        var oper = (ExpressionBooleanOperator)n;
                         ExpressionOperand r = oper.Evaluate(stack);
                         stack.Push(r);
                     }

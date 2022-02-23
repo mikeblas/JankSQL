@@ -40,10 +40,8 @@ namespace JankSQL
 
         public static ExecutionContext ParseSQLFileFromFileName(string strFileName)
         {
-            using (TextReader str = new StreamReader(strFileName))
-            {
-                return Parser.ParseSQLFileFromTextReader(str);
-            }
+            using TextReader str = new StreamReader(strFileName);
+            return Parser.ParseSQLFileFromTextReader(str);
         }
 
     }
