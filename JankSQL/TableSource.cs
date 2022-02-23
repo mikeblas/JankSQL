@@ -22,6 +22,11 @@ namespace JankSQL
         {
         }
 
+        public void Rewind()
+        {
+            currentRow = 0;
+        }
+
         public ResultSet GetRows(int max)
         {
             ResultSet rs = new ResultSet();

@@ -4,5 +4,7 @@
     {
         ResultSet GetRows(int max);
 
+        void Rewind();
+
     }
 }

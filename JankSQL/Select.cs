@@ -33,10 +33,6 @@
                         List<ExpressionNode> xlist = new List<ExpressionNode>();
                         xlist.Add(x);
                         selectList.AddSelectListExpressionList(xlist);
-                        /*
-                        ExpressionList.Add(x);
-                        EndSelectListExpressionList();
-                        */
                     }
                 }
                 else

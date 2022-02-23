@@ -15,6 +15,8 @@ namespace JankSQL
             this.tableName = tableName;
         }
 
+        internal string OtherTableName { get { return tableName; } }
+
         internal List<List<ExpressionNode>> PredicateExpressions { get; set; }
 
     }

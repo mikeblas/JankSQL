@@ -63,6 +63,11 @@ namespace JankSQL
             columnNames = names;
         }
 
+        internal List<string> GetColumnNames()
+        {
+            return columnNames;
+        }
+
         internal string GetColumnName(int index)
         {
             return columnNames[index];

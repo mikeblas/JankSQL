@@ -74,9 +74,8 @@ namespace JankSQL
                     else if (n is ExpressionOperandFromColumn)
                     {
                         ExpressionOperandFromColumn r = (ExpressionOperandFromColumn)n;
-                        Console.WriteLine($"Need value from {r.ColumnName}");
-
                         int idx = resultSet.ColumnIndex(r.ColumnName);
+                        Console.WriteLine($"Need value from {r.ColumnName}, column index {idx}");
                         ExpressionOperand[] thisRow = resultSet.Row(rowIndex);
                         ExpressionOperand val = thisRow[idx];
                         stack.Push(val);
