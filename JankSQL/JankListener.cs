@@ -61,7 +61,7 @@ namespace JankSQL
 
         public override void ExitExpression([NotNull] TSqlParser.ExpressionContext context)
         {
-            Console.WriteLine($"operator = {context.op}");
+            Console.WriteLine($"operator: '{context.op}'");
             if (context.op != null)
             {
                 ExpressionNode x = new ExpressionOperator(context.op.Text);
@@ -72,7 +72,7 @@ namespace JankSQL
 
         public override void ExitPrimitive_expression([NotNull] TSqlParser.Primitive_expressionContext context)
         {
-            Console.WriteLine($"constant = {context.constant().DECIMAL()}");
+            Console.WriteLine($"constant: '{context.constant().DECIMAL()}'");
 
             ExpressionNode x = ExpressionOperand.DecimalFromString(context.constant().DECIMAL().GetText());
             selectContext.ExpressionList.Add(x);
@@ -173,7 +173,7 @@ namespace JankSQL
 
         public override void ExitPredicate([NotNull] TSqlParser.PredicateContext context)
         {
-            Console.WriteLine($"Predicate comparison = {context.comparison_operator().GetText()}");
+            Console.WriteLine($"Predicate comparison: '{context.comparison_operator().GetText()}'");
             ExpressionNode x = new ExpressionComparisonOperator(context.comparison_operator().GetText());
             selectContext.ExpressionList.Add(x);
             base.ExitPredicate(context);
