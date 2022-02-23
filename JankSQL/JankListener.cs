@@ -134,7 +134,7 @@ namespace JankSQL
 
         public override void ExitFull_column_name([NotNull] TSqlParser.Full_column_nameContext context)
         {
-            ExpressionNode x = new ExpressionOperandFromColumn(Program.GetEffectiveName(context.column_name.GetText()));
+            ExpressionNode x = new ExpressionOperandFromColumn(FullColumnName.FromContext(context));
             selectContext.ExpressionList.Add(x);
 
             base.ExitFull_column_name(context);
@@ -145,23 +145,23 @@ namespace JankSQL
             // if this is an asterisk, it doesn't get an expression
             if (context.asterisk() == null)
             {
-                string? rowsetColumnName = null;
+                FullColumnName fcn = null;
 
                 if (selectContext.SelectListContext.CurrentAlias != null)
                 {
-                    rowsetColumnName = selectContext.SelectListContext.CurrentAlias;
+                    fcn = FullColumnName.FromColumnName(selectContext.SelectListContext.CurrentAlias);
                 }
                 else if (context.expression_elem() != null && context.expression_elem().column_alias() != null)
                 {
-                    rowsetColumnName = context.expression_elem().column_alias().GetText();
+                    fcn = FullColumnName.FromColumnName(context.expression_elem().column_alias().GetText());
                 }
                 else if (context.column_elem() != null)
                 {
-                    rowsetColumnName = context.column_elem().full_column_name().GetText();
+                    fcn = FullColumnName.FromContext(context.column_elem().full_column_name());
                 }
 
-                if (rowsetColumnName != null)
-                    selectContext.SelectListContext.AddRowsetColumnName(Program.GetEffectiveName(rowsetColumnName));
+                if (fcn != null)
+                    selectContext.SelectListContext.AddRowsetColumnName(fcn);
                 else
                     selectContext.SelectListContext.AddUnknownRowsetColumnName();
 

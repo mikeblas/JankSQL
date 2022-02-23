@@ -14,7 +14,7 @@ namespace JankSQL
         int leftIndex = -1;
         int rightIndex = -1;
 
-        List<string>? allColumnNames = null;
+        List<FullColumnName>? allColumnNames = null;
 
         ResultSet? leftRows = null;
         ResultSet? rightRows = null;
@@ -29,11 +29,11 @@ namespace JankSQL
 
         internal List<List<ExpressionNode>> PredicateExpressions { get; set; }
 
-        List<string> GetAllColumnNames()
+        List<FullColumnName> GetAllColumnNames()
         {
             if (allColumnNames == null)
             {
-                allColumnNames = new List<string>();
+                allColumnNames = new List<FullColumnName>();
                 // allColumnNames.AddRange(leftRows.GetColumnNames());
                 // allColumnNames.AddRange(rightRows.GetColumnNames());
             }

@@ -96,7 +96,7 @@ namespace JankSQL
              string effectiveName = Program.GetEffectiveName(sourceTable);
 
             // get systables
-            Engines.DynamicCSV sysTables = new Engines.DynamicCSV("sys_tables.csv");
+            Engines.DynamicCSV sysTables = new Engines.DynamicCSV("sys_tables.csv", "sys_tables");
             sysTables.Load();
 
             // get the file name for our table
@@ -107,7 +107,7 @@ namespace JankSQL
             else
             {
                 // found the source table, so load it
-                Engines.DynamicCSV table = new Engines.DynamicCSV(effectiveTableFileName);
+                Engines.DynamicCSV table = new Engines.DynamicCSV(effectiveTableFileName, effectiveName);
 
                 // the table itself
                 TableSource tableSource = new TableSource(table);
@@ -125,7 +125,7 @@ namespace JankSQL
                     }
 
                     // get a table engine on it
-                    Engines.DynamicCSV otherTable = new Engines.DynamicCSV(otherTableFileName);
+                    Engines.DynamicCSV otherTable = new Engines.DynamicCSV(otherTableFileName, effectiveName);
                     TableSource joinSource = new TableSource(otherTable);
 
                     // build a join operator with it
@@ -138,9 +138,11 @@ namespace JankSQL
                 }
 
                 // now the filter
-                Filter filter = new Filter();
-                filter.Input = lastLeftOutput;
-                filter.Predicates = predicateExpressionLists;
+                Filter filter = new Filter
+                {
+                    Input = tableSource,
+                    Predicates = predicateExpressionLists
+                };
 
                 // then the select
                 Select select = new Select(querySpecs.select_list().select_list_elem(), selectList);

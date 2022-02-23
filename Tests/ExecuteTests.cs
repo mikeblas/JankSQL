@@ -84,6 +84,18 @@ namespace Tests
 
 
         [TestMethod, Timeout(1000)]
+        public void TestCompoundSelectListQualified()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT [mytable].[city_name], [mytable].[population], [population]*2 FROM [mytable];");
+
+            ResultSet set = ec.Execute();
+            set.Dump();
+            Assert.AreEqual(3, set.RowCount, "row count mismatch");
+            Assert.AreEqual(3, set.ColumnCount, "column count mismatch");
+        }
+
+
+        [TestMethod, Timeout(1000)]
         public void TestSelectListExpressionDivide()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT [population] / [keycolumn] FROM [mytable];");
@@ -94,11 +106,33 @@ namespace Tests
             Assert.AreEqual(1, set.ColumnCount, "column count mismatch");
         }
 
+        [TestMethod, Timeout(1000)]
+        public void TestSelectListExpressionDivideQualifiedAliased()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT [population] / [mytable].[keycolumn] AS [TheRatio] FROM [mytable];");
+
+            ResultSet set = ec.Execute();
+            set.Dump();
+            Assert.AreEqual(3, set.RowCount, "row count mismatch");
+            Assert.AreEqual(1, set.ColumnCount, "column count mismatch");
+        }
 
         [TestMethod, Timeout(1000)]
         public void TestSelectExpressionAddition()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 3+5 FROM [mytable];");
+
+            ResultSet set = ec.Execute();
+            set.Dump();
+            Assert.AreEqual(3, set.RowCount, "row count mismatch");
+            Assert.AreEqual(1, set.ColumnCount, "column count mismatch");
+        }
+
+
+        [TestMethod, Timeout(1000)]
+        public void TestSelectExpressionAdditionAliased()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 3+5 AS [MySum] FROM [mytable];");
 
             ResultSet set = ec.Execute();
             set.Dump();

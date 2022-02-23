@@ -13,10 +13,9 @@ namespace JankSQL
 
         List<List<ExpressionNode>> expressionLists = new List<List<ExpressionNode>>();
 
-
-        string currentAlias = null;
+        string? currentAlias = null;
         int unknownColumnID = 1001;
-        List<string> rowsetColumnNames = new List<string>();
+        List<FullColumnName> rowsetColumnNames = new List<FullColumnName>();
 
 
         internal SelectListContext(TSqlParser.Select_listContext context)
@@ -35,45 +34,48 @@ namespace JankSQL
             currentAlias = null;
         }
 
-        internal void AddRowsetColumnName(string rowsetColumnName)
+        internal void AddRowsetColumnName(FullColumnName fcn)
         {
-            rowsetColumnNames.Add(rowsetColumnName);
+            rowsetColumnNames.Add(fcn);
         }
 
         internal void AddUnknownRowsetColumnName()
         {
-            AddRowsetColumnName($"Anonymous{unknownColumnID}");
+            FullColumnName fcn = FullColumnName.FromColumnName($"Anonymous{unknownColumnID}");
+            AddRowsetColumnName(fcn);
             unknownColumnID += 1;
         }
 
         internal int RowsetColumnNamesCount { get { return rowsetColumnNames.Count; } }
 
-        internal string RowsetColumnName(int idx) { return rowsetColumnNames[idx]; }
+        internal FullColumnName RowsetColumnName(int idx) { return rowsetColumnNames[idx]; }
 
         internal int ExpressionListCount { get { return expressionLists.Count; } }
 
-        internal string CurrentAlias { get { return currentAlias; } set { currentAlias = value; } }
+        internal string? CurrentAlias { get { return currentAlias; } set { currentAlias = value; } }
 
-        internal static ExpressionOperand Execute(List<ExpressionNode> expressionList, ResultSet resultSet, int rowIndex)
+        internal static ExpressionOperand Execute(List<ExpressionNode> expression, ResultSet resultSet, int rowIndex)
         {
             Stack<ExpressionNode> stack = new Stack<ExpressionNode>();
 
             do
             {
-                foreach (ExpressionNode n in expressionList)
+                foreach (ExpressionNode n in expression)
                 {
                     if (n is ExpressionOperand)
                         stack.Push(n);
                     else if (n is ExpressionOperator)
                     {
                         // it's an operator
-                        ExpressionOperator oper = (ExpressionOperator)n;
+                        var oper = (ExpressionOperator)n;
                         ExpressionOperand r = oper.Evaluate(stack);
                         stack.Push(r);
                     }
                     else if (n is ExpressionOperandFromColumn)
                     {
-                        ExpressionOperandFromColumn r = (ExpressionOperandFromColumn)n;
+                        var r = (ExpressionOperandFromColumn)n;
+                        Console.WriteLine($"Need value from {r.ColumnName}");
+
                         int idx = resultSet.ColumnIndex(r.ColumnName);
                         Console.WriteLine($"Need value from {r.ColumnName}, column index {idx}");
                         ExpressionOperand[] thisRow = resultSet.Row(rowIndex);
@@ -82,13 +84,13 @@ namespace JankSQL
                     }
                     else if (n is ExpressionComparisonOperator)
                     {
-                        ExpressionComparisonOperator oper = (ExpressionComparisonOperator)n;
+                        var oper = (ExpressionComparisonOperator)n;
                         ExpressionOperand r = oper.Evaluate(stack);
                         stack.Push(r);
                     }
                     else if (n is ExpressionBooleanOperator)
                     {
-                        ExpressionBooleanOperator oper = (ExpressionBooleanOperator)n;
+                        var oper = (ExpressionBooleanOperator)n;
                         ExpressionOperand r = oper.Evaluate(stack);
                         stack.Push(r);
                     }

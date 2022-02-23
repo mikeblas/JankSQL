@@ -19,7 +19,7 @@
             ResultSet rsInput = myInput.GetRows(max);
 
             // get an effective column list ...
-            List<string> effectiveColumns = new List<string>();
+            List<FullColumnName> effectiveColumns = new List<FullColumnName>();
             int resultSetColumnIndex = 0;
             foreach (var c in selectListContexts)
             {
@@ -53,7 +53,7 @@
 
                 ExpressionOperand[] thisRow = rsInput.Row(i);
                 ExpressionOperand[] rowResults = new ExpressionOperand[effectiveColumns.Count];
-                foreach (string columnName in effectiveColumns)
+                foreach (FullColumnName columnName in effectiveColumns)
                 {
                     int idx = rsInput.ColumnIndex(columnName);
                     if (idx == -1 || true)

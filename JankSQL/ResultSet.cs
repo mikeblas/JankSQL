@@ -10,12 +10,12 @@ namespace JankSQL
     {
         List<ExpressionOperand[]> rows;
 
-        List<string> columnNames;
+        List<FullColumnName> columnNames;
 
         internal ResultSet()
         {
             rows = new List<ExpressionOperand[]>();
-            columnNames = new List<string>();
+            columnNames = new List<FullColumnName>();
         }
 
         internal static ResultSet NewWithShape(ResultSet other)
@@ -27,7 +27,7 @@ namespace JankSQL
             return ret;
         }
 
-        internal int ColumnIndex(string name)
+        internal int ColumnIndex(FullColumnName name)
         {
             return columnNames.IndexOf(name);
         }
@@ -58,17 +58,17 @@ namespace JankSQL
 
         public int ColumnCount {  get { return columnNames.Count; } }
 
-        internal void SetColumnNames(List<string> names)
+        internal void SetColumnNames(List<FullColumnName> names)
         {
             columnNames = names;
         }
 
-        internal List<string> GetColumnNames()
+        internal List<FullColumnName> GetColumnNames()
         {
             return columnNames;
         }
 
-        internal string GetColumnName(int index)
+        internal FullColumnName GetColumnName(int index)
         {
             return columnNames[index];
         }
