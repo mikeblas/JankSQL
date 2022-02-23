@@ -27,7 +27,7 @@
         public ResultSet GetRows(int max)
         {
             ResultSet rsInput = myInput.GetRows(max);
-            ResultSet rsOuptut = ResultSet.NewWithShape(rsInput);
+            ResultSet rsOutput = ResultSet.NewWithShape(rsInput);
 
             //REVIEW: ignores max
             for (int i = 0; i < rsInput.RowCount; i++)
@@ -48,11 +48,11 @@
                 if (!predicatePassed)
                     continue;
 
-                rsOuptut.AddRowFrom(rsInput, i);
+                rsOutput.AddRowFrom(rsInput, i);
             }
 
 
-            return rsOuptut;
+            return rsOutput;
         }
     }
 }
