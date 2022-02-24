@@ -6,7 +6,15 @@ It's just me working on it, so it'll take forever to implement As I go, I'll pic
 
 This project is completely silly: I have no goal aside from having something to do, and learning a bit as I go. JankSQL is *totally* [jank](https://www.urbandictionary.com/define.php?term=jank): redundant, un-finished, crooked, and a replacement of dubious quality.
 
-Let's have even more fun: "JankSQL" is promounced "janks queue ell".
+Let's have even more fun: "JankSQL" is pronounced "janks queue ell".
+
+## Motivation
+
+I'm retired, and a bit bored. I've always wante to try to glue together everything I know about SQL and databases into an actual database implementation -- but I've always been distracted by paying work. Now, I'm taking a run at it since I have some spare time. I don't have any particularly jarring insights into how anythimg might be faster or more efficient just yet. One idea I *do* have is eventually translating SQL into executable code rather than interprested code. That's why I've chosen C# -- since I think I can emit IL, compile it, and host it in an environment that implemnets accessors for the rest of the structure.  Maybe I'll eventually get to that, but my approach is (as above) just to paw through the things that I think are personally interesting in the order I feel like attacking them.
+
+And, really, doing work without a deadline and in the order that pleases me (instead of some PM or manager or external team or ...) is very refreshing and liberating.
+
+Also, my wife said I'm not allowed to build a robot, so this project will have to suffice.
 
 ## Approach
 
@@ -24,12 +32,11 @@ I'll expect to implement my own binary file format, but that will take time. For
 
 I'd like to be test-driven in development of the server, so I'll have a variety of unit tests. Strictly, the "unit" tests are a bit stretched -- they're probably a bit more integration tests, since they'll exercise multiple components in concert. 
 
-
 # Setup 
 
-The project has just two prerequisites: the Antlr tool and an external T-SQL grammar for Antlr.
-
 This project uses .Net 6.0 and therefore requires Visual Studio 2022.
+
+After that, the project has just two prerequisites: the Antlr tool and an external T-SQL grammar for Antlr.
 
 ## Installing Antlr
 The first requirement is Antlr -- which, in turn, requires the Java run-time. The [Antlr installation instructions]( https://github.com/antlr/antlr4/blob/master/doc/getting-started.md) explain how to get Antlr going, and I just added the Antlr JAR file to my `\bin` directory, which is already on my path.
