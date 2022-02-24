@@ -29,5 +29,16 @@ namespace Tests
             Assert.AreEqual(3, set.RowCount, "row count mismatch");
             Assert.AreEqual(6, set.ColumnCount, "column count mismatch");
         }
+
+        [TestMethod, Timeout(1000)]
+        public void TestEquiInnerJoin()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] INNER JOIN [states] ON [mytable].[state_code] = [states].[state_code]");
+
+            ResultSet set = ec.Execute();
+            set.Dump();
+            Assert.AreEqual(3, set.RowCount, "row count mismatch");
+            Assert.AreEqual(6, set.ColumnCount, "column count mismatch");
+        }
     }
 }

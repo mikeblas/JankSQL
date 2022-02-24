@@ -257,7 +257,7 @@ namespace JankSQL
                 string str = context.cross_join().table_source().table_source_item_joined().table_source_item().table_name_with_hint().table_name().id_()[0].GetText();
                 Console.WriteLine($"CROSS JOIN On {str}");
 
-                JoinContext jc = new JoinContext(JoinContext.JoinType.CROSS_JOIN, str);
+                JoinContext jc = new JoinContext(JoinType.CROSS_JOIN, str);
                 selectContext.AddJoin(jc);
             }
             else if (context.join_on() != null)
@@ -266,7 +266,7 @@ namespace JankSQL
                 string str = context.join_on().table_source().table_source_item_joined().table_source_item().table_name_with_hint().table_name().id_()[0].GetText();
                 Console.WriteLine($"INNER JOIN On {str}");
 
-                JoinContext jc = new JoinContext(JoinContext.JoinType.INNER_JOIN, str);
+                JoinContext jc = new JoinContext(JoinType.INNER_JOIN, str);
                 selectContext.AddJoin(jc);
             }
             else 

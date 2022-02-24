@@ -120,6 +120,8 @@ namespace JankSQL
         public abstract bool IsTrue();
 
         public abstract double AsDouble();
+
+        public ExpressionNodeType NodeType { get { return nodeType; } }
     }
 
     internal class ExpressionOperandDecmial : ExpressionOperand
@@ -170,6 +172,11 @@ namespace JankSQL
         public override bool IsTrue()
         {
             throw new NotImplementedException();
+        }
+
+        public string AsString()
+        {
+            return str;
         }
     }
 
@@ -258,10 +265,40 @@ namespace JankSQL
                 ExpressionOperand right = (ExpressionOperand)stack.Pop();
                 ExpressionOperand left = (ExpressionOperand)stack.Pop();
 
-                if (left.AsDouble() == right.AsDouble())
-                    result = true;
+                if (left.NodeType == ExpressionNodeType.NVARCHAR && right.NodeType == ExpressionNodeType.NVARCHAR)
+                {
+                    string lvalue = ((ExpressionOperandNVARCHAR)left).AsString();
+                    string rvalue = ((ExpressionOperandNVARCHAR)right).AsString();
+                    result = lvalue.Equals(rvalue);
+                }
+                else if (left.NodeType == ExpressionNodeType.NVARCHAR && right.NodeType == ExpressionNodeType.DECIMAL)
+                {
+                    double lValue = left.AsDouble();
+                    if (lValue == right.AsDouble())
+                        result = true;
+                    else
+                        result = false;
+                }
+                else if (left.NodeType == ExpressionNodeType.DECIMAL && right.NodeType == ExpressionNodeType.NVARCHAR)
+                {
+                    double rValue = right.AsDouble();
+                    if (rValue == left.AsDouble())
+                        result = true;
+                    else
+                        result = false;
+                }
+                else if (left.NodeType == ExpressionNodeType.DECIMAL && left.NodeType == ExpressionNodeType.DECIMAL)
+                {
+                    if (left.AsDouble() == right.AsDouble())
+                        result = true;
+                    else
+                        result = false;
+                }
                 else
-                    result = false;
+                {
+                    throw new NotImplementedException($"equality between {left.NodeType} and {right.NodeType} not yet implemented");
+                }
+
             }
             else if (str == "<>" || str == "!=")
             {

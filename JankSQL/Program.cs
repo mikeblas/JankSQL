@@ -40,8 +40,8 @@ namespace JankSQL
             // str = "SELECT * FROM [mytable] WHERE [population] = 25000 AND [keycolumn] = 5-4;";
             // str = "SELECT * FROM [mytable] WHERE NOT [population] = 37000;";
             // str = "SELECT * FROM [mytable] WHERE NOT(NOT(NOT ([population] = 37000)));";
-            str = "SELECT * FROM [mytable] JOIN [states] ON [mytable].[state_code] = [states].[state_code]";
-            // str = "SELECT * FROM [mytable] CROSS JOIN [states]";
+            // str = "SELECT * FROM [mytable] JOIN [states] ON [mytable].[state_code] = [states].[state_code]";
+            str = "SELECT * FROM [mytable] CROSS JOIN [states]";
 
 
             ExecutionContext ecString = Parser.ParseSQLFileFromString(str);
@@ -52,6 +52,7 @@ namespace JankSQL
 
         public static string GetEffectiveName(string objectName)
         {
+            // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/proposals/csharp-8.0/ranges
             if (objectName[0] != '[' || objectName[^1] != ']')
                 return objectName;
 

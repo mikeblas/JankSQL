@@ -6,19 +6,19 @@ using System.Threading.Tasks;
 
 namespace JankSQL
 {
+    internal enum JoinType
+    {
+        CROSS_JOIN,
+        INNER_JOIN,
+        LEFT_OUTER_JOIN,
+        RIGHT_OUTER_JOIN,
+        FULL_OUTER_JOIN,
+    }
+
     internal class JoinContext
     {
         string tableName;
         JoinType joinType;
-
-        internal enum JoinType
-        {
-            CROSS_JOIN,
-            INNER_JOIN,
-            LEFT_OUTER_JOIN,
-            RIGHT_OUTER_JOIN,
-            FULL_OUTER_JOIN,
-        }
 
         internal JoinContext(JoinType joinType, string tableName)
         {
@@ -29,6 +29,8 @@ namespace JankSQL
         internal string OtherTableName { get { return tableName; } }
 
         internal List<Expression> PredicateExpressions { get; set; }
+
+        internal JoinType JoinType { get { return joinType; } }
 
     }
 }

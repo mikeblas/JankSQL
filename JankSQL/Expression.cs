@@ -13,7 +13,7 @@ namespace JankSQL
         {
         }
 
-        internal ExpressionOperand Evaluate(ResultSet resultSet, int rowIndex)
+        internal ExpressionOperand Evaluate(RowValueAccessor accessor)
         {
             Stack<ExpressionNode> stack = new Stack<ExpressionNode>();
 
@@ -33,12 +33,7 @@ namespace JankSQL
                     else if (n is ExpressionOperandFromColumn)
                     {
                         var r = (ExpressionOperandFromColumn)n;
-                        int idx = resultSet.ColumnIndex(r.ColumnName);
-                        // Console.WriteLine($"Need value from {r.ColumnName}, column index {idx}");
-
-                        ExpressionOperand[] thisRow = resultSet.Row(rowIndex);
-                        ExpressionOperand val = thisRow[idx];
-                        stack.Push(val);
+                        stack.Push(accessor.GetValue(r.ColumnName));
                     }
                     else if (n is ExpressionComparisonOperator)
                     {
@@ -61,7 +56,9 @@ namespace JankSQL
             } while (stack.Count > 1);
 
             ExpressionOperand result = (ExpressionOperand)stack.Pop();
-            Console.WriteLine($"==> [{result}]");
+
+            string str = string.Join(',', this);
+            Console.WriteLine($"{str} ==> [{result}]");
 
             return result;
 

@@ -36,8 +36,7 @@
                 bool predicatePassed = true;
                 foreach (var p in predicateExpressionLists)
                 {
-                    ExpressionOperand result = p.Evaluate(rsInput, i);
-                    // ExpressionOperand result = SelectListContext.Execute(p, rsInput, i);
+                    ExpressionOperand result = p.Evaluate(new RowsetValueAccessor(rsInput, i));
 
                     if (!result.IsTrue())
                     {

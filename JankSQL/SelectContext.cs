@@ -130,7 +130,7 @@ namespace JankSQL
                     TableSource joinSource = new TableSource(otherTable);
 
                     // build a join operator with it
-                    Join oper = new Join();
+                    Join oper = new Join(j.JoinType);
                     oper.LeftInput = lastLeftOutput;
                     oper.RightInput = joinSource;
                     oper.PredicateExpressions = j.PredicateExpressions;

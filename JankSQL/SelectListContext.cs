@@ -56,7 +56,7 @@ namespace JankSQL
 
         internal ExpressionOperand Execute(int index, ResultSet resultSet, int rowIndex)
         {
-            return expressionLists[index].Evaluate(resultSet, rowIndex);
+            return expressionLists[index].Evaluate(new RowsetValueAccessor(resultSet, rowIndex));
         }
 
         internal void Dump()

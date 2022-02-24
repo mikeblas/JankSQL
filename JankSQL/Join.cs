@@ -10,6 +10,7 @@ namespace JankSQL
     {
         IComponentOutput leftInput;
         IComponentOutput rightInput;
+        JoinType joinType;
 
         int leftIndex = -1;
         int rightIndex = -1;
@@ -19,8 +20,9 @@ namespace JankSQL
         ResultSet? leftRows = null;
         ResultSet? rightRows = null;
 
-        internal Join()
+        internal Join(JoinType joinType)
         {
+            this.joinType = joinType;
         }
 
         internal IComponentOutput LeftInput { get { return leftInput; } set { leftInput = value; } }
@@ -92,8 +94,36 @@ namespace JankSQL
                 {
                     totalRow[outColumnCount++] = rightRows.Row(rightIndex)[i];
                 }
-                outputSet.AddRow(totalRow);
-                Console.WriteLine($"{leftIndex}, {rightIndex}");
+
+                // see if we need to compute predicates ...
+                bool matched;
+                if (joinType == JoinType.CROSS_JOIN)
+                    matched = true;
+                else
+                {
+                    ExpressionOperand op = PredicateExpressions[0].Evaluate(new TemporaryRowValueAccessor(totalRow, allColumnNames));
+                    matched = op.IsTrue();
+                }
+
+                Console.WriteLine($"{leftIndex}, {rightIndex}, {matched}");
+
+                // depending on the join type, do the right thing.
+                if (joinType == JoinType.INNER_JOIN)
+                {
+                    // add only if matched
+                    if (matched)
+                        outputSet.AddRow(totalRow);
+                }
+                else if (joinType == JoinType.CROSS_JOIN)
+                {
+                    // always add
+                    outputSet.AddRow(totalRow);
+                }
+                else
+                {
+                    // NYI just now
+                    throw new NotImplementedException();
+                }
 
                 rightIndex += 1;
                 if (rightIndex == rightRows.RowCount)
