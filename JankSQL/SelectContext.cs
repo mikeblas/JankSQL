@@ -8,8 +8,8 @@ namespace JankSQL
         SelectListContext selectList;
 
         // for WHERE clauses
-        List<List<ExpressionNode>> predicateExpressionLists = new List<List<ExpressionNode>>();
-        List<ExpressionNode> currentExpressionList = new List<ExpressionNode>();
+        List<Expression> predicateExpressionLists = new List<Expression>();
+        Expression currentExpressionList = new Expression();
 
         List<JoinContext> joinContexts = new List<JoinContext>();
 
@@ -18,7 +18,7 @@ namespace JankSQL
         {
             joinContexts.Add(jc);
             jc.PredicateExpressions = predicateExpressionLists;
-            predicateExpressionLists = new List<List<ExpressionNode>>();
+            predicateExpressionLists = new List<Expression>();
         }
 
         internal SelectContext(TSqlParser.Select_statementContext context)
@@ -29,7 +29,7 @@ namespace JankSQL
         internal void EndPredicateExpressionList()
         {
             predicateExpressionLists.Add(currentExpressionList);
-            currentExpressionList = new List<ExpressionNode>();
+            currentExpressionList = new Expression();
         }
 
         internal void EndAndCombinePredicateExpressionList(int arguments)
@@ -37,11 +37,11 @@ namespace JankSQL
             EndPredicateExpressionList();
 
             int firstIndex = predicateExpressionLists.Count - arguments -1;
-            List<List<ExpressionNode>> range = predicateExpressionLists.GetRange(firstIndex, arguments+1);
+            List<Expression> range = predicateExpressionLists.GetRange(firstIndex, arguments+1);
             predicateExpressionLists.RemoveRange(firstIndex, arguments + 1);
 
 
-            List<ExpressionNode> newList = new List<ExpressionNode>();
+            Expression newList = new Expression();
             foreach (var subList in range)
             {
                 newList.AddRange(subList);
@@ -53,7 +53,7 @@ namespace JankSQL
         internal void EndSelectListExpressionList()
         {
             selectList.AddSelectListExpressionList(currentExpressionList);
-            currentExpressionList = new List<ExpressionNode>();
+            currentExpressionList = new Expression();
         }
 
         internal List<ExpressionNode> ExpressionList { get { return currentExpressionList; } }

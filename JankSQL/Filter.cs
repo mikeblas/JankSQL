@@ -3,9 +3,9 @@
     internal class Filter : IComponentOutput
     {
         IComponentOutput myInput;
-        List<List<ExpressionNode>> predicateExpressionLists;
+        List<Expression> predicateExpressionLists;
 
-        internal Filter(IComponentOutput input, List<List<ExpressionNode>> predicateExpressionLists)
+        internal Filter(IComponentOutput input, List<Expression> predicateExpressionLists)
         {
             this.Input = input;
             this.Predicates = predicateExpressionLists;
@@ -17,7 +17,7 @@
 
         internal IComponentOutput Input { get { return myInput; } set { myInput = value; } }
 
-        internal List<List<ExpressionNode>> Predicates { set { predicateExpressionLists = value; } }
+        internal List<Expression> Predicates { set { predicateExpressionLists = value; } }
 
         public void Rewind()
         {
@@ -36,7 +36,8 @@
                 bool predicatePassed = true;
                 foreach (var p in predicateExpressionLists)
                 {
-                    ExpressionOperand result = SelectListContext.Execute(p, rsInput, i);
+                    ExpressionOperand result = p.Evaluate(rsInput, i);
+                    // ExpressionOperand result = SelectListContext.Execute(p, rsInput, i);
 
                     if (!result.IsTrue())
                     {

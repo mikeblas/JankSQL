@@ -28,7 +28,7 @@ namespace JankSQL
 
         internal string OtherTableName { get { return tableName; } }
 
-        internal List<List<ExpressionNode>> PredicateExpressions { get; set; }
+        internal List<Expression> PredicateExpressions { get; set; }
 
     }
 }

@@ -30,7 +30,7 @@
                     {
                         effectiveColumns.Add(rsInput.GetColumnName(i));
                         ExpressionNode x = new ExpressionOperandFromColumn(rsInput.GetColumnName(i));
-                        List<ExpressionNode> xlist = new List<ExpressionNode>();
+                        Expression xlist = new Expression();
                         xlist.Add(x);
                         selectList.AddSelectListExpressionList(xlist);
                     }

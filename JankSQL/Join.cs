@@ -27,7 +27,7 @@ namespace JankSQL
 
         internal IComponentOutput RightInput { get { return rightInput; } set { rightInput = value; } }
 
-        internal List<List<ExpressionNode>> PredicateExpressions { get; set; }
+        internal List<Expression> PredicateExpressions { get; set; }
 
         List<FullColumnName> GetAllColumnNames()
         {
@@ -81,7 +81,7 @@ namespace JankSQL
 
             while (outputSet.RowCount < max && leftIndex < leftRows!.RowCount && rightIndex < rightRows!.RowCount)
             {
-                ExpressionOperand[] totalRow = new ExpressionOperand[allColumnNames.Count];
+                ExpressionOperand[] totalRow = new ExpressionOperand[allColumnNames!.Count];
 
                 int outColumnCount = 0;
                 for (int i = 0; i < leftRows.ColumnCount; i++)

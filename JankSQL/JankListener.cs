@@ -8,7 +8,6 @@ namespace JankSQL
         private int depth = 0;
 
         ExecutionContext executionContext = new ExecutionContext();
-        // SelectListContext selectListContext = null;
         SelectContext selectContext = null; 
 
         internal ExecutionContext ExecutionContext { get { return executionContext; } }

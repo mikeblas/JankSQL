@@ -11,7 +11,7 @@ namespace JankSQL
     {
         TSqlParser.Select_listContext context;
 
-        List<List<ExpressionNode>> expressionLists = new List<List<ExpressionNode>>();
+        List<Expression> expressionLists = new List<Expression>();
 
         string? currentAlias = null;
         int unknownColumnID = 1001;
@@ -23,7 +23,7 @@ namespace JankSQL
             this.context = context;
         }
 
-        internal void AddSelectListExpressionList(List<ExpressionNode> expressionList)
+        internal void AddSelectListExpressionList(Expression expressionList)
         {
             expressionLists.Add(expressionList);
         }
@@ -54,63 +54,9 @@ namespace JankSQL
 
         internal string? CurrentAlias { get { return currentAlias; } set { currentAlias = value; } }
 
-        //TODO: make this on a new ExpressionList wrapper class
-        internal static ExpressionOperand Execute(List<ExpressionNode> expression, ResultSet resultSet, int rowIndex)
-        {
-            Stack<ExpressionNode> stack = new Stack<ExpressionNode>();
-
-            do
-            {
-                foreach (ExpressionNode n in expression)
-                {
-                    if (n is ExpressionOperand)
-                        stack.Push(n);
-                    else if (n is ExpressionOperator)
-                    {
-                        // it's an operator
-                        var oper = (ExpressionOperator)n;
-                        ExpressionOperand r = oper.Evaluate(stack);
-                        stack.Push(r);
-                    }
-                    else if (n is ExpressionOperandFromColumn)
-                    {
-                        var r = (ExpressionOperandFromColumn)n;
-                        int idx = resultSet.ColumnIndex(r.ColumnName);
-                        // Console.WriteLine($"Need value from {r.ColumnName}, column index {idx}");
-
-                        ExpressionOperand[] thisRow = resultSet.Row(rowIndex); 
-                        ExpressionOperand val = thisRow[idx];
-                        stack.Push(val);
-                    }
-                    else if (n is ExpressionComparisonOperator)
-                    {
-                        var oper = (ExpressionComparisonOperator)n;
-                        ExpressionOperand r = oper.Evaluate(stack);
-                        stack.Push(r);
-                    }
-                    else if (n is ExpressionBooleanOperator)
-                    {
-                        var oper = (ExpressionBooleanOperator)n;
-                        ExpressionOperand r = oper.Evaluate(stack);
-                        stack.Push(r);
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException();
-                    }
-
-                }
-            } while (stack.Count > 1);
-
-            ExpressionOperand result = (ExpressionOperand)stack.Pop();
-            Console.WriteLine($"==> [{result}]");
-
-            return result;
-        }
-
         internal ExpressionOperand Execute(int index, ResultSet resultSet, int rowIndex)
         {
-            return SelectListContext.Execute(expressionLists[index], resultSet, rowIndex);
+            return expressionLists[index].Evaluate(resultSet, rowIndex);
         }
 
         internal void Dump()
