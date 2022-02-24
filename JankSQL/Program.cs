@@ -41,6 +41,7 @@ namespace JankSQL
             // str = "SELECT * FROM [mytable] WHERE NOT [population] = 37000;";
             // str = "SELECT * FROM [mytable] WHERE NOT(NOT(NOT ([population] = 37000)));";
             str = "SELECT * FROM [mytable] JOIN [states] ON [mytable].[state_code] = [states].[state_code]";
+            // str = "SELECT * FROM [mytable] CROSS JOIN [states]";
 
 
             ExecutionContext ecString = Parser.ParseSQLFileFromString(str);

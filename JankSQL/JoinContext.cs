@@ -9,10 +9,21 @@ namespace JankSQL
     internal class JoinContext
     {
         string tableName;
+        JoinType joinType;
 
-        internal JoinContext(string tableName)
+        internal enum JoinType
+        {
+            CROSS_JOIN,
+            INNER_JOIN,
+            LEFT_OUTER_JOIN,
+            RIGHT_OUTER_JOIN,
+            FULL_OUTER_JOIN,
+        }
+
+        internal JoinContext(JoinType joinType, string tableName)
         {
             this.tableName = tableName;
+            this.joinType = joinType;
         }
 
         internal string OtherTableName { get { return tableName; } }

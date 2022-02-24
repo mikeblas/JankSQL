@@ -251,11 +251,29 @@ namespace JankSQL
 
         public override void ExitJoin_part([NotNull] TSqlParser.Join_partContext context)
         {
-            string str = context.join_on().table_source().table_source_item_joined().table_source_item().table_name_with_hint().table_name().id_()[0].GetText();
-            Console.WriteLine($"Join On {str}");
+            // figure out which join type
+            if (context.cross_join() != null)
+            {
+                // CROSS Join!
+                string str = context.cross_join().table_source().table_source_item_joined().table_source_item().table_name_with_hint().table_name().id_()[0].GetText();
+                Console.WriteLine($"CROSS JOIN On {str}");
 
-            JoinContext jc = new JoinContext(str);
-            selectContext.AddJoin(jc);
+                JoinContext jc = new JoinContext(JoinContext.JoinType.CROSS_JOIN, str);
+                selectContext.AddJoin(jc);
+            }
+            else if (context.join_on() != null)
+            {
+                // ON join
+                string str = context.join_on().table_source().table_source_item_joined().table_source_item().table_name_with_hint().table_name().id_()[0].GetText();
+                Console.WriteLine($"INNER JOIN On {str}");
+
+                JoinContext jc = new JoinContext(JoinContext.JoinType.INNER_JOIN, str);
+                selectContext.AddJoin(jc);
+            }
+            else 
+            {
+                Console.WriteLine("Don't know this join type");
+            }
 
             base.ExitJoin_part(context);
         }

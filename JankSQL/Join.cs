@@ -34,8 +34,8 @@ namespace JankSQL
             if (allColumnNames == null)
             {
                 allColumnNames = new List<FullColumnName>();
-                allColumnNames.AddRange(leftRows.GetColumnNames());
-                allColumnNames.AddRange(rightRows.GetColumnNames());
+                allColumnNames.AddRange(leftRows!.GetColumnNames());
+                allColumnNames.AddRange(rightRows!.GetColumnNames());
             }
 
             return allColumnNames;
@@ -79,7 +79,7 @@ namespace JankSQL
 
             outputSet.SetColumnNames(GetAllColumnNames());
 
-            while (outputSet.RowCount < max && leftIndex < leftRows.RowCount && rightIndex < rightRows.RowCount)
+            while (outputSet.RowCount < max && leftIndex < leftRows!.RowCount && rightIndex < rightRows!.RowCount)
             {
                 ExpressionOperand[] totalRow = new ExpressionOperand[allColumnNames.Count];
 

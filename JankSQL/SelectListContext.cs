@@ -54,6 +54,7 @@ namespace JankSQL
 
         internal string? CurrentAlias { get { return currentAlias; } set { currentAlias = value; } }
 
+        //TODO: make this on a new ExpressionList wrapper class
         internal static ExpressionOperand Execute(List<ExpressionNode> expression, ResultSet resultSet, int rowIndex)
         {
             Stack<ExpressionNode> stack = new Stack<ExpressionNode>();
@@ -77,7 +78,7 @@ namespace JankSQL
                         int idx = resultSet.ColumnIndex(r.ColumnName);
                         // Console.WriteLine($"Need value from {r.ColumnName}, column index {idx}");
 
-                        ExpressionOperand[] thisRow = resultSet.Row(rowIndex);
+                        ExpressionOperand[] thisRow = resultSet.Row(rowIndex); 
                         ExpressionOperand val = thisRow[idx];
                         stack.Push(val);
                     }
@@ -105,7 +106,6 @@ namespace JankSQL
             Console.WriteLine($"==> [{result}]");
 
             return result;
-
         }
 
         internal ExpressionOperand Execute(int index, ResultSet resultSet, int rowIndex)
