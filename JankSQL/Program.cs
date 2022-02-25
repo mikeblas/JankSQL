@@ -41,12 +41,17 @@ namespace JankSQL
             // str = "SELECT * FROM [mytable] WHERE NOT [population] = 37000;";
             // str = "SELECT * FROM [mytable] WHERE NOT(NOT(NOT ([population] = 37000)));";
             // str = "SELECT * FROM [mytable] JOIN [states] ON [mytable].[state_code] = [states].[state_code]";
-            str = "SELECT * FROM [mytable] CROSS JOIN [states]";
+            // str = "SELECT * FROM [mytable] CROSS JOIN [states]";
+
+            str = "SELECT [three].[number_id], [ten].[number_id], [three].[number_id] + 10 * [ten].[number_id] FROM [Three] CROSS JOIN [Ten] CROSS JOIN [MyTable]" +
+                " WHERE [three].[number_id] + 10 * [ten].[number_id] > 30;";
+
 
 
             ExecutionContext ecString = Parser.ParseSQLFileFromString(str);
             ResultSet rs = ecString.Execute();
             rs.Dump();
+            Console.WriteLine($"{rs.RowCount} total rows");
         }
 
 

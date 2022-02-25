@@ -11,6 +11,8 @@ namespace JankSQL
         IComponentOutput leftInput;
         IComponentOutput rightInput;
         JoinType joinType;
+        ResultSet? outputSet = null;
+        int outputIndex = 0;
 
         int leftIndex = -1;
         int rightIndex = -1;
@@ -58,15 +60,30 @@ namespace JankSQL
 
         public void Rewind()
         {
-            leftRows = null;
-            rightRows = null;
-            rightInput.Rewind();
-            leftInput.Rewind();
+            outputIndex = 0;
         }
 
         public ResultSet GetRows(int max)
         {
-            ResultSet outputSet = new ResultSet();
+            if (outputSet is null)
+                outputSet = ProduceOutputSet();
+
+            ResultSet resultSlice = ResultSet.NewWithShape(outputSet);
+
+            while (outputIndex < outputSet.RowCount && resultSlice.RowCount < max)
+            {
+                resultSlice.AddRowFrom(outputSet, outputIndex);
+                outputIndex++;
+            }
+
+            return resultSlice;
+        }
+
+        ResultSet ProduceOutputSet()
+        { 
+            ResultSet output = new ResultSet();
+
+            const int max = 25;
 
             if (leftRows == null)
             {
@@ -79,9 +96,9 @@ namespace JankSQL
                 rightIndex = 0;
             }
 
-            outputSet.SetColumnNames(GetAllColumnNames());
+            output.SetColumnNames(GetAllColumnNames());
 
-            while (outputSet.RowCount < max && leftIndex < leftRows!.RowCount && rightIndex < rightRows!.RowCount)
+            while (leftIndex < leftRows!.RowCount && rightIndex < rightRows!.RowCount)
             {
                 ExpressionOperand[] totalRow = new ExpressionOperand[allColumnNames!.Count];
 
@@ -112,12 +129,12 @@ namespace JankSQL
                 {
                     // add only if matched
                     if (matched)
-                        outputSet.AddRow(totalRow);
+                        output.AddRow(totalRow);
                 }
                 else if (joinType == JoinType.CROSS_JOIN)
                 {
                     // always add
-                    outputSet.AddRow(totalRow);
+                    output.AddRow(totalRow);
                 }
                 else
                 {
@@ -138,7 +155,7 @@ namespace JankSQL
                 }
             }
 
-            return outputSet;
+            return output;
         }
     }
 }
