@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace JankSQL
 {
-    internal class FullColumnName
+    public class FullColumnName
     {
         string? serverName;
         string? schemaName;

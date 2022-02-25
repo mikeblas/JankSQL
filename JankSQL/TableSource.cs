@@ -9,10 +9,10 @@ namespace JankSQL
 
     internal class TableSource : IComponentOutput
     {
-        Engines.DynamicCSV source;
+        Engines.IEngineSource source;
         int currentRow = 0;
 
-        internal TableSource(Engines.DynamicCSV source)
+        internal TableSource(Engines.IEngineSource source)
         {
             this.source = source;
             this.source.Load();

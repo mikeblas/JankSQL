@@ -46,6 +46,8 @@ namespace JankSQL
             str = "SELECT [three].[number_id], [ten].[number_id], [three].[number_id] + 10 * [ten].[number_id] FROM [Three] CROSS JOIN [Ten] CROSS JOIN [MyTable]" +
                 " WHERE [three].[number_id] + 10 * [ten].[number_id] > 30;";
 
+            str = "SELECT 3+5 WHERE 1=0;";
+
 
 
             ExecutionContext ecString = Parser.ParseSQLFileFromString(str);

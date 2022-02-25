@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace JankSQL.Engines
 {
-    public class DynamicCSV
+
+    public class DynamicCSV : IEngineSource
     {
         private string filename;
         private string tableName;
@@ -61,7 +62,7 @@ namespace JankSQL.Engines
             return values[n];
         }
 
-        internal FullColumnName ColumnName(int n)
+        public FullColumnName ColumnName(int n)
         {
             return columnNames[n];
         }
