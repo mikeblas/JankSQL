@@ -97,9 +97,12 @@ namespace JankSQL
     {
         internal ExpressionNodeType nodeType;
 
-        internal static ExpressionOperand DecimalFromString(string str)
+        internal static ExpressionOperand DecimalFromString(bool isNegative, string str)
         {
-            return new ExpressionOperandDecmial(Double.Parse(str));
+            double d = Double.Parse(str);
+            if (isNegative)
+                d *= -1;
+            return new ExpressionOperandDecmial(d);
         }
 
         internal static ExpressionOperand DecimalFromDouble(double d)
@@ -107,10 +110,41 @@ namespace JankSQL
             return new ExpressionOperandDecmial(d);
         }
 
+        private static string NormalizeString(string str)
+        {
+            // remove 'N' if we have it
+            string temp = str;
+            if (str[0] == 'N')
+                temp = str.Substring(1);
+
+            // trim leading and trailing ticks
+            temp = temp.Substring(1, temp.Length - 2);
+
+            // unescape double ticks
+            temp = temp.Replace("''", "'");
+            return temp;
+        }
+
         internal static ExpressionOperand NVARCHARFromString(string str)
         {
             return new ExpressionOperandNVARCHAR(str);
         }
+
+        internal static ExpressionOperand NVARCHARFromStringContext(string str)
+        {
+            return new ExpressionOperandNVARCHAR(NormalizeString(str));
+        }
+
+        internal static ExpressionOperand VARCHARFromString(string str)
+        {
+            return new ExpressionOperandVARCHAR(str);
+        }
+
+        internal static ExpressionOperand VARCHARFromStringContext(string str)
+        {
+            return new ExpressionOperandVARCHAR(NormalizeString(str));
+        }
+
 
         internal ExpressionOperand(ExpressionNodeType t)
         {
@@ -161,7 +195,7 @@ namespace JankSQL
 
         public override string ToString()
         {
-            return $"NVARCHAR({str})";
+            return $"NVARCHAR(\"{str}\")";
         }
 
         public override double AsDouble()
@@ -179,6 +213,38 @@ namespace JankSQL
             return str;
         }
     }
+
+    internal class ExpressionOperandVARCHAR : ExpressionOperand
+    {
+        internal string str;
+        internal ExpressionOperandVARCHAR(string str)
+            : base(ExpressionNodeType.VARCHAR)
+        {
+            this.str = str;
+        }
+
+        public override string ToString()
+        {
+            return $"VARCHAR(\"{str}\")";
+        }
+
+        public override double AsDouble()
+        {
+            return Double.Parse(str);
+        }
+
+        public override bool IsTrue()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string AsString()
+        {
+            return str;
+        }
+    }
+
+
 
     internal class ExpressionOperandBoolean : ExpressionOperand
     {
