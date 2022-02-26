@@ -8,14 +8,32 @@ namespace JankSQL
 {
     public class ExecutionContext
     {
-        SelectContext selectContext = null;
+        List<SelectContext> selectContext = new List<SelectContext>();
 
 
-        public SelectContext SelectContext { get { return selectContext; } set { selectContext = value; } }
+        public List<SelectContext> SelectContexts { get { return selectContext; } set { selectContext = value; } }
 
-        public ResultSet Execute()
+        public ResultSet[] Execute()
         {
-            return selectContext.Execute();
+            List<ResultSet> results = new List<ResultSet>();
+            foreach(SelectContext context in selectContext)
+            {
+                ResultSet result = context.Execute();
+                results.Add(result);
+            }
+
+            return results.ToArray();
         }
+
+
+        public ResultSet ExecuteSingle()
+        {
+            if (selectContext.Count != 1)
+                return null;
+
+            ResultSet result = selectContext[0].Execute();
+            return result;
+        }
+
     }
 }

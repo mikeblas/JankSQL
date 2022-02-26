@@ -50,16 +50,23 @@ namespace JankSQL
 
             // str = "SELECT N'hello', 'goodbye', 'Bob''s Burgers';";
 
-            str = "SELECT 'Hello' + ', world';";
+            // str = "SELECT 'Hello' + ', world';";
 
             // str = "SELECT -32;";
+
+            str = "SELECT 'This'; SELECT 'That';";
 
 
 
             ExecutionContext ecString = Parser.ParseSQLFileFromString(str);
-            ResultSet rs = ecString.Execute();
-            rs.Dump();
-            Console.WriteLine($"{rs.RowCount} total rows");
+            ResultSet[] sets = ecString.Execute();
+
+            for (int i = 0; i < sets.Length; i++)
+            {
+                Console.WriteLine($"Result set #{i} =====");
+                sets[i].Dump();
+                Console.WriteLine($"{sets[i].RowCount} total rows");
+            }
         }
 
 

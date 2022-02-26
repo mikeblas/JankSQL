@@ -30,8 +30,7 @@ namespace JankSQL
 
         public override void ExitSelect_statement(TSqlParser.Select_statementContext context)
         {
-            // selectListContext = null;
-            executionContext.SelectContext = selectContext;
+            executionContext.SelectContexts.Add(selectContext);
         }
 
         public override void EnterSelect_statement([NotNull] TSqlParser.Select_statementContext context)
@@ -282,10 +281,6 @@ namespace JankSQL
             }
         }
 
-        public ResultSet Execute()
-        {
-            return executionContext.Execute();
-        }
 
         public override void ExitJoin_part([NotNull] TSqlParser.Join_partContext context)
         {
