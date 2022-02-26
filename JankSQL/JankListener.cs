@@ -8,7 +8,7 @@ namespace JankSQL
         private int depth = 0;
 
         ExecutionContext executionContext = new ExecutionContext();
-        SelectContext selectContext = null; 
+        SelectContext selectContext; 
 
         internal ExecutionContext ExecutionContext { get { return executionContext; } }
 
@@ -166,7 +166,7 @@ namespace JankSQL
             // if this is an asterisk, it doesn't get an expression
             if (context.asterisk() == null)
             {
-                FullColumnName fcn = null;
+                FullColumnName? fcn = null;
 
                 if (selectContext.SelectListContext.CurrentAlias != null)
                 {

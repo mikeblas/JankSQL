@@ -22,10 +22,14 @@ namespace JankSQL
         ResultSet? leftRows = null;
         ResultSet? rightRows = null;
 
-        internal Join(JoinType joinType)
+        internal Join(JoinType joinType, IComponentOutput leftInput, IComponentOutput rightInput, List<Expression> predicateExpressions)
         {
             this.joinType = joinType;
+            this.leftInput = leftInput;
+            this.rightInput = rightInput;
+            this.PredicateExpressions = predicateExpressions;
         }
+
 
         internal IComponentOutput LeftInput { get { return leftInput; } set { leftInput = value; } }
 

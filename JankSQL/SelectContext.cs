@@ -145,10 +145,7 @@ namespace JankSQL
                         TableSource joinSource = new TableSource(otherTable);
 
                         // build a join operator with it
-                        Join oper = new Join(j.JoinType);
-                        oper.LeftInput = lastLeftOutput;
-                        oper.RightInput = joinSource;
-                        oper.PredicateExpressions = j.PredicateExpressions;
+                        Join oper = new Join(j.JoinType, lastLeftOutput, joinSource, j.PredicateExpressions);
 
                         lastLeftOutput = oper;
                     }
@@ -163,8 +160,7 @@ namespace JankSQL
             }
 
             // then the select
-            Select select = new Select(querySpecs.select_list().select_list_elem(), selectList);
-            select.Input = lastLeftOutput;
+            Select select = new Select(lastLeftOutput, querySpecs.select_list().select_list_elem(), selectList);
 
             while (true)
             {
@@ -178,7 +174,6 @@ namespace JankSQL
 
             return resultSet;
         }
-
 
 
         internal void Dump()

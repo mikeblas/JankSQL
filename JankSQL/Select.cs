@@ -8,8 +8,9 @@
 
         internal IComponentOutput Input { get { return myInput; } set { myInput = value; } }
 
-        internal Select(TSqlParser.Select_list_elemContext[] selectListContexts, SelectListContext selectList)
+        internal Select(IComponentOutput input, TSqlParser.Select_list_elemContext[] selectListContexts, SelectListContext selectList)
         {
+            this.myInput = input;
             this.selectListContexts = selectListContexts;
             this.selectList = selectList;
         }
