@@ -85,10 +85,10 @@ namespace JankSQL
                 Console.WriteLine($"constant: '{str}'");
                 bool isNegative = context.constant().sign() is not null;
 
-                ExpressionNodeType t = ExpressionOperand.IntegerOrDecimal(str);
+                ExpressionOperandType t = ExpressionOperand.IntegerOrDecimal(str);
                 ExpressionNode x;
 
-                if (t == ExpressionNodeType.INTEGER)
+                if (t == ExpressionOperandType.INTEGER)
                     x = ExpressionOperand.IntegerFromString(isNegative, str);
                 else
                     x = ExpressionOperand.DecimalFromString(isNegative, str);

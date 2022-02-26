@@ -16,7 +16,7 @@ namespace JankSQL.Engines
         private FullColumnName[] columnNames;
 
         // list of types
-        private ExpressionNodeType[] columnTypes;
+        private ExpressionOperandType[] columnTypes;
 
         // list of lines; each line is a list of values
         private List<ExpressionOperand[]> values;
@@ -48,25 +48,25 @@ namespace JankSQL.Engines
                 }
                 else if (lineNumber == 1)
                 {
-                    columnTypes = new ExpressionNodeType[fields.Length];
+                    columnTypes = new ExpressionOperandType[fields.Length];
                     for (int i = 0; i < fields.Length; ++i)
                     {
                         switch (fields[i])
                         {
                             case "DECIMAL":
-                                columnTypes[i] = ExpressionNodeType.DECIMAL;
+                                columnTypes[i] = ExpressionOperandType.DECIMAL;
                                 break;
 
                             case "INTEGER":
-                                columnTypes[i] = ExpressionNodeType.INTEGER;
+                                columnTypes[i] = ExpressionOperandType.INTEGER;
                                 break;
 
                             case "VARCHAR":
-                                columnTypes[i] = ExpressionNodeType.VARCHAR;
+                                columnTypes[i] = ExpressionOperandType.VARCHAR;
                                 break;
 
                             case "NVARCHAR":
-                                columnTypes[i] = ExpressionNodeType.NVARCHAR;
+                                columnTypes[i] = ExpressionOperandType.NVARCHAR;
                                 break;
                         }
                     }
@@ -79,19 +79,19 @@ namespace JankSQL.Engines
                     {
                         switch (columnTypes[i])
                         {
-                            case ExpressionNodeType.DECIMAL:
+                            case ExpressionOperandType.DECIMAL:
                                 newRow[i] = new ExpressionOperandDecmial(Double.Parse(fields[i]));
                                 break;
 
-                            case ExpressionNodeType.VARCHAR:
+                            case ExpressionOperandType.VARCHAR:
                                 newRow[i] = new ExpressionOperandVARCHAR(fields[i]);
                                 break;
 
-                            case ExpressionNodeType.NVARCHAR:
+                            case ExpressionOperandType.NVARCHAR:
                                 newRow[i] = new ExpressionOperandNVARCHAR(fields[i]);
                                 break;
 
-                            case ExpressionNodeType.INTEGER:
+                            case ExpressionOperandType.INTEGER:
                                 newRow[i] = new ExpressionOperandInteger(Int32.Parse(fields[i]));
                                 break;
 

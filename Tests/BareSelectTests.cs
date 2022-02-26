@@ -207,7 +207,7 @@ namespace Tests
             ExpressionOperand[] row = set.Row(0);
             for (int n = 0; n < set.ColumnCount; n++)
             {
-                Assert.AreEqual(ExpressionNodeType.INTEGER, row[n].NodeType);
+                Assert.AreEqual(ExpressionOperandType.INTEGER, row[n].NodeType);
             }
         }
 
@@ -226,7 +226,7 @@ namespace Tests
             ExpressionOperand[] row = set.Row(0);
             for (int n = 0; n < set.ColumnCount; n++)
             {
-                Assert.AreEqual(ExpressionNodeType.DECIMAL, row[n].NodeType);
+                Assert.AreEqual(ExpressionOperandType.DECIMAL, row[n].NodeType);
             }
         }
 
