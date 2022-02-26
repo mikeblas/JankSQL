@@ -13,28 +13,31 @@ namespace JankSQL.Engines
         private string tableName;
 
         // list of column names
-        private FullColumnName[] columnNames = null;
+        private FullColumnName[] columnNames;
+
+        // list of types
+        private ExpressionNodeType[] columnTypes;
 
         // list of lines; each line is a list of values
-        private List<string[]> values;
+        private List<ExpressionOperand[]> values;
 
         public DynamicCSV(string filename, string tableName)
         {
             this.filename = filename;
-            this.values = new List<string[]>();
+            this.values = new List<ExpressionOperand[]>();
             this.tableName = tableName;
         }
 
         public void Load()
         {
             var lines = File.ReadLines(filename);
-            bool firstLine = true;
+            int lineNumber = 0;
 
             foreach (var line in lines)
             {
                 string[] fields = line.Split(",");
 
-                if (firstLine)
+                if (lineNumber == 0)
                 {
                     columnNames = new FullColumnName[fields.Length];
                     for (int i = 0; i < fields.Length; ++i)
@@ -42,12 +45,66 @@ namespace JankSQL.Engines
                         FullColumnName fcn = FullColumnName.FromTableColumnName(tableName, fields[i]);
                         columnNames[i] = fcn;
                     }
-                    firstLine = false;
+                }
+                else if (lineNumber == 1)
+                {
+                    columnTypes = new ExpressionNodeType[fields.Length];
+                    for (int i = 0; i < fields.Length; ++i)
+                    {
+                        switch (fields[i])
+                        {
+                            case "DECIMAL":
+                                columnTypes[i] = ExpressionNodeType.DECIMAL;
+                                break;
+
+                            case "INTEGER":
+                                columnTypes[i] = ExpressionNodeType.INTEGER;
+                                break;
+
+                            case "VARCHAR":
+                                columnTypes[i] = ExpressionNodeType.VARCHAR;
+                                break;
+
+                            case "NVARCHAR":
+                                columnTypes[i] = ExpressionNodeType.NVARCHAR;
+                                break;
+                        }
+                    }
                 }
                 else
                 {
-                    values.Add(fields);
+                    ExpressionOperand[] newRow = new ExpressionOperand[fields.Length];
+
+                    for (int i = 0; i < fields.Length; i++)
+                    {
+                        switch (columnTypes[i])
+                        {
+                            case ExpressionNodeType.DECIMAL:
+                                newRow[i] = new ExpressionOperandDecmial(Double.Parse(fields[i]));
+                                break;
+
+                            case ExpressionNodeType.VARCHAR:
+                                newRow[i] = new ExpressionOperandVARCHAR(fields[i]);
+                                break;
+
+                            case ExpressionNodeType.NVARCHAR:
+                                newRow[i] = new ExpressionOperandNVARCHAR(fields[i]);
+                                break;
+
+                            case ExpressionNodeType.INTEGER:
+                                newRow[i] = new ExpressionOperandInteger(Int32.Parse(fields[i]));
+                                break;
+
+                            default:
+                                throw new NotImplementedException();
+
+                        }
+                    }
+
+                    values.Add(newRow);
                 }
+
+                lineNumber++;
             }
 
         }
@@ -57,7 +114,7 @@ namespace JankSQL.Engines
         public int ColumnCount { get { return columnNames.Length; } }
 
 
-        public string[] Row(int n)
+        public ExpressionOperand[] Row(int n)
         {
             return values[n];
         }

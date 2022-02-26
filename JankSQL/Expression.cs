@@ -15,14 +15,14 @@ namespace JankSQL
 
         internal ExpressionOperand Evaluate(IRowValueAccessor accessor)
         {
-            Stack<ExpressionNode> stack = new Stack<ExpressionNode>();
+            Stack<ExpressionOperand> stack = new Stack<ExpressionOperand>();
 
             do
             {
                 foreach (ExpressionNode n in this)
                 {
                     if (n is ExpressionOperand)
-                        stack.Push(n);
+                        stack.Push((ExpressionOperand) n);
                     else if (n is ExpressionOperator)
                     {
                         // it's an operator

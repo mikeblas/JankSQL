@@ -16,9 +16,9 @@
             return null;
         }
 
-        public string[] Row(int n)
+        public ExpressionOperand[] Row(int n)
         {
-            string[] ret = new string[0];
+            ExpressionOperand[] ret = new ExpressionOperand[0];
             return ret;
         }
 

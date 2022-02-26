@@ -41,7 +41,7 @@ namespace JankSQL
 
                 for (int i = 0; i < source.ColumnCount; i++)
                 {
-                    thisRow[i] = ExpressionOperand.NVARCHARFromString(source.Row(currentRow)[i]);
+                    thisRow[i] = source.Row(currentRow)[i];
                 }
 
                 rs.AddRow(thisRow);

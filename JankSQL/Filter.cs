@@ -7,12 +7,8 @@
 
         internal Filter(IComponentOutput input, List<Expression> predicateExpressionLists)
         {
-            this.Input = input;
-            this.Predicates = predicateExpressionLists;
-        }
-
-        internal Filter()
-        {
+            myInput = input;
+            this.predicateExpressionLists = predicateExpressionLists;
         }
 
         internal IComponentOutput Input { get { return myInput; } set { myInput = value; } }

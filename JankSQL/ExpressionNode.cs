@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace JankSQL
 {
-    internal enum ExpressionNodeType
+    public enum ExpressionNodeType
     {
         VARCHAR,
         NVARCHAR,
@@ -14,11 +14,11 @@ namespace JankSQL
         DECIMAL,
     };
 
-    internal class ExpressionNode
+    public class ExpressionNode
     {
     }
 
-    internal class ExpressionOperator : ExpressionNode
+    public class ExpressionOperator : ExpressionNode
     {
         internal string str;
 
@@ -32,55 +32,51 @@ namespace JankSQL
             return str;
         }
 
-        internal ExpressionOperand Evaluate(Stack<ExpressionNode> stack)
+        internal ExpressionOperand Evaluate(Stack<ExpressionOperand> stack)
         {
             if (str == "/")
             {
-                ExpressionOperand right = (ExpressionOperand)stack.Pop();
-                ExpressionOperand left = (ExpressionOperand)stack.Pop();
+                ExpressionOperand right = stack.Pop();
+                ExpressionOperand left = stack.Pop();
 
-                double d = left.AsDouble() / right.AsDouble();
-                ExpressionOperand result = ExpressionOperand.DecimalFromDouble(d);
+                ExpressionOperand result = left.OperatorSlash(right);
                 return result;
             }
             else if (str == "+")
             {
-                ExpressionOperand op1 = (ExpressionOperand)stack.Pop();
-                ExpressionOperand op2 = (ExpressionOperand)stack.Pop();
+                ExpressionOperand op1 = stack.Pop(); 
+                ExpressionOperand op2 = stack.Pop();
 
-                double d = op1.AsDouble() + op2.AsDouble();
-                ExpressionOperand result = ExpressionOperand.DecimalFromDouble(d);
+                ExpressionOperand result = op2.OperatorPlus(op1);
                 return result;
             }
             else if (str == "-")
             {
-                ExpressionOperand right = (ExpressionOperand)stack.Pop();
-                ExpressionOperand left = (ExpressionOperand)stack.Pop();
+                ExpressionOperand right = stack.Pop();
+                ExpressionOperand left = stack.Pop();
 
-                double d = left.AsDouble() - right.AsDouble();
-                ExpressionOperand result = ExpressionOperand.DecimalFromDouble(d);
+                ExpressionOperand result = left.OperatorMinus(right);
                 return result;
             }
             else if (str == "*")
             {
-                ExpressionOperand op1 = (ExpressionOperand)stack.Pop();
-                ExpressionOperand op2 = (ExpressionOperand)stack.Pop();
+                ExpressionOperand op1 = stack.Pop();
+                ExpressionOperand op2 = stack.Pop();
 
-                double d = op1.AsDouble() * op2.AsDouble();
-                ExpressionOperand result = ExpressionOperand.DecimalFromDouble(d);
+                ExpressionOperand result = op1.OperatorTimes(op2);
                 return result;
             }
             else if (str == "SQRT")
             {
-                ExpressionOperand op1 = (ExpressionOperand)stack.Pop();
+                ExpressionOperand op1 = stack.Pop();
                 double d = Math.Sqrt(op1.AsDouble());
                 ExpressionOperand result = ExpressionOperand.DecimalFromDouble(d);
                 return result;
             }
             else if (str == "POWER")
             {
-                ExpressionOperand right = (ExpressionOperand)stack.Pop();
-                ExpressionOperand left = (ExpressionOperand)stack.Pop();
+                ExpressionOperand right = stack.Pop();
+                ExpressionOperand left = stack.Pop();
 
                 double d = Math.Pow(left.AsDouble(), right.AsDouble());
                 ExpressionOperand result = ExpressionOperand.DecimalFromDouble(d);
@@ -93,7 +89,7 @@ namespace JankSQL
         }
     }
 
-    internal abstract class ExpressionOperand : ExpressionNode
+    public abstract class ExpressionOperand : ExpressionNode
     {
         internal ExpressionNodeType nodeType;
 
@@ -145,17 +141,25 @@ namespace JankSQL
             return new ExpressionOperandVARCHAR(NormalizeString(str));
         }
 
-
         internal ExpressionOperand(ExpressionNodeType t)
         {
             nodeType = t;
         }
 
         public abstract bool IsTrue();
+        public abstract string AsString();
 
         public abstract double AsDouble();
 
         public ExpressionNodeType NodeType { get { return nodeType; } }
+
+        public abstract bool OperatorEquals(ExpressionOperand other);
+        public abstract bool OperatorGreaterThan(ExpressionOperand other);
+        public abstract bool OperatorLessThan(ExpressionOperand other);
+        public abstract ExpressionOperand OperatorPlus(ExpressionOperand other);
+        public abstract ExpressionOperand OperatorMinus(ExpressionOperand other);
+        public abstract ExpressionOperand OperatorTimes(ExpressionOperand other);
+        public abstract ExpressionOperand OperatorSlash(ExpressionOperand other);
     }
 
     internal class ExpressionOperandDecmial : ExpressionOperand
@@ -177,11 +181,279 @@ namespace JankSQL
             return d;
         }
 
+        public override string AsString()
+        {
+            return $"{d}";
+        }
+
         public override bool IsTrue()
         {
             throw new NotImplementedException();
         }
 
+        public override bool OperatorEquals(ExpressionOperand other)
+        {
+            if (other.NodeType == ExpressionNodeType.DECIMAL || other.NodeType == ExpressionNodeType.INTEGER)
+            {
+                return (other.AsDouble() == AsDouble());
+            }
+            else if (other.NodeType == ExpressionNodeType.NVARCHAR || other.NodeType == ExpressionNodeType.VARCHAR)
+            {
+                return other.AsDouble() == AsDouble();
+            }
+            else
+            {
+                throw new NotImplementedException("DECIMAL Equals");
+            }
+        }
+
+        public override bool OperatorGreaterThan(ExpressionOperand other)
+        {
+            if (other.NodeType == ExpressionNodeType.DECIMAL || other.NodeType == ExpressionNodeType.INTEGER)
+            {
+                return (AsDouble() > other.AsDouble());
+            }
+            else if (other.NodeType == ExpressionNodeType.NVARCHAR || other.NodeType == ExpressionNodeType.VARCHAR)
+            {
+                return AsDouble() > other.AsDouble();
+            }
+            else
+            {
+                throw new NotImplementedException("DECIMAL GreaterThan");
+            }
+        }
+
+        public override bool OperatorLessThan(ExpressionOperand other)
+        {
+            if (other.NodeType == ExpressionNodeType.DECIMAL || other.NodeType == ExpressionNodeType.INTEGER)
+            {
+                return (AsDouble() < other.AsDouble());
+            }
+            else if (other.NodeType == ExpressionNodeType.NVARCHAR || other.NodeType == ExpressionNodeType.VARCHAR)
+            {
+                return AsDouble() < other.AsDouble();
+            }
+            else
+            {
+                throw new NotImplementedException("DECIMAL LessThan");
+            }
+        }
+
+        public override ExpressionOperand OperatorPlus(ExpressionOperand other)
+        {
+            if (other.NodeType == ExpressionNodeType.DECIMAL || other.NodeType == ExpressionNodeType.INTEGER)
+            {
+                double result = AsDouble() + other.AsDouble();
+                return new ExpressionOperandDecmial(result);
+            }
+            else if (other.NodeType == ExpressionNodeType.VARCHAR || other.NodeType == ExpressionNodeType.NVARCHAR)
+            {
+                double result = AsDouble() + other.AsDouble();
+                return new ExpressionOperandDecmial(result);
+            }
+            else
+            {
+                throw new InvalidOperationException("OperatorPlus Decimal");
+            }
+        }
+
+        public override ExpressionOperand OperatorMinus(ExpressionOperand other)
+        {
+            if (other.NodeType == ExpressionNodeType.DECIMAL || other.NodeType == ExpressionNodeType.INTEGER)
+            {
+                double result = AsDouble() - other.AsDouble();
+                return new ExpressionOperandDecmial(result);
+            }
+            else if (other.NodeType == ExpressionNodeType.VARCHAR || other.NodeType == ExpressionNodeType.NVARCHAR)
+            {
+                double result = AsDouble() - other.AsDouble();
+                return new ExpressionOperandDecmial(result);
+            }
+            else
+            {
+                throw new InvalidOperationException("OperatorMinus Decimal");
+            }
+        }
+
+
+        public override ExpressionOperand OperatorSlash(ExpressionOperand other)
+        {
+            if (other.NodeType == ExpressionNodeType.DECIMAL || other.NodeType == ExpressionNodeType.INTEGER)
+            {
+                double result = AsDouble() / other.AsDouble();
+                return new ExpressionOperandDecmial(result);
+            }
+            else if (other.NodeType == ExpressionNodeType.VARCHAR || other.NodeType == ExpressionNodeType.NVARCHAR)
+            {
+                double result = AsDouble() / other.AsDouble();
+                return new ExpressionOperandDecmial(result);
+            }
+            else
+            {
+                throw new InvalidOperationException("OperatorSlash Decimal");
+            }
+        }
+
+        public override ExpressionOperand OperatorTimes(ExpressionOperand other)
+        {
+            if (other.NodeType == ExpressionNodeType.DECIMAL || other.NodeType == ExpressionNodeType.INTEGER)
+            {
+                double result = AsDouble() * other.AsDouble();
+                return new ExpressionOperandDecmial(result);
+            }
+            else if (other.NodeType == ExpressionNodeType.VARCHAR || other.NodeType == ExpressionNodeType.NVARCHAR)
+            {
+                double result = AsDouble() * other.AsDouble();
+                return new ExpressionOperandDecmial(result);
+            }
+            else
+            {
+                throw new InvalidOperationException("OperatorTimes Decimal");
+            }
+        }
+    }
+
+
+    internal class ExpressionOperandInteger : ExpressionOperand
+    {
+        internal int n;
+        internal ExpressionOperandInteger(int n)
+            : base(ExpressionNodeType.INTEGER)
+        {
+            this.n = n;
+        }
+
+        public override string ToString()
+        {
+            return $"integer({n})";
+        }
+
+        public override double AsDouble()
+        {
+            return (double)n;
+        }
+
+        public override string AsString()
+        {
+            return $"{n}";
+        }
+
+        public override bool IsTrue()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool OperatorEquals(ExpressionOperand other)
+        {
+            if (other.NodeType == ExpressionNodeType.DECIMAL || other.NodeType == ExpressionNodeType.INTEGER)
+            {
+                return (other.AsDouble() == AsDouble());
+            }
+            else if (other.NodeType == ExpressionNodeType.NVARCHAR || other.NodeType == ExpressionNodeType.VARCHAR)
+            {
+                return other.AsDouble() == AsDouble();
+            }
+
+            return false;
+        }
+
+        public override bool OperatorGreaterThan(ExpressionOperand other)
+        {
+            if (other.NodeType == ExpressionNodeType.DECIMAL || other.NodeType == ExpressionNodeType.INTEGER)
+            {
+                return (AsDouble() > other.AsDouble());
+            }
+            else
+            {
+                throw new NotImplementedException("INTEGER GreaterThan");
+            }
+        }
+
+        public override bool OperatorLessThan(ExpressionOperand other)
+        {
+            if (other.NodeType == ExpressionNodeType.DECIMAL || other.NodeType == ExpressionNodeType.INTEGER)
+            {
+                return (AsDouble() < other.AsDouble());
+            }
+            else
+            {
+                throw new NotImplementedException("INTEGER LessThan");
+            }
+        }
+
+
+        public override ExpressionOperand OperatorPlus(ExpressionOperand other)
+        {
+            if (other.NodeType == ExpressionNodeType.DECIMAL || other.NodeType == ExpressionNodeType.INTEGER)
+            {
+                double result = AsDouble() + other.AsDouble();
+                return new ExpressionOperandDecmial(result);
+            }
+            else if (other.NodeType == ExpressionNodeType.VARCHAR || other.NodeType == ExpressionNodeType.NVARCHAR)
+            {
+                double result = AsDouble() + other.AsDouble();
+                return new ExpressionOperandDecmial(result);
+            }
+            else
+            {
+                throw new InvalidOperationException("OperatorPlus Integer");
+            }
+        }
+
+        public override ExpressionOperand OperatorMinus(ExpressionOperand other)
+        {
+            if (other.NodeType == ExpressionNodeType.DECIMAL || other.NodeType == ExpressionNodeType.INTEGER)
+            {
+                double result = AsDouble() - other.AsDouble();
+                return new ExpressionOperandDecmial(result);
+            }
+            else if (other.NodeType == ExpressionNodeType.VARCHAR || other.NodeType == ExpressionNodeType.NVARCHAR)
+            {
+                double result = AsDouble() - other.AsDouble();
+                return new ExpressionOperandDecmial(result);
+            }
+            else
+            {
+                throw new InvalidOperationException("OperatorMinus Integer");
+            }
+        }
+
+
+        public override ExpressionOperand OperatorSlash(ExpressionOperand other)
+        {
+            if (other.NodeType == ExpressionNodeType.DECIMAL || other.NodeType == ExpressionNodeType.INTEGER)
+            {
+                double result = AsDouble() / other.AsDouble();
+                return new ExpressionOperandDecmial(result);
+            }
+            else if (other.NodeType == ExpressionNodeType.VARCHAR || other.NodeType == ExpressionNodeType.NVARCHAR)
+            {
+                double result = AsDouble() / other.AsDouble();
+                return new ExpressionOperandDecmial(result);
+            }
+            else
+            {
+                throw new InvalidOperationException("OperatorSlash Integer");
+            }
+        }
+
+        public override ExpressionOperand OperatorTimes(ExpressionOperand other)
+        {
+            if (other.NodeType == ExpressionNodeType.DECIMAL || other.NodeType == ExpressionNodeType.INTEGER)
+            {
+                double result = AsDouble() * other.AsDouble();
+                return new ExpressionOperandDecmial(result);
+            }
+            else if (other.NodeType == ExpressionNodeType.VARCHAR || other.NodeType == ExpressionNodeType.NVARCHAR)
+            {
+                double result = AsDouble() * other.AsDouble();
+                return new ExpressionOperandDecmial(result);
+            }
+            else
+            {
+                throw new InvalidOperationException("OperatorTimes Integer");
+            }
+        }
     }
 
     internal class ExpressionOperandNVARCHAR : ExpressionOperand
@@ -208,9 +480,118 @@ namespace JankSQL
             throw new NotImplementedException();
         }
 
-        public string AsString()
+        public override string AsString()
         {
             return str;
+        }
+
+        public override bool OperatorEquals(ExpressionOperand other)
+        {
+            if (other.NodeType == ExpressionNodeType.VARCHAR || other.NodeType == ExpressionNodeType.NVARCHAR)
+            {
+                return other.AsString() == AsString();
+            }
+            else if (other.NodeType == ExpressionNodeType.DECIMAL || other.NodeType == ExpressionNodeType.INTEGER)
+            {
+                return other.AsDouble() == AsDouble();
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+        }
+
+        public override bool OperatorGreaterThan(ExpressionOperand other)
+        {
+            if (other.NodeType == ExpressionNodeType.VARCHAR || other.NodeType == ExpressionNodeType.NVARCHAR)
+            {
+                return AsString().CompareTo(other.AsString()) > 0;
+            }
+            else if (other.NodeType == ExpressionNodeType.DECIMAL || other.NodeType == ExpressionNodeType.INTEGER)
+            {
+                return AsDouble() > other.AsDouble();
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+        }
+
+        public override bool OperatorLessThan(ExpressionOperand other)
+        {
+            if (other.NodeType == ExpressionNodeType.VARCHAR || other.NodeType == ExpressionNodeType.NVARCHAR)
+            {
+                return AsString().CompareTo(other.AsString()) < 0;
+            }
+            else if (other.NodeType == ExpressionNodeType.DECIMAL || other.NodeType == ExpressionNodeType.INTEGER)
+            {
+                return AsDouble() < other.AsDouble();
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+        }
+
+        public override ExpressionOperand OperatorPlus(ExpressionOperand other)
+        {
+            ExpressionOperand ret;
+            if (other.NodeType == ExpressionNodeType.VARCHAR || other.NodeType == ExpressionNodeType.NVARCHAR)
+            {
+                string result = AsString() + other.AsString();
+                ret = new ExpressionOperandNVARCHAR(result);
+            }
+            else if (other.NodeType == ExpressionNodeType.DECIMAL || other.NodeType == ExpressionNodeType.INTEGER)
+            {
+                double d = AsDouble() + other.AsDouble();
+                ret = new ExpressionOperandDecmial(d);
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+
+            return ret;
+        }
+
+        public override ExpressionOperand OperatorMinus(ExpressionOperand other)
+        {
+            if (other.NodeType == ExpressionNodeType.DECIMAL || other.NodeType == ExpressionNodeType.INTEGER)
+            {
+                double result = AsDouble() - other.AsDouble();
+                return new ExpressionOperandDecmial(result);
+            }
+            else
+            {
+                // can't subtract strings
+                throw new InvalidOperationException("OperatorMinus string");
+            }
+        }
+
+        public override ExpressionOperand OperatorSlash(ExpressionOperand other)
+        {
+            if (other.NodeType == ExpressionNodeType.DECIMAL || other.NodeType == ExpressionNodeType.INTEGER)
+            {
+                double result = AsDouble() / other.AsDouble();
+                return new ExpressionOperandDecmial(result);
+            }
+            else
+            {
+                throw new InvalidOperationException("OperatorSlash string");
+            }
+        }
+
+        public override ExpressionOperand OperatorTimes(ExpressionOperand other)
+        {
+            if (other.NodeType == ExpressionNodeType.DECIMAL || other.NodeType == ExpressionNodeType.INTEGER)
+            {
+                double result = AsDouble() * other.AsDouble();
+                return new ExpressionOperandDecmial(result);
+            }
+            else
+            {
+                throw new InvalidOperationException("OperatorTimes string");
+            }
         }
     }
 
@@ -238,12 +619,114 @@ namespace JankSQL
             throw new NotImplementedException();
         }
 
-        public string AsString()
+        public override string AsString()
         {
             return str;
         }
-    }
 
+        public override bool OperatorEquals(ExpressionOperand other)
+        {
+            if (other.NodeType == ExpressionNodeType.VARCHAR || other.NodeType == ExpressionNodeType.NVARCHAR)
+            {
+                return other.AsString() == AsString();
+            }
+
+            return false;
+        }
+
+        public override bool OperatorGreaterThan(ExpressionOperand other)
+        {
+            if (other.NodeType == ExpressionNodeType.VARCHAR || other.NodeType == ExpressionNodeType.NVARCHAR)
+            {
+                return AsString().CompareTo(other.AsString()) > 0;
+            }
+            else if (other.NodeType == ExpressionNodeType.DECIMAL || other.NodeType == ExpressionNodeType.INTEGER)
+            {
+                return AsDouble() > other.AsDouble();
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+        }
+
+        public override bool OperatorLessThan(ExpressionOperand other)
+        {
+            if (other.NodeType == ExpressionNodeType.VARCHAR || other.NodeType == ExpressionNodeType.NVARCHAR)
+            {
+                return AsString().CompareTo(other.AsString()) < 0;
+            }
+            else if (other.NodeType == ExpressionNodeType.DECIMAL || other.NodeType == ExpressionNodeType.INTEGER)
+            {
+                return AsDouble() < other.AsDouble();
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+        }
+
+        public override ExpressionOperand OperatorPlus(ExpressionOperand other)
+        {
+            ExpressionOperand result;
+            if (other.NodeType == ExpressionNodeType.VARCHAR || other.NodeType == ExpressionNodeType.NVARCHAR)
+            {
+                string str = AsString() + other.AsString();
+                result = new ExpressionOperandNVARCHAR(str);
+            }
+            else if (other.NodeType == ExpressionNodeType.DECIMAL || other.NodeType == ExpressionNodeType.INTEGER)
+            {
+                double d = AsDouble() + other.AsDouble();
+                result = new ExpressionOperandDecmial(d);
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+
+            return result;
+        }
+
+        public override ExpressionOperand OperatorMinus(ExpressionOperand other)
+        {
+            if (other.NodeType == ExpressionNodeType.DECIMAL || other.NodeType == ExpressionNodeType.INTEGER)
+            {
+                double result = AsDouble() - other.AsDouble();
+                return new ExpressionOperandDecmial(result);
+            }
+            else
+            {
+                // can't subtract strings
+                throw new InvalidOperationException("OperatorMinus string");
+            }
+        }
+
+        public override ExpressionOperand OperatorSlash(ExpressionOperand other)
+        {
+            if (other.NodeType == ExpressionNodeType.DECIMAL || other.NodeType == ExpressionNodeType.INTEGER)
+            {
+                double result = AsDouble() / other.AsDouble();
+                return new ExpressionOperandDecmial(result);
+            }
+            else
+            {
+                throw new InvalidOperationException("OperatorSlash string");
+            }
+        }
+
+        public override ExpressionOperand OperatorTimes(ExpressionOperand other)
+        {
+            if (other.NodeType == ExpressionNodeType.DECIMAL || other.NodeType == ExpressionNodeType.INTEGER)
+            {
+                double result = AsDouble() * other.AsDouble();
+                return new ExpressionOperandDecmial(result);
+            }
+            else
+            {
+                throw new InvalidOperationException("OperatorTimes string");
+            }
+        }
+    }
 
 
     internal class ExpressionOperandBoolean : ExpressionOperand
@@ -265,9 +748,48 @@ namespace JankSQL
             throw new NotImplementedException();
         }
 
+        public override string AsString()
+        {
+            throw new NotImplementedException();
+        }
+
         public override bool IsTrue()
         {
             return b;
+        }
+
+        public override bool OperatorEquals(ExpressionOperand other)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool OperatorGreaterThan(ExpressionOperand other)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool OperatorLessThan(ExpressionOperand other)
+        {
+            throw new NotImplementedException();
+        }
+        public override ExpressionOperand OperatorPlus(ExpressionOperand other)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ExpressionOperand OperatorMinus(ExpressionOperand other)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ExpressionOperand OperatorSlash(ExpressionOperand other)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ExpressionOperand OperatorTimes(ExpressionOperand other)
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -302,79 +824,37 @@ namespace JankSQL
             return str;
         }
 
-        internal ExpressionOperand Evaluate(Stack<ExpressionNode> stack)
+        internal ExpressionOperand Evaluate(Stack<ExpressionOperand> stack)
         {
             bool result;
 
             if (str == ">")
             {
-                ExpressionOperand right = (ExpressionOperand)stack.Pop();
-                ExpressionOperand left = (ExpressionOperand)stack.Pop();
+                ExpressionOperand right = stack.Pop();
+                ExpressionOperand left = stack.Pop();
 
-                if (left.AsDouble() > right.AsDouble())
-                    result = true;
-                else
-                    result = false;
+                result = left.OperatorGreaterThan(right);
             }
             else if (str == "<")
             {
-                ExpressionOperand right = (ExpressionOperand)stack.Pop();
-                ExpressionOperand left = (ExpressionOperand)stack.Pop();
+                ExpressionOperand right = stack.Pop();
+                ExpressionOperand left = stack.Pop();
 
-                if (left.AsDouble() < right.AsDouble())
-                    result = true;
-                else
-                    result = false;
+                result = left.OperatorLessThan(right);
             }
             else if (str == "=")
             {
-                ExpressionOperand right = (ExpressionOperand)stack.Pop();
-                ExpressionOperand left = (ExpressionOperand)stack.Pop();
+                ExpressionOperand right = stack.Pop();
+                ExpressionOperand left = stack.Pop();
 
-                if (left.NodeType == ExpressionNodeType.NVARCHAR && right.NodeType == ExpressionNodeType.NVARCHAR)
-                {
-                    string lvalue = ((ExpressionOperandNVARCHAR)left).AsString();
-                    string rvalue = ((ExpressionOperandNVARCHAR)right).AsString();
-                    result = lvalue.Equals(rvalue);
-                }
-                else if (left.NodeType == ExpressionNodeType.NVARCHAR && right.NodeType == ExpressionNodeType.DECIMAL)
-                {
-                    double lValue = left.AsDouble();
-                    if (lValue == right.AsDouble())
-                        result = true;
-                    else
-                        result = false;
-                }
-                else if (left.NodeType == ExpressionNodeType.DECIMAL && right.NodeType == ExpressionNodeType.NVARCHAR)
-                {
-                    double rValue = right.AsDouble();
-                    if (rValue == left.AsDouble())
-                        result = true;
-                    else
-                        result = false;
-                }
-                else if (left.NodeType == ExpressionNodeType.DECIMAL && left.NodeType == ExpressionNodeType.DECIMAL)
-                {
-                    if (left.AsDouble() == right.AsDouble())
-                        result = true;
-                    else
-                        result = false;
-                }
-                else
-                {
-                    throw new NotImplementedException($"equality between {left.NodeType} and {right.NodeType} not yet implemented");
-                }
-
+                result = left.OperatorEquals(right);
             }
             else if (str == "<>" || str == "!=")
             {
-                ExpressionOperand right = (ExpressionOperand)stack.Pop();
-                ExpressionOperand left = (ExpressionOperand)stack.Pop();
+                ExpressionOperand right = stack.Pop();
+                ExpressionOperand left = stack.Pop();
 
-                if (left.AsDouble() != right.AsDouble())
-                    result = true;
-                else
-                    result = false;
+                result = !left.OperatorEquals(right);
             }
             else
             {
@@ -420,7 +900,7 @@ namespace JankSQL
             return opType.ToString();
         }
 
-        internal ExpressionOperand Evaluate(Stack<ExpressionNode> stack)
+        internal ExpressionOperand Evaluate(Stack<ExpressionOperand> stack)
         {
             bool result = true;
 

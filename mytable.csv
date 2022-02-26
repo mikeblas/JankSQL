@@ -1,4 +1,5 @@
 ﻿keycolumn,city_name,state_code,population
+INTEGER,VARCHAR,VARCHAR,DECIMAL
 1,Monroeville,PA,25000
 2,Sammamish,WA,37000
 3,New York,NY,11500000

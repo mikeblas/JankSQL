@@ -71,7 +71,7 @@ namespace JankSQL
             int foundRow = -1;
             for (int i = 0; i < sysTables.RowCount; i++)
             {
-                if (sysTables.Row(i)[idxName].Equals(effectiveTableName, StringComparison.InvariantCultureIgnoreCase))
+                if (sysTables.Row(i)[idxName].AsString().Equals(effectiveTableName, StringComparison.InvariantCultureIgnoreCase))
                 {
                     foundRow = i;
                     break;
@@ -80,7 +80,7 @@ namespace JankSQL
             if (foundRow == -1)
                 return null;
 
-            return sysTables.Row(foundRow)[idxFile];
+            return sysTables.Row(foundRow)[idxFile].AsString();
         }
 
         internal ResultSet Execute()
@@ -158,11 +158,7 @@ namespace JankSQL
             // now the filter, if needed
             if (predicateExpressionLists.Count() > 0)
             {
-                Filter filter = new Filter
-                {
-                    Input = lastLeftOutput,
-                    Predicates = predicateExpressionLists
-                };
+                Filter filter = new Filter(lastLeftOutput, predicateExpressionLists);
                 lastLeftOutput = filter;
             }
 

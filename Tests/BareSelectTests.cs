@@ -76,7 +76,7 @@ namespace Tests
             Assert.AreEqual(3, set.ColumnCount, "column count mismatch");
         }
 
-        [TestMethod, Timeout(1000), Ignore]
+        [TestMethod, Timeout(1000)]
         public void TestConcatenateTwoStrings()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 'Hello' + ', world';");
@@ -87,7 +87,7 @@ namespace Tests
             Assert.AreEqual(1, set.ColumnCount, "column count mismatch");
         }
 
-        [TestMethod, Timeout(1000), Ignore]
+        [TestMethod, Timeout(1000)]
         public void TestConcatenateThreeStrings()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 'Hello' + ', world' + ', good day!';");
@@ -99,5 +99,97 @@ namespace Tests
         }
 
 
+        [TestMethod, Timeout(1000)]
+        public void TestStringMinusNumber()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT '300' - 5;");
+
+            ResultSet set = ec.Execute();
+            set.Dump();
+            Assert.AreEqual(1, set.RowCount, "row count mismatch");
+            Assert.AreEqual(1, set.ColumnCount, "column count mismatch");
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestStringPlusNumber()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT '300' + 5;");
+
+            ResultSet set = ec.Execute();
+            set.Dump();
+            Assert.AreEqual(1, set.RowCount, "row count mismatch");
+            Assert.AreEqual(1, set.ColumnCount, "column count mismatch");
+        }
+
+
+        [TestMethod, Timeout(1000)]
+        public void TestNumberMinusString()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 5 - '300';");
+
+            ResultSet set = ec.Execute();
+            set.Dump();
+            Assert.AreEqual(1, set.RowCount, "row count mismatch");
+            Assert.AreEqual(1, set.ColumnCount, "column count mismatch");
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestNumberPlusString()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 5 + '300';");
+
+            ResultSet set = ec.Execute();
+            set.Dump();
+            Assert.AreEqual(1, set.RowCount, "row count mismatch");
+            Assert.AreEqual(1, set.ColumnCount, "column count mismatch");
+        }
+
+
+        [TestMethod, Timeout(1000)]
+        public void TestNumberGreaterString()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 'Yes' WHERE 300 > '5';");
+
+            ResultSet set = ec.Execute();
+            set.Dump();
+            Assert.AreEqual(1, set.RowCount, "row count mismatch");
+            Assert.AreEqual(1, set.ColumnCount, "column count mismatch");
+        }
+
+
+        [TestMethod, Timeout(1000)]
+        public void TestStringLessNumber()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 'Yes' WHERE '300' < 5;");
+
+            ResultSet set = ec.Execute();
+            set.Dump();
+            Assert.AreEqual(0, set.RowCount, "row count mismatch");
+            Assert.AreEqual(1, set.ColumnCount, "column count mismatch");
+        }
+
+
+        [TestMethod, Timeout(1000)]
+        public void TestStringGreaterNumber()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 'Yes' WHERE '300' > 5;");
+
+            ResultSet set = ec.Execute();
+            set.Dump();
+            Assert.AreEqual(1, set.RowCount, "row count mismatch");
+            Assert.AreEqual(1, set.ColumnCount, "column count mismatch");
+        }
+
+
+        [TestMethod, Timeout(1000)]
+        public void TestNumberLessString()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 'Yes' WHERE 5 < '300';");
+
+            ResultSet set = ec.Execute();
+            set.Dump();
+            Assert.AreEqual(1, set.RowCount, "row count mismatch");
+            Assert.AreEqual(1, set.ColumnCount, "column count mismatch");
+        }
     }
 }

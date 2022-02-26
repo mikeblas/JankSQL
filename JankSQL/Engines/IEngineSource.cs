@@ -5,7 +5,7 @@
         int RowCount { get; }
         int ColumnCount { get; }
 
-        string[] Row(int n);
+        ExpressionOperand[] Row(int n);
 
         FullColumnName ColumnName(int n);
 
