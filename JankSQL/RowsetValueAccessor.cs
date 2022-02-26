@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace JankSQL
 {
-    internal class RowsetValueAccessor : RowValueAccessor
+    internal class RowsetValueAccessor : IRowValueAccessor
     {
         ResultSet resultSet;
         int rowIndex;

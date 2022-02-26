@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace JankSQL
 {
-    internal interface RowValueAccessor
+    internal interface IRowValueAccessor
     {
         ExpressionOperand GetValue(FullColumnName fcn);
     }

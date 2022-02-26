@@ -13,7 +13,7 @@ namespace JankSQL
         {
         }
 
-        internal ExpressionOperand Evaluate(RowValueAccessor accessor)
+        internal ExpressionOperand Evaluate(IRowValueAccessor accessor)
         {
             Stack<ExpressionNode> stack = new Stack<ExpressionNode>();
 

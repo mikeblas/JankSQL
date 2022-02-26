@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace JankSQL
 {
-    internal class TemporaryRowValueAccessor : RowValueAccessor
+    internal class TemporaryRowValueAccessor : IRowValueAccessor
     {
         List<FullColumnName> names;
         ExpressionOperand[] rowData;
