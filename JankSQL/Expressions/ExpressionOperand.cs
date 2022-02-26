@@ -9,7 +9,7 @@
             double d = Double.Parse(str);
             if (isNegative)
                 d *= -1;
-            return new ExpressionOperandDecmial(d);
+            return new ExpressionOperandDecimal(d);
         }
 
         internal static ExpressionOperand IntegerFromString(bool isNegative, string str)
@@ -22,7 +22,7 @@
 
         internal static ExpressionOperand DecimalFromDouble(double d)
         {
-            return new ExpressionOperandDecmial(d);
+            return new ExpressionOperandDecimal(d);
         }
 
         internal static ExpressionOperand IntegerFromInt(int n)

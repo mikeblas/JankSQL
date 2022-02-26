@@ -81,12 +81,12 @@
             if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
             {
                 double result = AsDouble() + other.AsDouble();
-                return new ExpressionOperandDecmial(result);
+                return new ExpressionOperandDecimal(result);
             }
             else if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.NVARCHAR)
             {
                 double result = AsDouble() + other.AsDouble();
-                return new ExpressionOperandDecmial(result);
+                return new ExpressionOperandDecimal(result);
             }
             else
             {
@@ -99,12 +99,12 @@
             if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
             {
                 double result = AsDouble() - other.AsDouble();
-                return new ExpressionOperandDecmial(result);
+                return new ExpressionOperandDecimal(result);
             }
             else if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.NVARCHAR)
             {
                 double result = AsDouble() - other.AsDouble();
-                return new ExpressionOperandDecmial(result);
+                return new ExpressionOperandDecimal(result);
             }
             else
             {
@@ -118,12 +118,12 @@
             if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
             {
                 double result = AsDouble() / other.AsDouble();
-                return new ExpressionOperandDecmial(result);
+                return new ExpressionOperandDecimal(result);
             }
             else if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.NVARCHAR)
             {
                 double result = AsDouble() / other.AsDouble();
-                return new ExpressionOperandDecmial(result);
+                return new ExpressionOperandDecimal(result);
             }
             else
             {
@@ -136,12 +136,12 @@
             if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
             {
                 double result = AsDouble() * other.AsDouble();
-                return new ExpressionOperandDecmial(result);
+                return new ExpressionOperandDecimal(result);
             }
             else if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.NVARCHAR)
             {
                 double result = AsDouble() * other.AsDouble();
-                return new ExpressionOperandDecmial(result);
+                return new ExpressionOperandDecimal(result);
             }
             else
             {

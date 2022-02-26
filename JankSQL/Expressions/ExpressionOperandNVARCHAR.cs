@@ -88,7 +88,7 @@
             else if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
             {
                 double d = AsDouble() + other.AsDouble();
-                ret = new ExpressionOperandDecmial(d);
+                ret = new ExpressionOperandDecimal(d);
             }
             else
             {
@@ -103,7 +103,7 @@
             if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
             {
                 double result = AsDouble() - other.AsDouble();
-                return new ExpressionOperandDecmial(result);
+                return new ExpressionOperandDecimal(result);
             }
             else
             {
@@ -117,7 +117,7 @@
             if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
             {
                 double result = AsDouble() / other.AsDouble();
-                return new ExpressionOperandDecmial(result);
+                return new ExpressionOperandDecimal(result);
             }
             else
             {
@@ -130,7 +130,7 @@
             if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
             {
                 double result = AsDouble() * other.AsDouble();
-                return new ExpressionOperandDecmial(result);
+                return new ExpressionOperandDecimal(result);
             }
             else
             {

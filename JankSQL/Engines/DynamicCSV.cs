@@ -80,7 +80,7 @@ namespace JankSQL.Engines
                         switch (columnTypes[i])
                         {
                             case ExpressionOperandType.DECIMAL:
-                                newRow[i] = new ExpressionOperandDecmial(Double.Parse(fields[i]));
+                                newRow[i] = new ExpressionOperandDecimal(Double.Parse(fields[i]));
                                 break;
 
                             case ExpressionOperandType.VARCHAR:
