@@ -27,12 +27,12 @@ namespace JankSQL
             return ret;
         }
 
-        internal int ColumnIndex(FullColumnName name)
+        public int ColumnIndex(FullColumnName name)
         {
             return columnNames.IndexOf(name);
         }
 
-        internal ExpressionOperand[] Row(int index)
+        public ExpressionOperand[] Row(int index)
         {
             return rows[index];
         }

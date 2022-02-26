@@ -191,5 +191,44 @@ namespace Tests
             Assert.AreEqual(1, set.RowCount, "row count mismatch");
             Assert.AreEqual(1, set.ColumnCount, "column count mismatch");
         }
+
+
+
+        [TestMethod, Timeout(1000)]
+        public void TestNumberIntegers()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT -200, 300, 5, 0;");
+
+            ResultSet set = ec.Execute();
+            set.Dump();
+            Assert.AreEqual(1, set.RowCount, "row count mismatch");
+            Assert.AreEqual(4, set.ColumnCount, "column count mismatch");
+
+            ExpressionOperand[] row = set.Row(0);
+            for (int n = 0; n < set.ColumnCount; n++)
+            {
+                Assert.AreEqual(ExpressionNodeType.INTEGER, row[n].NodeType);
+            }
+        }
+
+
+
+        [TestMethod, Timeout(1000)]
+        public void TestNumberDecimals()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 200., 300.1, 5.182837, .0;");
+
+            ResultSet set = ec.Execute();
+            set.Dump();
+            Assert.AreEqual(1, set.RowCount, "row count mismatch");
+            Assert.AreEqual(4, set.ColumnCount, "column count mismatch");
+
+            ExpressionOperand[] row = set.Row(0);
+            for (int n = 0; n < set.ColumnCount; n++)
+            {
+                Assert.AreEqual(ExpressionNodeType.DECIMAL, row[n].NodeType);
+            }
+        }
+
     }
 }

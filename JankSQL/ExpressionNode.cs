@@ -101,10 +101,24 @@ namespace JankSQL
             return new ExpressionOperandDecmial(d);
         }
 
+        internal static ExpressionOperand IntegerFromString(bool isNegative, string str)
+        {
+            int n = Int32.Parse(str);
+            if (isNegative)
+                n *= -1;
+            return new ExpressionOperandInteger(n);
+        }
+
         internal static ExpressionOperand DecimalFromDouble(double d)
         {
             return new ExpressionOperandDecmial(d);
         }
+
+        internal static ExpressionOperand IntegerFromInt(int n)
+        {
+            return new ExpressionOperandInteger(n);
+        }
+
 
         private static string NormalizeString(string str)
         {
@@ -119,6 +133,14 @@ namespace JankSQL
             // unescape double ticks
             temp = temp.Replace("''", "'");
             return temp;
+        }
+
+        public static ExpressionNodeType IntegerOrDecimal(string str)
+        {
+            if (str.IndexOf('.') != -1)
+                return ExpressionNodeType.DECIMAL;
+            else
+                return ExpressionNodeType.INTEGER;
         }
 
         internal static ExpressionOperand NVARCHARFromString(string str)
@@ -361,7 +383,11 @@ namespace JankSQL
         {
             if (other.NodeType == ExpressionNodeType.DECIMAL || other.NodeType == ExpressionNodeType.INTEGER)
             {
-                return (AsDouble() > other.AsDouble());
+                return AsDouble() > other.AsDouble();
+            }
+            else if (other.NodeType == ExpressionNodeType.VARCHAR || other.NodeType == ExpressionNodeType.VARCHAR)
+            {
+                return AsDouble() > other.AsDouble();
             }
             else
             {
@@ -373,7 +399,11 @@ namespace JankSQL
         {
             if (other.NodeType == ExpressionNodeType.DECIMAL || other.NodeType == ExpressionNodeType.INTEGER)
             {
-                return (AsDouble() < other.AsDouble());
+                return AsDouble() < other.AsDouble();
+            }
+            else if (other.NodeType == ExpressionNodeType.VARCHAR || other.NodeType == ExpressionNodeType.VARCHAR)
+            {
+                return AsDouble() < other.AsDouble();
             }
             else
             {

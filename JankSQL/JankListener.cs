@@ -71,11 +71,28 @@ namespace JankSQL
 
         public override void ExitPrimitive_expression([NotNull] TSqlParser.Primitive_expressionContext context)
         {
-            if (context.constant().DECIMAL() is not null)
+            if (context.constant().FLOAT() is not null)
             {
-                Console.WriteLine($"constant: '{context.constant().DECIMAL()}'");
+                string str = context.constant().FLOAT().GetText();
+                Console.WriteLine($"constant: '{str}'");
                 bool isNegative = context.constant().sign() is not null;
-                ExpressionNode x = ExpressionOperand.DecimalFromString(isNegative, context.constant().DECIMAL().GetText());
+                ExpressionNode x = ExpressionOperand.DecimalFromString(isNegative, str);
+                selectContext.ExpressionList.Add(x);
+            }
+            else if (context.constant().DECIMAL() is not null)
+            {
+                string str = context.constant().DECIMAL().GetText();
+                Console.WriteLine($"constant: '{str}'");
+                bool isNegative = context.constant().sign() is not null;
+
+                ExpressionNodeType t = ExpressionOperand.IntegerOrDecimal(str);
+                ExpressionNode x;
+
+                if (t == ExpressionNodeType.INTEGER)
+                    x = ExpressionOperand.IntegerFromString(isNegative, str);
+                else
+                    x = ExpressionOperand.DecimalFromString(isNegative, str);
+
                 selectContext.ExpressionList.Add(x);
 
             }
