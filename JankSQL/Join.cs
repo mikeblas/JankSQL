@@ -62,12 +62,12 @@ namespace JankSQL
         }
 
 
-        public void Rewind()
+        void IComponentOutput.Rewind()
         {
             outputIndex = 0;
         }
 
-        public ResultSet GetRows(int max)
+        ResultSet IComponentOutput.GetRows(int max)
         {
             if (outputSet is null)
                 outputSet = ProduceOutputSet();

@@ -17,7 +17,7 @@ namespace JankSQL
             this.rowData = rowData;
         }
 
-        public ExpressionOperand GetValue(FullColumnName fcn)
+        ExpressionOperand IRowValueAccessor.GetValue(FullColumnName fcn)
         {
             for (int i = 0; i < names.Count; i++)
             {

@@ -15,12 +15,12 @@
 
         internal List<Expression> Predicates { set { predicateExpressionLists = value; } }
 
-        public void Rewind()
+        void IComponentOutput.Rewind()
         {
             myInput.Rewind();
         }
 
-        public ResultSet GetRows(int max)
+        ResultSet IComponentOutput.GetRows(int max)
         {
             ResultSet rsInput = myInput.GetRows(max);
             ResultSet rsOutput = ResultSet.NewWithShape(rsInput);

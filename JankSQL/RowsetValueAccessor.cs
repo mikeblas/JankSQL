@@ -17,7 +17,7 @@ namespace JankSQL
             this.rowIndex = rowIndex;
         }
 
-        public ExpressionOperand GetValue(FullColumnName fcn)
+        ExpressionOperand IRowValueAccessor.GetValue(FullColumnName fcn)
         {
             int idx = resultSet.ColumnIndex(fcn);
             // Console.WriteLine($"Need value from {r.ColumnName}, column index {idx}");

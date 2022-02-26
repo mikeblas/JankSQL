@@ -2,27 +2,27 @@
 {
     public class DualSource : IEngineSource
     {
-        public int RowCount => 1;
+        int IEngineSource.RowCount => 1;
 
-        public int ColumnCount => 0;
+        int IEngineSource.ColumnCount => 0;
 
-        public int ColumnIndex(string columnName)
+        int IEngineSource.ColumnIndex(string columnName)
         {
             return -1;
         }
 
-        public FullColumnName ColumnName(int n)
+        FullColumnName IEngineSource.ColumnName(int n)
         {
             return null;
         }
 
-        public ExpressionOperand[] Row(int n)
+        ExpressionOperand[] IEngineSource.Row(int n)
         {
             ExpressionOperand[] ret = new ExpressionOperand[0];
             return ret;
         }
 
-        public void Load()
+        void IEngineSource.Load()
         {
         }
     }

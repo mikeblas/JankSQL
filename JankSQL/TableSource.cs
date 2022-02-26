@@ -22,12 +22,12 @@ namespace JankSQL
         {
         }
 
-        public void Rewind()
+        void IComponentOutput.Rewind()
         {
             currentRow = 0;
         }
 
-        public ResultSet GetRows(int max)
+        ResultSet IComponentOutput.GetRows(int max)
         {
             ResultSet rs = new ResultSet();
             List<FullColumnName> columnNames = new List<FullColumnName>();

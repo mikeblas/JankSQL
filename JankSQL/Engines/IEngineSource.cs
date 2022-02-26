@@ -4,13 +4,9 @@
     {
         int RowCount { get; }
         int ColumnCount { get; }
-
         ExpressionOperand[] Row(int n);
-
         FullColumnName ColumnName(int n);
-
         int ColumnIndex(string columnName);
-
         void Load();
     }
 }
