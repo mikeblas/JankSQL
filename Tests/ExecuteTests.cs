@@ -175,6 +175,21 @@ namespace Tests
             Assert.AreEqual(3, set.RowCount, "row count mismatch");
             Assert.AreEqual(1, set.ColumnCount, "column count mismatch");
         }
+
+        [TestMethod, Timeout(1000)]
+        public void TestTwoResults()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 'This'; SELECT 'That';");
+
+            ResultSet[] sets = ec.Execute();
+            Assert.AreEqual(2, sets.Length, "expected two sets");
+            for (int i = 0; i < sets.Length; i++)
+            {
+                sets[i].Dump();
+                Assert.AreEqual(1, sets[i].RowCount, "row count mismatch");
+                Assert.AreEqual(1, sets[i].ColumnCount, "column count mismatch");
+            }
+        }
     }
 }
 

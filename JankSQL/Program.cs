@@ -54,19 +54,27 @@ namespace JankSQL
 
             // str = "SELECT -32;";
 
-            str = "SELECT 'This'; SELECT 'That';";
+            str = "SELECT city_name FROM mytable;";
+            //     012345678901
 
 
 
-            ExecutionContext ecString = Parser.ParseSQLFileFromString(str);
-            ResultSet[] sets = ecString.Execute();
-
-            for (int i = 0; i < sets.Length; i++)
+            ExecutableBatch batch = Parser.ParseSQLFileFromString(str);
+            if (batch.TotalErrors == 0)
             {
-                Console.WriteLine($"Result set #{i} =====");
-                sets[i].Dump();
-                Console.WriteLine($"{sets[i].RowCount} total rows");
+                ResultSet[] sets = batch.Execute();
+                for (int i = 0; i < sets.Length; i++)
+                {
+                    Console.WriteLine($"Result set #{i} =====");
+                    sets[i].Dump();
+                    Console.WriteLine($"{sets[i].RowCount} total rows");
+                }
             }
+            else
+            {
+                Console.WriteLine("Errors!");
+            }
+
         }
 
 
