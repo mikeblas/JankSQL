@@ -13,6 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 		states.csv = states.csv
 		sys_tables.csv = sys_tables.csv
+		targettable.csv = targettable.csv
 		ten.csv = ten.csv
 		three.csv = three.csv
 	EndProjectSection

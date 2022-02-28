@@ -2,7 +2,7 @@
 
 namespace JankSQL
 {
-    public class SelectContext
+    public class SelectContext : IExecutableContext
     {
         TSqlParser.Select_statementContext statementContext;
         SelectListContext selectList;
@@ -83,9 +83,9 @@ namespace JankSQL
             return sysTables.Row(foundRow)[idxFile].AsString();
         }
 
-        internal ResultSet Execute()
+        public ExecuteResult Execute()
         {
-            ResultSet resultSet = null;
+            ExecuteResult results = new ExecuteResult();
 
             var expressions = statementContext.query_expression();
             var querySpecs = expressions.query_specification();
@@ -161,6 +161,7 @@ namespace JankSQL
 
             // then the select
             Select select = new Select(lastLeftOutput, querySpecs.select_list().select_list_elem(), selectList);
+            ResultSet? resultSet = null;
 
             while (true)
             {
@@ -172,7 +173,8 @@ namespace JankSQL
                 resultSet.Append(batch);
             }
 
-            return resultSet;
+            results.ResultSet = resultSet;
+            return results;
         }
 
 

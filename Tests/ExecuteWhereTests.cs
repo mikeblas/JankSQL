@@ -14,10 +14,10 @@ namespace Tests
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] > 30000;");
 
-            ResultSet set = ec.ExecuteSingle();
-            set.Dump();
-            Assert.AreEqual(2, set.RowCount);
-            Assert.AreEqual(4, set.ColumnCount);
+            ExecuteResult result = ec.ExecuteSingle();
+            result.ResultSet.Dump();
+            Assert.AreEqual(2, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -25,10 +25,10 @@ namespace Tests
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] < 30000;");
 
-            ResultSet set = ec.ExecuteSingle();
-            set.Dump();
-            Assert.AreEqual(1, set.RowCount);
-            Assert.AreEqual(4, set.ColumnCount);
+            ExecuteResult result = ec.ExecuteSingle();
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -36,10 +36,10 @@ namespace Tests
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] = 30000;");
 
-            ResultSet set = ec.ExecuteSingle();
-            set.Dump();
-            Assert.AreEqual(0, set.RowCount);
-            Assert.AreEqual(4, set.ColumnCount);
+            ExecuteResult result = ec.ExecuteSingle();
+            result.ResultSet.Dump();
+            Assert.AreEqual(0, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -47,10 +47,10 @@ namespace Tests
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] = 25000;");
 
-            ResultSet set = ec.ExecuteSingle();
-            set.Dump();
-            Assert.AreEqual(1, set.RowCount);
-            Assert.AreEqual(4, set.ColumnCount);
+            ExecuteResult result = ec.ExecuteSingle();
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
 
@@ -59,10 +59,10 @@ namespace Tests
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] = 12500 * 2;");
 
-            ResultSet set = ec.ExecuteSingle();
-            set.Dump();
-            Assert.AreEqual(1, set.RowCount);
-            Assert.AreEqual(4, set.ColumnCount);
+            ExecuteResult result = ec.ExecuteSingle();
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -70,10 +70,10 @@ namespace Tests
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] * 2 = 50000;");
 
-            ResultSet set = ec.ExecuteSingle();
-            set.Dump();
-            Assert.AreEqual(1, set.RowCount);
-            Assert.AreEqual(4, set.ColumnCount);
+            ExecuteResult result = ec.ExecuteSingle();
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -81,10 +81,10 @@ namespace Tests
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] != 37000;");
 
-            ResultSet set = ec.ExecuteSingle();
-            set.Dump();
-            Assert.AreEqual(2, set.RowCount);
-            Assert.AreEqual(4, set.ColumnCount);
+            ExecuteResult result = ec.ExecuteSingle();
+            result.ResultSet.Dump();
+            Assert.AreEqual(2, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -92,10 +92,10 @@ namespace Tests
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] <> 37000;");
 
-            ResultSet set = ec.ExecuteSingle();
-            set.Dump();
-            Assert.AreEqual(2, set.RowCount);
-            Assert.AreEqual(4, set.ColumnCount);
+            ExecuteResult result = ec.ExecuteSingle();
+            result.ResultSet.Dump();
+            Assert.AreEqual(2, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -103,10 +103,10 @@ namespace Tests
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] = 37000 OR [keycolumn] = 1;");
 
-            ResultSet set = ec.ExecuteSingle();
-            set.Dump();
-            Assert.AreEqual(2, set.RowCount);
-            Assert.AreEqual(4, set.ColumnCount);
+            ExecuteResult result = ec.ExecuteSingle();
+            result.ResultSet.Dump();
+            Assert.AreEqual(2, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
 
@@ -115,10 +115,10 @@ namespace Tests
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] = 25000 AND [keycolumn] = 1;");
 
-            ResultSet set = ec.ExecuteSingle();
-            set.Dump();
-            Assert.AreEqual(1, set.RowCount);
-            Assert.AreEqual(4, set.ColumnCount);
+            ExecuteResult result = ec.ExecuteSingle();
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
 
@@ -127,10 +127,10 @@ namespace Tests
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] = 25000 AND [keycolumn] = 5-4;");
 
-            ResultSet set = ec.ExecuteSingle();
-            set.Dump();
-            Assert.AreEqual(1, set.RowCount);
-            Assert.AreEqual(4, set.ColumnCount);
+            ExecuteResult result = ec.ExecuteSingle();
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         // 
@@ -139,10 +139,10 @@ namespace Tests
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE NOT ([population] = 37000);");
 
-            ResultSet set = ec.ExecuteSingle();
-            set.Dump();
-            Assert.AreEqual(2, set.RowCount);
-            Assert.AreEqual(4, set.ColumnCount);
+            ExecuteResult result = ec.ExecuteSingle();
+            result.ResultSet.Dump();
+            Assert.AreEqual(2, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -150,10 +150,10 @@ namespace Tests
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE NOT ([population] = 37000 OR [keycolumn] = 1);");
 
-            ResultSet set = ec.ExecuteSingle();
-            set.Dump();
-            Assert.AreEqual(1, set.RowCount);
-            Assert.AreEqual(4, set.ColumnCount);
+            ExecuteResult result = ec.ExecuteSingle();
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
 
         }
 
@@ -163,10 +163,10 @@ namespace Tests
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE NOT(NOT(NOT ([population] = 37000)));");
 
-            ResultSet set = ec.ExecuteSingle();
-            set.Dump();
-            Assert.AreEqual(2, set.RowCount);
-            Assert.AreEqual(4, set.ColumnCount);
+            ExecuteResult result = ec.ExecuteSingle();
+            result.ResultSet.Dump();
+            Assert.AreEqual(2, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -174,10 +174,10 @@ namespace Tests
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE NOT [population] = 37000;");
 
-            ResultSet set = ec.ExecuteSingle();
-            set.Dump();
-            Assert.AreEqual(2, set.RowCount);
-            Assert.AreEqual(4, set.ColumnCount);
+            ExecuteResult result = ec.ExecuteSingle();
+            result.ResultSet.Dump();
+            Assert.AreEqual(2, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -185,10 +185,10 @@ namespace Tests
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE NOT NOT NOT NOT NOT [population] = 37000;");
 
-            ResultSet set = ec.ExecuteSingle();
-            set.Dump();
-            Assert.AreEqual(2, set.RowCount);
-            Assert.AreEqual(4, set.ColumnCount);
+            ExecuteResult result = ec.ExecuteSingle();
+            result.ResultSet.Dump();
+            Assert.AreEqual(2, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -196,10 +196,10 @@ namespace Tests
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE NOT [population] = 37000 OR [keycolumn] = 1;");
 
-            ResultSet set = ec.ExecuteSingle();
-            set.Dump();
-            Assert.AreEqual(2, set.RowCount);
-            Assert.AreEqual(4, set.ColumnCount);
+            ExecuteResult result = ec.ExecuteSingle();
+            result.ResultSet.Dump();
+            Assert.AreEqual(2, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -207,10 +207,10 @@ namespace Tests
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE NOT [population] = 37000 OR [keycolumn] = 2;");
 
-            ResultSet set = ec.ExecuteSingle();
-            set.Dump();
-            Assert.AreEqual(3, set.RowCount);
-            Assert.AreEqual(4, set.ColumnCount);
+            ExecuteResult result = ec.ExecuteSingle();
+            result.ResultSet.Dump();
+            Assert.AreEqual(3, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
     }

@@ -100,7 +100,13 @@ namespace Tests
             Assert.IsNotNull(ec);
         }
 
+        [TestMethod]
+        public void TestSyntaxError()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT FROM WHERE;");
 
+            Assert.IsNotNull(ec);
+        }
     }
 }
 

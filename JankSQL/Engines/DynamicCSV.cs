@@ -9,8 +9,8 @@ namespace JankSQL.Engines
 
     public class DynamicCSV : IEngineSource
     {
-        private string filename;
-        private string tableName;
+        private readonly string filename;
+        private readonly string tableName;
 
         // list of column names
         private FullColumnName[] columnNames;

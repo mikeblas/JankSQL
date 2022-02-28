@@ -12,10 +12,10 @@ namespace Tests
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] CROSS JOIN [states];");
 
-            ResultSet set = ec.ExecuteSingle();
-            set.Dump();
-            Assert.AreEqual(24, set.RowCount, "row count mismatch");
-            Assert.AreEqual(6, set.ColumnCount, "column count mismatch");
+            ExecuteResult result = ec.ExecuteSingle();
+            result.ResultSet.Dump();
+            Assert.AreEqual(24, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(6, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
 
@@ -24,10 +24,10 @@ namespace Tests
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [three] CROSS JOIN [ten] CROSS JOIN [mytable];");
 
-            ResultSet set = ec.ExecuteSingle();
-            set.Dump();
-            Assert.AreEqual(90, set.RowCount, "row count mismatch");
-            Assert.AreEqual(8, set.ColumnCount, "column count mismatch");
+            ExecuteResult result = ec.ExecuteSingle();
+            result.ResultSet.Dump();
+            Assert.AreEqual(90, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(8, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -37,10 +37,10 @@ namespace Tests
                 "SELECT * FROM [Three] CROSS JOIN [Ten] CROSS JOIN [MyTable]" +
                 " WHERE [three].[number_id] + 10 * [ten].[number_id] > 30;");
 
-            ResultSet set = ec.ExecuteSingle();
-            set.Dump();
-            Assert.AreEqual(63, set.RowCount, "row count mismatch");
-            Assert.AreEqual(8, set.ColumnCount, "column count mismatch");
+            ExecuteResult result = ec.ExecuteSingle();
+            result.ResultSet.Dump();
+            Assert.AreEqual(63, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(8, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -48,10 +48,10 @@ namespace Tests
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] JOIN [states] ON [mytable].[state_code] = [states].[state_code]");
 
-            ResultSet set = ec.ExecuteSingle();
-            set.Dump();
-            Assert.AreEqual(3, set.RowCount, "row count mismatch");
-            Assert.AreEqual(6, set.ColumnCount, "column count mismatch");
+            ExecuteResult result = ec.ExecuteSingle();
+            result.ResultSet.Dump();
+            Assert.AreEqual(3, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(6, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -59,10 +59,10 @@ namespace Tests
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] INNER JOIN [states] ON [mytable].[state_code] = [states].[state_code]");
 
-            ResultSet set = ec.ExecuteSingle();
-            set.Dump();
-            Assert.AreEqual(3, set.RowCount, "row count mismatch");
-            Assert.AreEqual(6, set.ColumnCount, "column count mismatch");
+            ExecuteResult result = ec.ExecuteSingle();
+            result.ResultSet.Dump();
+            Assert.AreEqual(3, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(6, result.ResultSet.ColumnCount, "column count mismatch");
         }
     }
 }

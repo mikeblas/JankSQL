@@ -13,12 +13,12 @@ namespace JankSQL
 
         public List<SelectContext> SelectContexts { get { return selectContext; } set { selectContext = value; } }
 
-        public ResultSet[] Execute()
+        public ExecuteResult[] Execute()
         {
-            List<ResultSet> results = new List<ResultSet>();
+            List<ExecuteResult> results = new List<ExecuteResult>();
             foreach(SelectContext context in selectContext)
             {
-                ResultSet result = context.Execute();
+                ExecuteResult result = context.Execute();
                 results.Add(result);
             }
 
@@ -26,12 +26,12 @@ namespace JankSQL
         }
 
 
-        public ResultSet ExecuteSingle()
+        public ExecuteResult ExecuteSingle()
         {
             if (selectContext.Count != 1)
                 return null;
 
-            ResultSet result = selectContext[0].Execute();
+            ExecuteResult result = selectContext[0].Execute();
             return result;
         }
 
