@@ -162,6 +162,27 @@ namespace JankSQL.Engines
 
             Load();
         }
+
+        static public string? FileFromSysTables(Engines.DynamicCSV sysTables, string effectiveTableName)
+        {
+            // is this source table in there?
+            int idxName = sysTables.ColumnIndex("table_name");
+            int idxFile = sysTables.ColumnIndex("file_name");
+
+            int foundRow = -1;
+            for (int i = 0; i < sysTables.RowCount; i++)
+            {
+                if (sysTables.Row(i)[idxName].AsString().Equals(effectiveTableName, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    foundRow = i;
+                    break;
+                }
+            }
+            if (foundRow == -1)
+                return null;
+
+            return sysTables.Row(foundRow)[idxFile].AsString();
+        }
     }
 }
 

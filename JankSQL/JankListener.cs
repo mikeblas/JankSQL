@@ -30,7 +30,7 @@ namespace JankSQL
 
         public override void ExitSelect_statement(TSqlParser.Select_statementContext context)
         {
-            executionContext.SelectContexts.Add(selectContext);
+            executionContext.ExecuteContexts.Add(selectContext);
         }
 
         public override void EnterSelect_statement([NotNull] TSqlParser.Select_statementContext context)
@@ -241,6 +241,7 @@ namespace JankSQL
 
             TruncateTableContext c = new TruncateTableContext(tableName);
 
+            executionContext.ExecuteContexts.Add(c);
 
             base.ExitTruncate_table(context);
         }
