@@ -1,0 +1,12 @@
+number_id,number_name,some_string
+INTEGER,VARCHAR,DECIMAL
+0,zero,33
+1,one,5.1414
+2,two,2.221
+3,three,3.1415
+4,four,4.00001
+5,five,8363234
+6,six,-366
+7,seven,49
+8,eight,8675309
+9,nine,-1000000000000
