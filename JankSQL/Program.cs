@@ -54,7 +54,9 @@ namespace JankSQL
 
             // str = "SELECT -32;";
 
-            str = "SELECT 'This'; SELECT 'That';";
+            // str = "SELECT 'This'; SELECT 'That';";
+
+            str = "TRUNCATE TABLE [TargetTable];";
 
 
 

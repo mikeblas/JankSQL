@@ -235,6 +235,16 @@ namespace JankSQL
             Console.WriteLine($"You're trying to delete {string.Join(".", idNames)}");
         }
 
+        public override void ExitTruncate_table([NotNull] TSqlParser.Truncate_tableContext context)
+        {
+            string tableName = context.table_name().id_()[0].GetText();
+
+            TruncateTableContext c = new TruncateTableContext(tableName);
+
+
+            base.ExitTruncate_table(context);
+        }
+
         public override void ExitCreate_table(TSqlParser.Create_tableContext context)
         {
             var cdtcs = context.column_def_table_constraints();

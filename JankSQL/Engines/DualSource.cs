@@ -25,6 +25,11 @@
         void IEngineSource.Load()
         {
         }
+
+        public void TruncateTable()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 

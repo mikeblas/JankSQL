@@ -106,7 +106,6 @@ namespace JankSQL.Engines
 
                 lineNumber++;
             }
-
         }
 
         public int RowCount { get { return values.Count; } }
@@ -137,6 +136,31 @@ namespace JankSQL.Engines
             }
 
             return -1;
+        }
+
+        public void TruncateTable()
+        {
+            // get the first two lines of the file
+            var fileStream = new FileStream(filename, FileMode.Open);
+            string[] lines = new string[2];
+            using (var reader = new StreamReader(fileStream))
+            {
+                for (int i = 0; i < 2; i++)
+                    lines[i] = reader.ReadLine();
+            }
+            fileStream.Close();
+
+            // delete the file
+            File.Delete(filename);
+
+            // re-create it with those two lines
+            using StreamWriter writer = new(filename);
+            for (int i = 0; i < 2; i++)
+                writer.WriteLine(lines[i]);
+            writer.Flush();
+            writer.Close();
+
+            Load();
         }
     }
 }
