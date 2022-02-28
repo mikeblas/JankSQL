@@ -10,7 +10,6 @@ namespace JankSQL
     {
         List<string> tokenErrors;
         List<string> syntaxErrors;
-        List<string>? executionErrors;
 
         ExecutionContext? executionContext;
 
@@ -23,11 +22,11 @@ namespace JankSQL
             this.executionContext = ec;
         }
 
-        internal int TotalErrors { get { return NumberOfSyntaxErrors + NumberOfTokenErrors; } }
+        public int TotalErrors { get { return NumberOfSyntaxErrors + NumberOfTokenErrors; } }
 
-        internal int NumberOfSyntaxErrors { get { return (syntaxErrors == null) ? 0 : syntaxErrors.Count; } }
+        public int NumberOfSyntaxErrors { get { return (syntaxErrors == null) ? 0 : syntaxErrors.Count; } }
 
-        internal int NumberOfTokenErrors { get { return (tokenErrors == null) ? 0 : tokenErrors.Count; } }
+        public int NumberOfTokenErrors { get { return (tokenErrors == null) ? 0 : tokenErrors.Count; } }
 
         public ExecuteResult[] Execute()
         {

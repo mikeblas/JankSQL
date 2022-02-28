@@ -96,8 +96,7 @@ namespace JankSQL
 
                 if (effectiveTableFileName == null)
                 {
-                    Console.WriteLine($"Table {effectiveTableName} does not exist");
-                    throw new InvalidOperationException();
+                    throw new ExecutionException($"Table {effectiveTableName} does not exist");
                 }
                 else
                 {
@@ -116,8 +115,7 @@ namespace JankSQL
                         string? otherTableFileName = Engines.DynamicCSV.FileFromSysTables(sysTables, otherEffectiveTableName);
                         if (otherTableFileName == null)
                         {
-                            Console.WriteLine($"Joined table {j.OtherTableName} does not exist");
-                            return null;
+                            throw new ExecutionException($"Joined table {j.OtherTableName} does not exist");
                         }
 
                         // get a table engine on it

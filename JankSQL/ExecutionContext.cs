@@ -18,8 +18,16 @@ namespace JankSQL
             List<ExecuteResult> results = new ();
             foreach(IExecutableContext context in executeContexts)
             {
-                ExecuteResult result = context.Execute();
-                results.Add(result);
+                try
+                {
+                    ExecuteResult result = context.Execute();
+                    results.Add(result);
+                }
+                catch (ExecutionException ex)
+                {
+                    ExecuteResult result = new ExecuteResult(ExecuteStatus.FAILED, ex.Message);
+                    results.Add(result);
+                }
             }
 
             return results.ToArray();
@@ -28,10 +36,16 @@ namespace JankSQL
 
         public ExecuteResult ExecuteSingle()
         {
+            ExecuteResult result;
             if (executeContexts.Count != 1)
-                return null;
+            {
+                result = new ExecuteResult(ExecuteStatus.FAILED, "ExecuteSingle() called on multiple-context batch");
+            }
+            else
+            {
+                result = executeContexts[0].Execute();
+            }
 
-            ExecuteResult result = executeContexts[0].Execute();
             return result;
         }
 

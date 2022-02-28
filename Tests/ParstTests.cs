@@ -101,11 +101,32 @@ namespace Tests
         }
 
         [TestMethod]
-        public void TestSyntaxError()
+        public void TestSelectSyntaxError()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT FROM WHERE;");
 
             Assert.IsNotNull(ec);
+            Assert.AreNotEqual(0, ec.TotalErrors, "expected an error");
+        }
+
+        [TestMethod]
+        public void TestSelectExpressionSyntaxError()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 35 * / 4;");
+
+            Assert.IsNotNull(ec);
+            Assert.AreNotEqual(0, ec.TotalErrors, "expected an error");
+        }
+
+
+
+        [TestMethod]
+        public void TestTruncateTableSyntaxError()
+        {
+            var ec = Parser.ParseSQLFileFromString("TRUNCATE TABLE;");
+
+            Assert.IsNotNull(ec);
+            Assert.AreNotEqual(0, ec.TotalErrors, "expected an error");
         }
     }
 }

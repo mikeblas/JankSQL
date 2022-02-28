@@ -6,6 +6,16 @@ using System.Threading.Tasks;
 
 namespace JankSQL
 {
+    public class ExecutionException : Exception
+    {
+        public ExecutionException(string description)
+            : base(description)
+        {
+        }
+    }
+
+
+
     internal class TruncateTableContext : IExecutableContext
     {
         string tableName;
@@ -29,9 +39,8 @@ namespace JankSQL
             string? tableFileName = Engines.DynamicCSV.FileFromSysTables(sysTables, effectiveTableName);
             if (tableFileName == null)
             {
-                Console.WriteLine($"Table {effectiveTableName} does not exist");
                 result.ExecuteStatus = ExecuteStatus.FAILED;
-                throw new InvalidOperationException();
+                throw new ExecutionException($"Table {effectiveTableName} does not exist");
             }
 
             Engines.DynamicCSV objectTable = new Engines.DynamicCSV(tableFileName, effectiveTableName);

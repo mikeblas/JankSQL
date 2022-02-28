@@ -56,7 +56,7 @@ namespace JankSQL
 
             // str = "SELECT 'This'; SELECT 'That';";
 
-            str = "TRUNCATE TABLE [TargetTable];";
+            str = "TRUNCATE TABLE [TargetTasdfasdfaable];";
             // str = "SELECT city_name FROM mytable;";
             //     012345678901
 

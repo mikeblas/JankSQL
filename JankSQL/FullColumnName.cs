@@ -13,27 +13,29 @@ namespace JankSQL
         string? tableName;
         string columnName;
 
+        FullColumnName(string columnName)
+        {
+            this.columnName = columnName;
+        }
+
         internal static FullColumnName FromContext(TSqlParser.Full_column_nameContext context)
         {
-            var r = new FullColumnName();
+            var r = new FullColumnName(Program.GetEffectiveName(context.column_name.GetText()));
             r.serverName = (context.server != null) ? Program.GetEffectiveName(context.server.GetText()) : null;
             r.schemaName = (context.schema != null) ? Program.GetEffectiveName(context.schema.GetText()) : null;
             r.tableName = (context.tablename != null) ? Program.GetEffectiveName(context.tablename.GetText()) : null;
-            r.columnName = Program.GetEffectiveName(context.column_name.GetText());
             return r;
         }
 
         internal static FullColumnName FromColumnName(string columnName)
         {
-            var r = new FullColumnName();
-            r.columnName = Program.GetEffectiveName(columnName);
+            var r = new FullColumnName(Program.GetEffectiveName(columnName));
             return r;
         }
 
         internal static FullColumnName FromTableColumnName(string tableName, string columnName)
         {
-            var r = new FullColumnName();
-            r.columnName = Program.GetEffectiveName(columnName);
+            var r = new FullColumnName(Program.GetEffectiveName(columnName));
             r.tableName = Program.GetEffectiveName(tableName);
             return r;
         }
