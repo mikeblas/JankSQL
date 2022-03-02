@@ -49,6 +49,7 @@ namespace JankSQL
             base.EnterSelect_list(context);
             selectContext.SelectListContext = new SelectListContext(context);
             currentExpressionList = new();
+            currentExpressionListList = new();
         }
 
         public override void EnterInsert_statement([NotNull] TSqlParser.Insert_statementContext context)
