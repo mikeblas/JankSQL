@@ -125,7 +125,7 @@ namespace JankSQL
             }
 
             // now the filter, if needed
-            if (predicateExpressionLists.Count() > 0)
+            if (predicateExpressionLists.Count > 0)
             {
                 Filter filter = new Filter(lastLeftOutput, predicateExpressionLists);
                 lastLeftOutput = filter;

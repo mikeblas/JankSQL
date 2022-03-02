@@ -19,34 +19,40 @@ namespace JankSQL
 
         public override void EnterEveryRule([NotNull] ParserRuleContext context)
         {
-            var s = new string(' ', depth);
             base.EnterEveryRule(context);
+
+            var s = new string(' ', depth);
             Console.WriteLine($"+{s}{context.GetType().Name}, {context.GetText()}");
             depth++;
         }
 
         public override void ExitEveryRule([NotNull] ParserRuleContext context)
         {
-            var s = new string(' ', depth);
             base.ExitEveryRule(context);
+
+            var s = new string(' ', depth);
             Console.WriteLine($"-{s}{context.GetType().Name}, {context.GetText()}");
             depth--;
         }
 
         public override void ExitSelect_statement(TSqlParser.Select_statementContext context)
         {
+            base.ExitEveryRule(context);
+
             executionContext.ExecuteContexts.Add(selectContext);
         }
 
         public override void EnterSelect_statement([NotNull] TSqlParser.Select_statementContext context)
         {
-            selectContext = new SelectContext(context);
             base.EnterSelect_statement(context);
+
+            selectContext = new SelectContext(context);
         }
 
         public override void EnterSelect_list([NotNull] TSqlParser.Select_listContext context)
         {
             base.EnterSelect_list(context);
+
             selectContext.SelectListContext = new SelectListContext(context);
             currentExpressionList = new();
             currentExpressionListList = new();
@@ -54,24 +60,27 @@ namespace JankSQL
 
         public override void EnterInsert_statement([NotNull] TSqlParser.Insert_statementContext context)
         {
-            insertContext = new InsertContext(context);
             base.EnterInsert_statement(context);
+
+            insertContext = new InsertContext(context);
         }
 
 
         public override void ExitExpression_elem([NotNull] TSqlParser.Expression_elemContext context)
         {
+            base.ExitExpression_elem(context);
+
             foreach (ExpressionNode n in currentExpression)
             {
                 Console.Write($"[{n.ToString()}] ");
             }
             Console.WriteLine();
-
-            base.ExitExpression_elem(context);
         }
 
         public override void ExitExpression([NotNull] TSqlParser.ExpressionContext context)
         {
+            base.ExitExpression(context);
+
             Console.WriteLine($"operator: '{context.op}'");
             if (context.op != null)
             {
@@ -81,8 +90,6 @@ namespace JankSQL
 
             currentExpressionList.Add(currentExpression);
             currentExpression = new();
-
-            base.ExitExpression(context);
         }
 
         public override void EnterExpression([NotNull] TSqlParser.ExpressionContext context)
@@ -92,12 +99,15 @@ namespace JankSQL
 
         public override void EnterExpression_list([NotNull] TSqlParser.Expression_listContext context)
         {
-            currentExpressionList = new();
             base.EnterExpression_list(context);
+
+            currentExpressionList = new();
         }
 
         public override void ExitPrimitive_expression([NotNull] TSqlParser.Primitive_expressionContext context)
         {
+            base.ExitPrimitive_expression(context);
+
             if (context.constant().FLOAT() is not null)
             {
                 string str = context.constant().FLOAT().GetText();
@@ -140,9 +150,6 @@ namespace JankSQL
                     currentExpression.Add(x);
                 }
             }
-
-
-            base.ExitPrimitive_expression(context);
         }
 
         public override void ExitComparison_operator([NotNull] TSqlParser.Comparison_operatorContext context)
@@ -152,14 +159,16 @@ namespace JankSQL
 
         public override void ExitSCALAR_FUNCTION([NotNull] TSqlParser.SCALAR_FUNCTIONContext context)
         {
+            base.ExitSCALAR_FUNCTION(context);
+
             ExpressionNode x = new ExpressionOperator(context.scalar_function_name().GetText());
             currentExpression.Add(x);
-
-            base.ExitSCALAR_FUNCTION(context);
         }
 
         public override void ExitSearch_condition([NotNull] TSqlParser.Search_conditionContext context)
         {
+            base.ExitSearch_condition(context);
+
             Expression total = new();
             foreach (var x in currentExpressionList)
                 total.AddRange(x);
@@ -203,20 +212,20 @@ namespace JankSQL
                 Console.WriteLine("Got neither");
                 selectContext.EndPredicateExpressionList(total);
             }
-
-            base.ExitSearch_condition(context);
         }
 
         public override void ExitFull_column_name([NotNull] TSqlParser.Full_column_nameContext context)
         {
+            base.ExitFull_column_name(context);
+
             ExpressionNode x = new ExpressionOperandFromColumn(FullColumnName.FromContext(context));
             currentExpression.Add(x);
-
-            base.ExitFull_column_name(context);
         }
 
         public override void ExitSelect_list_elem([NotNull] TSqlParser.Select_list_elemContext context)
         {
+            base.ExitSelect_list_elem(context);
+
             // if this is an asterisk, it doesn't get an expression
             if (context.asterisk() == null)
             {
@@ -246,25 +255,25 @@ namespace JankSQL
                 currentExpression = new();
                 currentExpressionList = new();
             }
-
-            base.ExitSelect_list_elem(context);
         }
 
         public override void ExitPredicate([NotNull] TSqlParser.PredicateContext context)
         {
+            base.ExitPredicate(context);
+
             Console.WriteLine($"Predicate comparison: '{context.comparison_operator().GetText()}'");
             ExpressionNode x = new ExpressionComparisonOperator(context.comparison_operator().GetText());
             Expression xl = new();
             xl.Add(x);
             currentExpressionList.Add(xl);
-            base.ExitPredicate(context);
         }
 
         public override void ExitAs_column_alias([NotNull] TSqlParser.As_column_aliasContext context)
         {
+            base.ExitAs_column_alias(context);
+
             selectContext.SelectListContext.CurrentAlias = context.column_alias().GetText();
             Console.WriteLine($"alias == {context.column_alias().GetText()}");
-            base.ExitAs_column_alias(context);
         }
 
         public override void ExitCase_expression(TSqlParser.Case_expressionContext context)
@@ -281,17 +290,19 @@ namespace JankSQL
 
         public override void ExitTruncate_table([NotNull] TSqlParser.Truncate_tableContext context)
         {
+            base.ExitTruncate_table(context);
+
             string tableName = context.table_name().id_()[0].GetText();
 
             TruncateTableContext c = new TruncateTableContext(tableName);
-
             executionContext.ExecuteContexts.Add(c);
 
-            base.ExitTruncate_table(context);
         }
 
         public override void ExitCreate_table(TSqlParser.Create_tableContext context)
         {
+            base.ExitCreate_table(context);
+
             var cdtcs = context.column_def_table_constraints();
             var cdtc = cdtcs.column_def_table_constraint();
 
@@ -339,6 +350,8 @@ namespace JankSQL
 
         public override void ExitJoin_part([NotNull] TSqlParser.Join_partContext context)
         {
+            base.ExitJoin_part(context);
+
             // figure out which join type
             if (context.cross_join() != null)
             {
@@ -362,8 +375,6 @@ namespace JankSQL
             {
                 Console.WriteLine("Don't know this join type");
             }
-
-            base.ExitJoin_part(context);
         }
 
         public override void ExitInsert_column_name_list([NotNull] TSqlParser.Insert_column_name_listContext context)
@@ -402,6 +413,7 @@ namespace JankSQL
         public override void EnterTable_value_constructor([NotNull] TSqlParser.Table_value_constructorContext context)
         {
             base.EnterTable_value_constructor(context);
+
             currentExpressionListList = new();
         }
 
@@ -415,8 +427,8 @@ namespace JankSQL
 
         public override void ExitExpression_list([NotNull] TSqlParser.Expression_listContext context)
         {
-         
             base.ExitExpression_list(context);
+
             currentExpressionListList.Add(currentExpressionList);
         }
 

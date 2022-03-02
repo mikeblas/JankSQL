@@ -18,10 +18,6 @@ namespace JankSQL
             this.source.Load();
         }
 
-        internal void Describe()
-        {
-        }
-
         void IComponentOutput.Rewind()
         {
             currentRow = 0;

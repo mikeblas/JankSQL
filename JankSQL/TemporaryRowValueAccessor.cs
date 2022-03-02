@@ -8,8 +8,8 @@ namespace JankSQL
 {
     internal class TemporaryRowValueAccessor : IRowValueAccessor
     {
-        List<FullColumnName> names;
-        ExpressionOperand[] rowData;
+        readonly List<FullColumnName> names;
+        readonly ExpressionOperand[] rowData;
 
         internal TemporaryRowValueAccessor(ExpressionOperand[] rowData, List<FullColumnName> names)
         {

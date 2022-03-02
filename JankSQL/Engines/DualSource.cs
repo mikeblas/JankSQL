@@ -18,7 +18,7 @@
 
         ExpressionOperand[] IEngineSource.Row(int n)
         {
-            ExpressionOperand[] ret = new ExpressionOperand[0];
+            ExpressionOperand[] ret = Array.Empty<ExpressionOperand>();
             return ret;
         }
 

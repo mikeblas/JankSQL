@@ -56,6 +56,7 @@ namespace JankSQL
     class AntlrErrors<TToken> : IAntlrErrorListener<TToken> where TToken : IToken
     {
         List<string> errorList = new List<string>();
+
         internal List<string> ErrorList { get { return errorList; } }
 
         public void SyntaxError(TextWriter output, IRecognizer recognizer, TToken offendingSymbol, int line, int charPositionInLine,

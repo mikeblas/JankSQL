@@ -31,8 +31,10 @@
                     {
                         effectiveColumns.Add(rsInput.GetColumnName(i));
                         ExpressionNode x = new ExpressionOperandFromColumn(rsInput.GetColumnName(i));
-                        Expression xlist = new Expression();
-                        xlist.Add(x);
+                        Expression xlist = new Expression
+                        {
+                            x
+                        };
                         selectList.AddSelectListExpressionList(xlist);
                     }
                 }

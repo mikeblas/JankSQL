@@ -20,9 +20,10 @@ namespace JankSQL
 
         internal static ResultSet NewWithShape(ResultSet other)
         {
-            ResultSet ret = new ResultSet();
-
-            ret.columnNames = other.columnNames;
+            ResultSet ret = new()
+            {
+                columnNames = other.columnNames
+            };
 
             return ret;
         }
