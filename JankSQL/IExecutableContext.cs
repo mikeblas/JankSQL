@@ -39,5 +39,7 @@ namespace JankSQL
     public interface IExecutableContext
     {
         ExecuteResult Execute();
+
+        void Dump();
     }
 }

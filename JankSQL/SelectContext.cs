@@ -9,7 +9,6 @@ namespace JankSQL
 
         // for WHERE clauses
         List<Expression> predicateExpressionLists = new List<Expression>();
-        Expression currentExpressionList = new Expression();
 
         List<JoinContext> joinContexts = new List<JoinContext>();
 
@@ -26,20 +25,18 @@ namespace JankSQL
             statementContext = context;
         }
 
-        internal void EndPredicateExpressionList()
+        internal void EndPredicateExpressionList(Expression expression)
         {
-            predicateExpressionLists.Add(currentExpressionList);
-            currentExpressionList = new Expression();
+            predicateExpressionLists.Add(expression);
         }
 
-        internal void EndAndCombinePredicateExpressionList(int arguments)
+        internal void EndAndCombinePredicateExpressionList(int arguments, Expression expression)
         {
-            EndPredicateExpressionList();
+            EndPredicateExpressionList(expression);
 
             int firstIndex = predicateExpressionLists.Count - arguments -1;
             List<Expression> range = predicateExpressionLists.GetRange(firstIndex, arguments+1);
             predicateExpressionLists.RemoveRange(firstIndex, arguments + 1);
-
 
             Expression newList = new Expression();
             foreach (var subList in range)
@@ -50,13 +47,10 @@ namespace JankSQL
             predicateExpressionLists.Add(newList);
         }
 
-        internal void EndSelectListExpressionList()
+        internal void EndSelectListExpressionList(Expression expression)
         {
-            selectList.AddSelectListExpressionList(currentExpressionList);
-            currentExpressionList = new Expression();
+            selectList.AddSelectListExpressionList(expression);
         }
-
-        internal List<ExpressionNode> ExpressionList { get { return currentExpressionList; } }
 
         internal int PredicateExpressionListCount { get { return predicateExpressionLists.Count; } }
 
@@ -156,7 +150,7 @@ namespace JankSQL
         }
 
 
-        internal void Dump()
+        public void Dump()
         {
             selectList.Dump();
 

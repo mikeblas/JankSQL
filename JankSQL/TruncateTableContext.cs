@@ -49,5 +49,12 @@ namespace JankSQL
             result.ExecuteStatus = ExecuteStatus.SUCCESSFUL;
             return result;
         }
+
+        public void Dump()
+        {
+            Console.WriteLine("TRUNCATE TABLE of ${tableName}");
+        }
     }
+
+
 }

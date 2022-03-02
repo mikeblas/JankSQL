@@ -22,6 +22,11 @@ namespace JankSQL
             this.executionContext = ec;
         }
 
+        public void Dump()
+        {
+            executionContext.Dump();
+        }
+
         public int TotalErrors { get { return NumberOfSyntaxErrors + NumberOfTokenErrors; } }
 
         public int NumberOfSyntaxErrors { get { return (syntaxErrors == null) ? 0 : syntaxErrors.Count; } }

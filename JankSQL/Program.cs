@@ -56,15 +56,20 @@ namespace JankSQL
 
             // str = "SELECT 'This'; SELECT 'That';";
 
-            str = "TRUNCATE TABLE [TargetTasdfasdfaable];";
+            // str = "TRUNCATE TABLE [TargetTasdfasdfaable];";
             // str = "SELECT city_name FROM mytable;";
             //     012345678901
+
+            // str = "INSERT INTO [Mytable] ([keycolumn], [city_name], [state_code], [population]) VALUES (92, 'Tacoma', 'WA', 520000);";
+            str = "INSERT INTO [Mytable] ([keycolumn], [city_name], [state_code], [population]) VALUES (92, 'Tacoma', 'WA', 520000), (101, 'Chehalis', 'WA', 12000);";
 
 
 
             ExecutableBatch batch = Parser.ParseSQLFileFromString(str);
             if (batch.TotalErrors == 0)
             {
+                batch.Dump();
+
                 ExecuteResult[] sets = batch.Execute();
                 for (int i = 0; i < sets.Length; i++)
                 {

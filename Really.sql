@@ -9,3 +9,11 @@ INSERT INTO MyTable(keycolumn, city_name, state, population) VALUES
 
 
 SELECT * FROM [mytable] WHERE NOT [population] = 37000 OR [keycolumn] = 2
+
+
+SELECT '300' + 5;
+SELECT 5 + '300';
+
+
+CREATE TABLE X3 (Somecol INTEGER);
+TRUNCATE TABLE X3;

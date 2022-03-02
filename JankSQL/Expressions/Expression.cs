@@ -52,11 +52,17 @@ namespace JankSQL
             ExpressionOperand result = (ExpressionOperand)stack.Pop();
 
             string str = string.Join(',', this);
-            Console.WriteLine($"{str} ==> [{result}]");
+            Console.WriteLine($"{this} ==> [{result}]");
 
             return result;
-
         }
+
+        public override string ToString()
+        {
+            string str = string.Join(',', this);
+            return str;
+        }
+
 
     }
 }

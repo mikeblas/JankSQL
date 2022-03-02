@@ -124,6 +124,8 @@ namespace Tests
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] = 25000 AND [keycolumn] = 1;");
 
+            ec.Dump();
+
             ExecuteResult result = ec.ExecuteSingle();
             Assert.IsNotNull(result.ResultSet);
             result.ResultSet.Dump();

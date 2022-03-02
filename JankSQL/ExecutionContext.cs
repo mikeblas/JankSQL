@@ -10,8 +10,13 @@ namespace JankSQL
     {
         List<IExecutableContext> executeContexts = new();
 
-
         public List<IExecutableContext> ExecuteContexts { get { return executeContexts; } set { executeContexts = value; } }
+
+        public void Dump()
+        {
+            foreach (var context in executeContexts)
+                context.Dump();
+        }
 
         public ExecuteResult[] Execute()
         {
