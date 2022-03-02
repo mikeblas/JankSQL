@@ -6,15 +6,6 @@ using System.Threading.Tasks;
 
 namespace JankSQL
 {
-    public class ExecutionException : Exception
-    {
-        public ExecutionException(string description)
-            : base(description)
-        {
-        }
-    }
-
-
 
     internal class TruncateTableContext : IExecutableContext
     {
