@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace JankSQL.Engines
 {
 
-    public class DynamicCSV : IEngineSource
+    public class DynamicCSV : IEngineSource, IEngineDestination
     {
         private readonly string filename;
         private readonly string tableName;
@@ -182,6 +182,28 @@ namespace JankSQL.Engines
                 return null;
 
             return sysTables.Row(foundRow)[idxFile].AsString();
+        }
+
+        public void InsertRow(ExpressionOperand[] row)
+        {
+            if (row.Length != columnNames.Length)
+                throw new ExecutionException($"table {tableName}: can't insert row with {row.Length} columns, need {columnNames.Length} columns");
+
+            StringBuilder sb = new StringBuilder();
+
+            for (int i = 0; i < row.Length; i++)
+            {
+                string col = row[i].AsString();
+                if (i > 0)
+                    sb.Append(",");
+                sb.Append(col);
+            }
+
+            using (StreamWriter sw = File.AppendText(this.filename))
+            {
+                sw.WriteLine(sb.ToString());
+                // Console.WriteLine($"Table writer: {sb.ToString()}");
+            }
         }
     }
 }

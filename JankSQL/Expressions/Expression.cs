@@ -7,7 +7,7 @@ namespace JankSQL
         {
         }
 
-        internal ExpressionOperand Evaluate(IRowValueAccessor accessor)
+        internal ExpressionOperand Evaluate(IRowValueAccessor? accessor)
         {
             Stack<ExpressionOperand> stack = new Stack<ExpressionOperand>();
 
@@ -26,6 +26,9 @@ namespace JankSQL
                     }
                     else if (n is ExpressionOperandFromColumn)
                     {
+                        if (accessor == null)
+                            throw new ExecutionException("Not in a row context to evaluate {this}");
+
                         var r = (ExpressionOperandFromColumn)n;
                         stack.Push(accessor.GetValue(r.ColumnName));
                     }

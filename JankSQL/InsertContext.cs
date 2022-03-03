@@ -19,6 +19,8 @@ namespace JankSQL
         internal List<FullColumnName> TargetColumns { get { return targetColumns; } set { targetColumns = value; } }
 
         internal List<List<Expression>> constructors = null;
+        
+        internal string TableName { get; set; }
 
         internal void AddExpressionList(List<Expression> expressionList)
         {
@@ -36,11 +38,53 @@ namespace JankSQL
             this.constructors.AddRange(expressionLists);
         }
 
-        internal string TableName { get; set; }
-
         public ExecuteResult Execute()
         {
-            throw new NotImplementedException();
+            ExecuteResult results = new ExecuteResult();
+
+            string effectiveTableName = Program.GetEffectiveName(TableName);
+
+            // get systables
+            Engines.DynamicCSV sysTables = new Engines.DynamicCSV("sys_tables.csv", "sys_tables");
+            sysTables.Load();
+
+            // get the file name for our table
+            string? effectiveTableFileName = Engines.DynamicCSV.FileFromSysTables(sysTables, effectiveTableName);
+
+            if (effectiveTableFileName == null)
+            {
+                throw new ExecutionException($"Table {effectiveTableName} does not exist");
+            }
+            else
+            {
+                // we've got our table ...
+                Engines.DynamicCSV table = new Engines.DynamicCSV(effectiveTableFileName, effectiveTableName);
+                table.Load();
+
+                if (table.ColumnCount != constructors[0].Count)
+                {
+                    throw new ExecutionException($"Expected {table.ColumnCount} columns, got {constructors[0].Count}");
+                }
+
+                ConstantRowSource source = new ConstantRowSource(targetColumns, constructors);
+                Insert inserter = new Insert(table, source);
+
+                ResultSet? resultSet = null;
+
+                while (true)
+                {
+                    ResultSet batch = inserter.GetRows(5);
+                    if (resultSet == null)
+                        resultSet = ResultSet.NewWithShape(batch);
+                    if (batch.RowCount == 0)
+                        break;
+                    resultSet.Append(batch);
+                }
+
+                results.ResultSet = resultSet;
+            }
+
+            return results;
         }
 
         public void Dump()

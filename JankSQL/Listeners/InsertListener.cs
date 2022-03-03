@@ -35,8 +35,8 @@ namespace JankSQL
         {
             base.ExitInsert_statement(context);
 
-            Console.WriteLine($"INTO {context.ddl_object().full_table_name()}");
             insertContext.TableName = context.ddl_object().full_table_name().GetText();
+            Console.WriteLine($"INTO {insertContext.TableName}");
 
             executionContext.ExecuteContexts.Add(insertContext);
         }
