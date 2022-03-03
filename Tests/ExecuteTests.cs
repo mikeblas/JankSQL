@@ -227,7 +227,7 @@ namespace Tests
             ExecuteResult result = ec.ExecuteSingle();
             Assert.IsNotNull(result.ResultSet);
             result.ResultSet.Dump();
-            Assert.AreEqual(3, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
     }
