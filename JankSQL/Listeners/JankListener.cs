@@ -3,13 +3,12 @@ using Antlr4.Runtime.Misc;
 
 namespace JankSQL
 {
-    public class JankListener : TSqlParserBaseListener
+    public partial class JankListener : TSqlParserBaseListener
     {
         private int depth = 0;
 
         ExecutionContext executionContext = new ExecutionContext();
         SelectContext? selectContext;
-        InsertContext? insertContext;
 
         Expression currentExpression = new();
         List<Expression> currentExpressionList;
@@ -57,14 +56,6 @@ namespace JankSQL
             currentExpressionList = new();
             currentExpressionListList = new();
         }
-
-        public override void EnterInsert_statement([NotNull] TSqlParser.Insert_statementContext context)
-        {
-            base.EnterInsert_statement(context);
-
-            insertContext = new InsertContext(context);
-        }
-
 
         public override void ExitExpression_elem([NotNull] TSqlParser.Expression_elemContext context)
         {
@@ -292,81 +283,6 @@ namespace JankSQL
             Console.WriteLine($"alias == {context.column_alias().GetText()}");
         }
 
-        public override void ExitCase_expression(TSqlParser.Case_expressionContext context)
-        {
-            base.ExitCase_expression(context);
-
-            var elseMsg = context.elseExpr.GetText();
-            Console.WriteLine($"Case ELSE expression: {elseMsg}");
-        }
-
-        public override void ExitDrop_table(TSqlParser.Drop_tableContext context)
-        {
-            base.ExitDrop_table(context);
-
-            var idNames = context.table_name().id_().Select(e => e.GetText());
-            Console.WriteLine($"You're trying to delete {string.Join(".", idNames)}");
-        }
-
-        public override void ExitTruncate_table([NotNull] TSqlParser.Truncate_tableContext context)
-        {
-            base.ExitTruncate_table(context);
-
-            string tableName = context.table_name().id_()[0].GetText();
-
-            TruncateTableContext c = new TruncateTableContext(tableName);
-            executionContext.ExecuteContexts.Add(c);
-
-        }
-
-        public override void ExitCreate_table(TSqlParser.Create_tableContext context)
-        {
-            base.ExitCreate_table(context);
-
-            var cdtcs = context.column_def_table_constraints();
-            var cdtc = cdtcs.column_def_table_constraint();
-
-            foreach(var c in cdtc)
-            {
-                var cd = c.column_definition();
-                var id = cd.id_();
-                var dt = cd.data_type();
-                var id0 = id[0];
-
-                if (dt.unscaled_type is not null)
-                {
-                    string typeName = (dt.unscaled_type.ID() is not null) ? dt.unscaled_type.ID().ToString() : dt.unscaled_type.keyword().GetText();
-
-                    Console.Write($"{id0.ID()}, {typeName} ");
-                    if (typeName.Equals("INTEGER", StringComparison.OrdinalIgnoreCase) || typeName.Equals("INT", StringComparison.OrdinalIgnoreCase))
-                        Console.WriteLine("It's an integer!");
-                }
-                else
-                {
-                    Console.Write($"{id0.ID()}, {dt.ext_type.keyword().GetText()} ");
-
-                    // null or not, if it's VARCHAR or not.
-                    var dktvc = dt.ext_type.keyword().VARCHAR();
-                    var dktnvc = dt.ext_type.keyword().NVARCHAR();
-                    // TSqlParser.VARCHAR
-
-                    if (dt.prec is not null)
-                    {
-                        Console.Write($"({dt.scale.Text}, {dt.prec.Text}) ");
-                    }
-                    else
-                    {
-                        Console.Write($"({dt.scale.Text}) ");
-                    }
-                }
-
-                if (cd.null_notnull() == null || cd.null_notnull().NULL_() == null)
-                    Console.WriteLine("NULL");
-                else
-                    Console.WriteLine("NOT NULL");
-            }
-        }
-
 
         public override void ExitJoin_part([NotNull] TSqlParser.Join_partContext context)
         {
@@ -395,54 +311,6 @@ namespace JankSQL
             {
                 Console.WriteLine("Don't know this join type");
             }
-        }
-
-        public override void ExitInsert_column_name_list([NotNull] TSqlParser.Insert_column_name_listContext context)
-        {
-            base.ExitInsert_column_name_list(context);
-
-            List<FullColumnName> columns = new();
-
-            foreach (var col in context.insert_column_id())
-            {
-                Console.WriteLine(col.id_()[0].GetText());
-                columns.Add(FullColumnName.FromColumnName(col.id_()[0].GetText()));
-            }
-
-            insertContext.TargetColumns = columns;
-        }
-
-
-        public override void ExitInsert_statement([NotNull] TSqlParser.Insert_statementContext context)
-        {
-            base.ExitInsert_statement(context);
-
-            Console.WriteLine($"INTO {context.ddl_object().full_table_name()}");
-            insertContext.TableName = context.ddl_object().full_table_name().GetText();
-
-            executionContext.ExecuteContexts.Add(insertContext);
-        }
-
-
-        public override void ExitInsert_with_table_hints([NotNull] TSqlParser.Insert_with_table_hintsContext context)
-        {
-            base.ExitInsert_with_table_hints(context);
-        }
-
-
-        public override void EnterTable_value_constructor([NotNull] TSqlParser.Table_value_constructorContext context)
-        {
-            base.EnterTable_value_constructor(context);
-
-            currentExpressionListList = new();
-        }
-
-        public override void ExitTable_value_constructor([NotNull] TSqlParser.Table_value_constructorContext context)
-        {
-            base.ExitTable_value_constructor(context);
-
-            insertContext.AddExpressionLists(currentExpressionListList);
-            currentExpressionList = new();
         }
 
     }
