@@ -25,6 +25,11 @@ namespace Tests
             result.ResultSet.Dump();
             Assert.AreEqual(3, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            for (int i = 0; i < result.ResultSet.RowCount; i++)
+            {
+                Assert.AreEqual(125, result.ResultSet.Row(i)[0].AsDouble());
+            }
         }
 
         [TestMethod, Timeout(1000)]
@@ -37,6 +42,12 @@ namespace Tests
             result.ResultSet.Dump();
             Assert.AreEqual(3, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(2, result.ResultSet.ColumnCount, "column count mismatch");
+
+            for (int i = 0; i < result.ResultSet.RowCount; i++)
+            {
+                Assert.AreEqual(3+5, result.ResultSet.Row(i)[0].AsDouble());
+                Assert.AreEqual(92*6, result.ResultSet.Row(i)[1].AsDouble());
+            }
         }
 
         [TestMethod, Timeout(1000)]
@@ -205,6 +216,19 @@ namespace Tests
                 Assert.AreEqual(1, results[i].ResultSet!.RowCount, "rowcount mismatch");
                 Assert.AreEqual(1, results[i].ResultSet!.ColumnCount, "column count mismatch");
             }
+        }
+
+
+        [TestMethod, Timeout(1000)]
+        public void TestPredicateFunction()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] > POWER(2500, 2);");
+
+            ExecuteResult result = ec.ExecuteSingle();
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(3, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
     }
 }

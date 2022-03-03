@@ -62,7 +62,11 @@ namespace JankSQL
 
             // str = "INSERT INTO [Mytable] ([keycolumn], [city_name], [state_code], [population]) VALUES (92, 'Tacoma', 'WA', 520000);";
             str = "INSERT INTO [Mytable] ([keycolumn], [city_name], [state_code], [population]) VALUES (92, 'Tacoma', 'WA', 520000), (101, 'Chehalis', 'WA', 12000);";
+            // str = "SELECT SQRT(2) FROM [mytable];";
 
+            // str = "SELECT [population] / [keycolumn] FROM [mytable];";
+
+            // str = "SELECT * FROM [mytable] WHERE [population] > POWER(2500, 2);";
 
 
             ExecutableBatch batch = Parser.ParseSQLFileFromString(str);

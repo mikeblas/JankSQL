@@ -55,6 +55,8 @@ namespace Tests
             result.ResultSet.Dump();
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.AreEqual(8, result.ResultSet.Row(0)[0].AsDouble());
         }
 
 
@@ -80,6 +82,10 @@ namespace Tests
             result.ResultSet.Dump();
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(3, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.AreEqual("hello", result.ResultSet.Row(0)[0].AsString());
+            Assert.AreEqual("goodbye", result.ResultSet.Row(0)[1].AsString());
+            Assert.AreEqual("Bob's Burgers", result.ResultSet.Row(0)[2].AsString());
         }
 
         [TestMethod, Timeout(1000)]
@@ -92,6 +98,8 @@ namespace Tests
             result.ResultSet.Dump();
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.AreEqual("Hello, world", result.ResultSet.Row(0)[0].AsString());
         }
 
         [TestMethod, Timeout(1000)]
@@ -104,6 +112,7 @@ namespace Tests
             result.ResultSet.Dump();
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+            Assert.AreEqual("Hello, world, good day!", result.ResultSet.Row(0)[0].AsString());
         }
 
 
@@ -246,6 +255,50 @@ namespace Tests
             {
                 Assert.AreEqual(ExpressionOperandType.DECIMAL, row[n].NodeType);
             }
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestFunctionPOWER()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT POWER(3, 3);");
+
+            ExecuteResult result = ec.ExecuteSingle();
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.AreEqual(27, result.ResultSet.Row(0)[0].AsDouble());
+        }
+
+
+        [TestMethod, Timeout(1000)]
+        public void TestFunctionPOWERTimes()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT POWER(3, 3) * 2;");
+
+            ExecuteResult result = ec.ExecuteSingle();
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.AreEqual(54, result.ResultSet.Row(0)[0].AsDouble());
+        }
+
+
+        [TestMethod, Timeout(1000)]
+        public void TestFunctionSQRT()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT SQRT(2);");
+
+            ExecuteResult result = ec.ExecuteSingle();
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.AreEqual(1.41421356, result.ResultSet.Row(0)[0].AsDouble(), 0.00000001);
         }
 
     }
