@@ -105,7 +105,7 @@ namespace JankSQL
         {
             base.EnterExpression_list(context);
 
-            currentExpressionList = new();
+            // currentExpressionList = new();
         }
 
         public override void ExitExpression_list([NotNull] TSqlParser.Expression_listContext context)
@@ -174,6 +174,13 @@ namespace JankSQL
 
             ExpressionNode x = new ExpressionOperator(context.scalar_function_name().GetText());
             currentExpressionList[^1].Add(x);
+        }
+
+        public override void EnterSearch_condition([NotNull] TSqlParser.Search_conditionContext context)
+        {
+            base.EnterSearch_condition(context);
+
+            currentExpressionList = new();
         }
 
         public override void ExitSearch_condition([NotNull] TSqlParser.Search_conditionContext context)
@@ -435,6 +442,7 @@ namespace JankSQL
             base.EnterTable_value_constructor(context);
 
             currentExpressionListList = new();
+            currentExpressionList = new();
         }
 
         public override void ExitTable_value_constructor([NotNull] TSqlParser.Table_value_constructorContext context)
