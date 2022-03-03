@@ -17,6 +17,8 @@ namespace Tests
             result.ResultSet.Dump();
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.AreEqual(3+5, result.ResultSet.Row(0)[0].AsDouble());
         }
 
         [TestMethod, Timeout(1000)]
@@ -29,6 +31,8 @@ namespace Tests
             result.ResultSet.Dump();
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.AreEqual(-32, result.ResultSet.Row(0)[0].AsDouble());
         }
 
 
@@ -42,6 +46,8 @@ namespace Tests
             result.ResultSet.Dump();
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.AreEqual(-32 * -133, result.ResultSet.Row(0)[0].AsDouble());
         }
 
 
@@ -57,6 +63,8 @@ namespace Tests
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
             Assert.AreEqual(8, result.ResultSet.Row(0)[0].AsDouble());
+
+            Assert.AreEqual(3 + 5, result.ResultSet.Row(0)[0].AsDouble());
         }
 
 
@@ -126,6 +134,9 @@ namespace Tests
             result.ResultSet.Dump();
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.AreEqual(295, result.ResultSet.Row(0)[0].AsDouble());
+
         }
 
         [TestMethod, Timeout(1000)]
@@ -138,6 +149,8 @@ namespace Tests
             result.ResultSet.Dump();
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.AreEqual(305, result.ResultSet.Row(0)[0].AsDouble());
         }
 
 
@@ -151,6 +164,8 @@ namespace Tests
             result.ResultSet.Dump();
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.AreEqual(-295, result.ResultSet.Row(0)[0].AsDouble());
         }
 
         [TestMethod, Timeout(1000)]
@@ -163,6 +178,8 @@ namespace Tests
             result.ResultSet.Dump();
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.AreEqual(305, result.ResultSet.Row(0)[0].AsDouble());
         }
 
 
@@ -330,9 +347,11 @@ namespace Tests
             Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
 
             ExpressionOperand[] row = result.ResultSet.Row(0);
+            int[] nums = { -200, 300, 5, 0 };
             for (int n = 0; n < result.ResultSet.ColumnCount; n++)
             {
                 Assert.AreEqual(ExpressionOperandType.INTEGER, row[n].NodeType);
+                Assert.AreEqual(nums[n], row[n].AsDouble());
             }
         }
 
@@ -350,9 +369,11 @@ namespace Tests
             Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
 
             ExpressionOperand[] row = result.ResultSet.Row(0);
+            double[] nums = { 200, 300.1, 5.182837, 0 };
             for (int n = 0; n < result.ResultSet.ColumnCount; n++)
             {
                 Assert.AreEqual(ExpressionOperandType.DECIMAL, row[n].NodeType);
+                Assert.AreEqual(nums[n], row[n].AsDouble(), 0.00000001);
             }
         }
 
