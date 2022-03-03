@@ -69,6 +69,7 @@ namespace JankSQL
             Console.WriteLine();
         }
 
+        int expressionDepth = 0;
         public override void ExitExpression([NotNull] TSqlParser.ExpressionContext context)
         {
             base.ExitExpression(context);
@@ -77,33 +78,52 @@ namespace JankSQL
             {
                 Console.WriteLine($"operator: '{context.op.Text}'");
                 ExpressionNode x = new ExpressionOperator(context.op.Text);
-                currentExpressionList[^1].Add(x);
+                currentExpression.Add(x);
             }
             else
                 Console.WriteLine($"operator is null");
 
 
-            currentExpressionList.Add(currentExpression);
-            currentExpression = new();
+
+            expressionDepth--;
+
+            if (expressionDepth == 0)
+            {
+                currentExpressionList.Add(currentExpression);
+                currentExpression = new();
+            }
+            Console.WriteLine($"Expression depth: {expressionDepth}");
         }
 
         public override void EnterExpression([NotNull] TSqlParser.ExpressionContext context)
         {
             base.EnterExpression(context);
+
+            expressionDepth++;
+            Console.WriteLine($"Expression depth: {expressionDepth}");
         }
+
+        int expressionListDepth = 0;
 
         public override void EnterExpression_list([NotNull] TSqlParser.Expression_listContext context)
         {
             base.EnterExpression_list(context);
-
-            // currentExpressionList = new();
+            expressionListDepth++;
+            Console.WriteLine($"ExpressionList depth: {expressionListDepth}");
         }
 
         public override void ExitExpression_list([NotNull] TSqlParser.Expression_listContext context)
         {
             base.ExitExpression_list(context);
 
-            currentExpressionListList.Add(currentExpressionList);
+            expressionListDepth--;
+            if (expressionListDepth == 0)
+            {
+                currentExpressionListList.Add(currentExpressionList);
+                currentExpressionList = new();
+            }
+
+            Console.WriteLine($"ExpressionList depth: {expressionListDepth}");
         }
 
         public override void ExitPrimitive_expression([NotNull] TSqlParser.Primitive_expressionContext context)
@@ -163,8 +183,8 @@ namespace JankSQL
         {
             base.ExitSCALAR_FUNCTION(context);
 
-            ExpressionNode x = new ExpressionOperator(context.scalar_function_name().GetText());
-            currentExpressionList[^1].Add(x);
+            ExpressionNode n = new ExpressionOperator(context.scalar_function_name().GetText());
+            currentExpression.Add(n);
         }
 
         public override void EnterSearch_condition([NotNull] TSqlParser.Search_conditionContext context)
@@ -179,6 +199,14 @@ namespace JankSQL
             base.ExitSearch_condition(context);
 
             Expression total = new();
+            foreach (var l in currentExpressionListList)
+            {
+                foreach (var x in l)
+                {
+                    total.AddRange(x);
+                }
+            }
+
             foreach (var x in currentExpressionList)
                 total.AddRange(x);
             currentExpressionList = new();

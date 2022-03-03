@@ -52,12 +52,31 @@ namespace JankSQL
             str = string.Join(',', TargetColumns);
             Console.WriteLine($"   Columns: {str}");
 
+            /*
             str = String.Join(',',
                 constructors.Select(x => "{" +
                     String.Join(',',
                             x.Select(y => "[" + y + "]"))
                         + "}"));
             Console.WriteLine($"   Expressions: {str}");
+            */
+
+            bool first = true;
+            foreach (var expression in constructors)
+            {
+                if (first)
+                {
+                    Console.Write($"   Expressions: ");
+                    first = false;
+                }
+                else
+                    Console.Write($"                ");
+
+                Console.Write($"len={expression.Count} ");
+
+                Console.WriteLine(String.Join(',', expression.Select(x => "[" + x + "]")));
+            }
+
         }
     }
 }

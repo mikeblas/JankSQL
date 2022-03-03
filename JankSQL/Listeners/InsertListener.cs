@@ -53,6 +53,7 @@ namespace JankSQL
             base.EnterTable_value_constructor(context);
 
             currentExpressionListList = new();
+            currentExpressionList = new();
         }
 
         public override void ExitTable_value_constructor([NotNull] TSqlParser.Table_value_constructorContext context)

@@ -136,7 +136,6 @@ namespace Tests
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
             Assert.AreEqual(295, result.ResultSet.Row(0)[0].AsDouble());
-
         }
 
         [TestMethod, Timeout(1000)]
@@ -380,7 +379,7 @@ namespace Tests
         [TestMethod, Timeout(1000)]
         public void TestFunctionPOWER()
         {
-            var ec = Parser.ParseSQLFileFromString("SELECT POWER(3, 3);");
+            var ec = Parser.ParseSQLFileFromString("SELECT POWER(9, 3);");
 
             ExecuteResult result = ec.ExecuteSingle();
             Assert.IsNotNull(result.ResultSet);
@@ -388,14 +387,14 @@ namespace Tests
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
-            Assert.AreEqual(27, result.ResultSet.Row(0)[0].AsDouble());
+            Assert.AreEqual(729, result.ResultSet.Row(0)[0].AsDouble());
         }
 
 
         [TestMethod, Timeout(1000)]
         public void TestFunctionPOWERTimes()
         {
-            var ec = Parser.ParseSQLFileFromString("SELECT POWER(3, 3) * 2;");
+            var ec = Parser.ParseSQLFileFromString("SELECT POWER(9, 3) * 2;");
 
             ExecuteResult result = ec.ExecuteSingle();
             Assert.IsNotNull(result.ResultSet);
@@ -403,7 +402,7 @@ namespace Tests
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
-            Assert.AreEqual(54, result.ResultSet.Row(0)[0].AsDouble());
+            Assert.AreEqual(729 * 2, result.ResultSet.Row(0)[0].AsDouble());
         }
 
 
