@@ -15,4 +15,8 @@
     <ProjectReference Include="..\Parsing\Parsing.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Operators\" />
+  </ItemGroup>
+
 </Project>
