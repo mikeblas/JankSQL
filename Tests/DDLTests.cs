@@ -7,8 +7,8 @@ namespace Tests
     [TestClass]
     public class DDLTests
     {
-        [TestMethod]
-        public void TestSelectStarSysTables()
+        [TestMethod, Timeout(1000)]
+        public void TestTruncateTable()
         {
             var ec = Parser.ParseSQLFileFromString("TRUNCATE TABLE [TargetTable];");
 
@@ -24,8 +24,8 @@ namespace Tests
         }
 
 
-        [TestMethod]
-        public void TestSelectStarSysTablesBadName()
+        [TestMethod, Timeout(1000)]
+        public void TestTruncateTableBadName()
         {
             var ec = Parser.ParseSQLFileFromString("TRUNCATE TABLE [BadTableName];");
 

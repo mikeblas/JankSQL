@@ -22,17 +22,37 @@ namespace JankSQL
             this.executionContext = ec;
         }
 
+
+        /// <summary>
+        /// Dumps diagnostic and tracing information about this ExecutableBatch. Useful for
+        /// showing the execution plan and state of the executable objects within.
+        /// </summary>
         public void Dump()
         {
             executionContext.Dump();
         }
 
+        /// <summary>
+        /// return a count of errors (sum of syntax errors and token errors) seen as a result of parsing this file
+        /// </summary>
         public int TotalErrors { get { return NumberOfSyntaxErrors + NumberOfTokenErrors; } }
 
+        /// <summary>
+        /// Number of syntax errors encountered when parsing this file
+        /// </summary>
         public int NumberOfSyntaxErrors { get { return (syntaxErrors == null) ? 0 : syntaxErrors.Count; } }
 
+
+        /// <summary>
+        /// Number of tokenization errors encountered when parsing this file
+        /// </summary>
         public int NumberOfTokenErrors { get { return (tokenErrors == null) ? 0 : tokenErrors.Count; } }
 
+        /// <summary>
+        /// Executes this batch and gets an array of ExecuteResult objects, one for each batch.
+        /// </summary>
+        /// <returns>array of ExecuteResults object</returns>
+        /// <exception cref="InvalidOperationException">If never successfully pasred</exception>
         public ExecuteResult[] Execute()
         {
             if (executionContext is null)
@@ -42,6 +62,11 @@ namespace JankSQL
             return results;
         }
 
+        /// <summary>
+        /// Executes a single batch and returns a single ExecuteResult object with the results of the batch.
+        /// </summary>
+        /// <returns>ExecuteResults object with the results of execution</returns>
+        /// <exception cref="InvalidOperationException">If never parsed</exception>
         public ExecuteResult ExecuteSingle()
         {
             if (executionContext is null)
@@ -91,8 +116,18 @@ namespace JankSQL
     }
 
 
+    /// <summary>
+    /// Parses a File of SQL commands into an ExecutableBatch object.  The ExecutableBatch might indicate
+    /// errors in parsing. If it does, it can't be executed. If it has no errors, it may be ex ecuted to
+    /// return actual results (or effect changes to the database.)
+    /// </summary>
     public class Parser 
     {
+        /// <summary>
+        /// Helper to build and visit a parse tree produced by the given lexer.
+        /// </summary>
+        /// <param name="lexer">TSqlLexer initialized from the TSqlLexer</param>
+        /// <returns>an ExecutableBatch</returns>
         private static ExecutableBatch ParseTreeFromLexer(TSqlLexer lexer)
         {
             var tokenErrorListener = DescriptiveErrorListener.Instance;
@@ -123,13 +158,27 @@ namespace JankSQL
         }
 
 
-        public static ExecutableBatch ParseSQLFileFromString(string str)
+
+        /// <summary>
+        /// case-sensitive parsing; this wkips the CaseChangingCharStream and requires
+        /// all-upper SQL tokens. Mixed-case identifiers must be in [QuoteBrackets].
+        /// Eventually, I can remove this and commit to mixed-case the parsing solution.
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns>an ExecutableBatch that has errors, or can be executed</returns>
+        public static ExecutableBatch ParseSQLFileFromStringCS(string str)
         {
             var lexer = new TSqlLexer(new AntlrInputStream(str));
             return ParseTreeFromLexer(lexer);
         }
 
-        public static ExecutableBatch ParseSQLFileFromStringCI(string str)
+        /// <summary>
+        /// Parse a SQL File from a string. (A File is a set of executable batches of 
+        /// statements, not necessarily a disk file.)
+        /// </summary>
+        /// <param name="str">String with a File of SQL batches to execute</param>
+        /// <returns>ExecutableBatch object which can be executed, or which represents parsing errors.</returns>
+        public static ExecutableBatch ParseSQLFileFromString(string str)
         {
             ICharStream s = CharStreams.fromString(str);
             CaseChangingCharStream upper = new CaseChangingCharStream(s, true);
@@ -138,12 +187,26 @@ namespace JankSQL
         }
 
 
+        /// <summary>
+        /// Parse a SQL File from a TextReader. (A File is a set of executable batches of 
+        /// statements, not necessarily a disk file.)
+        /// </summary>
+        /// <param name="reader">readable TextReader containing a File of SQL batches to execute</param>
+        /// <returns>ExecutableBatch object which can be executed, or which represents parsing errors.</returns>
         public static ExecutableBatch ParseSQLFileFromTextReader(TextReader reader)
         {
+            ICharStream s = CharStreams.fromTextReader(reader);
+            CaseChangingCharStream upper = new CaseChangingCharStream(s, true);
             var lexer = new TSqlLexer(new AntlrInputStream(reader));
             return ParseTreeFromLexer(lexer);
         }
 
+        /// <summary>
+        /// Parse a SQL File from a disk file. (A File is a set of executable batches of 
+        /// statements, not necessarily a disk file.)
+        /// </summary>
+        /// <param name="strFileName">String with a file name, possibly including path, to open and read</param>
+        /// <returns>ExecutableBatch object which can be executed, or which represents parsing errors.</returns>
         public static ExecutableBatch ParseSQLFileFromFileName(string strFileName)
         {
             using TextReader str = new StreamReader(strFileName);

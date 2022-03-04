@@ -72,7 +72,7 @@ namespace JankSQL
 
 
             // ExecutableBatch batch = Parser.ParseSQLFileFromString(str);
-            ExecutableBatch batch = Parser.ParseSQLFileFromStringCI(str);
+            ExecutableBatch batch = Parser.ParseSQLFileFromString(str);
             if (batch.TotalErrors == 0)
             {
                 batch.Dump();

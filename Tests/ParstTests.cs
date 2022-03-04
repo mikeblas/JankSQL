@@ -67,6 +67,14 @@ namespace Tests
         }
 
         [TestMethod]
+        public void TestSelectExpressionPowerExpressionParamsCasedSpaced()
+        {
+            var ec = Parser.ParseSQLFileFromString("select power((10/2), 15/5) \n\n\n FROM mytable\n\n\n;");
+
+            Assert.IsNotNull(ec);
+        }
+
+        [TestMethod]
         public void TestSelectList()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT [city_name], [population] FROM [mytable];");
@@ -83,11 +91,27 @@ namespace Tests
             Assert.IsNotNull(ec);
         }
 
+        [TestMethod]
+        public void TestSelectListExpressionDivideCased()
+        {
+            var ec = Parser.ParseSQLFileFromString("select city_name / POPulation from MyTable;");
+
+            Assert.IsNotNull(ec);
+        }
+
 
         [TestMethod]
         public void TestSelectExpressionTwoExpressions()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 3+5, 92 * 6 FROM [mytable];");
+
+            Assert.IsNotNull(ec);
+        }
+
+        [TestMethod]
+        public void TestSelectExpressionTwoExpressionsCased()
+        {
+            var ec = Parser.ParseSQLFileFromString("seLEct 3+5, 92 * 6 from mytable;");
 
             Assert.IsNotNull(ec);
         }
