@@ -38,7 +38,8 @@ namespace JankSQL
             // str = "SELECT * FROM [mytable] WHERE [population] = 37000 OR [keycolumn] = 1;";
             // str = "SELECT* FROM[mytable] WHERE[population] != 37000;";
             // str = "SELECT * FROM [mytable] WHERE [population] = 25000 AND [keycolumn] = 5-4;";
-            str = "SELECT * FROM [mytable] WHERE NOT [population] = 37000;";
+            // str = "SELECT* FROM [mytable] WHERE NOT [population] = 37000;";
+            str = "select * from mytable WHERE NOT population = 37000;";
             // str = "SELECT * FROM [mytable] WHERE NOT(NOT(NOT ([population] = 37000)));";
             // str = "SELECT * FROM [mytable] JOIN [states] ON [mytable].[state_code] = [states].[state_code]";
             // str = "SELECT * FROM [mytable] CROSS JOIN [states]";
@@ -57,12 +58,12 @@ namespace JankSQL
             // str = "SELECT 'This'; SELECT 'That';";
 
             // str = "TRUNCATE TABLE [TargetTasdfasdfaable];";
-            // str = "SELECT city_name FROM mytable;";
+            str = "SELECT city_name FROM mytable;";
             //     012345678901
 
             // str = "INSERT INTO [Mytable] ([keycolumn], [city_name], [state_code], [population]) VALUES (92, 'Tacoma', 'WA', 520000);";
-            str = "INSERT INTO [Mytable] ([keycolumn], [city_name], [state_code], [population]) VALUES (92, 'Tacoma', 'WA', 520000), (101, 'Chehalis', 'WA', 12000);";
-            str = "INSERT INTO [Mytable] ([keycolumn], [city_name], [state_code], [population]) VALUES (92, 'Tacoma', 'WA', 520000), (101, 'Chehalis', 'WA', 12000), (3*5, 'Exponent', 'PA', POWER(10, 2));";
+            // str = "INSERT INTO [Mytable] ([keycolumn], [city_name], [state_code], [population]) VALUES (92, 'Tacoma', 'WA', 520000), (101, 'Chehalis', 'WA', 12000);";
+            // str = "INSERT INTO [Mytable] ([keycolumn], [city_name], [state_code], [population]) VALUES (92, 'Tacoma', 'WA', 520000), (101, 'Chehalis', 'WA', 12000), (3*5, 'Exponent', 'PA', POWER(10, 2));";
             // str = "SELECT SQRT(2) FROM [mytable];";
 
             // str = "SELECT [population] / [keycolumn] FROM [mytable];";
@@ -70,7 +71,8 @@ namespace JankSQL
             // str = "SELECT * FROM [mytable] WHERE [population] > POWER(2500, 2);";
 
 
-            ExecutableBatch batch = Parser.ParseSQLFileFromString(str);
+            // ExecutableBatch batch = Parser.ParseSQLFileFromString(str);
+            ExecutableBatch batch = Parser.ParseSQLFileFromStringCI(str);
             if (batch.TotalErrors == 0)
             {
                 batch.Dump();

@@ -129,6 +129,15 @@ namespace JankSQL
             return ParseTreeFromLexer(lexer);
         }
 
+        public static ExecutableBatch ParseSQLFileFromStringCI(string str)
+        {
+            ICharStream s = CharStreams.fromString(str);
+            CaseChangingCharStream upper = new CaseChangingCharStream(s, true);
+            var lexer = new TSqlLexer(upper);
+            return ParseTreeFromLexer(lexer);
+        }
+
+
         public static ExecutableBatch ParseSQLFileFromTextReader(TextReader reader)
         {
             var lexer = new TSqlLexer(new AntlrInputStream(reader));
