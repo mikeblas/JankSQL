@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace JankSQL.Engines
 {
-
     public class DynamicCSV : IEngineSource, IEngineDestination
     {
         private readonly string filename;
@@ -204,6 +203,50 @@ namespace JankSQL.Engines
                 sw.WriteLine(sb.ToString());
                 // Console.WriteLine($"Table writer: {sb.ToString()}");
             }
+        }
+
+        public static void CreateTable(string tableName, List<FullColumnName> columnNames, List<ExpressionOperandType> columnTypes)
+        {
+            // guess file name
+            string fileName = tableName.Replace("[", "").Replace("]", "") + ".csv";
+
+            // see if table doesn't exist
+            DynamicCSV sysTables = new DynamicCSV("sys_tables.csv", "systables");
+            sysTables.Load();
+
+            string foundFileName = FileFromSysTables(sysTables, tableName);
+            if (foundFileName != null)
+            {
+                throw new ExecutionException($"Table named {tableName} already exists");
+            }
+
+            //make sure file doesn't exist, too
+            int idxFile = sysTables.ColumnIndex("file_name");
+            int idxName = sysTables.ColumnIndex("table_name");
+            for (int i = 0; i < sysTables.RowCount; i++)
+            {
+                if (sysTables.Row(i)[idxFile].AsString().Equals(fileName, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    string otherTableName = sysTables.Row(i)[idxName].AsString();
+                    throw new ExecutionException($"File name {fileName} already exists for table {otherTableName}");
+                }
+            }
+
+            // create file
+            FullColumnName fcn;
+            string columns = String.Join(',', columnNames.Select(x => x.ColumnNameOnly()));
+            string types = String.Join(',', columnTypes);
+            using StreamWriter file = new(fileName);
+            file.WriteLine(columns);
+            file.WriteLine(types);
+            file.Close();
+
+            // add row to sys_tables
+            ExpressionOperand[] newRow = new ExpressionOperand[2];
+            newRow[idxFile] = ExpressionOperand.NVARCHARFromString(fileName);
+            newRow[idxName] = ExpressionOperand.NVARCHARFromString(tableName);
+
+            sysTables.InsertRow(newRow);
         }
     }
 }

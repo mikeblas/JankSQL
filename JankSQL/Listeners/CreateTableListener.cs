@@ -1,6 +1,6 @@
 ﻿using Antlr4.Runtime.Misc;
 
-namespace JankSQL.Listeners
+namespace JankSQL
 {
     public partial class JankListener : TSqlParserBaseListener
     {
@@ -8,32 +8,65 @@ namespace JankSQL.Listeners
         {
             base.ExitCreate_table(context);
 
+            string tableName = Program.GetEffectiveName(context.table_name().table.GetText());
+            List<FullColumnName> columnNames = new();
+            List<ExpressionOperandType> columnTypes = new();
+
             var cdtcs = context.column_def_table_constraints();
             var cdtc = cdtcs.column_def_table_constraint();
 
             foreach (var c in cdtc)
             {
                 var cd = c.column_definition();
-                var id = cd.id_();
                 var dt = cd.data_type();
-                var id0 = id[0];
+                var id0 = cd.id_()[0];
 
                 if (dt.unscaled_type is not null)
                 {
                     string typeName = (dt.unscaled_type.ID() is not null) ? dt.unscaled_type.ID().ToString() : dt.unscaled_type.keyword().GetText();
 
+                    if (typeName is null)
+                    {
+                        throw new ExecutionException($"No typename found for column {id0.ID()}");
+                    }
+
                     Console.Write($"{id0.ID()}, {typeName} ");
-                    if (typeName.Equals("INTEGER", StringComparison.OrdinalIgnoreCase) || typeName.Equals("INT", StringComparison.OrdinalIgnoreCase))
-                        Console.WriteLine("It's an integer!");
+                    ExpressionOperandType columnType;
+                    if (!ExpressionNode.TypeFromString(typeName, out columnType))
+                        throw new ExecutionException($"Unknown column type {typeName} on column {id0.ID()}");
+
+                    columnNames.Add(FullColumnName.FromColumnName(id0.ID().GetText()));
+                    columnTypes.Add(columnType);
                 }
                 else
                 {
-                    Console.Write($"{id0.ID()}, {dt.ext_type.keyword().GetText()} ");
+                    string typeName = dt.ext_type.keyword().GetText();
+                    Console.Write($"{id0.ID()}, {typeName} ");
+
+                    ExpressionOperandType columnType;
+                    if (!ExpressionNode.TypeFromString(dt.ext_type.keyword().GetText(), out columnType))
+                        throw new ExecutionException($"Unknown column type {typeName} on column {id0.ID()}");
+
 
                     // null or not, if it's VARCHAR or not.
                     var dktvc = dt.ext_type.keyword().VARCHAR();
                     var dktnvc = dt.ext_type.keyword().NVARCHAR();
                     // TSqlParser.VARCHAR
+
+                    if (dktvc is not null)
+                    {
+                        columnNames.Add(FullColumnName.FromColumnName(id0.ID().GetText()));
+                        columnTypes.Add(ExpressionOperandType.VARCHAR);
+                    }
+                    else if (dktnvc is not null)
+                    {
+                        columnNames.Add(FullColumnName.FromColumnName(id0.ID().GetText()));
+                        columnTypes.Add(ExpressionOperandType.NVARCHAR);
+                    }
+                    else
+                    {
+                        throw new ExecutionException($"Unknown scaled column type {typeName} on column {id0.ID()}");
+                    }
 
                     if (dt.prec is not null)
                     {
@@ -50,6 +83,11 @@ namespace JankSQL.Listeners
                 else
                     Console.WriteLine("NOT NULL");
             }
+
+            CreateTableContext createContext = new CreateTableContext(tableName, columnNames, columnTypes);
+
+            executionContext.ExecuteContexts.Add(createContext);
+
         }
 
     }

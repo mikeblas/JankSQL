@@ -11,6 +11,33 @@ namespace JankSQL
 
     public class ExpressionNode
     {
+
+        public static bool TypeFromString(string str, out ExpressionOperandType operandType)
+        {
+            if (str.Equals("INTEGER", StringComparison.OrdinalIgnoreCase) || str.Equals("INT", StringComparison.OrdinalIgnoreCase))
+            {
+                operandType = ExpressionOperandType.INTEGER;
+            }
+            else if (str.Equals("VARCHAR", StringComparison.OrdinalIgnoreCase))
+            {
+                operandType = ExpressionOperandType.VARCHAR;
+            }
+            else if (str.Equals("NVARCHAR", StringComparison.OrdinalIgnoreCase))
+            {
+                operandType = ExpressionOperandType.NVARCHAR;
+            }
+            else if (str.Equals("DECIMAL", StringComparison.OrdinalIgnoreCase))
+            {
+                operandType = ExpressionOperandType.DECIMAL;
+            }
+            else
+            {
+                operandType = ExpressionOperandType.INTEGER;
+                return false;
+            }
+
+            return true;
+        }
     }
 }
 
