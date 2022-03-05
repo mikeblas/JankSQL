@@ -23,6 +23,10 @@
         {
             return $"{n}";
         }
+        public override int AsInteger()
+        {
+            return n;
+        }
 
         public override bool IsTrue()
         {

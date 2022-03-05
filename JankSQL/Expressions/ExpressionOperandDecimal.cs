@@ -24,6 +24,11 @@
             return $"{d}";
         }
 
+        public override int AsInteger()
+        {
+            return (int)d;
+        }
+
         public override bool IsTrue()
         {
             throw new NotImplementedException();

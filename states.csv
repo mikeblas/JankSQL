@@ -1,5 +1,4 @@
 state_code,state_name
-VARCHAR,VARCHAR
 PA,Pennsylvania
 AK,Arkansas
 HI,Hawaii

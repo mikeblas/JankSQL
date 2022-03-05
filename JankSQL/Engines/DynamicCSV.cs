@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace JankSQL.Engines
 {
@@ -27,10 +23,76 @@ namespace JankSQL.Engines
             this.tableName = tableName;
         }
 
+        static ExpressionOperandType[] GetColumnTypes(FullTableName tableName)
+        {
+            ExpressionOperandType[] ret;
+
+            // we'd infinitely recurse if we had to look up columns for sys_columns by looking up sys_columns ...
+            if (tableName.TableName.Equals("sys_columns",  StringComparison.InvariantCultureIgnoreCase))
+            {
+                List<ExpressionOperandType> types = new();
+
+                // table_name
+                types.Add(ExpressionOperandType.VARCHAR);
+
+                // column_name
+                types.Add(ExpressionOperandType.VARCHAR);
+
+                // column_type
+                types.Add(ExpressionOperandType.VARCHAR);
+
+                // index
+                types.Add(ExpressionOperandType.INTEGER);
+
+                ret = types.ToArray();
+            }
+            else
+            {
+                DynamicCSV sysColumns = new DynamicCSV("sys_columns.csv", "sys_columns");
+                sysColumns.Load();
+
+                // table_name,column_name,column_type,index
+                int tableNameIndex = sysColumns.ColumnIndex("table_name");
+                int columnNameIndex = sysColumns.ColumnIndex("column_name");
+                int typeIndex = sysColumns.ColumnIndex("column_type");
+                int indexIndex = sysColumns.ColumnIndex("index");
+
+                List<int> matchingRows = new();
+
+                for (int n = 0; n < sysColumns.RowCount; n++)
+                {
+                    if (sysColumns.Row(n)[tableNameIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
+                        matchingRows.Add(n);
+                }
+
+                // build the array
+                ret = new ExpressionOperandType[matchingRows.Count];
+
+                for (int i = 0; i < matchingRows.Count; i++)
+                {
+                    int n = matchingRows[i];
+                    ExpressionOperandType operandType;
+                    if (!ExpressionNode.TypeFromString(sysColumns.Row(n)[typeIndex].AsString(), out operandType))
+                    {
+                        throw new ExecutionException($"unknown type {sysColumns.Row(n)[typeIndex].AsString()} in table {tableName.TableName}");
+                    }
+
+                    int index = sysColumns.Row(n)[indexIndex].AsInteger();
+
+                    ret[index] = operandType;
+                }
+
+            }
+
+            return ret;
+        }
+
         public void Load()
         {
             var lines = File.ReadLines(filename);
             int lineNumber = 0;
+
+            columnTypes = DynamicCSV.GetColumnTypes(FullTableName.FromTableName(tableName));
 
             foreach (var line in lines)
             {
@@ -43,31 +105,6 @@ namespace JankSQL.Engines
                     { 
                         FullColumnName fcn = FullColumnName.FromTableColumnName(tableName, fields[i]);
                         columnNames[i] = fcn;
-                    }
-                }
-                else if (lineNumber == 1)
-                {
-                    columnTypes = new ExpressionOperandType[fields.Length];
-                    for (int i = 0; i < fields.Length; ++i)
-                    {
-                        switch (fields[i])
-                        {
-                            case "DECIMAL":
-                                columnTypes[i] = ExpressionOperandType.DECIMAL;
-                                break;
-
-                            case "INTEGER":
-                                columnTypes[i] = ExpressionOperandType.INTEGER;
-                                break;
-
-                            case "VARCHAR":
-                                columnTypes[i] = ExpressionOperandType.VARCHAR;
-                                break;
-
-                            case "NVARCHAR":
-                                columnTypes[i] = ExpressionOperandType.NVARCHAR;
-                                break;
-                        }
                     }
                 }
                 else
@@ -211,10 +248,10 @@ namespace JankSQL.Engines
             string fileName = tableName.TableName.Replace("[", "").Replace("]", "") + ".csv";
 
             // see if table doesn't exist
-            DynamicCSV sysTables = new DynamicCSV("sys_tables.csv", "systables");
+            DynamicCSV sysTables = new DynamicCSV("sys_tables.csv", "sys_tables");
             sysTables.Load();
 
-            string foundFileName = FileFromSysTables(sysTables, tableName.TableName);
+            string? foundFileName = FileFromSysTables(sysTables, tableName.TableName);
             if (foundFileName != null)
             {
                 throw new ExecutionException($"Table named {tableName} already exists");
@@ -234,10 +271,8 @@ namespace JankSQL.Engines
 
             // create file
             FullColumnName fcn;
-            string columns = String.Join(',', columnNames.Select(x => x.ColumnNameOnly()));
             string types = String.Join(',', columnTypes);
             using StreamWriter file = new(fileName);
-            file.WriteLine(columns);
             file.WriteLine(types);
             file.Close();
 
@@ -247,6 +282,27 @@ namespace JankSQL.Engines
             newRow[idxName] = ExpressionOperand.NVARCHARFromString(tableName.TableName);
 
             sysTables.InsertRow(newRow);
+
+            // add rows to sys_columns
+            DynamicCSV sysColumns = new DynamicCSV("sys_columns.csv", "sys_columns");
+            sysColumns.Load();
+
+            int idxColumnName = sysColumns.ColumnIndex("column_name");
+            int idxIdx = sysColumns.ColumnIndex("index");
+            int idxTableName = sysColumns.ColumnIndex("table_name");
+            int idxType = sysColumns.ColumnIndex("column_type");
+
+            for (int i = 0; i < columnNames.Count; i++)
+            {
+                ExpressionOperand[] columnRow = new ExpressionOperand[columnNames.Count];
+
+                columnRow[idxIdx] = ExpressionOperand.IntegerFromInt(i);
+                columnRow[idxTableName] = ExpressionOperand.NVARCHARFromString(tableName.TableName);
+                columnRow[idxColumnName] = ExpressionOperand.NVARCHARFromString(columnNames[i].ColumnNameOnly());
+                columnRow[idxType] = ExpressionOperand.VARCHARFromString(columnTypes[i].ToString());
+
+                sysColumns.InsertRow(columnRow);
+            }
         }
     }
 }
