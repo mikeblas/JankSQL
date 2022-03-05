@@ -292,7 +292,7 @@ namespace JankSQL.Engines
 
             for (int i = 0; i < columnNames.Count; i++)
             {
-                ExpressionOperand[] columnRow = new ExpressionOperand[columnNames.Count];
+                ExpressionOperand[] columnRow = new ExpressionOperand[sysColumns.ColumnCount];
 
                 columnRow[idxIdx] = ExpressionOperand.IntegerFromInt(i);
                 columnRow[idxTableName] = ExpressionOperand.NVARCHARFromString(tableName.TableName);

@@ -82,6 +82,7 @@ namespace JankSQL
                 }
 
                 results.ResultSet = resultSet;
+                results.ExecuteStatus = ExecuteStatus.SUCCESSFUL;
             }
 
             return results;
