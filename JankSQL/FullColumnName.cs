@@ -74,6 +74,11 @@ namespace JankSQL
             return hash;
         }
 
+        public string ColumnNameOnly()
+        {
+            return columnName;
+        }
+
         public override string ToString()
         {
             //REVIEW: is this right? could be that serverName != null but schemaName == null, and ...

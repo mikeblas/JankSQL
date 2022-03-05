@@ -1,5 +1,4 @@
 number_id,number_name,some_string
-INTEGER,VARCHAR,DECIMAL
 0,zero,33
 1,one,5.1414
 2,two,2.221

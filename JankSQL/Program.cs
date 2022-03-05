@@ -58,7 +58,7 @@ namespace JankSQL
             // str = "SELECT 'This'; SELECT 'That';";
 
             // str = "TRUNCATE TABLE [TargetTasdfasdfaable];";
-            str = "SELECT city_name FROM mytable;";
+            // str = "SELECT city_name FROM mytable;";
             //     012345678901
 
             // str = "INSERT INTO [Mytable] ([keycolumn], [city_name], [state_code], [population]) VALUES (92, 'Tacoma', 'WA', 520000);";
@@ -71,9 +71,9 @@ namespace JankSQL
             // str = "SELECT * FROM [mytable] WHERE [population] > POWER(2500, 2);";
 
             str = "DROP TABLE mytable";
+            // str = "CREATE TABLE [Schema].[NewTable] (keycolumn INTEGER, city_name VARCHAR(30), state_code VARCHAR, population DECIMAL);";
 
 
-            // ExecutableBatch batch = Parser.ParseSQLFileFromString(str);
             ExecutableBatch batch = Parser.ParseSQLFileFromString(str);
             if (batch.TotalErrors == 0)
             {
@@ -84,8 +84,15 @@ namespace JankSQL
                 {
 
                     Console.WriteLine($"ExecuteResult #{i} =====");
-                    sets[i].ResultSet.Dump();
-                    Console.WriteLine($"{sets[i].ResultSet.RowCount} total rows");
+                    if (sets[i].ResultSet is not null)
+                    {
+                        sets[i].ResultSet.Dump();
+                        Console.WriteLine($"{sets[i].ResultSet.RowCount} total rows");
+                    }
+                    else
+                    {
+                        Console.WriteLine("(no result set)");
+                    }
                 }
             }
             else

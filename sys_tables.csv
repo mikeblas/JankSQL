@@ -1,8 +1,8 @@
 ﻿table_name,file_name
 sys_tables,sys_tables.csv
+sys_columns,sys_columns.csv
 mytable,mytable.csv
 states,states.csv
 three,three.csv
 ten,ten.csv
 targettable,targettable.csv
-

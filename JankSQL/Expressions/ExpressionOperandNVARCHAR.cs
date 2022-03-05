@@ -29,6 +29,11 @@
             return str;
         }
 
+        public override int AsInteger()
+        {
+            return Int32.Parse(str);
+        }
+
         public override bool OperatorEquals(ExpressionOperand other)
         {
             if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.NVARCHAR)

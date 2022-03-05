@@ -29,6 +29,11 @@
             return b;
         }
 
+        public override int AsInteger()
+        {
+            throw new NotImplementedException();
+        }
+
         public override bool OperatorEquals(ExpressionOperand other)
         {
             throw new NotImplementedException();

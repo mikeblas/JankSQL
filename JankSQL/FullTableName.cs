@@ -25,6 +25,13 @@ namespace JankSQL
             return r;
         }
 
+        internal static FullTableName FromTableName(string tableName)
+        {
+            return new FullTableName(tableName);
+        }
+
+        internal string TableName { get { return tableName;  } }
+
         FullTableName(string tableName)
         {
             this.tableName = tableName;

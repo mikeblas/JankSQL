@@ -84,6 +84,8 @@
 
         public abstract double AsDouble();
 
+        public abstract int AsInteger();
+
         public ExpressionOperandType NodeType { get { return nodeType; } }
 
         public abstract bool OperatorEquals(ExpressionOperand other);
