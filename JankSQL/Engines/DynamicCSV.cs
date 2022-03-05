@@ -165,7 +165,6 @@ namespace JankSQL.Engines
             for (int i = 0; i < columnNames.Length; i++)
             {
                 if (columnNames[i].Equals(fcnMatch))
-                // if (fcnMatch.Equals(columnNames[i]))
                 {
                     return i;
                 }
