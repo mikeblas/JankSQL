@@ -8,8 +8,10 @@ namespace JankSQL
         {
             base.ExitDrop_table(context);
 
-            var idNames = context.table_name().id_().Select(e => e.GetText());
-            Console.WriteLine($"You're trying to delete {string.Join(".", idNames)}");
+            FullTableName tableName = FullTableName.FromTableNameContext(context.table_name());
+            DropTableContext dtc = new DropTableContext(tableName);
+
+            executionContext.ExecuteContexts.Add(dtc);
         }
     }
 }

@@ -70,6 +70,8 @@ namespace JankSQL
 
             // str = "SELECT * FROM [mytable] WHERE [population] > POWER(2500, 2);";
 
+            str = "DROP TABLE mytable";
+
 
             // ExecutableBatch batch = Parser.ParseSQLFileFromString(str);
             ExecutableBatch batch = Parser.ParseSQLFileFromString(str);
