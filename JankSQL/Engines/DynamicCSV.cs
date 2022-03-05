@@ -28,7 +28,7 @@ namespace JankSQL.Engines
             ExpressionOperandType[] ret;
 
             // we'd infinitely recurse if we had to look up columns for sys_columns by looking up sys_columns ...
-            if (tableName.TableName.Equals("sys_columns",  StringComparison.InvariantCultureIgnoreCase))
+            if (tableName.TableName.Equals("sys_columns", StringComparison.InvariantCultureIgnoreCase))
             {
                 List<ExpressionOperandType> types = new();
 
@@ -102,7 +102,7 @@ namespace JankSQL.Engines
                 {
                     columnNames = new FullColumnName[fields.Length];
                     for (int i = 0; i < fields.Length; ++i)
-                    { 
+                    {
                         FullColumnName fcn = FullColumnName.FromTableColumnName(tableName, fields[i]);
                         columnNames[i] = fcn;
                     }
@@ -302,6 +302,90 @@ namespace JankSQL.Engines
                 sysColumns.InsertRow(columnRow);
             }
         }
+
+        internal static void DropTable(FullTableName tableName)
+        {
+            // delete the file
+            Engines.DynamicCSV sysTables = new Engines.DynamicCSV("sys_tables.csv", "sys_tables");
+            sysTables.Load();
+
+            string? fileName = Engines.DynamicCSV.FileFromSysTables(sysTables, tableName.TableName);
+            if (fileName == null)
+                throw new ExecutionException($"Table {tableName} does not exist");
+
+            File.Delete(fileName);
+
+            // remove entries from sys_columns
+            Engines.DynamicCSV sysColumns = new Engines.DynamicCSV("sys_columns.csv", "sys_columns");
+            sysColumns.Load();
+            int tableNameIndex = sysColumns.ColumnIndex("table_name");
+
+            List<int> rowIndexesToDelete = new();
+
+            for (int i = 0; i < sysColumns.RowCount; i++)
+            {
+                if (sysColumns.Row(i)[tableNameIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
+                    rowIndexesToDelete.Add(i);
+            }
+
+            sysColumns.DeleteRows(rowIndexesToDelete);
+
+            // remove from sys_tables
+            rowIndexesToDelete = new();
+            int idxName = sysTables.ColumnIndex("table_name");
+
+            for (int i = 0; i < sysTables.RowCount; i++)
+            {
+                if (sysTables.Row(i)[idxName].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
+                    rowIndexesToDelete.Add(i);
+            }
+
+            sysTables.DeleteRows(rowIndexesToDelete);
+        }
+
+        internal int DeleteRows(List<int> rowIndexesToDelete)
+        {
+            int deletedCount = 0;
+
+            // rename the file
+            string newFileName = filename + ".bak";
+            File.Delete(newFileName);
+            File.Move(filename, newFileName);
+
+            var lines = File.ReadLines(newFileName);
+            int lineNumber = 0;
+
+            using StreamWriter writer = new(filename);
+
+            columnTypes = DynamicCSV.GetColumnTypes(FullTableName.FromTableName(tableName));
+
+            foreach (var line in lines)
+            {
+                lineNumber++;
+
+                bool keep = true;
+                if (lineNumber > 1)
+                {
+                    // line number is an ordinal, rows to delete contains indexes
+                    // line number 2 is index 0
+                    if (rowIndexesToDelete.IndexOf(lineNumber - 2) != -1)
+                        keep = false;
+                }
+
+                if (keep)
+                    writer.WriteLine(line);
+                else
+                    deletedCount++;
+            }
+
+            writer.Flush();
+            writer.Close();
+
+            File.Delete(newFileName);
+            Load();
+            return deletedCount;
+        }
     }
+
 }
 
