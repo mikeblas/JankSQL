@@ -176,23 +176,21 @@ namespace JankSQL.Engines
 
         public void TruncateTable()
         {
-            // get the first two lines of the file
+            // get the first line of the file
             var fileStream = new FileStream(filename, FileMode.Open);
-            string[] lines = new string[2];
+            string firstLine;
             using (var reader = new StreamReader(fileStream))
             {
-                for (int i = 0; i < 2; i++)
-                    lines[i] = reader.ReadLine();
+                firstLine = reader.ReadLine();
             }
             fileStream.Close();
 
             // delete the file
             File.Delete(filename);
 
-            // re-create it with those two lines
+            // re-create it with that line
             using StreamWriter writer = new(filename);
-            for (int i = 0; i < 2; i++)
-                writer.WriteLine(lines[i]);
+            writer.WriteLine(firstLine);
             writer.Flush();
             writer.Close();
 
