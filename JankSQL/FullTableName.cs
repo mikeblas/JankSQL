@@ -29,6 +29,7 @@ namespace JankSQL
             r.linkedServerName = (context.linkedServer != null) ? Program.GetEffectiveName(context.schema.GetText()) : null;
             return r;
         }
+        internal string TableName { get; }
 
         FullTableName(string tableName)
         {

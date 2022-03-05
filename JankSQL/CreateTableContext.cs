@@ -8,11 +8,11 @@ namespace JankSQL
 {
     internal class CreateTableContext : IExecutableContext
     {
-        string tableName;
+        FullTableName tableName;
         List<FullColumnName> columnNames;
         List<ExpressionOperandType> columnTypes;
 
-        internal CreateTableContext(string tableName, List<FullColumnName> columnNames, List<ExpressionOperandType> columnTypes)
+        internal CreateTableContext(FullTableName tableName, List<FullColumnName> columnNames, List<ExpressionOperandType> columnTypes)
         {
             this.tableName = tableName;
             this.columnNames = columnNames;

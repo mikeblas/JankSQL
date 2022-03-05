@@ -8,7 +8,7 @@ namespace JankSQL
         {
             base.ExitCreate_table(context);
 
-            string tableName = Program.GetEffectiveName(context.table_name().table.GetText());
+            var tableName = FullTableName.FromTableNameContext(context.table_name());
             List<FullColumnName> columnNames = new();
             List<ExpressionOperandType> columnTypes = new();
 

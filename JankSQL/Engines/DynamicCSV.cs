@@ -205,16 +205,16 @@ namespace JankSQL.Engines
             }
         }
 
-        public static void CreateTable(string tableName, List<FullColumnName> columnNames, List<ExpressionOperandType> columnTypes)
+        internal static void CreateTable(FullTableName tableName, List<FullColumnName> columnNames, List<ExpressionOperandType> columnTypes)
         {
             // guess file name
-            string fileName = tableName.Replace("[", "").Replace("]", "") + ".csv";
+            string fileName = tableName.TableName.Replace("[", "").Replace("]", "") + ".csv";
 
             // see if table doesn't exist
             DynamicCSV sysTables = new DynamicCSV("sys_tables.csv", "systables");
             sysTables.Load();
 
-            string foundFileName = FileFromSysTables(sysTables, tableName);
+            string foundFileName = FileFromSysTables(sysTables, tableName.TableName);
             if (foundFileName != null)
             {
                 throw new ExecutionException($"Table named {tableName} already exists");
@@ -244,7 +244,7 @@ namespace JankSQL.Engines
             // add row to sys_tables
             ExpressionOperand[] newRow = new ExpressionOperand[2];
             newRow[idxFile] = ExpressionOperand.NVARCHARFromString(fileName);
-            newRow[idxName] = ExpressionOperand.NVARCHARFromString(tableName);
+            newRow[idxName] = ExpressionOperand.NVARCHARFromString(tableName.TableName);
 
             sysTables.InsertRow(newRow);
         }
