@@ -17,6 +17,10 @@ namespace JankSQL
 
         public ExecuteResult Execute()
         {
+            // delete the file
+            // remove from sys_columns
+            // remove from sys_tables
+
             throw new NotImplementedException();
         }
     }
