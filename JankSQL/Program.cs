@@ -70,8 +70,9 @@ namespace JankSQL
 
             // str = "SELECT * FROM [mytable] WHERE [population] > POWER(2500, 2);";
 
-            str = "DROP TABLE mytable";
+            // str = "DROP TABLE mytable";
             // str = "CREATE TABLE [Schema].[NewTable] (keycolumn INTEGER, city_name VARCHAR(30), state_code VARCHAR, population DECIMAL);";
+            str = "DELETE FROM Mytable WHERE keycolumn = 2;";
 
 
             ExecutableBatch batch = Parser.ParseSQLFileFromString(str);
