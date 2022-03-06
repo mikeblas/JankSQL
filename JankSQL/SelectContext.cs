@@ -8,16 +8,17 @@ namespace JankSQL
         SelectListContext selectList;
 
         // for WHERE clauses
-        List<Expression> predicateExpressionLists = new List<Expression>();
+        PredicateContext predicateContext;
 
         List<JoinContext> joinContexts = new List<JoinContext>();
 
 
-        internal void AddJoin(JoinContext jc)
+        internal void AddJoin(JoinContext jc, PredicateContext predicateContext)
         {
             joinContexts.Add(jc);
-            jc.PredicateExpressions = predicateExpressionLists;
-            predicateExpressionLists = new List<Expression>();
+            if (predicateContext != null)
+                jc.PredicateExpressions = predicateContext.PredicateExpressions;
+            predicateContext = new PredicateContext();
         }
 
         internal SelectContext(TSqlParser.Select_statementContext context)
@@ -25,34 +26,14 @@ namespace JankSQL
             statementContext = context;
         }
 
-        internal void EndPredicateExpressionList(Expression expression)
-        {
-            predicateExpressionLists.Add(expression);
-        }
+        internal PredicateContext PredicateContext { get { return predicateContext; } set { predicateContext = value; } }
 
-        internal void EndAndCombinePredicateExpressionList(int arguments, Expression expression)
-        {
-            EndPredicateExpressionList(expression);
-
-            int firstIndex = predicateExpressionLists.Count - arguments -1;
-            List<Expression> range = predicateExpressionLists.GetRange(firstIndex, arguments+1);
-            predicateExpressionLists.RemoveRange(firstIndex, arguments + 1);
-
-            Expression newList = new Expression();
-            foreach (var subList in range)
-            {
-                newList.AddRange(subList);
-            }
-
-            predicateExpressionLists.Add(newList);
-        }
 
         internal void EndSelectListExpressionList(Expression expression)
         {
             selectList.AddSelectListExpressionList(expression);
         }
 
-        internal int PredicateExpressionListCount { get { return predicateExpressionLists.Count; } }
 
         internal SelectListContext SelectListContext { get { return selectList; } set { selectList = value; } }
 
@@ -125,9 +106,9 @@ namespace JankSQL
             }
 
             // now the filter, if needed
-            if (predicateExpressionLists.Count > 0)
+            if (predicateContext != null && predicateContext.PredicateExpressionListCount > 0)
             {
-                Filter filter = new Filter(lastLeftOutput, predicateExpressionLists);
+                Filter filter = new Filter(lastLeftOutput, predicateContext.PredicateExpressions);
                 lastLeftOutput = filter;
             }
 
@@ -155,10 +136,10 @@ namespace JankSQL
             selectList.Dump();
 
             Console.WriteLine("PredicateExpressions:");
-            for (int i = 0; i < PredicateExpressionListCount; i++)
+            for (int i = 0; i < predicateContext.PredicateExpressionListCount; i++)
             {
                 Console.Write($"  #{i}: ");
-                foreach (var x in predicateExpressionLists[i])
+                foreach (var x in predicateContext.PredicateExpressions[i])
                 {
                     Console.Write($"{x} ");
                 }

@@ -7,7 +7,6 @@ namespace JankSQL
         public override void EnterSearch_condition([NotNull] TSqlParser.Search_conditionContext context)
         {
             base.EnterSearch_condition(context);
-
             currentExpressionList = new();
         }
 
@@ -34,14 +33,14 @@ namespace JankSQL
                 Console.WriteLine("Got AND");
                 ExpressionNode x = ExpressionBooleanOperator.GetAndOperator();
                 total.Add(x);
-                selectContext.EndAndCombinePredicateExpressionList(2, total);
+                predicateContext.EndAndCombinePredicateExpressionList(2, total);
             }
             else if (context.OR() != null)
             {
                 Console.WriteLine("Got OR");
                 ExpressionNode x = ExpressionBooleanOperator.GetOrOperator();
                 total.Add(x);
-                selectContext.EndAndCombinePredicateExpressionList(2, total);
+                predicateContext.EndAndCombinePredicateExpressionList(2, total);
             }
             else if (context.NOT(0) != null)
             {
@@ -53,18 +52,18 @@ namespace JankSQL
                     total.Add(x);
                     if (total.Count == 1)
                     {
-                        selectContext.EndAndCombinePredicateExpressionList(1, total);
+                        predicateContext.EndAndCombinePredicateExpressionList(1, total);
                     }
                     else
                     {
-                        selectContext.EndPredicateExpressionList(total);
+                        predicateContext.EndPredicateExpressionList(total);
                     }
                 } while (context.NOT(++n) != null);
             }
             else
             {
                 Console.WriteLine("Got neither");
-                selectContext.EndPredicateExpressionList(total);
+                predicateContext.EndPredicateExpressionList(total);
             }
         }
 

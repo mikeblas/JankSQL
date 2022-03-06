@@ -9,6 +9,7 @@ namespace JankSQL
 
         ExecutionContext executionContext = new ExecutionContext();
         SelectContext? selectContext;
+        PredicateContext? predicateContext;
 
         Expression currentExpression = new();
         List<Expression> currentExpressionList;
@@ -37,6 +38,8 @@ namespace JankSQL
         public override void ExitSelect_statement(TSqlParser.Select_statementContext context)
         {
             base.ExitEveryRule(context);
+            selectContext.PredicateContext = predicateContext;
+            predicateContext = null;
 
             executionContext.ExecuteContexts.Add(selectContext);
         }
@@ -46,6 +49,8 @@ namespace JankSQL
             base.EnterSelect_statement(context);
 
             selectContext = new SelectContext(context);
+            predicateContext = new PredicateContext();
+
         }
 
         public override void EnterSelect_list([NotNull] TSqlParser.Select_listContext context)
@@ -268,7 +273,8 @@ namespace JankSQL
                 Console.WriteLine($"CROSS JOIN On {str}");
 
                 JoinContext jc = new JoinContext(JoinType.CROSS_JOIN, str);
-                selectContext.AddJoin(jc);
+                selectContext.AddJoin(jc, predicateContext);
+                predicateContext = new PredicateContext();
             }
             else if (context.join_on() != null)
             {
@@ -277,7 +283,8 @@ namespace JankSQL
                 Console.WriteLine($"INNER JOIN On {str}");
 
                 JoinContext jc = new JoinContext(JoinType.INNER_JOIN, str);
-                selectContext.AddJoin(jc);
+                selectContext.AddJoin(jc, predicateContext);
+                predicateContext = new PredicateContext();
             }
             else 
             {
