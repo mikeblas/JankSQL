@@ -17,11 +17,22 @@ namespace JankSQL
             currentExpressionListList = new();
         }
 
+        public override void EnterDelete_statement([NotNull] TSqlParser.Delete_statementContext context)
+        {
+            base.EnterDelete_statement(context);
+
+            predicateContext = new();
+        }
+
         public override void ExitDelete_statement([NotNull] TSqlParser.Delete_statementContext context)
         {
             base.ExitDelete_statement(context);
 
+            deleteContext.PredicateContext = predicateContext;
+            predicateContext = null;
 
+            executionContext.ExecuteContexts.Add(deleteContext);
+            deleteContext = null;
         }
     }
 }

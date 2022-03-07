@@ -35,7 +35,7 @@ namespace JankSQL
             // str = "SELECT [city_name],  [population], [population]*2 FROM [mytable];";
             // str = "SELECT [mytable].[city_name], [mytable].[population], [population]*2 FROM [mytable];";
             // str = "SELECT * FROM [mytable];";
-            str = "SELECT * FROM [mytable] WHERE [population] = 37000 OR [keycolumn] = 1;";
+            // str = "SELECT * FROM [mytable] WHERE [population] = 37000 OR [keycolumn] = 1;";
             // str = "SELECT* FROM[mytable] WHERE[population] != 37000;";
             // str = "SELECT * FROM [mytable] WHERE [population] = 25000 AND [keycolumn] = 5-4;";
             // str = "SELECT* FROM [mytable] WHERE NOT [population] = 37000;";
@@ -72,7 +72,7 @@ namespace JankSQL
 
             // str = "DROP TABLE mytable";
             // str = "CREATE TABLE [Schema].[NewTable] (keycolumn INTEGER, city_name VARCHAR(30), state_code VARCHAR, population DECIMAL);";
-            // str = "DELETE FROM Mytable WHERE keycolumn = 2;";
+            str = "DELETE FROM Mytable WHERE keycolumn = 2;";
 
 
             ExecutableBatch batch = Parser.ParseSQLFileFromString(str);

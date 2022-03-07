@@ -29,7 +29,10 @@
                     Console.WriteLine("Asterisk!");
                     for (int i = 0; i < rsInput.ColumnCount; i++)
                     {
-                        effectiveColumns.Add(rsInput.GetColumnName(i));
+                        FullColumnName fcn = rsInput.GetColumnName(i);
+                        if (fcn.ColumnNameOnly() == "bookmark")
+                            continue;
+                        effectiveColumns.Add(fcn);
                         ExpressionNode x = new ExpressionOperandFromColumn(rsInput.GetColumnName(i));
                         Expression xlist = new Expression
                         {

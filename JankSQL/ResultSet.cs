@@ -86,8 +86,10 @@ namespace JankSQL
 
             if (columnNames != null && columnNames.Count != row.Length)
             {
-                throw new InvalidOperationException();
+                throw new InvalidOperationException($"Can't add row: expected {columnNames.Count} columns, got {row.Length} columns");
             }
+
+
 
             rows.Add(row);
         }
