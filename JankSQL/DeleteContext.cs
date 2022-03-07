@@ -50,41 +50,17 @@ namespace JankSQL
                 // found the source table, so load it
                 Engines.DynamicCSV table = new Engines.DynamicCSV(effectiveTableFileName, tableName.TableName);
 
-                List<int> bookmarksToDelete = new List<int>();
-
                 TableSource source = new TableSource(table);
+                Delete delete = new Delete(table, source, predicateContext.PredicateExpressions);
 
                 while (true)
                 {
-                    ResultSet batch = source.GetRows(5);
-                    if (batch.RowCount == 0)
+                    ResultSet batch = delete.GetRows(5);
+                    if (batch == null)
                         break;
-
-                    for (int i = 0; i < batch.RowCount; i++)
-                    {
-                        bool predicatePassed = true;
-                        foreach (var p in predicateContext.PredicateExpressions)
-                        {
-                            ExpressionOperand result = p.Evaluate(new RowsetValueAccessor(batch, i));
-
-                            if (!result.IsTrue())
-                            {
-                                predicatePassed = false;
-                                break;
-                            }
-                        }
-
-                        if (!predicatePassed)
-                            continue;
-
-                        // meets the predicate, so delete it
-                        int bookmarkIndex = batch.ColumnIndex(FullColumnName.FromColumnName("bookmark"));
-                        int bookmark = batch.Row(i)[bookmarkIndex].AsInteger();
-                        bookmarksToDelete.Add(bookmark);
-                    }
                 }
 
-                table.DeleteRows(bookmarksToDelete);
+                results.ExecuteStatus = ExecuteStatus.SUCCESSFUL;
             }
 
             return results;

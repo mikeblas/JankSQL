@@ -28,6 +28,11 @@ namespace JankSQL
            
             rs.SetColumnNames(columnNames);
 
+            if (currentRow >= source.RowCount)
+            {
+                return null;
+            }
+
             while (currentRow < source.RowCount && rs.RowCount < max)
             {
                 ExpressionOperand[] thisRow = new ExpressionOperand[source.ColumnCount+1];

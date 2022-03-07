@@ -18,6 +18,8 @@
         internal ResultSet GetRows(int max)
         {
             ResultSet rsInput = myInput.GetRows(max);
+            if (rsInput == null)
+                return null;
 
             // get an effective column list ...
             List<FullColumnName> effectiveColumns = new List<FullColumnName>();

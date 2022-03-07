@@ -119,10 +119,10 @@ namespace JankSQL
             while (true)
             {
                 ResultSet batch = select.GetRows(5);
+                if (batch == null)
+                    break;
                 if (resultSet == null)
                     resultSet = ResultSet.NewWithShape(batch);
-                if (batch.RowCount == 0)
-                    break;
                 resultSet.Append(batch);
             }
 

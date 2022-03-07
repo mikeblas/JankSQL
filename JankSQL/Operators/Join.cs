@@ -72,6 +72,9 @@ namespace JankSQL
             if (outputSet is null)
                 outputSet = ProduceOutputSet();
 
+            if (outputIndex >= outputSet.RowCount)
+                return null;
+
             ResultSet resultSlice = ResultSet.NewWithShape(outputSet);
 
             while (outputIndex < outputSet.RowCount && resultSlice.RowCount < max)

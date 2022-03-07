@@ -342,7 +342,7 @@ namespace JankSQL.Engines
             sysTables.DeleteRows(rowIndexesToDelete);
         }
 
-        internal int DeleteRows(List<int> rowIndexesToDelete)
+        public int DeleteRows(List<int> rowIndexesToDelete)
         {
             int deletedCount = 0;
 

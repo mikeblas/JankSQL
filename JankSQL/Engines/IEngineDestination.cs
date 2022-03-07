@@ -4,6 +4,7 @@
     {
         void InsertRow(ExpressionOperand[] row);
 
+        int DeleteRows(List<int> rowIndexesToDelete);
     }
 }
 
