@@ -71,10 +71,10 @@ namespace JankSQL
 
                 while (true)
                 {
-                    ResultSet batch = inserter.GetRows(5);
+                    ResultSet? batch = inserter.GetRows(5);
                     if (resultSet == null)
                         resultSet = ResultSet.NewWithShape(batch);
-                    if (batch.RowCount == 0)
+                    if (batch == null)
                         break;
                     resultSet.Append(batch);
                 }

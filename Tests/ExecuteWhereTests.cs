@@ -153,6 +153,7 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE NOT ([population] = 37000);");
 
             ExecuteResult result = ec.ExecuteSingle();
+            Assert.IsNotNull(result.ResultSet);
             result.ResultSet.Dump();
             Assert.AreEqual(2, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");

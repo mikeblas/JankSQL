@@ -1,5 +1,4 @@
 ﻿
-
 namespace JankSQL
 {
     public class SelectContext : IExecutableContext
@@ -119,7 +118,7 @@ namespace JankSQL
 
             while (true)
             {
-                ResultSet batch = select.GetRows(5);
+                ResultSet? batch = select.GetRows(5);
                 if (batch == null)
                     break;
                 if (resultSet == null)
@@ -134,7 +133,10 @@ namespace JankSQL
 
         public void Dump()
         {
-            selectList.Dump();
+            if (selectList == null)
+                Console.WriteLine("No select list found");
+            else
+                selectList.Dump();
 
             Console.WriteLine("PredicateExpressions:");
             for (int i = 0; i < predicateContext.PredicateExpressionListCount; i++)

@@ -41,6 +41,8 @@ namespace JankSQL
 
             if (selectContext == null)
                 throw new InternalErrorException("Expected a SelectContext");
+            if (predicateContext == null)
+                throw new InternalErrorException("Expected a PredicateContext");
 
             selectContext.PredicateContext = predicateContext;
             predicateContext = null;

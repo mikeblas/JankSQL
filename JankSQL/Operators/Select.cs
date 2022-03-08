@@ -15,9 +15,9 @@
             this.selectList = selectList;
         }
 
-        internal ResultSet GetRows(int max)
+        internal ResultSet? GetRows(int max)
         {
-            ResultSet rsInput = myInput.GetRows(max);
+            ResultSet? rsInput = myInput.GetRows(max);
             if (rsInput == null)
                 return null;
 

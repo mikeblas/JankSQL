@@ -20,9 +20,9 @@
             myInput.Rewind();
         }
 
-        ResultSet IComponentOutput.GetRows(int max)
+        ResultSet? IComponentOutput.GetRows(int max)
         {
-            ResultSet rsInput = myInput.GetRows(max);
+            ResultSet? rsInput = myInput.GetRows(max);
             if (rsInput == null)
                 return null;
             ResultSet rsOutput = ResultSet.NewWithShape(rsInput);

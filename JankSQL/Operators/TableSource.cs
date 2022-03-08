@@ -18,7 +18,7 @@ namespace JankSQL
             currentRow = 0;
         }
 
-        public ResultSet GetRows(int max)
+        public ResultSet? GetRows(int max)
         {
             ResultSet rs = new ResultSet();
             List<FullColumnName> columnNames = new List<FullColumnName>();

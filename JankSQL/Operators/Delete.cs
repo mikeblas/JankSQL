@@ -15,9 +15,9 @@ namespace JankSQL
             this.predicateExpressions = predicateExpressions;
         }
 
-        public ResultSet GetRows(int max)
+        public ResultSet? GetRows(int max)
         {
-            ResultSet batch = myInput.GetRows(5);
+            ResultSet? batch = myInput.GetRows(5);
             if (batch == null)
             {
                 // last one was received, so let's delete now

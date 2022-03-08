@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace JankSQL
 {
     internal class Join : IComponentOutput
@@ -67,7 +62,7 @@ namespace JankSQL
             outputIndex = 0;
         }
 
-        ResultSet IComponentOutput.GetRows(int max)
+        ResultSet? IComponentOutput.GetRows(int max)
         {
             if (outputSet is null)
                 outputSet = ProduceOutputSet();

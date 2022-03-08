@@ -23,9 +23,9 @@ namespace JankSQL
 
                 if (dt.unscaled_type is not null)
                 {
-                    string typeName = (dt.unscaled_type.ID() is not null) ? dt.unscaled_type.ID().ToString() : dt.unscaled_type.keyword().GetText();
+                    string typeName = (dt.unscaled_type.ID() != null) ? dt.unscaled_type.ID()!.ToString() : dt.unscaled_type.keyword().GetText();
 
-                    if (typeName is null)
+                    if (typeName == null)
                     {
                         throw new ExecutionException($"No typename found for column {id0.ID()}");
                     }

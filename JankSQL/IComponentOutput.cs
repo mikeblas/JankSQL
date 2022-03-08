@@ -2,9 +2,8 @@
 {
     internal interface IComponentOutput
     {
-        ResultSet GetRows(int max);
+        ResultSet? GetRows(int max);
 
         void Rewind();
-
     }
 }

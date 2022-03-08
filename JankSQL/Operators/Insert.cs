@@ -13,9 +13,11 @@ namespace JankSQL
             engineDestination = dest;
         }
 
-        public ResultSet GetRows(int max)
+        public ResultSet? GetRows(int max)
         {
-            ResultSet rsInput = myInput.GetRows(max);
+            ResultSet? rsInput = myInput.GetRows(max);
+            if (rsInput == null)
+                return null;
 
             for (int i = 0; i < rsInput.RowCount; i++)
             {

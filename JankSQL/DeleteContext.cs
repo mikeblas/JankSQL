@@ -4,7 +4,7 @@ namespace JankSQL
     internal class DeleteContext : IExecutableContext
     {
         FullTableName tableName;
-        PredicateContext predicateContext;
+        PredicateContext? predicateContext;
 
         internal DeleteContext(FullTableName tableName)
         {
@@ -17,7 +17,7 @@ namespace JankSQL
         {
             Console.WriteLine($"DELETE FROM {tableName}");
 
-            if (predicateContext.PredicateExpressionListCount == 0)
+            if (predicateContext == null || predicateContext.PredicateExpressionListCount == 0)
             {
                 Console.WriteLine("   no predicates");
             }
@@ -55,7 +55,7 @@ namespace JankSQL
 
                 while (true)
                 {
-                    ResultSet batch = delete.GetRows(5);
+                    ResultSet? batch = delete.GetRows(5);
                     if (batch == null)
                         break;
                 }
