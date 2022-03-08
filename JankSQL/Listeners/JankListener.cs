@@ -12,8 +12,8 @@ namespace JankSQL
         PredicateContext? predicateContext;
 
         Expression currentExpression = new();
-        List<Expression> currentExpressionList;
-        List<List<Expression>> currentExpressionListList;
+        List<Expression>? currentExpressionList;
+        List<List<Expression>>? currentExpressionListList;
 
         internal ExecutionContext ExecutionContext { get { return executionContext; } }
 
@@ -101,6 +101,9 @@ namespace JankSQL
 
             if (expressionDepth == 0)
             {
+                if (currentExpressionList == null)
+                    throw new InternalErrorException("Expected a ExpressionList");
+
                 currentExpressionList.Add(currentExpression);
                 currentExpression = new();
             }
@@ -131,6 +134,11 @@ namespace JankSQL
             expressionListDepth--;
             if (expressionListDepth == 0)
             {
+                if (currentExpressionListList == null)
+                    throw new InternalErrorException("Expected a ExpressionListList");
+                if (currentExpressionList == null)
+                    throw new InternalErrorException("Expected a ExpressionList");
+
                 currentExpressionListList.Add(currentExpressionList);
                 currentExpressionList = new();
             }
@@ -214,6 +222,10 @@ namespace JankSQL
 
             if (selectContext == null)
                 throw new InternalErrorException("Expected a SelectContext");
+            if (selectContext.SelectListContext == null)
+                throw new InternalErrorException("Expected a SelectListContext");
+            if (currentExpressionList == null)
+                throw new InternalErrorException("Expected a ExpressionList");
 
             // if this is an asterisk, it doesn't get an expression
             if (context.asterisk() == null)
@@ -230,6 +242,7 @@ namespace JankSQL
                 }
                 else if (context.column_elem() != null)
                 {
+
                     fcn = FullColumnName.FromContext(context.column_elem().full_column_name());
                     currentExpressionList.Add(currentExpression);
                     currentExpression = new();
@@ -255,6 +268,9 @@ namespace JankSQL
         {
             base.ExitPredicate(context);
 
+            if (currentExpressionList == null)
+                throw new InternalErrorException("Expected a ExpressionList");
+
             Console.WriteLine($"Predicate comparison: '{context.comparison_operator().GetText()}'");
             ExpressionNode x = new ExpressionComparisonOperator(context.comparison_operator().GetText());
             Expression xl = new();
@@ -268,6 +284,8 @@ namespace JankSQL
 
             if (selectContext == null)
                 throw new InternalErrorException("Expected a SelectContext");
+            if (selectContext.SelectListContext == null)
+                throw new InternalErrorException("Expected a SelectListContext");
 
             selectContext.SelectListContext.CurrentAlias = context.column_alias().GetText();
             Console.WriteLine($"alias == {context.column_alias().GetText()}");

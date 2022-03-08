@@ -23,7 +23,7 @@ namespace JankSQL
 
                 if (dt.unscaled_type is not null)
                 {
-                    string typeName = (dt.unscaled_type.ID() != null) ? dt.unscaled_type.ID()!.ToString() : dt.unscaled_type.keyword().GetText();
+                    string typeName = (dt.unscaled_type.ID() != null) ? dt.unscaled_type.ID().GetText() : dt.unscaled_type.keyword().GetText();
 
                     if (typeName == null)
                     {

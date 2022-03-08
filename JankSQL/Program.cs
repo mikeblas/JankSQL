@@ -84,10 +84,11 @@ namespace JankSQL
                 for (int i = 0; i < sets.Length; i++)
                 {
                     Console.WriteLine($"ExecuteResult #{i} =====");
-                    if (sets[i].ResultSet != null)
+                    ResultSet? rs = sets[i].ResultSet;
+                    if (rs != null)
                     {
-                        sets[i].ResultSet.Dump();
-                        Console.WriteLine($"{sets[i].ResultSet.RowCount} total rows");
+                        rs.Dump();
+                        Console.WriteLine($"{rs.RowCount} total rows");
                     }
                     else
                     {

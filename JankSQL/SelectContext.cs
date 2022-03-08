@@ -7,7 +7,7 @@ namespace JankSQL
         SelectListContext? selectList;
 
         // for WHERE clauses
-        PredicateContext predicateContext;
+        PredicateContext? predicateContext;
 
         List<JoinContext> joinContexts = new List<JoinContext>();
 
@@ -25,7 +25,7 @@ namespace JankSQL
             statementContext = context;
         }
 
-        internal PredicateContext PredicateContext { get { return predicateContext; } set { predicateContext = value; } }
+        internal PredicateContext? PredicateContext { get { return predicateContext; } set { predicateContext = value; } }
 
 
         internal void EndSelectListExpressionList(Expression expression)
@@ -139,14 +139,21 @@ namespace JankSQL
                 selectList.Dump();
 
             Console.WriteLine("PredicateExpressions:");
-            for (int i = 0; i < predicateContext.PredicateExpressionListCount; i++)
+            if (predicateContext == null)
             {
-                Console.Write($"  #{i}: ");
-                foreach (var x in predicateContext.PredicateExpressions[i])
+                Console.WriteLine("  No predicate context");
+            }
+            else
+            {
+                for (int i = 0; i < predicateContext.PredicateExpressionListCount; i++)
                 {
-                    Console.Write($"{x} ");
+                    Console.Write($"  #{i}: ");
+                    foreach (var x in predicateContext.PredicateExpressions[i])
+                    {
+                        Console.Write($"{x} ");
+                    }
+                    Console.WriteLine();
                 }
-                Console.WriteLine();
             }
         }
     }

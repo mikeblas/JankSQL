@@ -11,7 +11,7 @@ namespace JankSQL
             this.tableName = tableName;
         }
 
-        internal PredicateContext PredicateContext { get { return predicateContext; } set { predicateContext = value; } }
+        internal PredicateContext PredicateContext { get { return predicateContext!; } set { predicateContext = value; } }
 
         public void Dump()
         {

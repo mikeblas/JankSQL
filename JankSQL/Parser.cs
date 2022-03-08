@@ -28,7 +28,10 @@ namespace JankSQL
         /// </summary>
         public void Dump()
         {
-            executionContext.Dump();
+            if (executionContext == null)
+                Console.WriteLine("No execution context");
+            else
+                executionContext.Dump();
         }
 
         /// <summary>

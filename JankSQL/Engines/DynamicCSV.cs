@@ -8,10 +8,10 @@ namespace JankSQL.Engines
         private readonly string tableName;
 
         // list of column names
-        private FullColumnName[] columnNames;
+        private FullColumnName[]? columnNames;
 
         // list of types
-        private ExpressionOperandType[] columnTypes;
+        private ExpressionOperandType[]? columnTypes;
 
         // list of lines; each line is a list of values
         private List<ExpressionOperand[]> values;
@@ -146,7 +146,7 @@ namespace JankSQL.Engines
 
         public int RowCount { get { return values.Count; } }
 
-        public int ColumnCount { get { return columnNames.Length; } }
+        public int ColumnCount { get { return columnNames!.Length; } }
 
 
         public ExpressionOperand[] Row(int n)
@@ -156,13 +156,13 @@ namespace JankSQL.Engines
 
         public FullColumnName ColumnName(int n)
         {
-            return columnNames[n];
+            return columnNames![n];
         }
 
         public int ColumnIndex(string columnName)
         {
             FullColumnName fcnMatch = FullColumnName.FromColumnName(columnName);
-            for (int i = 0; i < columnNames.Length; i++)
+            for (int i = 0; i < columnNames!.Length; i++)
             {
                 if (columnNames[i].Equals(fcnMatch))
                 {
@@ -223,7 +223,7 @@ namespace JankSQL.Engines
 
         public void InsertRow(ExpressionOperand[] row)
         {
-            if (row.Length != columnNames.Length)
+            if (row.Length != columnNames!.Length)
                 throw new ExecutionException($"table {tableName}: can't insert row with {row.Length} columns, need {columnNames.Length} columns");
 
             StringBuilder sb = new StringBuilder();

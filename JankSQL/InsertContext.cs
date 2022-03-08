@@ -6,9 +6,10 @@ namespace JankSQL
         TSqlParser.Insert_statementContext context;
         List<FullColumnName>? targetColumns;
 
-        internal InsertContext(TSqlParser.Insert_statementContext context)
+        internal InsertContext(TSqlParser.Insert_statementContext context, string tableName)
         {
             this.context = context;
+            this.TableName = tableName;
         }
 
         internal List<FullColumnName>? TargetColumns { get { return targetColumns; } set { targetColumns = value; } }
@@ -72,10 +73,10 @@ namespace JankSQL
                 while (true)
                 {
                     ResultSet? batch = inserter.GetRows(5);
-                    if (resultSet == null)
-                        resultSet = ResultSet.NewWithShape(batch);
                     if (batch == null)
                         break;
+                    if (resultSet == null)
+                        resultSet = ResultSet.NewWithShape(batch);
                     resultSet.Append(batch);
                 }
 

@@ -16,7 +16,10 @@ namespace JankSQL
 
             if (predicateContext == null)
                 throw new InternalErrorException("Expected a PredicateContext");
-
+            if (currentExpressionListList == null)
+                throw new InternalErrorException("Expected a ExpressionListList");
+            if (currentExpressionList == null)
+                throw new InternalErrorException("Expected a ExpressionList");
 
             Expression total = new();
             foreach (var l in currentExpressionListList)

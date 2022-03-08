@@ -11,7 +11,8 @@ namespace JankSQL
         {
             base.EnterInsert_statement(context);
 
-            insertContext = new InsertContext(context);
+            insertContext = new InsertContext(context, context.ddl_object().full_table_name().GetText());
+            Console.WriteLine($"INTO {insertContext.TableName}");
         }
 
 
@@ -41,9 +42,6 @@ namespace JankSQL
             if (insertContext == null)
                 throw new InternalErrorException("Expected an InsertContext");
 
-            insertContext.TableName = context.ddl_object().full_table_name().GetText();
-            Console.WriteLine($"INTO {insertContext.TableName}");
-
             executionContext.ExecuteContexts.Add(insertContext);
         }
 
@@ -68,6 +66,8 @@ namespace JankSQL
 
             if (insertContext == null)
                 throw new InternalErrorException("Expected an InsertContext");
+            if (currentExpressionListList == null)
+                throw new InternalErrorException("Expected a ExpressionListList");
 
             insertContext.AddExpressionLists(currentExpressionListList);
             currentExpressionList = new();
