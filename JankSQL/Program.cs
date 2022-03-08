@@ -83,9 +83,8 @@ namespace JankSQL
                 ExecuteResult[] sets = batch.Execute();
                 for (int i = 0; i < sets.Length; i++)
                 {
-
                     Console.WriteLine($"ExecuteResult #{i} =====");
-                    if (sets[i].ResultSet is not null)
+                    if (sets[i].ResultSet != null)
                     {
                         sets[i].ResultSet.Dump();
                         Console.WriteLine($"{sets[i].ResultSet.RowCount} total rows");

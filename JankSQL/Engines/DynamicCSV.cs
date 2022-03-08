@@ -177,10 +177,14 @@ namespace JankSQL.Engines
         {
             // get the first line of the file
             var fileStream = new FileStream(filename, FileMode.Open);
-            string firstLine;
+            string? firstLine;
             using (var reader = new StreamReader(fileStream))
             {
                 firstLine = reader.ReadLine();
+                if (firstLine == null)
+                {
+                    throw new ExecutionException($"table in {filename} doesn't have header row");
+                }
             }
             fileStream.Close();
 
@@ -267,7 +271,6 @@ namespace JankSQL.Engines
             }
 
             // create file
-            FullColumnName fcn;
             string types = String.Join(',', columnTypes);
             using StreamWriter file = new(fileName);
             file.WriteLine(types);

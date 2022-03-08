@@ -5,7 +5,7 @@ namespace JankSQL
     public class SelectContext : IExecutableContext
     {
         TSqlParser.Select_statementContext statementContext;
-        SelectListContext selectList;
+        SelectListContext? selectList;
 
         // for WHERE clauses
         PredicateContext predicateContext;
@@ -31,12 +31,13 @@ namespace JankSQL
 
         internal void EndSelectListExpressionList(Expression expression)
         {
+            if (selectList == null)
+                throw new InternalErrorException("Expected a SelectList");
+
             selectList.AddSelectListExpressionList(expression);
         }
 
-
-        internal SelectListContext SelectListContext { get { return selectList; } set { selectList = value; } }
-
+        internal SelectListContext? SelectListContext { get { return selectList; } set { selectList = value; } }
 
         public ExecuteResult Execute()
         {

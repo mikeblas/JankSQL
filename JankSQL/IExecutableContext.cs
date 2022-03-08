@@ -33,7 +33,7 @@ namespace JankSQL
 
         public ExecuteStatus ExecuteStatus { get; set; }
 
-        public string ErrorMessage { get; set; }
+        public string? ErrorMessage { get; set; }
     }
 
     public interface IExecutableContext

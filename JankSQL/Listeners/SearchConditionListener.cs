@@ -14,6 +14,10 @@ namespace JankSQL
         {
             base.ExitSearch_condition(context);
 
+            if (predicateContext == null)
+                throw new InternalErrorException("Expected a PredicateContext");
+
+
             Expression total = new();
             foreach (var l in currentExpressionListList)
             {

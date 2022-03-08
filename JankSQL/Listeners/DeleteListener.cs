@@ -28,6 +28,11 @@ namespace JankSQL
         {
             base.ExitDelete_statement(context);
 
+            if (deleteContext == null)
+                throw new InternalErrorException("Expected a DeleteContext");
+            if (predicateContext == null)
+                throw new InternalErrorException("Expected a PredicateContext");
+
             deleteContext.PredicateContext = predicateContext;
             predicateContext = null;
 

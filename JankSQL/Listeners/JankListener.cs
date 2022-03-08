@@ -38,6 +38,10 @@ namespace JankSQL
         public override void ExitSelect_statement(TSqlParser.Select_statementContext context)
         {
             base.ExitEveryRule(context);
+
+            if (selectContext == null)
+                throw new InternalErrorException("Expected a SelectContext");
+
             selectContext.PredicateContext = predicateContext;
             predicateContext = null;
 
@@ -56,6 +60,9 @@ namespace JankSQL
         public override void EnterSelect_list([NotNull] TSqlParser.Select_listContext context)
         {
             base.EnterSelect_list(context);
+
+            if (selectContext == null)
+                throw new InternalErrorException("Expected a SelectContext");
 
             selectContext.SelectListContext = new SelectListContext(context);
             currentExpressionList = new();
@@ -87,8 +94,6 @@ namespace JankSQL
             }
             else
                 Console.WriteLine($"operator is null");
-
-
 
             expressionDepth--;
 
@@ -205,6 +210,9 @@ namespace JankSQL
         {
             base.ExitSelect_list_elem(context);
 
+            if (selectContext == null)
+                throw new InternalErrorException("Expected a SelectContext");
+
             // if this is an asterisk, it doesn't get an expression
             if (context.asterisk() == null)
             {
@@ -256,6 +264,9 @@ namespace JankSQL
         {
             base.ExitAs_column_alias(context);
 
+            if (selectContext == null)
+                throw new InternalErrorException("Expected a SelectContext");
+
             selectContext.SelectListContext.CurrentAlias = context.column_alias().GetText();
             Console.WriteLine($"alias == {context.column_alias().GetText()}");
         }
@@ -264,6 +275,12 @@ namespace JankSQL
         public override void ExitJoin_part([NotNull] TSqlParser.Join_partContext context)
         {
             base.ExitJoin_part(context);
+
+            if (selectContext == null)
+                throw new InternalErrorException("Expected a SelectContext");
+            if (predicateContext == null)
+                throw new InternalErrorException("Expected a PredicateContext");
+
 
             // figure out which join type
             if (context.cross_join() != null)
@@ -288,7 +305,7 @@ namespace JankSQL
             }
             else 
             {
-                Console.WriteLine("Don't know this join type");
+                throw new NotImplementedException("unsupported JOIN type enountered");
             }
         }
 

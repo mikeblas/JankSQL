@@ -4,16 +4,16 @@ namespace JankSQL
     internal class InsertContext : IExecutableContext
     {
         TSqlParser.Insert_statementContext context;
-        List<FullColumnName> targetColumns;
+        List<FullColumnName>? targetColumns;
 
         internal InsertContext(TSqlParser.Insert_statementContext context)
         {
             this.context = context;
         }
 
-        internal List<FullColumnName> TargetColumns { get { return targetColumns; } set { targetColumns = value; } }
+        internal List<FullColumnName>? TargetColumns { get { return targetColumns; } set { targetColumns = value; } }
 
-        internal List<List<Expression>> constructors = null;
+        internal List<List<Expression>>? constructors = null;
         
         internal string TableName { get; set; }
 
@@ -35,6 +35,9 @@ namespace JankSQL
 
         public ExecuteResult Execute()
         {
+            if (constructors == null)
+                throw new InternalErrorException("Expected a list of constructors");
+
             ExecuteResult results = new ExecuteResult();
 
             string effectiveTableName = Program.GetEffectiveName(TableName);
@@ -89,8 +92,15 @@ namespace JankSQL
 
             string str;
 
-            str = string.Join(',', TargetColumns);
-            Console.WriteLine($"   Columns: {str}");
+            if (TargetColumns == null)
+            {
+                Console.WriteLine("   Columns: None found");
+            }
+            else
+            {
+                str = string.Join(',', TargetColumns);
+                Console.WriteLine($"   Columns: {str}");
+            }
 
             /*
             str = String.Join(',',
@@ -101,20 +111,27 @@ namespace JankSQL
             Console.WriteLine($"   Expressions: {str}");
             */
 
-            bool first = true;
-            foreach (var expression in constructors)
+            if (constructors == null)
             {
-                if (first)
+                Console.WriteLine($"   Expressions: No constructors found");
+            }
+            else
+            {
+                bool first = true;
+                foreach (var expression in constructors)
                 {
-                    Console.Write($"   Expressions: ");
-                    first = false;
+                    if (first)
+                    {
+                        Console.Write($"   Expressions: ");
+                        first = false;
+                    }
+                    else
+                        Console.Write($"                ");
+
+                    Console.Write($"len={expression.Count} ");
+
+                    Console.WriteLine(String.Join(',', expression.Select(x => "[" + x + "]")));
                 }
-                else
-                    Console.Write($"                ");
-
-                Console.Write($"len={expression.Count} ");
-
-                Console.WriteLine(String.Join(',', expression.Select(x => "[" + x + "]")));
             }
 
         }

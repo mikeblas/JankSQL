@@ -21,7 +21,7 @@ namespace JankSQL
             var r = new FullTableName(Program.GetEffectiveName(context.table.GetText()));
             r.databaseName = (context.database != null) ? Program.GetEffectiveName(context.database.GetText()) : null;
             r.schemaName = (context.schema != null) ? Program.GetEffectiveName(context.schema.GetText()) : null;
-            r.linkedServerName = (context.linkedServer != null) ? Program.GetEffectiveName(context.schema.GetText()) : null;
+            r.linkedServerName = (context.linkedServer != null) ? Program.GetEffectiveName(context.linkedServer.GetText()) : null;
             return r;
         }
 

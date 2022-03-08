@@ -19,6 +19,9 @@ namespace JankSQL
         {
             base.ExitInsert_column_name_list(context);
 
+            if (insertContext == null)
+                throw new InternalErrorException("Expected an InsertContext");
+
             List<FullColumnName> columns = new();
 
             foreach (var col in context.insert_column_id())
@@ -34,6 +37,9 @@ namespace JankSQL
         public override void ExitInsert_statement([NotNull] TSqlParser.Insert_statementContext context)
         {
             base.ExitInsert_statement(context);
+
+            if (insertContext == null)
+                throw new InternalErrorException("Expected an InsertContext");
 
             insertContext.TableName = context.ddl_object().full_table_name().GetText();
             Console.WriteLine($"INTO {insertContext.TableName}");
@@ -60,11 +66,12 @@ namespace JankSQL
         {
             base.ExitTable_value_constructor(context);
 
+            if (insertContext == null)
+                throw new InternalErrorException("Expected an InsertContext");
+
             insertContext.AddExpressionLists(currentExpressionListList);
             currentExpressionList = new();
         }
-
-
     }
 }
 

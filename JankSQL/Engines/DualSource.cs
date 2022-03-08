@@ -13,7 +13,7 @@
 
         FullColumnName IEngineSource.ColumnName(int n)
         {
-            return null;
+            throw new NotImplementedException();
         }
 
         ExpressionOperand[] IEngineSource.Row(int n)

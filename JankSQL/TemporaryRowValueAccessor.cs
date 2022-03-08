@@ -20,7 +20,7 @@ namespace JankSQL
                     return rowData[i];
             }
 
-            return null;
+            throw new ExecutionException($"column {fcn} not found in TemporaryRowValueAccessor");
         }
     }
 }
