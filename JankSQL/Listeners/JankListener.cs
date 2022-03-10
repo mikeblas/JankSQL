@@ -1,5 +1,6 @@
 ﻿using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
+using Antlr4.Runtime.Tree;
 
 namespace JankSQL
 {
@@ -69,6 +70,184 @@ namespace JankSQL
             selectContext.SelectListContext = new SelectListContext(context);
             currentExpressionList = new();
             currentExpressionListList = new();
+
+        }
+
+        public override void ExitSelect_list([NotNull] TSqlParser.Select_listContext context)
+        {
+            base.ExitSelect_list(context);
+
+            List<List<Expression>> xList = new();
+            foreach (var elem in context.select_list_elem())
+            {
+                if (elem.column_elem() != null)
+                {
+                    ExpressionNode n = new ExpressionOperandFromColumn(FullColumnName.FromContext(elem.column_elem().full_column_name()));
+                    Expression x = new();
+                    x.Add(n);
+                    List<Expression> xl = new();
+                    xl.Add(x);
+                    xList.Add(xl);
+                }
+                else if (elem.expression_elem() != null)
+                {
+                    Console.WriteLine("NNN: Got expression");
+
+                    Expression x = GobbleExpression(elem.expression_elem());
+                    List<Expression> xl = new();
+                    xl.Add(x);
+                    xList.Add(xl);
+                }
+                else
+                {
+                    Console.WriteLine("Don't know this type");
+                }
+            }
+
+            foreach (var x in xList)
+            {
+                Console.WriteLine($"NNN:   {String.Join(" ", x)}");
+                selectContext.EndSelectListExpressionList(x[0]);
+            }
+        }
+
+        Expression GobbleExpression(TSqlParser.Expression_elemContext expr)
+        {
+            Expression x = new();
+            List<object> stack = new();
+            stack.Add(expr.expression());
+            // stack.Push(expr.expression());
+
+            while (stack.Count > 0)
+            {
+                // object rule = stack.Pop();
+                object rule = stack[^1];
+                stack.RemoveAt(stack.Count - 1);
+                if (rule is TSqlParser.Primitive_expressionContext)
+                {
+                    TSqlParser.Primitive_expressionContext context = (TSqlParser.Primitive_expressionContext)(rule);
+                    if (context.constant().FLOAT() is not null)
+                    {
+                        string str = context.constant().FLOAT().GetText();
+                        Console.WriteLine($"constant: '{str}'");
+                        bool isNegative = context.constant().sign() is not null;
+                        ExpressionNode n = ExpressionOperand.DecimalFromString(isNegative, str);
+                        x.Add(n);
+                    }
+                    else if (context.constant().DECIMAL() is not null)
+                    {
+                        string str = context.constant().DECIMAL().GetText();
+                        Console.WriteLine($"constant: '{str}'");
+                        bool isNegative = context.constant().sign() is not null;
+
+                        ExpressionOperandType t = ExpressionOperand.IntegerOrDecimal(str);
+                        ExpressionNode n;
+
+                        if (t == ExpressionOperandType.INTEGER)
+                            n = ExpressionOperand.IntegerFromString(isNegative, str);
+                        else
+                            n = ExpressionOperand.DecimalFromString(isNegative, str);
+
+                        x.Add(n);
+                    }
+                    else if (context.constant().STRING() is not null)
+                    {
+                        // up to us to decide if its NVARCHAR or not
+                        string str = context.constant().STRING().GetText();
+                        if (str[0] == 'N')
+                        {
+                            Console.WriteLine($"constant: '{context.constant().STRING()}'");
+                            ExpressionNode n = ExpressionOperand.NVARCHARFromStringContext(str);
+                            x.Add(n);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"constant: '{context.constant().STRING()}'");
+                            ExpressionNode n = ExpressionOperand.VARCHARFromStringContext(str);
+                            x.Add(n);
+                        }
+                    }
+                }
+                else if (rule is TSqlParser.Function_callContext)
+                {
+                    TSqlParser.Function_callContext context = (TSqlParser.Function_callContext)rule;
+                    Console.WriteLine("Function_callContext");
+                    string? functionNane = null;
+                    int firstTop = stack.Count;
+
+                    for (int i = context.ChildCount - 1; i >= 0; i--)
+                    {
+                        IParseTree childContext = context.GetChild(i);
+
+                        if (childContext is TSqlParser.Scalar_function_nameContext)
+                        {
+                            TSqlParser.Scalar_function_nameContext scalarContext = (TSqlParser.Scalar_function_nameContext)(childContext);
+                            functionNane = scalarContext.func_proc_name_server_database_schema().func_proc_name_database_schema().func_proc_name_schema().procedure.GetText();
+                            ExpressionNode n = new ExpressionOperator(functionNane);
+                            stack.Insert(firstTop, n);
+                        }
+                        else if (childContext is TSqlParser.ExpressionContext)
+                        {
+                            stack.Add(childContext);
+                        }
+                        else if (childContext is TSqlParser.Expression_listContext)
+                        {
+                            TSqlParser.Expression_listContext exprContext = (TSqlParser.Expression_listContext)(childContext);
+
+                            for (int e = exprContext.expression().Length - 1; e >= 0; e--)
+                            {
+                                stack.Add(exprContext.expression()[e]);
+                            }
+                        }
+                    }
+
+                }
+                else if (rule is TSqlParser.ExpressionContext)
+                {
+                    TSqlParser.ExpressionContext context = (TSqlParser.ExpressionContext)(rule);
+
+                    if (context.op != null)
+                    {
+                        Console.WriteLine($"operator: '{context.op.Text}'");
+                        ExpressionNode n = new ExpressionOperator(context.op.Text);
+                        stack.Add(n);
+                    }
+
+                    if (context.expression().Length > 1)
+                        stack.Add(context.expression()[1]);
+                    if (context.expression().Length > 0)
+                        stack.Add(context.expression()[0]);
+
+                    if (context.primitive_expression() != null)
+                        stack.Add(context.primitive_expression());
+                    if (context.bracket_expression() != null)
+                        stack.Add(context.bracket_expression().expression());
+
+                    if (context.function_call() != null)
+                        stack.Add(context.function_call());
+
+                    if (context.full_column_name() != null)
+                        stack.Add(context.full_column_name());
+
+                }
+                else if (rule is ExpressionNode)
+                {
+                    ExpressionNode n = (ExpressionNode)rule;
+                    x.Add(n);
+                }
+                else if (rule is TSqlParser.Full_column_nameContext)
+                {
+                    TSqlParser.Full_column_nameContext context = (TSqlParser.Full_column_nameContext)(rule);
+                    ExpressionNode n = new ExpressionOperandFromColumn(FullColumnName.FromContext(context));
+                    x.Add(n);
+                }
+                else
+                {
+                    Console.WriteLine($"don't know {rule}");
+                }
+            }
+
+            return x;
         }
 
         public override void ExitExpression_elem([NotNull] TSqlParser.Expression_elemContext context)
@@ -194,6 +373,8 @@ namespace JankSQL
             }
         }
 
+
+
         public override void ExitComparison_operator([NotNull] TSqlParser.Comparison_operatorContext context)
         {
             base.ExitComparison_operator(context);
@@ -253,14 +434,16 @@ namespace JankSQL
                 else
                     selectContext.SelectListContext.AddUnknownRowsetColumnName();
 
+                if (false)
+                {
+                    Expression total = new();
+                    foreach (var x in currentExpressionList)
+                        total.AddRange(x);
 
-                Expression total = new();
-                foreach (var x in currentExpressionList)
-                    total.AddRange(x);
-
-                selectContext.EndSelectListExpressionList(total);
-                currentExpression = new();
-                currentExpressionList = new();
+                    selectContext.EndSelectListExpressionList(total);
+                    currentExpression = new();
+                    currentExpressionList = new();
+                }
             }
         }
 
@@ -275,6 +458,20 @@ namespace JankSQL
             ExpressionNode x = new ExpressionComparisonOperator(context.comparison_operator().GetText());
             Expression xl = new();
             xl.Add(x);
+            currentExpressionList.Add(xl);
+        }
+
+        public override void ExitAssignment_operator([NotNull] TSqlParser.Assignment_operatorContext context)
+        {
+            base.ExitAssignment_operator(context);
+
+            if (currentExpressionList == null)
+                throw new InternalErrorException("Expected a ExpressionList");
+
+            Console.WriteLine($"Assignment operator: '{context.GetText()}'");
+            ExpressionAssignmentOperator op = new ExpressionAssignmentOperator(context.GetText());
+            Expression xl = new();
+            xl.Add(op);
             currentExpressionList.Add(xl);
         }
 

@@ -43,7 +43,6 @@ namespace JankSQL
             // str = "SELECT * FROM [mytable] WHERE NOT(NOT(NOT ([population] = 37000)));";
             // str = "SELECT * FROM [mytable] JOIN [states] ON [mytable].[state_code] = [states].[state_code]";
             // str = "SELECT * FROM [mytable] CROSS JOIN [states]";
-
             /*
             str = "SELECT [three].[number_id], [ten].[number_id], [three].[number_id] + 10 * [ten].[number_id] FROM [Three] CROSS JOIN [Ten] CROSS JOIN [MyTable]" +
                 " WHERE [three].[number_id] + 10 * [ten].[number_id] > 30;";
@@ -70,9 +69,15 @@ namespace JankSQL
 
             // str = "SELECT * FROM [mytable] WHERE [population] > POWER(2500, 2);";
 
+            // -- these need tests --
             // str = "DROP TABLE mytable";
             // str = "CREATE TABLE [Schema].[NewTable] (keycolumn INTEGER, city_name VARCHAR(30), state_code VARCHAR, population DECIMAL);";
-            str = "DELETE FROM Mytable WHERE keycolumn = 2;";
+            // str = "DELETE FROM Mytable WHERE keycolumn = 2;";
+            // -- those need tests --
+
+            str = "UPDATE MyTable SET population = population * 1.12 WHERE keycolumn = 2;";
+            str = "SELECT [city_name], [population]*2, [population] FROM [mytable];";
+            str = "SELECT POWER((10/2), 15/5) FROM [mytable];";
 
 
             ExecutableBatch batch = Parser.ParseSQLFileFromString(str);
