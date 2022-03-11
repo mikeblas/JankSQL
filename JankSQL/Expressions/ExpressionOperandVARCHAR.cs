@@ -9,6 +9,11 @@
             this.str = str;
         }
 
+        public override object Clone()
+        {
+            return new ExpressionOperandVARCHAR(str);
+        }
+
         public override string ToString()
         {
             return $"VARCHAR(\"{str}\")";

@@ -22,5 +22,21 @@ namespace JankSQL
 
             throw new ExecutionException($"column {fcn} not found in TemporaryRowValueAccessor");
         }
+
+
+        void IRowValueAccessor.SetValue(FullColumnName fcn, ExpressionOperand op)
+        {
+            for (int i = 0; i < names.Count; i++)
+            {
+                if (names[i].Equals(fcn))
+                {
+                    rowData[i] = op;
+                    return;
+                }
+            }
+
+            throw new ExecutionException($"column {fcn} not found in TemporaryRowValueAccessor");
+        }
+
     }
 }

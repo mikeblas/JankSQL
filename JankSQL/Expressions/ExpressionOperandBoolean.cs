@@ -9,6 +9,11 @@
             this.b = b;
         }
 
+        public override object Clone()
+        {
+            return new ExpressionOperandBoolean(b);
+        }
+
         public override string ToString()
         {
             return $"Boolean({b})";

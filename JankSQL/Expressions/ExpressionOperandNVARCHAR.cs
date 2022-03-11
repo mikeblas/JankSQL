@@ -9,6 +9,11 @@
             this.str = str;
         }
 
+        public override object Clone()
+        {
+            return new ExpressionOperandNVARCHAR(str);
+        }
+
         public override string ToString()
         {
             return $"NVARCHAR(\"{str}\")";

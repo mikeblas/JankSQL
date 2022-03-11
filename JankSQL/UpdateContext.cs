@@ -29,6 +29,15 @@ namespace JankSQL
             string s = $"{fcn} {op} {expression}";
             return s;
         }
+
+        internal void Execute(IRowValueAccessor outputaccessor, IRowValueAccessor inputAccessor)
+        {
+            if (op != SetOperator.ASSIGN)
+                throw new NotImplementedException();
+
+            ExpressionOperand val = expression.Evaluate(inputAccessor);
+            outputaccessor.SetValue(fcn, val);
+        }
     }
 
     internal class UpdateContext : IExecutableContext
@@ -92,7 +101,38 @@ namespace JankSQL
 
         public ExecuteResult Execute()
         {
-            throw new NotImplementedException();
+            ExecuteResult results = new ExecuteResult();
+
+            // get systables
+            Engines.DynamicCSV sysTables = new Engines.DynamicCSV("sys_tables.csv", "sys_tables");
+            sysTables.Load();
+
+            // get the file name for our table
+            string? effectiveTableFileName = Engines.DynamicCSV.FileFromSysTables(sysTables, tableName.TableName);
+
+            if (effectiveTableFileName == null)
+            {
+                throw new ExecutionException($"Table {tableName} does not exist");
+            }
+            else
+            {
+                // found the source table, so load it
+                Engines.DynamicCSV table = new Engines.DynamicCSV(effectiveTableFileName, tableName.TableName);
+
+                TableSource source = new TableSource(table);
+                Update update  = new Update(table, source, PredicateContext.PredicateExpressions, setList);
+
+                while (true)
+                {
+                    ResultSet? batch = update.GetRows(5);
+                    if (batch == null)
+                        break;
+                }
+
+                results.ExecuteStatus = ExecuteStatus.SUCCESSFUL;
+            }
+
+            return results;
         }
     }
 }

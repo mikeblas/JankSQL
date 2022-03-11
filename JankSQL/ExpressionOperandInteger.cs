@@ -9,6 +9,11 @@
             this.n = n;
         }
 
+        public override object Clone()
+        {
+            return new ExpressionOperandInteger(n);
+        }
+
         public override string ToString()
         {
             return $"integer({n})";

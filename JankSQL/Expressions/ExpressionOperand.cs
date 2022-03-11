@@ -1,6 +1,6 @@
 ﻿namespace JankSQL
 {
-    public abstract class ExpressionOperand : ExpressionNode
+    public abstract class ExpressionOperand : ExpressionNode, ICloneable
     {
         internal ExpressionOperandType nodeType;
 
@@ -95,6 +95,8 @@
         public abstract ExpressionOperand OperatorMinus(ExpressionOperand other);
         public abstract ExpressionOperand OperatorTimes(ExpressionOperand other);
         public abstract ExpressionOperand OperatorSlash(ExpressionOperand other);
+
+        public abstract object Clone();
     }
 }
 

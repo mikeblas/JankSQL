@@ -23,5 +23,10 @@ namespace JankSQL
             ExpressionOperand val = thisRow[idx];
             return val;
         }
+
+        void IRowValueAccessor.SetValue(FullColumnName fcn, ExpressionOperand op)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

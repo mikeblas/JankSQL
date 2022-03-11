@@ -9,6 +9,12 @@
             this.d = d;
         }
 
+        public override object Clone()
+        {
+            return new ExpressionOperandDecimal(d);
+        }
+
+
         public override string ToString()
         {
             return $"decimal({d})";
