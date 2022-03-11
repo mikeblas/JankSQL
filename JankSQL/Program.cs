@@ -72,12 +72,12 @@ namespace JankSQL
             // -- these need tests --
             // str = "DROP TABLE mytable";
             // str = "CREATE TABLE [Schema].[NewTable] (keycolumn INTEGER, city_name VARCHAR(30), state_code VARCHAR, population DECIMAL);";
-            // str = "DELETE FROM Mytable WHERE keycolumn = 2;";
+            str = "DELETE FROM Mytable WHERE keycolumn = 2;";
             // -- those need tests --
 
-            str = "UPDATE MyTable SET population = population * 1.12 WHERE keycolumn = 2;";
-            str = "SELECT [city_name], [population]*2, [population] FROM [mytable];";
-            str = "SELECT POWER((10/2), 15/5) FROM [mytable];";
+            // str = "UPDATE MyTable SET population = population * 1.12 WHERE keycolumn = 2;";
+            // str = "SELECT [city_name], [population]*2, [population] FROM [mytable];";
+            // str = "SELECT POWER((10/2), 15/5) FROM [mytable];";
 
 
             ExecutableBatch batch = Parser.ParseSQLFileFromString(str);

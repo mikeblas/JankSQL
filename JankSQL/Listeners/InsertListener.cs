@@ -56,14 +56,36 @@ namespace JankSQL
         {
             base.EnterTable_value_constructor(context);
 
+            if (insertContext == null)
+                throw new InternalErrorException("Expected an InsertContext");
+
+
+            List<List<Expression>> total = new();
+
+            foreach (var expressionList in context.expression_list())
+            {
+                List<Expression> constructor = new();
+                foreach (var expr in expressionList.expression())
+                {
+                    Expression x = GobbleExpression(expr);
+                    constructor.Add(x);
+                }
+                total.Add(constructor);
+            }
+
+            insertContext.AddExpressionLists(total);
+
+            /*
             currentExpressionListList = new();
             currentExpressionList = new();
+            */
         }
 
         public override void ExitTable_value_constructor([NotNull] TSqlParser.Table_value_constructorContext context)
         {
             base.ExitTable_value_constructor(context);
 
+            /*
             if (insertContext == null)
                 throw new InternalErrorException("Expected an InsertContext");
             if (currentExpressionListList == null)
@@ -71,6 +93,7 @@ namespace JankSQL
 
             insertContext.AddExpressionLists(currentExpressionListList);
             currentExpressionList = new();
+            */
         }
     }
 }

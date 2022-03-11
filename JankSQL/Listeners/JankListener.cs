@@ -12,10 +12,6 @@ namespace JankSQL
         SelectContext? selectContext;
         PredicateContext? predicateContext;
 
-        Expression currentExpression = new();
-        List<Expression>? currentExpressionList;
-        List<List<Expression>>? currentExpressionListList;
-
         internal ExecutionContext ExecutionContext { get { return executionContext; } }
 
         public override void EnterEveryRule([NotNull] ParserRuleContext context)
@@ -68,8 +64,8 @@ namespace JankSQL
                 throw new InternalErrorException("Expected a SelectContext");
 
             selectContext.SelectListContext = new SelectListContext(context);
-            currentExpressionList = new();
-            currentExpressionListList = new();
+            // currentExpressionList = null;
+            // currentExpressionListList = null;
 
         }
 
@@ -80,42 +76,56 @@ namespace JankSQL
             List<List<Expression>> xList = new();
             foreach (var elem in context.select_list_elem())
             {
+                FullColumnName? fcn = null;
+                Expression? x = null;
+
                 if (elem.column_elem() != null)
                 {
                     ExpressionNode n = new ExpressionOperandFromColumn(FullColumnName.FromContext(elem.column_elem().full_column_name()));
-                    Expression x = new();
+                    x = new();
                     x.Add(n);
-                    List<Expression> xl = new();
-                    xl.Add(x);
-                    xList.Add(xl);
+
+                    fcn = FullColumnName.FromContext(elem.column_elem().full_column_name());
                 }
                 else if (elem.expression_elem() != null)
                 {
                     Console.WriteLine("NNN: Got expression");
 
-                    Expression x = GobbleExpression(elem.expression_elem());
-                    List<Expression> xl = new();
-                    xl.Add(x);
-                    xList.Add(xl);
+                    if (elem.expression_elem().as_column_alias() != null)
+                    {
+                        fcn = FullColumnName.FromColumnName(elem.expression_elem().as_column_alias().GetText());
+                        // throw new NotImplementedException("Can't handle AS alias");
+                    }
+
+                    x = GobbleExpression(elem.expression_elem().expression());
+                }
+                else if (elem.asterisk() != null)
+                {
+                    Console.WriteLine("asterisk!");
+                    continue;
+                    //TODO: what should this do?
                 }
                 else
                 {
                     Console.WriteLine("Don't know this type");
+                    continue;
                 }
-            }
 
-            foreach (var x in xList)
-            {
+                if (fcn != null)
+                    selectContext.SelectListContext.AddRowsetColumnName(fcn);
+                else
+                    selectContext.SelectListContext.AddUnknownRowsetColumnName();
+
                 Console.WriteLine($"NNN:   {String.Join(" ", x)}");
-                selectContext.EndSelectListExpressionList(x[0]);
+                selectContext.EndSelectListExpressionList(x);
             }
         }
 
-        Expression GobbleExpression(TSqlParser.Expression_elemContext expr)
+        Expression GobbleExpression(TSqlParser.ExpressionContext expr)
         {
             Expression x = new();
             List<object> stack = new();
-            stack.Add(expr.expression());
+            stack.Add(expr);
             // stack.Push(expr.expression());
 
             while (stack.Count > 0)
@@ -254,12 +264,15 @@ namespace JankSQL
         {
             base.ExitExpression_elem(context);
 
+            /*
             Console.Write("Expression_element: ");
             foreach (ExpressionNode n in currentExpression)
             {
                 Console.Write($"[{n.ToString()}] ");
             }
             Console.WriteLine();
+            */
+
         }
 
         int expressionDepth = 0;
@@ -267,6 +280,7 @@ namespace JankSQL
         {
             base.ExitExpression(context);
 
+            /*
             if (context.op != null)
             {
                 Console.WriteLine($"operator: '{context.op.Text}'");
@@ -287,6 +301,7 @@ namespace JankSQL
                 currentExpression = new();
             }
             Console.WriteLine($"Expression depth: {expressionDepth}");
+            */
         }
 
         public override void EnterExpression([NotNull] TSqlParser.ExpressionContext context)
@@ -309,6 +324,7 @@ namespace JankSQL
         public override void ExitExpression_list([NotNull] TSqlParser.Expression_listContext context)
         {
             base.ExitExpression_list(context);
+            /*
 
             expressionListDepth--;
             if (expressionListDepth == 0)
@@ -323,12 +339,14 @@ namespace JankSQL
             }
 
             Console.WriteLine($"ExpressionList depth: {expressionListDepth}");
+            */
         }
 
         public override void ExitPrimitive_expression([NotNull] TSqlParser.Primitive_expressionContext context)
         {
             base.ExitPrimitive_expression(context);
 
+            /*
             if (context.constant().FLOAT() is not null)
             {
                 string str = context.constant().FLOAT().GetText();
@@ -371,6 +389,7 @@ namespace JankSQL
                     currentExpression.Add(x);
                 }
             }
+            */
         }
 
 
@@ -384,8 +403,10 @@ namespace JankSQL
         {
             base.ExitSCALAR_FUNCTION(context);
 
+            /*
             ExpressionNode n = new ExpressionOperator(context.scalar_function_name().GetText());
             currentExpression.Add(n);
+            */
         }
 
 
@@ -393,14 +414,17 @@ namespace JankSQL
         {
             base.ExitFull_column_name(context);
 
+            /*
             ExpressionNode x = new ExpressionOperandFromColumn(FullColumnName.FromContext(context));
             currentExpression.Add(x);
+            */
         }
 
         public override void ExitSelect_list_elem([NotNull] TSqlParser.Select_list_elemContext context)
         {
             base.ExitSelect_list_elem(context);
 
+            /*
             if (selectContext == null)
                 throw new InternalErrorException("Expected a SelectContext");
             if (selectContext.SelectListContext == null)
@@ -445,11 +469,13 @@ namespace JankSQL
                     currentExpressionList = new();
                 }
             }
+            */
         }
 
         public override void ExitPredicate([NotNull] TSqlParser.PredicateContext context)
         {
             base.ExitPredicate(context);
+            /*
 
             if (currentExpressionList == null)
                 throw new InternalErrorException("Expected a ExpressionList");
@@ -459,12 +485,14 @@ namespace JankSQL
             Expression xl = new();
             xl.Add(x);
             currentExpressionList.Add(xl);
+            */
         }
 
         public override void ExitAssignment_operator([NotNull] TSqlParser.Assignment_operatorContext context)
         {
             base.ExitAssignment_operator(context);
 
+            /*
             if (currentExpressionList == null)
                 throw new InternalErrorException("Expected a ExpressionList");
 
@@ -473,12 +501,14 @@ namespace JankSQL
             Expression xl = new();
             xl.Add(op);
             currentExpressionList.Add(xl);
+            */
         }
 
         public override void ExitAs_column_alias([NotNull] TSqlParser.As_column_aliasContext context)
         {
             base.ExitAs_column_alias(context);
 
+            /*
             if (selectContext == null)
                 throw new InternalErrorException("Expected a SelectContext");
             if (selectContext.SelectListContext == null)
@@ -486,6 +516,7 @@ namespace JankSQL
 
             selectContext.SelectListContext.CurrentAlias = context.column_alias().GetText();
             Console.WriteLine($"alias == {context.column_alias().GetText()}");
+            */
         }
 
 
@@ -507,18 +538,21 @@ namespace JankSQL
                 Console.WriteLine($"CROSS JOIN On {str}");
 
                 JoinContext jc = new JoinContext(JoinType.CROSS_JOIN, str);
-                selectContext.AddJoin(jc, predicateContext);
-                predicateContext = new PredicateContext();
+                PredicateContext pcon = new PredicateContext();
+                selectContext.AddJoin(jc, pcon);
             }
             else if (context.join_on() != null)
             {
+                Expression x = GobbleSearchCondition(context.join_on().search_condition());
+                PredicateContext pcon = new PredicateContext();
+                pcon.EndPredicateExpressionList(x);
+
                 // ON join
                 string str = context.join_on().table_source().table_source_item_joined().table_source_item().table_name_with_hint().table_name().id_()[0].GetText();
                 Console.WriteLine($"INNER JOIN On {str}");
 
                 JoinContext jc = new JoinContext(JoinType.INNER_JOIN, str);
-                selectContext.AddJoin(jc, predicateContext);
-                predicateContext = new PredicateContext();
+                selectContext.AddJoin(jc, pcon);
             }
             else 
             {

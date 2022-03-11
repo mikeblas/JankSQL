@@ -23,20 +23,20 @@ namespace JankSQL
         {
             base.EnterUpdate_elem(context);
 
-            currentExpressionListList = new();
-            currentExpressionList = new();
         }
 
         public override void ExitUpdate_elem([NotNull] TSqlParser.Update_elemContext context)
         {
             base.ExitUpdate_elem(context);
 
-            Console.WriteLine($"Update Element: {String.Join(",", currentExpressionList)}");
+            // Console.WriteLine($"Update Element: {String.Join(",", currentExpressionList)}");
 
+            /*
             if (context.Equals != null)
                 Console.WriteLine("Update Element Operator: Explicit EQUALS");
             else
                 Console.WriteLine($"Update Element Operator: {context.assignment_operator().GetText()}");
+            */
         }
 
         public override void ExitUpdate_statement([NotNull] TSqlParser.Update_statementContext context)
