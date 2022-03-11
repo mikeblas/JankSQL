@@ -51,7 +51,7 @@ namespace JankSQL
                 Engines.DynamicCSV table = new Engines.DynamicCSV(effectiveTableFileName, tableName.TableName);
 
                 TableSource source = new TableSource(table);
-                Delete delete = new Delete(table, source, predicateContext.PredicateExpressions);
+                Delete delete = new Delete(table, source, PredicateContext.PredicateExpressions);
 
                 while (true)
                 {

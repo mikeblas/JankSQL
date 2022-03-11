@@ -1,6 +1,4 @@
-﻿
-
-using Antlr4.Runtime.Misc;
+﻿using Antlr4.Runtime.Misc;
 
 namespace JankSQL
 {
@@ -43,25 +41,6 @@ namespace JankSQL
             }
         }
 
-        public override void EnterUpdate_elem([NotNull] TSqlParser.Update_elemContext context)
-        {
-            base.EnterUpdate_elem(context);
-
-        }
-
-        public override void ExitUpdate_elem([NotNull] TSqlParser.Update_elemContext context)
-        {
-            base.ExitUpdate_elem(context);
-
-            // Console.WriteLine($"Update Element: {String.Join(",", currentExpressionList)}");
-
-            /*
-            if (context.Equals != null)
-                Console.WriteLine("Update Element Operator: Explicit EQUALS");
-            else
-                Console.WriteLine($"Update Element Operator: {context.assignment_operator().GetText()}");
-            */
-        }
 
         public override void ExitUpdate_statement([NotNull] TSqlParser.Update_statementContext context)
         {
@@ -80,3 +59,4 @@ namespace JankSQL
         }
     }
 }
+

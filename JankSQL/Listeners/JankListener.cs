@@ -64,9 +64,6 @@ namespace JankSQL
                 throw new InternalErrorException("Expected a SelectContext");
 
             selectContext.SelectListContext = new SelectListContext(context);
-            // currentExpressionList = null;
-            // currentExpressionListList = null;
-
         }
 
         public override void ExitSelect_list([NotNull] TSqlParser.Select_listContext context)
@@ -260,22 +257,6 @@ namespace JankSQL
         }
 
 
-
-        public override void ExitAssignment_operator([NotNull] TSqlParser.Assignment_operatorContext context)
-        {
-            base.ExitAssignment_operator(context);
-
-            /*
-            if (currentExpressionList == null)
-                throw new InternalErrorException("Expected a ExpressionList");
-
-            Console.WriteLine($"Assignment operator: '{context.GetText()}'");
-            ExpressionAssignmentOperator op = new ExpressionAssignmentOperator(context.GetText());
-            Expression xl = new();
-            xl.Add(op);
-            currentExpressionList.Add(xl);
-            */
-        }
 
         public override void ExitJoin_part([NotNull] TSqlParser.Join_partContext context)
         {
