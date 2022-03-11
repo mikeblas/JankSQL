@@ -28,8 +28,6 @@ namespace JankSQL
             PredicateContext pcon = new PredicateContext();
             pcon.EndPredicateExpressionList(x);
             deleteContext.PredicateContext = pcon;
-
-            // predicateContext = new();
         }
 
         public override void ExitDelete_statement([NotNull] TSqlParser.Delete_statementContext context)
@@ -38,14 +36,6 @@ namespace JankSQL
 
             if (deleteContext == null)
                 throw new InternalErrorException("Expected a DeleteContext");
-
-            /*
-            if (predicateContext == null)
-                throw new InternalErrorException("Expected a PredicateContext");
-
-            deleteContext.PredicateContext = predicateContext;
-            predicateContext = null;
-            */
 
             executionContext.ExecuteContexts.Add(deleteContext);
             deleteContext = null;

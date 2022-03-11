@@ -74,27 +74,8 @@ namespace JankSQL
             }
 
             insertContext.AddExpressionLists(total);
-
-            /*
-            currentExpressionListList = new();
-            currentExpressionList = new();
-            */
         }
 
-        public override void ExitTable_value_constructor([NotNull] TSqlParser.Table_value_constructorContext context)
-        {
-            base.ExitTable_value_constructor(context);
-
-            /*
-            if (insertContext == null)
-                throw new InternalErrorException("Expected an InsertContext");
-            if (currentExpressionListList == null)
-                throw new InternalErrorException("Expected a ExpressionListList");
-
-            insertContext.AddExpressionLists(currentExpressionListList);
-            currentExpressionList = new();
-            */
-        }
     }
 }
 

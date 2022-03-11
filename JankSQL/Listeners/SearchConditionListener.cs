@@ -15,28 +15,8 @@ namespace JankSQL
                 predicateContext = new();
                 predicateContext.EndPredicateExpressionList(x);
             }
-            /*
-            // predicateContext = new();
-            // predicateContext.EndPredicateExpressionList(x);
-            */
         }
 
-
-        public override void EnterSearch_condition([NotNull] TSqlParser.Search_conditionContext context)
-        {
-            base.EnterSearch_condition(context);
-            /*
-            currentExpressionList = new();
-            currentExpressionListList = new();
-            */
-
-            /*
-            Expression x = GobbleSearchCondition(context);
-
-            predicateContext = new();
-            predicateContext.EndPredicateExpressionList(x);
-            */
-        }
 
         Expression GobbleSearchCondition(TSqlParser.Search_conditionContext context)
         {
@@ -126,74 +106,5 @@ namespace JankSQL
 
             return x;
         }
-
-
-        public override void ExitSearch_condition([NotNull] TSqlParser.Search_conditionContext context)
-        {
-            base.ExitSearch_condition(context);
-
-            /*
-
-            if (predicateContext == null)
-                throw new InternalErrorException("Expected a PredicateContext");
-            if (currentExpressionListList == null)
-                throw new InternalErrorException("Expected a ExpressionListList");
-            if (currentExpressionList == null)
-                throw new InternalErrorException("Expected a ExpressionList");
-
-            Expression total = new();
-            foreach (var l in currentExpressionListList)
-            {
-                foreach (var x in l)
-                {
-                    total.AddRange(x);
-                }
-            }
-
-            foreach (var x in currentExpressionList)
-                total.AddRange(x);
-            currentExpressionList = new();
-            currentExpression = new();
-
-            if (context.AND() != null)
-            {
-                Console.WriteLine("Got AND");
-                ExpressionNode x = ExpressionBooleanOperator.GetAndOperator();
-                total.Add(x);
-                predicateContext.EndAndCombinePredicateExpressionList(2, total);
-            }
-            else if (context.OR() != null)
-            {
-                Console.WriteLine("Got OR");
-                ExpressionNode x = ExpressionBooleanOperator.GetOrOperator();
-                total.Add(x);
-                predicateContext.EndAndCombinePredicateExpressionList(2, total);
-            }
-            else if (context.NOT(0) != null)
-            {
-                int n = 0;
-                do
-                {
-                    Console.WriteLine("Got NOT");
-                    ExpressionNode x = ExpressionBooleanOperator.GetNotOperator();
-                    total.Add(x);
-                    if (total.Count == 1)
-                    {
-                        predicateContext.EndAndCombinePredicateExpressionList(1, total);
-                    }
-                    else
-                    {
-                        predicateContext.EndPredicateExpressionList(total);
-                    }
-                } while (context.NOT(++n) != null);
-            }
-            else
-            {
-                Console.WriteLine("Got neither");
-                predicateContext.EndPredicateExpressionList(total);
-            }
-            */
-        }
-
     }
 }
