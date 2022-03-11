@@ -112,7 +112,7 @@ namespace JankSQL
             Console.WriteLine($"   Expressions: {str}");
             */
 
-            if (constructors == null)
+            if (constructors == null || constructors.Count == 0)
             {
                 Console.WriteLine($"   Expressions: No constructors found");
             }
