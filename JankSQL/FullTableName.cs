@@ -1,7 +1,7 @@
 ﻿
 namespace JankSQL
 {
-    internal class FullTableName
+    public class FullTableName
     {
         string? linkedServerName;
         string? schemaName;

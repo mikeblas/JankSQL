@@ -12,17 +12,17 @@ namespace JankSQL
 
     internal class JoinContext
     {
-        string tableName;
+        FullTableName tableName;
         JoinType joinType;
         List<Expression>? predicateExpressions;
 
-        internal JoinContext(JoinType joinType, string tableName)
+        internal JoinContext(JoinType joinType, FullTableName tableName)
         {
             this.tableName = tableName;
             this.joinType = joinType;
         }
 
-        internal string OtherTableName { get { return tableName; } }
+        internal FullTableName OtherTableName { get { return tableName; } }
 
         internal List<Expression> PredicateExpressions { get { return predicateExpressions!; } set { predicateExpressions = value; } }
 

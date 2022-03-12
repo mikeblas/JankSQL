@@ -278,10 +278,11 @@ namespace JankSQL
             if (context.cross_join() != null)
             {
                 // CROSS Join!
-                string str = context.cross_join().table_source().table_source_item_joined().table_source_item().table_name_with_hint().table_name().id_()[0].GetText();
-                Console.WriteLine($"CROSS JOIN On {str}");
 
-                JoinContext jc = new JoinContext(JoinType.CROSS_JOIN, str);
+                FullTableName otherTableName = FullTableName.FromTableNameContext(context.cross_join().table_source().table_source_item_joined().table_source_item().table_name_with_hint().table_name());
+                Console.WriteLine($"CROSS JOIN On {otherTableName}");
+
+                JoinContext jc = new JoinContext(JoinType.CROSS_JOIN, otherTableName);
                 PredicateContext pcon = new PredicateContext();
                 selectContext.AddJoin(jc, pcon);
             }
@@ -292,10 +293,10 @@ namespace JankSQL
                 pcon.EndPredicateExpressionList(x);
 
                 // ON join
-                string str = context.join_on().table_source().table_source_item_joined().table_source_item().table_name_with_hint().table_name().id_()[0].GetText();
-                Console.WriteLine($"INNER JOIN On {str}");
+                FullTableName otherTableName = FullTableName.FromTableNameContext(context.join_on().table_source().table_source_item_joined().table_source_item().table_name_with_hint().table_name());
+                Console.WriteLine($"INNER JOIN On {otherTableName}");
 
-                JoinContext jc = new JoinContext(JoinType.INNER_JOIN, str);
+                JoinContext jc = new JoinContext(JoinType.INNER_JOIN, otherTableName);
                 selectContext.AddJoin(jc, pcon);
             }
             else 

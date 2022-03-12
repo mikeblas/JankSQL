@@ -24,9 +24,9 @@ namespace JankSQL
             }
         }
 
-        public ExecuteResult Execute()
+        public ExecuteResult Execute(Engines.IEngine engine)
         {
-            Engines.DynamicCSV.CreateTable(tableName, columnNames, columnTypes);
+            engine.CreateTable(tableName, columnNames, columnTypes);
 
             ExecuteResult ret = new ExecuteResult();
             ret.ExecuteStatus = ExecuteStatus.SUCCESSFUL;

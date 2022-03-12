@@ -6,7 +6,7 @@ namespace JankSQL
         TSqlParser.Insert_statementContext context;
         List<FullColumnName>? targetColumns;
 
-        internal InsertContext(TSqlParser.Insert_statementContext context, string tableName)
+        internal InsertContext(TSqlParser.Insert_statementContext context, FullTableName tableName)
         {
             this.context = context;
             this.TableName = tableName;
@@ -16,7 +16,7 @@ namespace JankSQL
 
         internal List<List<Expression>>? constructors = null;
         
-        internal string TableName { get; set; }
+        internal FullTableName TableName { get; set; }
 
         internal void AddExpressionList(List<Expression> expressionList)
         {
@@ -34,39 +34,29 @@ namespace JankSQL
             this.constructors.AddRange(expressionLists);
         }
 
-        public ExecuteResult Execute()
+        public ExecuteResult Execute(Engines.IEngine engine)
         {
             if (constructors == null)
                 throw new InternalErrorException("Expected a list of constructors");
 
             ExecuteResult results = new ExecuteResult();
 
-            string effectiveTableName = Program.GetEffectiveName(TableName);
+            Engines.IEngineDestination? engineDestination = engine.GetDestinationTable(TableName);
+            Engines.IEngineSource? engineSource = engine.GetSourceTable(TableName);
 
-            // get systables
-            Engines.DynamicCSV sysTables = new Engines.DynamicCSV("sys_tables.csv", "sys_tables");
-            sysTables.Load();
-
-            // get the file name for our table
-            string? effectiveTableFileName = Engines.DynamicCSV.FileFromSysTables(sysTables, effectiveTableName);
-
-            if (effectiveTableFileName == null)
+            if (engineDestination == null || engineSource == null)
             {
-                throw new ExecutionException($"Table {effectiveTableName} does not exist");
+                throw new ExecutionException($"Table {TableName} does not exist");
             }
             else
             {
-                // we've got our table ...
-                Engines.DynamicCSV table = new Engines.DynamicCSV(effectiveTableFileName, effectiveTableName);
-                table.Load();
-
-                if (table.ColumnCount != constructors[0].Count)
+                if (engineSource.ColumnCount != constructors[0].Count)
                 {
-                    throw new ExecutionException($"Expected {table.ColumnCount} columns, got {constructors[0].Count}");
+                    throw new ExecutionException($"Expected {engineSource.ColumnCount} columns, got {constructors[0].Count}");
                 }
 
                 ConstantRowSource source = new ConstantRowSource(TargetColumns, constructors);
-                Insert inserter = new Insert(table, source);
+                Insert inserter = new Insert(engineDestination, source);
 
                 ResultSet? resultSet = null;
 

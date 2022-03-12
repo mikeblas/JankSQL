@@ -1,4 +1,4 @@
-﻿using Antlr4.Runtime;
+﻿
 using Antlr4.Runtime.Misc;
 
 namespace JankSQL
@@ -11,7 +11,7 @@ namespace JankSQL
         {
             base.EnterInsert_statement(context);
 
-            insertContext = new InsertContext(context, context.ddl_object().full_table_name().GetText());
+            insertContext = new InsertContext(context, FullTableName.FromFullTableNameContext(context.ddl_object().full_table_name()));
             Console.WriteLine($"INTO {insertContext.TableName}");
         }
 

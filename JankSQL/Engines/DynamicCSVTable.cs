@@ -2,10 +2,12 @@
 
 namespace JankSQL.Engines
 {
-    public class DynamicCSV : IEngineSource, IEngineDestination
+    // represents a table in a CSV engine
+    public class DynamicCSVTable : IEngineSource, IEngineDestination
     {
         private readonly string filename;
         private readonly string tableName;
+        private IEngine engine;
 
         // list of column names
         private FullColumnName[]? columnNames;
@@ -16,14 +18,15 @@ namespace JankSQL.Engines
         // list of lines; each line is a list of values
         private List<ExpressionOperand[]> values;
 
-        public DynamicCSV(string filename, string tableName)
+        public DynamicCSVTable(string filename, string tableName, IEngine engine)
         {
             this.filename = filename;
             this.values = new List<ExpressionOperand[]>();
             this.tableName = tableName;
+            this.engine = engine;
         }
 
-        static ExpressionOperandType[] GetColumnTypes(FullTableName tableName)
+        ExpressionOperandType[] GetColumnTypes(FullTableName tableName)
         {
             ExpressionOperandType[] ret;
 
@@ -48,8 +51,8 @@ namespace JankSQL.Engines
             }
             else
             {
-                DynamicCSV sysColumns = new DynamicCSV("sys_columns.csv", "sys_columns");
-                sysColumns.Load();
+
+                DynamicCSVTable sysColumns = engine.GetSysColumns();
 
                 // table_name,column_name,column_type,index
                 int tableNameIndex = sysColumns.ColumnIndex("table_name");
@@ -92,7 +95,7 @@ namespace JankSQL.Engines
             var lines = File.ReadLines(filename);
             int lineNumber = 0;
 
-            columnTypes = DynamicCSV.GetColumnTypes(FullTableName.FromTableName(tableName));
+            columnTypes = GetColumnTypes(FullTableName.FromTableName(tableName));
 
             foreach (var line in lines)
             {
@@ -200,26 +203,7 @@ namespace JankSQL.Engines
             Load();
         }
 
-        static public string? FileFromSysTables(Engines.DynamicCSV sysTables, string effectiveTableName)
-        {
-            // is this source table in there?
-            int idxName = sysTables.ColumnIndex("table_name");
-            int idxFile = sysTables.ColumnIndex("file_name");
 
-            int foundRow = -1;
-            for (int i = 0; i < sysTables.RowCount; i++)
-            {
-                if (sysTables.Row(i)[idxName].AsString().Equals(effectiveTableName, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    foundRow = i;
-                    break;
-                }
-            }
-            if (foundRow == -1)
-                return null;
-
-            return sysTables.Row(foundRow)[idxFile].AsString();
-        }
 
         public void InsertRow(ExpressionOperand[] row)
         {
@@ -243,107 +227,6 @@ namespace JankSQL.Engines
             }
         }
 
-        internal static void CreateTable(FullTableName tableName, List<FullColumnName> columnNames, List<ExpressionOperandType> columnTypes)
-        {
-            // guess file name
-            string fileName = tableName.TableName.Replace("[", "").Replace("]", "") + ".csv";
-
-            // see if table doesn't exist
-            DynamicCSV sysTables = new DynamicCSV("sys_tables.csv", "sys_tables");
-            sysTables.Load();
-
-            string? foundFileName = FileFromSysTables(sysTables, tableName.TableName);
-            if (foundFileName != null)
-            {
-                throw new ExecutionException($"Table named {tableName} already exists");
-            }
-
-            //make sure file doesn't exist, too
-            int idxFile = sysTables.ColumnIndex("file_name");
-            int idxName = sysTables.ColumnIndex("table_name");
-            for (int i = 0; i < sysTables.RowCount; i++)
-            {
-                if (sysTables.Row(i)[idxFile].AsString().Equals(fileName, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    string otherTableName = sysTables.Row(i)[idxName].AsString();
-                    throw new ExecutionException($"File name {fileName} already exists for table {otherTableName}");
-                }
-            }
-
-            // create file
-            string types = String.Join(',', columnTypes);
-            using StreamWriter file = new(fileName);
-            file.WriteLine(types);
-            file.Close();
-
-            // add row to sys_tables
-            ExpressionOperand[] newRow = new ExpressionOperand[2];
-            newRow[idxFile] = ExpressionOperand.NVARCHARFromString(fileName);
-            newRow[idxName] = ExpressionOperand.NVARCHARFromString(tableName.TableName);
-
-            sysTables.InsertRow(newRow);
-
-            // add rows to sys_columns
-            DynamicCSV sysColumns = new DynamicCSV("sys_columns.csv", "sys_columns");
-            sysColumns.Load();
-
-            int idxColumnName = sysColumns.ColumnIndex("column_name");
-            int idxIdx = sysColumns.ColumnIndex("index");
-            int idxTableName = sysColumns.ColumnIndex("table_name");
-            int idxType = sysColumns.ColumnIndex("column_type");
-
-            for (int i = 0; i < columnNames.Count; i++)
-            {
-                ExpressionOperand[] columnRow = new ExpressionOperand[sysColumns.ColumnCount];
-
-                columnRow[idxIdx] = ExpressionOperand.IntegerFromInt(i);
-                columnRow[idxTableName] = ExpressionOperand.NVARCHARFromString(tableName.TableName);
-                columnRow[idxColumnName] = ExpressionOperand.NVARCHARFromString(columnNames[i].ColumnNameOnly());
-                columnRow[idxType] = ExpressionOperand.VARCHARFromString(columnTypes[i].ToString());
-
-                sysColumns.InsertRow(columnRow);
-            }
-        }
-
-        internal static void DropTable(FullTableName tableName)
-        {
-            // delete the file
-            Engines.DynamicCSV sysTables = new Engines.DynamicCSV("sys_tables.csv", "sys_tables");
-            sysTables.Load();
-
-            string? fileName = Engines.DynamicCSV.FileFromSysTables(sysTables, tableName.TableName);
-            if (fileName == null)
-                throw new ExecutionException($"Table {tableName} does not exist");
-
-            File.Delete(fileName);
-
-            // remove entries from sys_columns
-            Engines.DynamicCSV sysColumns = new Engines.DynamicCSV("sys_columns.csv", "sys_columns");
-            sysColumns.Load();
-            int tableNameIndex = sysColumns.ColumnIndex("table_name");
-
-            List<int> rowIndexesToDelete = new();
-
-            for (int i = 0; i < sysColumns.RowCount; i++)
-            {
-                if (sysColumns.Row(i)[tableNameIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
-                    rowIndexesToDelete.Add(i);
-            }
-
-            sysColumns.DeleteRows(rowIndexesToDelete);
-
-            // remove from sys_tables
-            rowIndexesToDelete = new();
-            int idxName = sysTables.ColumnIndex("table_name");
-
-            for (int i = 0; i < sysTables.RowCount; i++)
-            {
-                if (sysTables.Row(i)[idxName].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
-                    rowIndexesToDelete.Add(i);
-            }
-
-            sysTables.DeleteRows(rowIndexesToDelete);
-        }
 
         public int DeleteRows(List<int> rowIndexesToDelete)
         {
@@ -359,7 +242,7 @@ namespace JankSQL.Engines
 
             using StreamWriter writer = new(filename);
 
-            columnTypes = DynamicCSV.GetColumnTypes(FullTableName.FromTableName(tableName));
+            columnTypes = GetColumnTypes(FullTableName.FromTableName(tableName));
 
             foreach (var line in lines)
             {

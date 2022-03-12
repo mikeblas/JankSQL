@@ -15,9 +15,9 @@ namespace JankSQL
             Console.WriteLine($"Drop table {tableName}");
         }
 
-        public ExecuteResult Execute()
+        public ExecuteResult Execute(Engines.IEngine engine)
         {
-            Engines.DynamicCSV.DropTable(tableName);
+            engine.DropTable(tableName);
 
             ExecuteResult ret = new ExecuteResult();
             ret.ExecuteStatus = ExecuteStatus.SUCCESSFUL;

@@ -8,9 +8,9 @@ namespace JankSQL
         {
             base.ExitTruncate_table(context);
 
-            string tableName = context.table_name().id_()[0].GetText();
+            FullTableName ftn = FullTableName.FromTableNameContext(context.table_name());
 
-            TruncateTableContext c = new TruncateTableContext(tableName);
+            TruncateTableContext c = new TruncateTableContext(ftn);
             executionContext.ExecuteContexts.Add(c);
 
         }

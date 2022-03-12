@@ -27,6 +27,7 @@ namespace JankSQL
     {
         static void Main(string[] args)
         {
+            Engines.DynamicCSVEngine engine = Engines.DynamicCSVEngine.OpenAlways("F:\\JankTests\\Test33");
 
             // ExecutionContext ecFile = Parser.ParseSQLFileFromFileName("t5.sql");
 

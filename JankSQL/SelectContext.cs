@@ -38,7 +38,7 @@ namespace JankSQL
 
         internal SelectListContext SelectListContext { get { return selectList!; } set { selectList = value; } }
 
-        public ExecuteResult Execute()
+        public ExecuteResult Execute(Engines.IEngine engine)
         {
             if (selectList == null)
                 throw new InternalErrorException("Expected a SelectList");
@@ -60,47 +60,32 @@ namespace JankSQL
             }
             else
             {
-                string sourceTable = querySpecs.table_sources().table_source().First().table_source_item_joined().table_source_item().GetText();
-                Console.WriteLine($"ExitSelect_Statement: {sourceTable}");
+                FullTableName sourceTableName = FullTableName.FromTableNameContext(querySpecs.table_sources().table_source().First().table_source_item_joined().table_source_item().table_name_with_hint().table_name());
+                Console.WriteLine($"ExitSelect_Statement: {sourceTableName}");
 
-                string effectiveTableName = Program.GetEffectiveName(sourceTable);
-
-                // get systables
-                Engines.DynamicCSV sysTables = new Engines.DynamicCSV("sys_tables.csv", "sys_tables");
-                sysTables.Load();
-
-                // get the file name for our table
-                string? effectiveTableFileName = Engines.DynamicCSV.FileFromSysTables(sysTables, effectiveTableName);
-
-                if (effectiveTableFileName == null)
+                Engines.IEngineSource? engineSource = engine.GetSourceTable(sourceTableName);
+                if (engineSource == null)
                 {
-                    throw new ExecutionException($"Table {effectiveTableName} does not exist");
+                    throw new ExecutionException($"Table {sourceTableName} does not exist");
                 }
                 else
                 {
-                    // found the source table, so load it
-                    Engines.DynamicCSV table = new Engines.DynamicCSV(effectiveTableFileName, effectiveTableName);
-
-                    // hook it up
-                    tableSource = new TableSource(table);
+                    // found the source table, so hook it up
+                    tableSource = new TableSource(engineSource);
                     lastLeftOutput = tableSource;
 
                     // any joins?
                     foreach (var j in joinContexts)
                     {
                         // find the other table
-                        string otherEffectiveTableName = Program.GetEffectiveName(j.OtherTableName);
-                        string? otherTableFileName = Engines.DynamicCSV.FileFromSysTables(sysTables, otherEffectiveTableName);
-                        if (otherTableFileName == null)
+                        Engines.IEngineSource? otherTableSource = engine.GetSourceTable(j.OtherTableName);
+                        if (otherTableSource == null)
                         {
                             throw new ExecutionException($"Joined table {j.OtherTableName} does not exist");
                         }
 
-                        // get a table engine on it
-                        Engines.DynamicCSV otherTable = new Engines.DynamicCSV(otherTableFileName, otherEffectiveTableName);
-                        TableSource joinSource = new TableSource(otherTable);
-
                         // build a join operator with it
+                        TableSource joinSource = new TableSource(otherTableSource);
                         Join oper = new Join(j.JoinType, lastLeftOutput, joinSource, j.PredicateExpressions);
 
                         lastLeftOutput = oper;

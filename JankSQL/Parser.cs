@@ -60,7 +60,8 @@ namespace JankSQL
             if (executionContext is null)
                 throw new InvalidOperationException("No valid execution context");
 
-            results = executionContext.Execute();
+            Engines.IEngine engine = Engines.DynamicCSVEngine.OpenExistingOnly("F:\\JankTests\\Progress");
+            results = executionContext.Execute(engine);
             return results;
         }
 
@@ -74,7 +75,8 @@ namespace JankSQL
             if (executionContext is null)
                 throw new InvalidOperationException("No valid execution context");
 
-            results = executionContext.Execute();
+            Engines.IEngine engine = Engines.DynamicCSVEngine.OpenExistingOnly("F:\\JankTests\\Progress");
+            results = executionContext.Execute(engine);
             return results[0];
         }
     }

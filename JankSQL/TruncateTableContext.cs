@@ -1,41 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace JankSQL
 {
 
     internal class TruncateTableContext : IExecutableContext
     {
-        string tableName;
+        FullTableName tableName;
 
-        internal TruncateTableContext(string tableName)
+        internal TruncateTableContext(FullTableName tableName)
         {
             this.tableName = tableName;
         }
 
-        public ExecuteResult Execute()
+        public ExecuteResult Execute(Engines.IEngine engine)
         {
             ExecuteResult result = new ExecuteResult();
 
-            // get systables
-            Engines.DynamicCSV sysTables = new Engines.DynamicCSV("sys_tables.csv", "sys_tables");
-            sysTables.Load();
 
-
-            string effectiveTableName = Program.GetEffectiveName(tableName);
-
-            string? tableFileName = Engines.DynamicCSV.FileFromSysTables(sysTables, effectiveTableName);
-            if (tableFileName == null)
+            Engines.IEngineSource? engineSource = engine.GetSourceTable(tableName);
+            if (engineSource == null)
             {
                 result.ExecuteStatus = ExecuteStatus.FAILED;
-                throw new ExecutionException($"Table {effectiveTableName} does not exist");
+                throw new ExecutionException($"Table {tableName} does not exist");
             }
 
-            Engines.DynamicCSV objectTable = new Engines.DynamicCSV(tableFileName, effectiveTableName);
-            objectTable.TruncateTable();
+            engineSource.TruncateTable();
 
             result.ExecuteStatus = ExecuteStatus.SUCCESSFUL;
             return result;

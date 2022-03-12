@@ -14,14 +14,14 @@ namespace JankSQL
                 context.Dump();
         }
 
-        public ExecuteResult[] Execute()
+        public ExecuteResult[] Execute(Engines.IEngine engine)
         {
             List<ExecuteResult> results = new ();
             foreach(IExecutableContext context in executeContexts)
             {
                 try
                 {
-                    ExecuteResult result = context.Execute();
+                    ExecuteResult result = context.Execute(engine);
                     results.Add(result);
                 }
                 catch (ExecutionException ex)
@@ -35,7 +35,7 @@ namespace JankSQL
         }
 
 
-        public ExecuteResult ExecuteSingle()
+        public ExecuteResult ExecuteSingle(Engines.IEngine engine)
         {
             ExecuteResult result;
             if (executeContexts.Count != 1)
@@ -44,7 +44,7 @@ namespace JankSQL
             }
             else
             {
-                result = executeContexts[0].Execute();
+                result = executeContexts[0].Execute(engine);
             }
 
             return result;

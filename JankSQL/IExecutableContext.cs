@@ -33,7 +33,7 @@ namespace JankSQL
 
     public interface IExecutableContext
     {
-        ExecuteResult Execute();
+        ExecuteResult Execute(Engines.IEngine engine);
 
         void Dump();
     }

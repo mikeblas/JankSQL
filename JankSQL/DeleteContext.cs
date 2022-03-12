@@ -30,28 +30,22 @@ namespace JankSQL
             }
         }
 
-        public ExecuteResult Execute()
+        public ExecuteResult Execute(Engines.IEngine engine)
         {
             ExecuteResult results = new ExecuteResult();
 
-            // get systables
-            Engines.DynamicCSV sysTables = new Engines.DynamicCSV("sys_tables.csv", "sys_tables");
-            sysTables.Load();
+            Engines.IEngineSource? tableSource = engine.GetSourceTable(tableName);
+            Engines.IEngineDestination? tableDestination = engine.GetDestinationTable(tableName);
 
-            // get the file name for our table
-            string? effectiveTableFileName = Engines.DynamicCSV.FileFromSysTables(sysTables, tableName.TableName);
-
-            if (effectiveTableFileName == null)
+            if (tableSource == null || tableDestination == null)
             {
                 throw new ExecutionException($"Table {tableName} does not exist");
             }
             else
             {
                 // found the source table, so load it
-                Engines.DynamicCSV table = new Engines.DynamicCSV(effectiveTableFileName, tableName.TableName);
-
-                TableSource source = new TableSource(table);
-                Delete delete = new Delete(table, source, PredicateContext.PredicateExpressions);
+                TableSource source = new TableSource(tableSource);
+                Delete delete = new Delete(tableDestination, source, PredicateContext.PredicateExpressions);
 
                 while (true)
                 {
