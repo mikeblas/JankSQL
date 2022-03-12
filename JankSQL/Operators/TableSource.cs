@@ -10,7 +10,6 @@ namespace JankSQL
         internal TableSource(Engines.IEngineSource source)
         {
             this.source = source;
-            this.source.Load();
         }
 
         void IComponentOutput.Rewind()

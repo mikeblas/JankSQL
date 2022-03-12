@@ -22,7 +22,7 @@
             return ret;
         }
 
-        void IEngineSource.Load()
+        void Load()
         {
         }
 

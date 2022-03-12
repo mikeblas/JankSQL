@@ -2,9 +2,6 @@
 {
     public interface IEngineSource
     {
-        // initialize (load) this table into memory
-        void Load();
-
         //=== metadata
         // get the number of rows
         int RowCount { get; }
