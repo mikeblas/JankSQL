@@ -1,6 +1,6 @@
 ﻿namespace JankSQL.Engines
 {
-    public interface IEngineSource
+    public interface IEngineTable
     {
         //=== metadata
         // get the number of rows
@@ -23,6 +23,10 @@
         //=== DML
         // truncate this table
         void TruncateTable();
+
+        void InsertRow(ExpressionOperand[] row);
+
+        int DeleteRows(List<int> rowIndexesToDelete);
 
     }
 }

@@ -1,22 +1,22 @@
 ﻿namespace JankSQL.Engines
 {
-    public class DualSource : IEngineSource
+    public class DualSource : IEngineTable
     {
-        int IEngineSource.RowCount => 1;
+        int IEngineTable.RowCount => 1;
 
-        int IEngineSource.ColumnCount => 0;
+        int IEngineTable.ColumnCount => 0;
 
-        int IEngineSource.ColumnIndex(string columnName)
+        int IEngineTable.ColumnIndex(string columnName)
         {
             return -1;
         }
 
-        FullColumnName IEngineSource.ColumnName(int n)
+        FullColumnName IEngineTable.ColumnName(int n)
         {
             throw new NotImplementedException();
         }
 
-        ExpressionOperand[] IEngineSource.Row(int n)
+        ExpressionOperand[] IEngineTable.Row(int n)
         {
             ExpressionOperand[] ret = Array.Empty<ExpressionOperand>();
             return ret;
@@ -27,6 +27,16 @@
         }
 
         public void TruncateTable()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void InsertRow(ExpressionOperand[] row)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int DeleteRows(List<int> rowIndexesToDelete)
         {
             throw new NotImplementedException();
         }

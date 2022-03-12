@@ -8,9 +8,7 @@ namespace JankSQL.Engines
 
         public void CreateTable(FullTableName tableName, List<FullColumnName> columnNames, List<ExpressionOperandType> columnTypes);
 
-        public IEngineSource? GetSourceTable(FullTableName tableName);
-
-        public IEngineDestination? GetDestinationTable(FullTableName tableName);
+        public IEngineTable? GetEngineTable(FullTableName tableName);
 
         public DynamicCSVTable GetSysTables();
 

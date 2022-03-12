@@ -270,7 +270,7 @@ namespace JankSQL.Engines
         }
 
 
-        public IEngineSource? GetSourceTable(FullTableName tableName)
+        public IEngineTable? GetEngineTable(FullTableName tableName)
         {
             // get systables
             Engines.DynamicCSVTable sysTables = GetSysTables();
@@ -291,25 +291,7 @@ namespace JankSQL.Engines
             }
         }
 
-        public IEngineDestination? GetDestinationTable(FullTableName tableName)
-        {
-            Engines.DynamicCSVTable sysTables = GetSysTables();
 
-            // get the file name for our table
-            string? effectiveTableFileName = FileFromSysTables(sysTables, tableName.TableName);
-
-            if (effectiveTableFileName == null)
-            {
-                return null;
-            }
-            else
-            {
-                // found the source table, so load it
-                Engines.DynamicCSVTable table = new DynamicCSVTable(effectiveTableFileName, tableName.TableName, this);
-                table.Load();
-                return table;
-            }
-        }
     }
 }
 

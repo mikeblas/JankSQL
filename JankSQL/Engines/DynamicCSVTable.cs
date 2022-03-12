@@ -3,7 +3,7 @@
 namespace JankSQL.Engines
 {
     // represents a table in a CSV engine
-    public class DynamicCSVTable : IEngineSource, IEngineDestination
+    public class DynamicCSVTable : IEngineTable
     {
         private readonly string filename;
         private readonly string tableName;
