@@ -44,6 +44,7 @@ namespace JankSQL
     {
         FullTableName tableName;
         TSqlParser.Update_statementContext context;
+        PredicateContext? predicateContext;
 
         List<SetOperation> setList = new();
 
@@ -53,7 +54,7 @@ namespace JankSQL
             this.tableName = tableName;
         }
 
-        internal PredicateContext? PredicateContext { get; set; }
+        internal PredicateContext PredicateContext { get { return predicateContext!; } set { predicateContext = value;  } }
 
         internal FullTableName TableName { get { return tableName; } }
 

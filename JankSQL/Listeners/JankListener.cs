@@ -70,6 +70,12 @@ namespace JankSQL
         {
             base.ExitSelect_list(context);
 
+            if (selectContext == null)
+                throw new InternalErrorException("Expected a SelectContext");
+            if (selectContext.SelectListContext == null)
+                throw new InternalErrorException("Expected a SelectListContext");
+
+
             List<List<Expression>> xList = new();
             foreach (var elem in context.select_list_elem())
             {

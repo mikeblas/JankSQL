@@ -12,7 +12,7 @@ namespace JankSQL
             this.TableName = tableName;
         }
 
-        internal List<FullColumnName>? TargetColumns { get { return targetColumns; } set { targetColumns = value; } }
+        internal List<FullColumnName> TargetColumns { get { return targetColumns!; } set { targetColumns = value; } }
 
         internal List<List<Expression>>? constructors = null;
         
@@ -65,7 +65,7 @@ namespace JankSQL
                     throw new ExecutionException($"Expected {table.ColumnCount} columns, got {constructors[0].Count}");
                 }
 
-                ConstantRowSource source = new ConstantRowSource(targetColumns, constructors);
+                ConstantRowSource source = new ConstantRowSource(TargetColumns, constructors);
                 Insert inserter = new Insert(table, source);
 
                 ResultSet? resultSet = null;

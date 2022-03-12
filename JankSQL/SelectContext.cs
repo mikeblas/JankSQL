@@ -36,10 +36,13 @@ namespace JankSQL
             selectList.AddSelectListExpressionList(expression);
         }
 
-        internal SelectListContext? SelectListContext { get { return selectList; } set { selectList = value; } }
+        internal SelectListContext SelectListContext { get { return selectList!; } set { selectList = value; } }
 
         public ExecuteResult Execute()
         {
+            if (selectList == null)
+                throw new InternalErrorException("Expected a SelectList");
+
             ExecuteResult results = new ExecuteResult();
 
             var expressions = statementContext.query_expression();

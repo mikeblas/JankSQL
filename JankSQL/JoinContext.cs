@@ -14,6 +14,7 @@ namespace JankSQL
     {
         string tableName;
         JoinType joinType;
+        List<Expression>? predicateExpressions;
 
         internal JoinContext(JoinType joinType, string tableName)
         {
@@ -23,7 +24,7 @@ namespace JankSQL
 
         internal string OtherTableName { get { return tableName; } }
 
-        internal List<Expression>? PredicateExpressions { get; set; }
+        internal List<Expression> PredicateExpressions { get { return predicateExpressions!; } set { predicateExpressions = value; } }
 
         internal JoinType JoinType { get { return joinType; } }
 
