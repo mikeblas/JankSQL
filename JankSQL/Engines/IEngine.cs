@@ -10,8 +10,8 @@ namespace JankSQL.Engines
 
         public IEngineTable? GetEngineTable(FullTableName tableName);
 
-        public DynamicCSVTable GetSysTables();
+        public IEngineTable GetSysTables();
 
-        public DynamicCSVTable GetSysColumns();
+        public IEngineTable GetSysColumns();
     }
 }

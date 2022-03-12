@@ -142,7 +142,7 @@ namespace JankSQL.Engines
             string fileName = tableName.TableName.Replace("[", "").Replace("]", "") + ".csv";
 
             // see if table doesn't exist
-            DynamicCSVTable sysTables = GetSysTables();
+            IEngineTable sysTables = GetSysTables();
 
             string? foundFileName = FileFromSysTables(sysTables, tableName.TableName);
             if (foundFileName != null)
@@ -176,7 +176,7 @@ namespace JankSQL.Engines
             sysTables.InsertRow(newRow);
 
             // add rows to sys_columns
-            DynamicCSVTable sysColumns = GetSysColumns();
+            IEngineTable sysColumns = GetSysColumns();
 
             int idxColumnName = sysColumns.ColumnIndex("column_name");
             int idxIdx = sysColumns.ColumnIndex("index");
@@ -196,16 +196,16 @@ namespace JankSQL.Engines
             }
         }
 
-        public DynamicCSVTable GetSysTables()
+        public IEngineTable GetSysTables()
         {
-            Engines.DynamicCSVTable sysTables = new Engines.DynamicCSVTable(sysTablesPath, "sys_tables", this);
+            DynamicCSVTable sysTables = new DynamicCSVTable(sysTablesPath, "sys_tables", this);
             sysTables.Load();
             return sysTables;
         }
 
-        public DynamicCSVTable GetSysColumns()
+        public IEngineTable GetSysColumns()
         {
-            Engines.DynamicCSVTable sysColumns = new Engines.DynamicCSVTable(sysColumnsPath, "sys_columns", this);
+            DynamicCSVTable sysColumns = new DynamicCSVTable(sysColumnsPath, "sys_columns", this);
             sysColumns.Load();
             return sysColumns;
         }
@@ -213,16 +213,16 @@ namespace JankSQL.Engines
         public void DropTable(FullTableName tableName)
         {
             // delete the file
-            Engines.DynamicCSVTable sysTables = GetSysTables();
+            IEngineTable sysTables = GetSysTables();
 
-            string? fileName = Engines.DynamicCSVEngine.FileFromSysTables(sysTables, tableName.TableName);
+            string? fileName = DynamicCSVEngine.FileFromSysTables(sysTables, tableName.TableName);
             if (fileName == null)
                 throw new ExecutionException($"Table {tableName} does not exist");
 
             File.Delete(fileName);
 
             // remove entries from sys_columns
-            Engines.DynamicCSVTable sysColumns = GetSysColumns();
+            IEngineTable sysColumns = GetSysColumns();
             int tableNameIndex = sysColumns.ColumnIndex("table_name");
 
             List<int> rowIndexesToDelete = new();
@@ -248,7 +248,7 @@ namespace JankSQL.Engines
             sysTables.DeleteRows(rowIndexesToDelete);
         }
 
-        static public string? FileFromSysTables(Engines.DynamicCSVTable sysTables, string effectiveTableName)
+        static public string? FileFromSysTables(IEngineTable sysTables, string effectiveTableName)
         {
             // is this source table in there?
             int idxName = sysTables.ColumnIndex("table_name");
@@ -273,7 +273,7 @@ namespace JankSQL.Engines
         public IEngineTable? GetEngineTable(FullTableName tableName)
         {
             // get systables
-            Engines.DynamicCSVTable sysTables = GetSysTables();
+            IEngineTable sysTables = GetSysTables();
 
             // get the file name for our table
             string? effectiveTableFileName = FileFromSysTables(sysTables, tableName.TableName);
@@ -285,7 +285,7 @@ namespace JankSQL.Engines
             else
             {
                 // found the source table, so load it
-                Engines.DynamicCSVTable table = new DynamicCSVTable(effectiveTableFileName, tableName.TableName, this);
+                DynamicCSVTable table = new DynamicCSVTable(effectiveTableFileName, tableName.TableName, this);
                 table.Load();
                 return table;
             }

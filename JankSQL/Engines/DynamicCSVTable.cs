@@ -52,7 +52,7 @@ namespace JankSQL.Engines
             else
             {
 
-                DynamicCSVTable sysColumns = engine.GetSysColumns();
+                IEngineTable sysColumns = engine.GetSysColumns();
 
                 // table_name,column_name,column_type,index
                 int tableNameIndex = sysColumns.ColumnIndex("table_name");
