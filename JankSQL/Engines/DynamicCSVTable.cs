@@ -92,7 +92,12 @@ namespace JankSQL.Engines
 
         public void Load()
         {
+            // ReadLines returns an iterator, which is disposable, but doesn't
+            // explicitly implement IDispoasable so a direct "using' wont work to dispose the file handle
+            // if the file isn't read until the end -- which it might not be, in the case of an exception.
             var lines = File.ReadLines(filename);
+            using IDisposable disposable = (IDisposable)lines;
+
             int lineNumber = 0;
 
             columnTypes = GetColumnTypes(FullTableName.FromTableName(tableName));
@@ -179,7 +184,7 @@ namespace JankSQL.Engines
         public void TruncateTable()
         {
             // get the first line of the file
-            var fileStream = new FileStream(filename, FileMode.Open);
+            using var fileStream = new FileStream(filename, FileMode.Open);
             string? firstLine;
             using (var reader = new StreamReader(fileStream))
             {
@@ -237,7 +242,11 @@ namespace JankSQL.Engines
             File.Delete(newFileName);
             File.Move(filename, newFileName);
 
+            // ReadLines returns an iterator, which is disposable, but doesn't
+            // explicitly implement IDispoasable so a direct "using' wont work to dispose the file handle
+            // if the file isn't read until the end -- which it might not be, in the case of an exception.
             var lines = File.ReadLines(newFileName);
+            using IDisposable disposable = (IDisposable)lines;
             int lineNumber = 0;
 
             using StreamWriter writer = new(filename);
