@@ -10,7 +10,7 @@ namespace Tests
         [TestInitialize]
         public void ClassInitialize()
         {
-            mode = 2;
+            mode = "BTree";
         }
 
     }

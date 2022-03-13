@@ -27,7 +27,6 @@ namespace JankSQL
     {
         static void Main(string[] args)
         {
-            Engines.DynamicCSVEngine engine = Engines.DynamicCSVEngine.OpenAlways("F:\\JankTests\\Test33");
 
             // ExecutionContext ecFile = Parser.ParseSQLFileFromFileName("t5.sql");
 
@@ -81,12 +80,18 @@ namespace JankSQL
             // str = "SELECT POWER((10/2), 15/5) FROM [mytable];";
 
 
+            // Engines.DynamicCSVEngine engine = Engines.DynamicCSVEngine.OpenAlways("F:\\JankTests\\Test33");
+
+            string tempPath = System.IO.Path.GetTempPath();
+            tempPath = Path.Combine(tempPath, "XYZZY");
+            var engine = Engines.DynamicCSVEngine.OpenObliterate(tempPath);
+
             ExecutableBatch batch = Parser.ParseSQLFileFromString(str);
             if (batch.TotalErrors == 0)
             {
                 batch.Dump();
 
-                ExecuteResult[] sets = batch.Execute();
+                ExecuteResult[] sets = batch.Execute(engine);
                 for (int i = 0; i < sets.Length; i++)
                 {
                     Console.WriteLine($"ExecuteResult #{i} =====");
@@ -107,6 +112,7 @@ namespace JankSQL
                 Console.WriteLine("Errors!");
             }
 
+            Engines.DynamicCSVEngine.RemoveDatabase(tempPath);
         }
 
 

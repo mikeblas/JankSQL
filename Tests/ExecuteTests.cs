@@ -8,7 +8,7 @@ namespace Tests
 {
     public class ExecuteTests
     {
-        internal int mode = 0;
+        internal string mode = "base";
         internal Engines.IEngine? engine = null;
 
         [TestMethod, Timeout(1000)]

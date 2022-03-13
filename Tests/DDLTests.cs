@@ -63,7 +63,7 @@ namespace Tests
             Assert.IsNotNull(ec);
             Assert.AreEqual(0, ec.TotalErrors);
 
-            ExecuteResult[] results = ec.Execute();
+            ExecuteResult[] results = ec.ExecuteSingle();
             Assert.AreEqual(1, results.Length, "result count mismatch");
 
             Assert.AreEqual(ExecuteStatus.FAILED, results[0].ExecuteStatus);

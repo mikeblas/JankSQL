@@ -1,19 +1,19 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using JankSQL;
 using Engines = JankSQL.Engines;
 using System.IO;
+using System;
 
 namespace Tests
 {
     [TestClass]
-    public class ExecuteCSVTests : ExecuteTests
+    public class BareSelectCSVTests : BareSelectTests
     {
         [TestInitialize]
         public void ClassInitialize()
         {
             mode = "CSV";
-
+            Console.WriteLine($"Test mode is {mode}");
 
             string tempPath = Path.GetTempPath();
             tempPath = Path.Combine(tempPath, "XYZZY");

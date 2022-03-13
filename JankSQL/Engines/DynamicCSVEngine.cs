@@ -2,14 +2,14 @@
 namespace JankSQL.Engines
 {
 
-    internal enum OpenPolicy
+    public enum OpenPolicy
     {
         ExistingOnly,   // fail if not found
         Always,         // always open -- create if not there
         Obliterate,     // erase if exists
     }
 
-    internal class DynamicCSVEngine : IEngine
+    public class DynamicCSVEngine : IEngine
     {
         readonly string basePath;
         readonly string sysTablesPath;

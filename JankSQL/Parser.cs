@@ -55,7 +55,42 @@ namespace JankSQL
         /// </summary>
         /// <returns>array of ExecuteResults object</returns>
         /// <exception cref="InvalidOperationException">If never successfully pasred</exception>
-        public ExecuteResult[] Execute(/* Engines.IEngine engine */)
+        public ExecuteResult[] Execute(Engines.IEngine engine)
+        {
+            if (executionContext is null)
+                throw new InvalidOperationException("No valid execution context");
+            results = executionContext.Execute(engine);
+            return results;
+        }
+
+        /// <summary>
+        /// Executes a single batch and returns a single ExecuteResult object with the results of the batch.
+        /// </summary>
+        /// <returns>ExecuteResults object with the results of execution</returns>
+        /// <exception cref="InvalidOperationException">If never parsed</exception>
+        public ExecuteResult ExecuteSingle(Engines.IEngine engine)
+        {
+            if (executionContext is null)
+                throw new InvalidOperationException("No valid execution context");
+            results = executionContext.Execute(engine);
+            return results[0];
+        }
+
+        // remove these
+        [Obsolete("ExecuteSingle() is obsolete; Work towards invoking a specific engine.")]
+        public ExecuteResult ExecuteSingle()
+        {
+            if (executionContext is null)
+                throw new InvalidOperationException("No valid execution context");
+
+            Engines.IEngine engine2 = Engines.DynamicCSVEngine.OpenExistingOnly("F:\\JankTests\\Progress");
+            results = executionContext.Execute(engine2);
+            return results[0];
+        }
+
+
+        [Obsolete("Execute() is obsolete; work towards invoking a specific engine.")]
+        public ExecuteResult[] Execute()
         {
             if (executionContext is null)
                 throw new InvalidOperationException("No valid execution context");
@@ -65,20 +100,6 @@ namespace JankSQL
             return results;
         }
 
-        /// <summary>
-        /// Executes a single batch and returns a single ExecuteResult object with the results of the batch.
-        /// </summary>
-        /// <returns>ExecuteResults object with the results of execution</returns>
-        /// <exception cref="InvalidOperationException">If never parsed</exception>
-        public ExecuteResult ExecuteSingle(/* Engines.IEngine engine */)
-        {
-            if (executionContext is null)
-                throw new InvalidOperationException("No valid execution context");
-
-            Engines.IEngine engine2 = Engines.DynamicCSVEngine.OpenExistingOnly("F:\\JankTests\\Progress");
-            results = executionContext.Execute(engine2);
-            return results[0];
-        }
     }
 
 
