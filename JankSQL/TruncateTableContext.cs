@@ -16,7 +16,7 @@ namespace JankSQL
             ExecuteResult result = new ExecuteResult();
 
 
-            Engines.IEngineSource? engineSource = engine.GetSourceTable(tableName);
+            Engines.IEngineTable? engineSource = engine.GetEngineTable(tableName);
             if (engineSource == null)
             {
                 result.ExecuteStatus = ExecuteStatus.FAILED;

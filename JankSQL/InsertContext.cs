@@ -41,10 +41,9 @@ namespace JankSQL
 
             ExecuteResult results = new ExecuteResult();
 
-            Engines.IEngineDestination? engineDestination = engine.GetDestinationTable(TableName);
-            Engines.IEngineSource? engineSource = engine.GetSourceTable(TableName);
+            Engines.IEngineTable? engineSource = engine.GetEngineTable(TableName);
 
-            if (engineDestination == null || engineSource == null)
+            if (engineSource == null)
             {
                 throw new ExecutionException($"Table {TableName} does not exist");
             }
@@ -56,7 +55,7 @@ namespace JankSQL
                 }
 
                 ConstantRowSource source = new ConstantRowSource(TargetColumns, constructors);
-                Insert inserter = new Insert(engineDestination, source);
+                Insert inserter = new Insert(engineSource, source);
 
                 ResultSet? resultSet = null;
 

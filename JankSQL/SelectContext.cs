@@ -63,7 +63,7 @@ namespace JankSQL
                 FullTableName sourceTableName = FullTableName.FromTableNameContext(querySpecs.table_sources().table_source().First().table_source_item_joined().table_source_item().table_name_with_hint().table_name());
                 Console.WriteLine($"ExitSelect_Statement: {sourceTableName}");
 
-                Engines.IEngineSource? engineSource = engine.GetSourceTable(sourceTableName);
+                Engines.IEngineTable? engineSource = engine.GetEngineTable(sourceTableName);
                 if (engineSource == null)
                 {
                     throw new ExecutionException($"Table {sourceTableName} does not exist");
@@ -78,7 +78,7 @@ namespace JankSQL
                     foreach (var j in joinContexts)
                     {
                         // find the other table
-                        Engines.IEngineSource? otherTableSource = engine.GetSourceTable(j.OtherTableName);
+                        Engines.IEngineTable? otherTableSource = engine.GetEngineTable(j.OtherTableName);
                         if (otherTableSource == null)
                         {
                             throw new ExecutionException($"Joined table {j.OtherTableName} does not exist");

@@ -4,14 +4,14 @@ namespace JankSQL
     internal class Delete : IComponentOutput
     {
         IComponentOutput myInput;
-        Engines.IEngineDestination engineDestination;
+        Engines.IEngineTable engineSource;
         List<Expression> predicateExpressions;
         List<int> bookmarksToDelete = new();
 
-        internal Delete(Engines.IEngineDestination targetTable, IComponentOutput input, List<Expression> predicateExpressions)
+        internal Delete(Engines.IEngineTable targetTable, IComponentOutput input, List<Expression> predicateExpressions)
         {
             myInput = input;
-            engineDestination = targetTable;
+            engineSource = targetTable;
             this.predicateExpressions = predicateExpressions;
         }
 
@@ -21,7 +21,7 @@ namespace JankSQL
             if (batch == null)
             {
                 // last one was received, so let's delete now
-                engineDestination.DeleteRows(bookmarksToDelete);
+                engineSource.DeleteRows(bookmarksToDelete);
                 return null;
             }
 

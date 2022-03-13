@@ -4,13 +4,13 @@ namespace JankSQL
     internal class Insert : IComponentOutput
     {
         IComponentOutput myInput;
-        Engines.IEngineDestination engineDestination;
+        Engines.IEngineTable engineTable;
         
 
-        internal Insert(Engines.IEngineDestination dest, IComponentOutput input)
+        internal Insert(Engines.IEngineTable destTable, IComponentOutput input)
         {
             myInput = input;
-            engineDestination = dest;
+            engineTable = destTable;
         }
 
         public ResultSet? GetRows(int max)
@@ -22,7 +22,7 @@ namespace JankSQL
             for (int i = 0; i < rsInput.RowCount; i++)
             {
                 ExpressionOperand[] row = rsInput.Row(i);
-                engineDestination.InsertRow(row);
+                engineTable.InsertRow(row);
             }
 
             return rsInput;

@@ -5,16 +5,16 @@ namespace JankSQL
     internal class Update : IComponentOutput
     {
         IComponentOutput myInput;
-        Engines.IEngineDestination engineDestination;
+        Engines.IEngineTable engineTable;
         List<Expression> predicateExpressions;
         List<int> bookmarksToDelete = new();
         List<ExpressionOperand[]> rowsToInsert = new();
         List<SetOperation> setList;
 
-        internal Update(Engines.IEngineDestination targetTable, IComponentOutput input, List<Expression> predicateExpressions, List<SetOperation> setList)
+        internal Update(Engines.IEngineTable targetTable, IComponentOutput input, List<Expression> predicateExpressions, List<SetOperation> setList)
         {
             myInput = input;
-            engineDestination = targetTable;
+            this.engineTable = targetTable;
             this.predicateExpressions = predicateExpressions;
             this.setList = setList;
         }
@@ -85,12 +85,12 @@ namespace JankSQL
         void DoUpdateWork()
         {
             // first, delete everything we want
-            engineDestination.DeleteRows(bookmarksToDelete);
+            engineTable.DeleteRows(bookmarksToDelete);
 
             // then, insert the modified rows
             foreach (var row in rowsToInsert)
             {
-                engineDestination.InsertRow(row);
+                engineTable.InsertRow(row);
             }
         }
     }

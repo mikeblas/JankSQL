@@ -140,6 +140,7 @@ namespace JankSQL.Engines
         {
             // guess file name
             string fileName = tableName.TableName.Replace("[", "").Replace("]", "") + ".csv";
+            string fullPath = Path.Combine(basePath, fileName);
 
             // see if table doesn't exist
             IEngineTable sysTables = GetSysTables();
@@ -150,27 +151,27 @@ namespace JankSQL.Engines
                 throw new ExecutionException($"Table named {tableName} already exists");
             }
 
-            //make sure file doesn't exist, too
+            // make sure file doesn't exist, too
             int idxFile = sysTables.ColumnIndex("file_name");
             int idxName = sysTables.ColumnIndex("table_name");
             for (int i = 0; i < sysTables.RowCount; i++)
             {
-                if (sysTables.Row(i)[idxFile].AsString().Equals(fileName, StringComparison.InvariantCultureIgnoreCase))
+                if (sysTables.Row(i)[idxFile].AsString().Equals(fullPath, StringComparison.InvariantCultureIgnoreCase))
                 {
                     string otherTableName = sysTables.Row(i)[idxName].AsString();
-                    throw new ExecutionException($"File name {fileName} already exists for table {otherTableName}");
+                    throw new ExecutionException($"File name {fullPath} already exists for table {otherTableName}");
                 }
             }
 
             // create file
             string types = String.Join(',', columnTypes);
-            using StreamWriter file = new(fileName);
+            using StreamWriter file = new(fullPath);
             file.WriteLine(types);
             file.Close();
 
             // add row to sys_tables
             ExpressionOperand[] newRow = new ExpressionOperand[2];
-            newRow[idxFile] = ExpressionOperand.NVARCHARFromString(fileName);
+            newRow[idxFile] = ExpressionOperand.NVARCHARFromString(fullPath);
             newRow[idxName] = ExpressionOperand.NVARCHARFromString(tableName.TableName);
 
             sysTables.InsertRow(newRow);

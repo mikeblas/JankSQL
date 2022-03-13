@@ -104,9 +104,8 @@ namespace JankSQL
         {
             ExecuteResult results = new ExecuteResult();
 
-            Engines.IEngineSource? engineSource = engine.GetSourceTable(tableName);
-            Engines.IEngineDestination? engineDestination = engine.GetDestinationTable(tableName);
-            if (engineSource == null || engineDestination == null)
+            Engines.IEngineTable? engineSource = engine.GetEngineTable(tableName);
+            if (engineSource == null)
             {
                 throw new ExecutionException($"Table {tableName} does not exist");
             }
@@ -114,7 +113,7 @@ namespace JankSQL
             {
                 // found the source table, so build ourselves up
                 TableSource source = new TableSource(engineSource);
-                Update update  = new Update(engineDestination, source, PredicateContext.PredicateExpressions, setList);
+                Update update  = new Update(engineSource, source, PredicateContext.PredicateExpressions, setList);
 
                 while (true)
                 {

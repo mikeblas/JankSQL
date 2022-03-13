@@ -34,10 +34,9 @@ namespace JankSQL
         {
             ExecuteResult results = new ExecuteResult();
 
-            Engines.IEngineSource? tableSource = engine.GetSourceTable(tableName);
-            Engines.IEngineDestination? tableDestination = engine.GetDestinationTable(tableName);
+            Engines.IEngineTable? tableSource = engine.GetEngineTable(tableName);
 
-            if (tableSource == null || tableDestination == null)
+            if (tableSource == null)
             {
                 throw new ExecutionException($"Table {tableName} does not exist");
             }
@@ -45,7 +44,7 @@ namespace JankSQL
             {
                 // found the source table, so load it
                 TableSource source = new TableSource(tableSource);
-                Delete delete = new Delete(tableDestination, source, PredicateContext.PredicateExpressions);
+                Delete delete = new Delete(tableSource, source, PredicateContext.PredicateExpressions);
 
                 while (true)
                 {

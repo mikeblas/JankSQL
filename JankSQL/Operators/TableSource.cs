@@ -4,10 +4,10 @@ namespace JankSQL
 
     internal class TableSource : IComponentOutput
     {
-        Engines.IEngineSource source;
+        Engines.IEngineTable source;
         int currentRow = 0;
 
-        internal TableSource(Engines.IEngineSource source)
+        internal TableSource(Engines.IEngineTable source)
         {
             this.source = source;
         }
