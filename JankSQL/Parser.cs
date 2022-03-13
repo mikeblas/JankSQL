@@ -55,13 +55,13 @@ namespace JankSQL
         /// </summary>
         /// <returns>array of ExecuteResults object</returns>
         /// <exception cref="InvalidOperationException">If never successfully pasred</exception>
-        public ExecuteResult[] Execute()
+        public ExecuteResult[] Execute(/* Engines.IEngine engine */)
         {
             if (executionContext is null)
                 throw new InvalidOperationException("No valid execution context");
 
-            Engines.IEngine engine = Engines.DynamicCSVEngine.OpenExistingOnly("F:\\JankTests\\Progress");
-            results = executionContext.Execute(engine);
+            Engines.IEngine engine2 = Engines.DynamicCSVEngine.OpenExistingOnly("F:\\JankTests\\Progress");
+            results = executionContext.Execute(engine2);
             return results;
         }
 
@@ -70,13 +70,13 @@ namespace JankSQL
         /// </summary>
         /// <returns>ExecuteResults object with the results of execution</returns>
         /// <exception cref="InvalidOperationException">If never parsed</exception>
-        public ExecuteResult ExecuteSingle()
+        public ExecuteResult ExecuteSingle(/* Engines.IEngine engine */)
         {
             if (executionContext is null)
                 throw new InvalidOperationException("No valid execution context");
 
-            Engines.IEngine engine = Engines.DynamicCSVEngine.OpenExistingOnly("F:\\JankTests\\Progress");
-            results = executionContext.Execute(engine);
+            Engines.IEngine engine2 = Engines.DynamicCSVEngine.OpenExistingOnly("F:\\JankTests\\Progress");
+            results = executionContext.Execute(engine2);
             return results[0];
         }
     }
