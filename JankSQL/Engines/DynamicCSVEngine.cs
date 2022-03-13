@@ -91,7 +91,7 @@ namespace JankSQL.Engines
             CreateSystemCatalog(basePath);
         }
 
-        static void RemoveDatabase(string basePath)
+        public static void RemoveDatabase(string basePath)
         {
             try
             {
@@ -123,7 +123,7 @@ namespace JankSQL.Engines
 
             string[] sysColsStrings = new string[] {
                 "table_name,column_name,column_type,index",
-                "sys_tables, table_name, NVARCHAR,0",
+                "sys_tables, table_name,NVARCHAR,0",
                 "sys_tables,file_name,NVARCHAR,1",
                 "sys_columns,table_name,NVARCHAR,0",
                 "sys_columns,column_name,NVARCHAR,1",
