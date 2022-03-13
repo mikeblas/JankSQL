@@ -1,19 +1,15 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using JankSQL;
-
+using Engines = JankSQL.Engines;
+using System;
 
 namespace Tests
 {
-    [TestClass]
     public class ExecuteTests
     {
-        [AssemblyInitialize]
-        public static void AssemblyInit(TestContext context)
-        {
-            System.Environment.CurrentDirectory = @"C:\Projects\JankSQL";
-        }
-
+        internal int mode = 0;
+        internal Engines.IEngine? engine = null;
 
         [TestMethod, Timeout(1000)]
         public void TestSelectExpressionPowerExpressionParams()
@@ -90,6 +86,8 @@ namespace Tests
         [TestMethod, Timeout(1000)]
         public void TestCompoundSelectList()
         {
+            Console.WriteLine($"mode = {mode}");
+
             var ec = Parser.ParseSQLFileFromString("SELECT [city_name], [population]*2, [population] FROM [mytable];");
 
             ExecuteResult result = ec.ExecuteSingle();
