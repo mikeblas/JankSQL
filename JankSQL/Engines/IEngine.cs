@@ -13,5 +13,7 @@ namespace JankSQL.Engines
         public IEngineTable GetSysTables();
 
         public IEngineTable GetSysColumns();
+
+        public void InjectTestTable(TestTable testTable);
     }
 }

@@ -30,6 +30,35 @@
             return new ExpressionOperandInteger(n);
         }
 
+        internal static ExpressionOperand FromObjectAndType(object o, ExpressionOperandType opType)
+        {
+            Console.WriteLine($"{o.GetType()}");
+
+            if (o.GetType() == typeof(Int32))
+            {
+                if (opType == ExpressionOperandType.INTEGER)
+                    return IntegerFromInt((int)o);
+                else if (opType == ExpressionOperandType.DECIMAL)
+                    return DecimalFromDouble((double)(int)o);
+            }
+            else if (o.GetType() == typeof(string))
+            {
+                if (opType == ExpressionOperandType.VARCHAR)
+                    return VARCHARFromString((string)o);
+                else if (opType == ExpressionOperandType.NVARCHAR)
+                    return NVARCHARFromString((string)o);
+            }
+            else if (o.GetType() == typeof(double))
+            {
+                if (opType == ExpressionOperandType.INTEGER)
+                    return DecimalFromDouble((double)(int)o);
+                else if (opType == ExpressionOperandType.DECIMAL)
+                    return DecimalFromDouble((double)o);
+            }
+
+            throw new ArgumentException($"Can't make ExpressionOperand of {opType} out of {o.GetType()}");
+        }
+
 
         private static string NormalizeString(string str)
         {

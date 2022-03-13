@@ -5,6 +5,7 @@ using JankSQL;
 namespace Tests
 {
     [TestClass]
+    [Ignore]
     public class ExecuteBTreeTests : ExecuteTests
     {
         [TestInitialize]

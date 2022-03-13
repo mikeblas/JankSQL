@@ -127,8 +127,8 @@ namespace JankSQL.Engines
                 "sys_tables,file_name,NVARCHAR,1",
                 "sys_columns,table_name,NVARCHAR,0",
                 "sys_columns,column_name,NVARCHAR,1",
-                "sys_coluns,column_type,NVARCHAR,2",
-                "sys_colmns,index,INTEGER,3"
+                "sys_columns,column_type,NVARCHAR,2",
+                "sys_columns,index,INTEGER,3"
             };
 
             File.WriteAllLines(sysTablesPath, sysTablesStrings);
@@ -164,9 +164,11 @@ namespace JankSQL.Engines
             }
 
             // create file
-            string types = String.Join(',', columnTypes);
             using StreamWriter file = new(fullPath);
-            file.WriteLine(types);
+            string types = String.Join(',', columnTypes);
+            string names = String.Join(',', columnNames.Select(c => c.ColumnNameOnly()).ToArray());
+            // file.WriteLine(types);
+            file.WriteLine(names);
             file.Close();
 
             // add row to sys_tables
@@ -292,7 +294,30 @@ namespace JankSQL.Engines
             }
         }
 
+        public void InjectTestTable(TestTable testTable)
+        {
+            // create the table ...
+            CreateTable(testTable.TableName, testTable.ColumnNames, testTable.ColumnTypes);
 
+            // then insert each of the given rows
+            // get the file name for our table
+            IEngineTable sysTables = GetSysTables();
+            string? effectiveTableFileName = FileFromSysTables(sysTables, testTable.TableName.TableName);
+            if (effectiveTableFileName == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+
+            DynamicCSVTable table = new DynamicCSVTable(effectiveTableFileName, testTable.TableName.TableName, this);
+            table.Load();
+
+            foreach(var row in testTable.Rows)
+            {
+                table.InsertRow(row);
+            }
+
+        }
     }
 }
 
