@@ -1,13 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using JankSQL;
 using Engines = JankSQL.Engines;
 using System.IO;
 
 namespace Tests
 {
     [TestClass]
-    public class ExecuteCSVTests : ExecuteTests
+    public class ExecuteWhereCSVTests : ExecuteWhereTests
     {
         [TestInitialize]
         public void ClassInitialize()
