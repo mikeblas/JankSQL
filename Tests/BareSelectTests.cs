@@ -399,7 +399,7 @@ namespace Tests
         {
             var ec = Parser.ParseSQLFileFromString("SELECT POWER(9, 3) * 2;");
 
-            ExecuteResult result = ec.ExecuteSingle();
+            ExecuteResult result = ec.ExecuteSingle(engine);
             Assert.IsNotNull(result.ResultSet);
             result.ResultSet.Dump();
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");

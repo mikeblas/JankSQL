@@ -203,7 +203,7 @@ namespace Tests
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 'This'; SELECT 'That';");
 
-            ExecuteResult[] results = ec.Execute();
+            ExecuteResult[] results = ec.Execute(engine);
             Assert.IsNotNull(results);
             Assert.AreEqual(2, results.Length, "expected two results");
             for (int i = 0; i < results.Length; i++)
@@ -222,7 +222,7 @@ namespace Tests
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] > POWER(2500, 2);");
 
-            ExecuteResult result = ec.ExecuteSingle();
+            ExecuteResult result = ec.ExecuteSingle(engine);
             Assert.IsNotNull(result.ResultSet);
             result.ResultSet.Dump();
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");

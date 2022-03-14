@@ -1,12 +1,15 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using JankSQL;
+using Engines = JankSQL.Engines;
 
 namespace Tests
 {
-    [TestClass]
     public class DDLTests
     {
+        internal string mode = "base";
+        internal Engines.IEngine engine;
+
         [TestMethod]
         public void TestCreateInsertTruncateDropTable()
         {
@@ -16,7 +19,7 @@ namespace Tests
             Assert.IsNotNull(ecCreate);
             Assert.AreEqual(0, ecCreate.TotalErrors);
 
-            ExecuteResult resultsCreate = ecCreate.ExecuteSingle();
+            ExecuteResult resultsCreate = ecCreate.ExecuteSingle(engine);
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsCreate.ExecuteStatus);
             Assert.IsNull(resultsCreate.ResultSet);
 
@@ -26,7 +29,7 @@ namespace Tests
             Assert.IsNotNull(ecInsert);
             Assert.AreEqual(0, ecInsert.TotalErrors);
 
-            ExecuteResult resultsInsert = ecInsert.ExecuteSingle();
+            ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsInsert.ExecuteStatus);
             Assert.IsNotNull(resultsInsert.ResultSet);
 
@@ -36,7 +39,7 @@ namespace Tests
             Assert.IsNotNull(ec);
             Assert.AreEqual(0, ec.TotalErrors);
 
-            ExecuteResult results = ec.ExecuteSingle();
+            ExecuteResult results = ec.ExecuteSingle(engine);
 
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL, results.ExecuteStatus);
             Assert.IsNull(results.ResultSet);
@@ -48,7 +51,7 @@ namespace Tests
             Assert.IsNotNull(ecDrop);
             Assert.AreEqual(0, ecDrop.TotalErrors);
 
-            ExecuteResult resultsDrop = ecDrop.ExecuteSingle();
+            ExecuteResult resultsDrop = ecDrop.ExecuteSingle(engine);
 
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsDrop.ExecuteStatus);
             Assert.IsNull(resultsDrop.ResultSet);
@@ -63,7 +66,7 @@ namespace Tests
             Assert.IsNotNull(ec);
             Assert.AreEqual(0, ec.TotalErrors);
 
-            ExecuteResult[] results = ec.Execute();
+            ExecuteResult[] results = ec.Execute(engine);
             Assert.AreEqual(1, results.Length, "result count mismatch");
 
             Assert.AreEqual(ExecuteStatus.FAILED, results[0].ExecuteStatus);
@@ -81,7 +84,7 @@ namespace Tests
             Assert.IsNotNull(ec);
             Assert.AreEqual(0, ec.TotalErrors);
 
-            ExecuteResult results = ec.ExecuteSingle();
+            ExecuteResult results = ec.ExecuteSingle(engine);
 
             Assert.AreEqual(ExecuteStatus.FAILED, results.ExecuteStatus);
             Assert.IsNotNull(results.ErrorMessage);
@@ -98,23 +101,20 @@ namespace Tests
             Assert.IsNotNull(ecCreate);
             Assert.AreEqual(0, ecCreate.TotalErrors);
 
-            ExecuteResult resultsCreate = ecCreate.ExecuteSingle();
+            ExecuteResult resultsCreate = ecCreate.ExecuteSingle(engine);
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsCreate.ExecuteStatus);
             Assert.IsNull(resultsCreate.ResultSet);
-
 
             var ecDrop = Parser.ParseSQLFileFromString("DROP TABLE TransientTestTable;");
 
             Assert.IsNotNull(ecDrop);
             Assert.AreEqual(0, ecDrop.TotalErrors);
 
-            ExecuteResult resultsDrop = ecDrop.ExecuteSingle();
+            ExecuteResult resultsDrop = ecDrop.ExecuteSingle(engine);
 
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsDrop.ExecuteStatus);
             Assert.IsNull(resultsDrop.ResultSet);
         }
-
     }
 }
-
 

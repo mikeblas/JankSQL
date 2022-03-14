@@ -19,7 +19,7 @@ namespace Tests
             tempPath = Path.Combine(tempPath, "XYZZY");
             engine = Engines.DynamicCSVEngine.OpenObliterate(tempPath);
 
-            TestHelpers.InjectMyTable(engine);
+            TestHelpers.InjectTableMyTable(engine);
         }
     }
 }
