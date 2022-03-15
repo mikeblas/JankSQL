@@ -32,8 +32,6 @@
 
         internal static ExpressionOperand FromObjectAndType(object o, ExpressionOperandType opType)
         {
-            Console.WriteLine($"{o.GetType()}");
-
             if (o.GetType() == typeof(Int32))
             {
                 if (opType == ExpressionOperandType.INTEGER)
