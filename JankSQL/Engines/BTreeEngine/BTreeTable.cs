@@ -68,7 +68,13 @@ namespace JankSQL.Engines
         {
             get
             {
-                return treeEnumerator.Current.Value;
+                ExpressionOperand[] result = new ExpressionOperand[treeEnumerator.Current.Value.Length + 1];
+
+                for (int i = 0; i < treeEnumerator.Current.Value.Length; i++)
+                    result[i] = treeEnumerator.Current.Value[i];
+
+                result[treeEnumerator.Current.Value.Length] = new ExpressionOperandBookmark(treeEnumerator.Current.Key);
+                return result;
             }
         }
 
@@ -104,25 +110,35 @@ namespace JankSQL.Engines
         ExpressionOperandType[] keyTypes;
         ExpressionOperandType[] valueTypes;
         int nextBookmark = 1;
+        string tableName;
 
         BPlusTree<ExpressionOperand[], ExpressionOperand[]> myTree;
 
-        internal BTreeTable(ExpressionOperandType[] keyTypes, List<FullColumnName> keyNames, ExpressionOperandType[] valueTypes, List<FullColumnName> valueNames)
+        internal BTreeTable(string tableName, ExpressionOperandType[] keyTypes, List<FullColumnName> keyNames, ExpressionOperandType[] valueTypes, List<FullColumnName> valueNames)
         {
             myTree = new BPlusTree<ExpressionOperand[], ExpressionOperand[]>(new IExpressionOperandComparer());
 
-            keyColumnNames = keyNames;
-            valueColumnNames = valueNames;
-
             this.keyTypes = keyTypes;
             this.valueTypes = valueTypes;
+            this.tableName = tableName;
+
+            keyColumnNames = new();
+            valueColumnNames = new();
 
             columnNameIndexes = new Dictionary<FullColumnName, int>();
             int n = 0;
-            for (int i = 0; i < keyColumnNames.Count; i++)
-                columnNameIndexes.Add(keyColumnNames[i], n++);
-            for (int i = 0; i < valueColumnNames.Count; i++)
-                columnNameIndexes.Add(valueColumnNames[i], n++);
+            for (int i = 0; i < valueNames.Count; i++)
+            {
+                FullColumnName fcn = FullColumnName.FromTableColumnName(tableName, valueNames[i].ColumnNameOnly());
+                valueColumnNames.Add(fcn);
+                columnNameIndexes.Add(fcn, n++);
+            }
+            for (int i = 0; i < keyNames.Count; i++)
+            {
+                FullColumnName fcn = FullColumnName.FromTableColumnName(tableName, keyNames[i].ColumnNameOnly());
+                keyColumnNames.Add(fcn);
+                columnNameIndexes.Add(fcn, n++);
+            }
         }
 
         public int ColumnCount => keyColumnNames.Count + valueColumnNames.Count;
@@ -140,11 +156,11 @@ namespace JankSQL.Engines
 
         public FullColumnName ColumnName(int n)
         {
-            if (n < keyColumnNames.Count)
-                return keyColumnNames[n];
+            if (n < valueColumnNames.Count)
+                return valueColumnNames[n];
 
-            int m = n - keyColumnNames.Count;
-            return valueColumnNames[m];
+            int m = n - valueColumnNames.Count;
+            return keyColumnNames[m];
         }
 
         public int DeleteRows(List<int> rowIndexesToDelete)

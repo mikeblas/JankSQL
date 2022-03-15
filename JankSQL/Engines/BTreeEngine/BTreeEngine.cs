@@ -27,7 +27,7 @@ namespace JankSQL.Engines
                 throw new ArgumentException($"Must have at types for each column; got {columnNames.Count} names and {columnTypes.Count} types");
 
             // create the table
-            BTreeTable table = new BTreeTable(
+            BTreeTable table = new BTreeTable(tableName.TableName,
                 new ExpressionOperandType[] { ExpressionOperandType.INTEGER },
                 new FullColumnName[] { FullColumnName.FromColumnName("bookmark_key") }.ToList(),
                 columnTypes.ToArray(),
@@ -111,7 +111,7 @@ namespace JankSQL.Engines
             valueNames.Add(FullColumnName.FromColumnName("column_type"));
             valueNames.Add(FullColumnName.FromColumnName("index"));
 
-            BTreeTable table = new BTreeTable(keyTypes, keyNames, valueTypes, valueNames);
+            BTreeTable table = new BTreeTable("sys_columns", keyTypes, keyNames, valueTypes, valueNames);
             ExpressionOperand[] row;
 
             // --- columns for sys_tables
@@ -184,7 +184,7 @@ namespace JankSQL.Engines
             keyNames.Add(FullColumnName.FromColumnName("table_name"));
             valueNames.Add(FullColumnName.FromColumnName("file_name"));
 
-            BTreeTable table = new BTreeTable(keyTypes, keyNames, valueTypes, valueNames);
+            BTreeTable table = new BTreeTable("sys_tables", keyTypes, keyNames, valueTypes, valueNames);
 
             ExpressionOperand[] row;
 

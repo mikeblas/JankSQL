@@ -3,10 +3,12 @@ namespace JankSQL
 {
     public enum ExpressionOperandType
     {
+        BOOKMARK,
         VARCHAR,
         NVARCHAR,
         INTEGER,
         DECIMAL,
+        BOOLEAN,
     };
 
     public class ExpressionNode
@@ -29,6 +31,10 @@ namespace JankSQL
             else if (str.Equals("DECIMAL", StringComparison.OrdinalIgnoreCase))
             {
                 operandType = ExpressionOperandType.DECIMAL;
+            }
+            else if (str.Equals("BOOLEAN", StringComparison.OrdinalIgnoreCase))
+            {
+                operandType = ExpressionOperandType.BOOLEAN;
             }
             else
             {

@@ -51,7 +51,6 @@ namespace JankSQL.Engines
             }
             else
             {
-
                 IEngineTable sysColumns = engine.GetSysColumns();
 
                 // table_name,column_name,column_type,index
@@ -60,7 +59,6 @@ namespace JankSQL.Engines
                 int typeIndex = sysColumns.ColumnIndex("column_type");
                 int indexIndex = sysColumns.ColumnIndex("index");
                 int bookmarkKeyIndex = sysColumns.ColumnIndex("bookmark_key");
-
 
                 int matchCount = 0;
                 foreach (var row in sysColumns)

@@ -28,7 +28,7 @@ namespace JankSQL
         {
             engine.CreateTable(tableName, columnNames, columnTypes);
 
-            ExecuteResult ret = new ExecuteResult();
+            ExecuteResult ret = new();
             ret.ExecuteStatus = ExecuteStatus.SUCCESSFUL;
             return ret;
         }

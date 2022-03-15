@@ -3,7 +3,7 @@ namespace JankSQL
 {
     internal class DeleteContext : IExecutableContext
     {
-        FullTableName tableName;
+        readonly FullTableName tableName;
         PredicateContext? predicateContext;
 
         internal DeleteContext(FullTableName tableName)
@@ -43,7 +43,7 @@ namespace JankSQL
             else
             {
                 // found the source table, so load it
-                TableSource source = new TableSource(tableSource);
+                TableSource source = new(tableSource);
                 Delete delete = new Delete(tableSource, source, PredicateContext.PredicateExpressions);
 
                 while (true)

@@ -1,22 +1,22 @@
 ﻿namespace JankSQL
 {
-    internal class ExpressionOperandBoolean : ExpressionOperand
+    internal class ExpressionOperandBookmark : ExpressionOperand
     {
-        internal bool b;
-        internal ExpressionOperandBoolean(bool b)
-            : base(ExpressionOperandType.BOOLEAN)
+        ExpressionOperand[] tuple;
+        internal ExpressionOperandBookmark(ExpressionOperand[] tuple)
+            : base(ExpressionOperandType.NVARCHAR)
         {
-            this.b = b;
+            this.tuple = tuple;
         }
 
         public override object Clone()
         {
-            return new ExpressionOperandBoolean(b);
+            return new ExpressionOperandBookmark(tuple);
         }
 
         public override string ToString()
         {
-            return $"Boolean({b})";
+            return $"Bookmark({tuple})";
         }
 
         public override double AsDouble()
@@ -31,7 +31,7 @@
 
         public override bool IsTrue()
         {
-            return b;
+            throw new NotImplementedException();
         }
 
         public override int AsInteger()
@@ -73,22 +73,38 @@
             throw new NotImplementedException();
         }
 
-        public int CompareTo(ExpressionOperandBoolean? other)
+        public int CompareTo(ExpressionOperandBookmark? other)
         {
             if (other == null)
                 throw new ArgumentNullException("obj");
+            if (other.tuple.Length != tuple.Length)
+                throw new ArgumentException($"can't compare bookmarks of different lengths; this is {tuple.Length} other is {other.tuple.Length}");
 
-            int result = b.CompareTo(other.b);
-            return result;
+            int index = 0;
+            int ret = 0;
+            while (ret == 0 && index < tuple.Length)
+            {
+                ret = tuple[index].CompareTo(other.tuple[index]);
+            }
+            return ret;
         }
 
         public override int CompareTo(ExpressionOperand? other)
         {
             if (other == null)
                 throw new ArgumentNullException("other");
-            ExpressionOperandBoolean o = (ExpressionOperandBoolean)other;
-            int result = b.CompareTo(o.b);
-            return result;
+
+            ExpressionOperandBookmark o = (ExpressionOperandBookmark)other;
+            if (o.tuple.Length != tuple.Length)
+                throw new ArgumentException($"can't compare bookmarks of different lengths; this is {tuple.Length} other is {o.tuple.Length}");
+
+            int index = 0;
+            int ret = 0;
+            while (ret == 0 && index < tuple.Length)
+            {
+                ret = tuple[index].CompareTo(o.tuple[index]);
+            }
+            return ret;
         }
     }
 }
