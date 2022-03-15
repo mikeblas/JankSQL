@@ -49,7 +49,7 @@ namespace JankSQL
             }
             else
             {
-                if (engineSource.ColumnCount != constructors[0].Count)
+                if (engineSource.ColumnCount-1 != constructors[0].Count)
                 {
                     throw new ExecutionException($"Expected {engineSource.ColumnCount} columns, got {constructors[0].Count}");
                 }
