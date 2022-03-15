@@ -1,12 +1,19 @@
 ﻿namespace JankSQL
 {
-    internal class ExpressionOperandBookmark : ExpressionOperand
+    public class ExpressionOperandBookmark : ExpressionOperand
     {
         ExpressionOperand[] tuple;
         internal ExpressionOperandBookmark(ExpressionOperand[] tuple)
             : base(ExpressionOperandType.NVARCHAR)
         {
             this.tuple = tuple;
+        }
+
+        internal static ExpressionOperandBookmark FromInteger(int mark)
+        {
+            ExpressionOperand bmk = ExpressionOperand.IntegerFromInt(mark);
+            var ret = new ExpressionOperandBookmark(new ExpressionOperand[] { bmk });
+            return ret;
         }
 
         public override object Clone()
@@ -106,6 +113,8 @@
             }
             return ret;
         }
+
+        public ExpressionOperand[] Tuple => tuple;
     }
 }
 

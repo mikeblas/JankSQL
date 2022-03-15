@@ -6,7 +6,7 @@ namespace JankSQL
         IComponentOutput myInput;
         Engines.IEngineTable engineSource;
         List<Expression> predicateExpressions;
-        List<int> bookmarksToDelete = new();
+        List<ExpressionOperandBookmark> bookmarksToDelete = new();
 
         internal Delete(Engines.IEngineTable targetTable, IComponentOutput input, List<Expression> predicateExpressions)
         {
@@ -47,7 +47,8 @@ namespace JankSQL
                 // meets the predicate, so delete it
                 int bookmarkIndex = batch.ColumnIndex(FullColumnName.FromColumnName("bookmark_key"));
                 int bookmark = batch.Row(i)[bookmarkIndex].AsInteger();
-                bookmarksToDelete.Add(bookmark);
+
+                bookmarksToDelete.Add(ExpressionOperandBookmark.FromInteger(bookmark));
             }
 
             return rsOutput;

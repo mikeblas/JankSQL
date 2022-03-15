@@ -228,13 +228,15 @@ namespace JankSQL.Engines
             IEngineTable sysColumns = GetSysColumns();
             int tableNameIndex = sysColumns.ColumnIndex("table_name");
 
-            List<int> rowIndexesToDelete = new();
+            List<ExpressionOperandBookmark> rowIndexesToDelete = new();
+            int sysColsBookmarkIndex = sysColumns.ColumnIndex("bookmark_key");
 
             foreach (var row in sysColumns)
             {
                 if (row[tableNameIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    rowIndexesToDelete.Add(-1);
+                    int bookmark = row[sysColsBookmarkIndex].AsInteger();
+                    rowIndexesToDelete.Add(ExpressionOperandBookmark.FromInteger(bookmark));
                 }
             }
 
@@ -243,11 +245,15 @@ namespace JankSQL.Engines
             // remove from sys_tables
             rowIndexesToDelete = new();
             int idxName = sysTables.ColumnIndex("table_name");
+            int sysTablesBookmarkIndex = sysTables.ColumnIndex("bookmark_key");
 
             foreach (var row in sysTables)
             {
                 if (row[idxName].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
-                    rowIndexesToDelete.Add(-1);
+                {
+                    int bookmark = row[sysTablesBookmarkIndex].AsInteger();
+                    rowIndexesToDelete.Add(ExpressionOperandBookmark.FromInteger(bookmark));
+                }
             }
 
             sysTables.DeleteRows(rowIndexesToDelete);

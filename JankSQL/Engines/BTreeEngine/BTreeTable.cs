@@ -163,7 +163,7 @@ namespace JankSQL.Engines
             return keyColumnNames[m];
         }
 
-        public int DeleteRows(List<int> rowIndexesToDelete)
+        public int DeleteRows(List<ExpressionOperandBookmark> bookmarksToDelete)
         {
             throw new NotImplementedException();
         }

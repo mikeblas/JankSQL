@@ -232,8 +232,22 @@ namespace JankSQL.Engines
         }
 
 
-        public int DeleteRows(List<int> rowIndexesToDelete)
+        public int DeleteRows(List<ExpressionOperandBookmark> bookmarksToDelete)
         {
+            if (bookmarksToDelete == null)
+                throw new ArgumentNullException("bookmarksToDelete");
+            if (bookmarksToDelete[0].Tuple.Length != 1)
+                throw new ArgumentException("CSV bookmarks have a single field");
+            if (bookmarksToDelete[0].Tuple[0].NodeType != ExpressionOperandType.INTEGER)
+                throw new ArgumentException("Bogus tuple type for CSV");
+
+            // convert generic bookmarks to our integers
+            List<int> rowIndexesToDelete = new();
+            foreach (var mark in bookmarksToDelete)
+            {
+                rowIndexesToDelete.Add(mark.Tuple[0].AsInteger());
+            }
+
             int deletedCount = 0;
 
             // rename the file

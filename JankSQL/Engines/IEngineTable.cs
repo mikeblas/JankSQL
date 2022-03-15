@@ -22,7 +22,7 @@
 
         void InsertRow(ExpressionOperand[] row);
 
-        int DeleteRows(List<int> rowIndexesToDelete);
+        int DeleteRows(List<ExpressionOperandBookmark> bookmarksToDelete);
 
     }
 }

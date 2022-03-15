@@ -7,7 +7,7 @@ namespace JankSQL
         IComponentOutput myInput;
         Engines.IEngineTable engineTable;
         List<Expression> predicateExpressions;
-        List<int> bookmarksToDelete = new();
+        List<ExpressionOperandBookmark> bookmarksToDelete = new();
         List<ExpressionOperand[]> rowsToInsert = new();
         List<SetOperation> setList;
 
@@ -56,7 +56,7 @@ namespace JankSQL
                 // meets the predicate, so delete it
                 int bookmarkIndex = batch.ColumnIndex(FullColumnName.FromColumnName("bookmark_key"));
                 int bookmark = batch.Row(i)[bookmarkIndex].AsInteger();
-                bookmarksToDelete.Add(bookmark);
+                bookmarksToDelete.Add(ExpressionOperandBookmark.FromInteger(bookmark));
 
                 // and build a replacement row
                 ExpressionOperand[] modified = new ExpressionOperand[batch.ColumnCount-1];
