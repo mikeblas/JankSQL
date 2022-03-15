@@ -20,7 +20,7 @@ namespace Tests
             Assert.AreEqual(0, ecCreate.TotalErrors);
 
             ExecuteResult resultsCreate = ecCreate.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsCreate.ExecuteStatus);
+            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsCreate.ExecuteStatus, resultsCreate.ErrorMessage);
             Assert.IsNull(resultsCreate.ResultSet);
 
             // insert some rows
@@ -30,18 +30,18 @@ namespace Tests
             Assert.AreEqual(0, ecInsert.TotalErrors);
 
             ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsInsert.ExecuteStatus);
+            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsInsert.ExecuteStatus, resultsCreate.ErrorMessage);
             Assert.IsNotNull(resultsInsert.ResultSet);
 
             // truncate the table
-            var ec = Parser.ParseSQLFileFromString("TRUNCATE TABLE [TransientTestTable];");
+            var ecTruncate = Parser.ParseSQLFileFromString("TRUNCATE TABLE [TransientTestTable];");
 
-            Assert.IsNotNull(ec);
-            Assert.AreEqual(0, ec.TotalErrors);
+            Assert.IsNotNull(ecTruncate);
+            Assert.AreEqual(0, ecTruncate.TotalErrors);
 
-            ExecuteResult results = ec.ExecuteSingle(engine);
+            ExecuteResult results = ecTruncate.ExecuteSingle(engine);
 
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, results.ExecuteStatus);
+            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, results.ExecuteStatus, results.ErrorMessage);
             Assert.IsNull(results.ResultSet);
 
 
@@ -53,7 +53,7 @@ namespace Tests
 
             ExecuteResult resultsDrop = ecDrop.ExecuteSingle(engine);
 
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsDrop.ExecuteStatus);
+            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsDrop.ExecuteStatus, resultsDrop.ErrorMessage);
             Assert.IsNull(resultsDrop.ResultSet);
         }
 
