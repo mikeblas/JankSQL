@@ -3,9 +3,10 @@ namespace JankSQL.Engines
 {
     public class BTreeEngine : IEngine
     {
-
         BTreeTable sysColumns;
         BTreeTable sysTables;
+
+        Dictionary<string, BTreeTable> inMemoryTables = new(StringComparer.InvariantCultureIgnoreCase);
 
         public static BTreeEngine CreateInMemory()
         {
@@ -20,7 +21,40 @@ namespace JankSQL.Engines
 
         public void CreateTable(FullTableName tableName, List<FullColumnName> columnNames, List<ExpressionOperandType> columnTypes)
         {
-            throw new NotImplementedException();
+            if (columnNames.Count == 0)
+                throw new ArgumentException("Must have at least one column name");
+            if (columnNames.Count != columnTypes.Count)
+                throw new ArgumentException($"Must have at types for each column; got {columnNames.Count} names and {columnTypes.Count} types");
+
+            // create the table
+            BTreeTable table = new BTreeTable(
+                new ExpressionOperandType[] { ExpressionOperandType.INTEGER },
+                new FullColumnName[] { FullColumnName.FromColumnName("bookmark_key") }.ToList(),
+                columnTypes.ToArray(),
+                columnNames);
+
+            // add a row to sys_tables
+            ExpressionOperand[] tablesRow = new ExpressionOperand[]
+            {
+                ExpressionOperand.NVARCHARFromString(tableName.TableName),
+                ExpressionOperand.NVARCHARFromString("")
+            };
+            sysTables.InsertRow(tablesRow);
+
+            // add rows for the sys_columns
+            for (int i = 0; i < columnNames.Count; i++)
+            {
+                ExpressionOperand[] columnRow = new ExpressionOperand[]
+                {
+                    ExpressionOperand.NVARCHARFromString(tableName.TableName),
+                    ExpressionOperand.NVARCHARFromString(columnNames[i].ColumnNameOnly()),
+                    ExpressionOperand.NVARCHARFromString(columnTypes[i].ToString()), // type
+                    ExpressionOperand.IntegerFromInt(i) // ordinal
+                };
+                sysColumns.InsertRow(columnRow);
+            }
+
+            inMemoryTables.Add(tableName.TableName, table);
         }
 
         public void DropTable(FullTableName tableName)
@@ -30,22 +64,38 @@ namespace JankSQL.Engines
 
         public IEngineTable? GetEngineTable(FullTableName tableName)
         {
-            throw new NotImplementedException();
+            BTreeTable? table;
+            inMemoryTables.TryGetValue(tableName.TableName, out table);
+            return table;
         }
 
         public IEngineTable GetSysColumns()
         {
-            throw new NotImplementedException();
+            return sysColumns;
         }
 
         public IEngineTable GetSysTables()
         {
-            throw new NotImplementedException();
+            return sysTables;
         }
 
         public void InjectTestTable(TestTable testTable)
         {
-            throw new NotImplementedException();
+            // create the table ...
+            CreateTable(testTable.TableName, testTable.ColumnNames, testTable.ColumnTypes);
+
+            // then insert each of the given rows
+            // get the file name for our table
+            IEngineTable? table = GetEngineTable(testTable.TableName);
+            if (table == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            foreach (var row in testTable.Rows)
+            {
+                table.InsertRow(row);
+            }
         }
 
         static BTreeTable CreateSysColumns()

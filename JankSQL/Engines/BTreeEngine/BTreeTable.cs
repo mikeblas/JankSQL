@@ -55,7 +55,6 @@ namespace JankSQL.Engines
     }
 
 
-
     internal class BTreeTable : IEngineTable
     {
         List<FullColumnName> keyColumnNames;
@@ -63,6 +62,7 @@ namespace JankSQL.Engines
         Dictionary<FullColumnName, int> columnNameIndexes;
         ExpressionOperandType[] keyTypes;
         ExpressionOperandType[] valueTypes;
+        int nextBookmark = 1;
 
         BPlusTree<ExpressionOperand[], ExpressionOperand[]> myTree;
 
@@ -115,13 +115,23 @@ namespace JankSQL.Engines
 
         public void InsertRow(ExpressionOperand[] row)
         {
-            ExpressionOperand[] key = new ExpressionOperand[keyColumnNames.Count];
-            ExpressionOperand[] value = new ExpressionOperand[valueColumnNames.Count];
+            if (keyColumnNames[0].ColumnNameOnly().Equals("bookmark_key"))
+            {
+                ExpressionOperand[] key = new ExpressionOperand[1];
+                key[0] = ExpressionOperand.IntegerFromInt(nextBookmark++);
 
-            Array.Copy(row, 0, key, 0, keyColumnNames.Count);
-            Array.Copy(row, keyColumnNames.Count, value, 0, valueColumnNames.Count);
+                myTree.Add(key, row);
+            }
+            else
+            {
+                ExpressionOperand[] key = new ExpressionOperand[keyColumnNames.Count];
+                ExpressionOperand[] value = new ExpressionOperand[valueColumnNames.Count];
 
-            myTree.Add(key, value);
+                Array.Copy(row, 0, key, 0, keyColumnNames.Count);
+                Array.Copy(row, keyColumnNames.Count, value, 0, valueColumnNames.Count);
+
+                myTree.Add(key, value);
+            }
         }
 
         public ExpressionOperand[] Row(int n)
@@ -132,7 +142,7 @@ namespace JankSQL.Engines
 
         public void TruncateTable()
         {
-            throw new NotImplementedException();
+            myTree.Clear();
         }
     }
 }

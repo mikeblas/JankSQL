@@ -17,6 +17,7 @@ namespace Tests
             Console.WriteLine($"Test mode is {mode}");
 
             engine = Engines.BTreeEngine.CreateInMemory();
+            TestHelpers.InjectTableMyTable(engine);
         }
 
     }
