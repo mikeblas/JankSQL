@@ -17,7 +17,7 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT POWER((10/2), 15/5) FROM [mytable];");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
             result.ResultSet.Dump();
             Assert.AreEqual(3, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
@@ -34,7 +34,7 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT 3+5, 92 * 6 FROM [mytable];");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
             result.ResultSet.Dump();
             Assert.AreEqual(3, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(2, result.ResultSet.ColumnCount, "column count mismatch");
@@ -52,7 +52,7 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT 355/113, 867-5309, (123 + 456 - 111) / 3 FROM [mytable];");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
             result.ResultSet.Dump();
             Assert.AreEqual(3, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(3, result.ResultSet.ColumnCount, "column count mismatch");
@@ -64,7 +64,7 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable];");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
             result.ResultSet.Dump();
             Assert.AreEqual(3, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
@@ -77,7 +77,7 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT [city_name], [population] FROM [mytable];");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
             result.ResultSet.Dump();
             Assert.AreEqual(3, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(2, result.ResultSet.ColumnCount, "column count mismatch");
@@ -91,7 +91,7 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT [city_name], [population]*2, [population] FROM [mytable];");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
             result.ResultSet.Dump();
             Assert.AreEqual(3, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(3, result.ResultSet.ColumnCount, "column count mismatch");
@@ -104,7 +104,7 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT [mytable].[city_name], [mytable].[population], [population]*2 FROM [mytable];");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
             result.ResultSet.Dump();
             Assert.AreEqual(3, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(3, result.ResultSet.ColumnCount, "column count mismatch");
@@ -117,7 +117,7 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT [population] / [keycolumn] FROM [mytable];");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
             result.ResultSet.Dump();
             Assert.AreEqual(3, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
@@ -129,7 +129,7 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT [population] / [mytable].[keycolumn] AS [TheRatio] FROM [mytable];");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
             result.ResultSet.Dump();
             Assert.AreEqual(3, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
@@ -141,7 +141,7 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT 3+5 FROM [mytable];");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
             result.ResultSet.Dump();
             Assert.AreEqual(3, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
@@ -154,7 +154,7 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT 3+5 AS [MySum] FROM [mytable];");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
             result.ResultSet.Dump();
             Assert.AreEqual(3, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
@@ -167,7 +167,7 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT 2*(6+4) FROM [mytable];");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
             result.ResultSet.Dump();
             Assert.AreEqual(3, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
@@ -180,7 +180,7 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT SQRT(2) FROM [mytable];");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
             result.ResultSet.Dump();
             Assert.AreEqual(3, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
@@ -192,7 +192,7 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT POWER(5, 3) FROM [mytable];");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
             result.ResultSet.Dump();
             Assert.AreEqual(3, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
@@ -209,7 +209,7 @@ namespace Tests
             for (int i = 0; i < results.Length; i++)
             {
                 Assert.IsNotNull(results[i]);
-                Assert.IsNotNull(results[i].ResultSet);
+                Assert.IsNotNull(results[i].ResultSet, results[i].ErrorMessage);
                 results[i].ResultSet!.Dump();
                 Assert.AreEqual(1, results[i].ResultSet!.RowCount, "rowcount mismatch");
                 Assert.AreEqual(1, results[i].ResultSet!.ColumnCount, "column count mismatch");
@@ -223,7 +223,7 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] > POWER(2500, 2);");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
             result.ResultSet.Dump();
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
