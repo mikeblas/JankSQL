@@ -160,6 +160,25 @@
                 throw new InvalidOperationException("OperatorTimes Decimal");
             }
         }
+
+        public int CompareTo(ExpressionOperandDecimal? other)
+        {
+            if (other == null)
+                throw new ArgumentNullException("obj");
+
+            int result = d.CompareTo(other.d);
+            return result;
+        }
+
+        public override int CompareTo(ExpressionOperand? other)
+        {
+            if (other == null)
+                throw new ArgumentNullException("other");
+            ExpressionOperandDecimal o = (ExpressionOperandDecimal)other;
+            int result = d.CompareTo(o.d);
+            return result;
+        }
+
     }
 }
 

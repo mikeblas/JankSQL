@@ -15,4 +15,10 @@
     <ProjectReference Include="..\Parsing\Parsing.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="CSharpTest.Net.Collections">
+      <HintPath>..\..\CSharpTest.Net.Collections\src\CSharpTest.Net.Collections\bin\net6.0\CSharpTest.Net.Collections.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

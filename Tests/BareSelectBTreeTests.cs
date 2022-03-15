@@ -1,14 +1,12 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using JankSQL;
 using Engines = JankSQL.Engines;
 using System;
 
 namespace Tests
 {
     [TestClass]
-    [Ignore]
-    public class ExecuteBTreeTests : ExecuteTests
+    public class BareSelectBTreeTests : BareSelectTests
     {
         [TestInitialize]
         public void ClassInitialize()
@@ -18,7 +16,5 @@ namespace Tests
 
             engine = Engines.BTreeEngine.CreateInMemory();
         }
-
     }
 }
-

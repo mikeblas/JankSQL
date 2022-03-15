@@ -1,6 +1,6 @@
 ﻿namespace JankSQL
 {
-    public abstract class ExpressionOperand : ExpressionNode, ICloneable
+    public abstract class ExpressionOperand : ExpressionNode, ICloneable, IComparable<ExpressionOperand>
     {
         internal ExpressionOperandType nodeType;
 
@@ -126,6 +126,22 @@
         public abstract ExpressionOperand OperatorSlash(ExpressionOperand other);
 
         public abstract object Clone();
+
+        public int Compare(ExpressionOperand? x, ExpressionOperand? y)
+        {   
+            if (x == null)
+                throw new ArgumentNullException("x");
+            if (y == null)
+                throw new ArgumentNullException("y");
+
+            if (x.NodeType != y.NodeType)
+                throw new ArgumentException($"can't compare {x.NodeType} to {y.NodeType}");
+
+            int ret = x.Compare(x, y);
+            return ret;
+        }
+
+        abstract public int CompareTo(ExpressionOperand? other);
     }
 }
 

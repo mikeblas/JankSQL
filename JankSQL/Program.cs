@@ -82,6 +82,10 @@ namespace JankSQL
 
             // Engines.DynamicCSVEngine engine = Engines.DynamicCSVEngine.OpenAlways("F:\\JankTests\\Test33");
 
+
+            var btreeEngine = Engines.BTreeEngine.CreateInMemory();
+
+
             string tempPath = System.IO.Path.GetTempPath();
             tempPath = Path.Combine(tempPath, "XYZZY");
             var engine = Engines.DynamicCSVEngine.OpenObliterate(tempPath);

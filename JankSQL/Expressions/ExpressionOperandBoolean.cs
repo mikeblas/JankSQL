@@ -72,6 +72,24 @@
         {
             throw new NotImplementedException();
         }
+
+        public int CompareTo(ExpressionOperandBoolean? other)
+        {
+            if (other == null)
+                throw new ArgumentNullException("obj");
+
+            int result = b.CompareTo(other.b);
+            return result;
+        }
+
+        public override int CompareTo(ExpressionOperand? other)
+        {
+            if (other == null)
+                throw new ArgumentNullException("other");
+            ExpressionOperandBoolean o = (ExpressionOperandBoolean)other;
+            int result = b.CompareTo(o.b);
+            return result;
+        }
     }
 }
 

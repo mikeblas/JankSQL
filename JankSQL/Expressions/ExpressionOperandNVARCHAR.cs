@@ -1,6 +1,6 @@
 ﻿namespace JankSQL
 {
-    internal class ExpressionOperandNVARCHAR : ExpressionOperand
+    internal class ExpressionOperandNVARCHAR : ExpressionOperand, IComparable<ExpressionOperandNVARCHAR>
     {
         internal string str;
         internal ExpressionOperandNVARCHAR(string str)
@@ -147,6 +147,25 @@
                 throw new InvalidOperationException("OperatorTimes string");
             }
         }
+
+        public int CompareTo(ExpressionOperandNVARCHAR? other)
+        {
+            if (other == null)
+                throw new ArgumentNullException("obj");
+
+            int result = str.CompareTo(other.str);
+            return result;
+        }
+
+        public override int CompareTo(ExpressionOperand? other)
+        {
+            if (other == null)
+                throw new ArgumentNullException("other");
+            ExpressionOperandNVARCHAR o = (ExpressionOperandNVARCHAR)other;
+            int result = str.CompareTo(o.str);
+            return result;
+        }
+
     }
 }
 
