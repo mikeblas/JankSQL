@@ -59,32 +59,33 @@ namespace JankSQL.Engines
                 int columnNameIndex = sysColumns.ColumnIndex("column_name");
                 int typeIndex = sysColumns.ColumnIndex("column_type");
                 int indexIndex = sysColumns.ColumnIndex("index");
+                int bookmarkKeyIndex = sysColumns.ColumnIndex("bookmark_key");
 
-                List<int> matchingRows = new();
 
-                for (int n = 0; n < sysColumns.RowCount; n++)
+                int matchCount = 0;
+                foreach (var row in sysColumns)
                 {
-                    if (sysColumns.Row(n)[tableNameIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
-                        matchingRows.Add(n);
+                    if (row[tableNameIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
+                        matchCount++;
                 }
 
-                // build the array
-                ret = new ExpressionOperandType[matchingRows.Count];
+                ret = new ExpressionOperandType[matchCount];
 
-                for (int i = 0; i < matchingRows.Count; i++)
+                foreach (var row in sysColumns)
                 {
-                    int n = matchingRows[i];
-                    ExpressionOperandType operandType;
-                    if (!ExpressionNode.TypeFromString(sysColumns.Row(n)[typeIndex].AsString(), out operandType))
+                    if (row[tableNameIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        throw new ExecutionException($"unknown type {sysColumns.Row(n)[typeIndex].AsString()} in table {tableName.TableName}");
+                        ExpressionOperandType operandType;
+                        if (!ExpressionNode.TypeFromString(row[typeIndex].AsString(), out operandType))
+                        {
+                            throw new ExecutionException($"unknown type {row[typeIndex].AsString()} in table {tableName.TableName}");
+                        }
+
+                        int index = row[indexIndex].AsInteger();
+
+                        ret[index] = operandType;
                     }
-
-                    int index = sysColumns.Row(n)[indexIndex].AsInteger();
-
-                    ret[index] = operandType;
                 }
-
             }
 
             return ret;
@@ -100,14 +101,20 @@ namespace JankSQL.Engines
 
             int lineNumber = 0;
 
-            columnTypes = GetColumnTypes(FullTableName.FromTableName(tableName));
+            ExpressionOperandType[] dictionaryColumnTypes = GetColumnTypes(FullTableName.FromTableName(tableName));
+            columnTypes = new ExpressionOperandType[dictionaryColumnTypes.Length + 1];
+            Array.Copy(dictionaryColumnTypes, columnTypes, dictionaryColumnTypes.Length);
+            columnTypes[dictionaryColumnTypes.Length] = ExpressionOperandType.INTEGER;
 
             foreach (var line in lines)
             {
-                string[] fields = line.Split(",");
-
+                string[] fileFields = line.Split(",");
                 if (lineNumber == 0)
                 {
+                    string[] fields = new string[fileFields.Length + 1];
+                    Array.Copy(fileFields, fields, fileFields.Length);
+                    fields[fields.Length-1] = "bookmark_key";
+
                     columnNames = new FullColumnName[fields.Length];
                     for (int i = 0; i < fields.Length; ++i)
                     {
@@ -117,33 +124,35 @@ namespace JankSQL.Engines
                 }
                 else
                 {
-                    ExpressionOperand[] newRow = new ExpressionOperand[fields.Length];
+                    ExpressionOperand[] newRow = new ExpressionOperand[fileFields.Length + 1];
 
-                    for (int i = 0; i < fields.Length; i++)
+                    for (int i = 0; i < fileFields.Length; i++)
                     {
                         switch (columnTypes[i])
                         {
                             case ExpressionOperandType.DECIMAL:
-                                newRow[i] = new ExpressionOperandDecimal(Double.Parse(fields[i]));
+                                newRow[i] = new ExpressionOperandDecimal(Double.Parse(fileFields[i]));
                                 break;
 
                             case ExpressionOperandType.VARCHAR:
-                                newRow[i] = new ExpressionOperandVARCHAR(fields[i]);
+                                newRow[i] = new ExpressionOperandVARCHAR(fileFields[i]);
                                 break;
 
                             case ExpressionOperandType.NVARCHAR:
-                                newRow[i] = new ExpressionOperandNVARCHAR(fields[i]);
+                                newRow[i] = new ExpressionOperandNVARCHAR(fileFields[i]);
                                 break;
 
                             case ExpressionOperandType.INTEGER:
-                                newRow[i] = new ExpressionOperandInteger(Int32.Parse(fields[i]));
+                                newRow[i] = new ExpressionOperandInteger(Int32.Parse(fileFields[i]));
                                 break;
 
                             default:
                                 throw new NotImplementedException();
-
                         }
                     }
+
+                    // last one is bookmark_key
+                    newRow[fileFields.Length] = ExpressionOperand.IntegerFromInt(lineNumber);
 
                     values.Add(newRow);
                 }
@@ -152,15 +161,8 @@ namespace JankSQL.Engines
             }
         }
 
-        public int RowCount { get { return values.Count; } }
-
         public int ColumnCount { get { return columnNames!.Length; } }
 
-
-        public ExpressionOperand[] Row(int n)
-        {
-            return values[n];
-        }
 
         public FullColumnName ColumnName(int n)
         {
@@ -209,11 +211,10 @@ namespace JankSQL.Engines
         }
 
 
-
         public void InsertRow(ExpressionOperand[] row)
         {
-            if (row.Length != columnNames!.Length)
-                throw new ExecutionException($"table {tableName}: can't insert row with {row.Length} columns, need {columnNames.Length} columns");
+            if (row.Length != columnNames!.Length - 1)
+                throw new ExecutionException($"table {tableName}: can't insert row with {row.Length} columns, need {columnNames.Length - 1} columns");
 
             StringBuilder sb = new StringBuilder();
 
@@ -278,6 +279,11 @@ namespace JankSQL.Engines
             File.Delete(newFileName);
             Load();
             return deletedCount;
+        }
+
+        public IEnumerator<ExpressionOperand[]> GetEnumerator()
+        {
+            return values.GetEnumerator();
         }
     }
 

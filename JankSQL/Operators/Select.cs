@@ -32,7 +32,7 @@
                     for (int i = 0; i < rsInput.ColumnCount; i++)
                     {
                         FullColumnName fcn = rsInput.GetColumnName(i);
-                        if (fcn.ColumnNameOnly() == "bookmark")
+                        if (fcn.ColumnNameOnly() == "bookmark_key")
                             continue;
                         effectiveColumns.Add(fcn);
                         ExpressionNode x = new ExpressionOperandFromColumn(rsInput.GetColumnName(i));

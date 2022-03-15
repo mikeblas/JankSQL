@@ -3,9 +3,6 @@
     public interface IEngineTable
     {
         //=== metadata
-        // get the number of rows
-        int RowCount { get; }
-
         // get the number of columns
         int ColumnCount { get; }
 
@@ -16,9 +13,8 @@
         int ColumnIndex(string columnName);
 
         //=== data access
-        // get all the columns in the given row
-        ExpressionOperand[] Row(int n);
-
+        // iterate over the available rows
+        IEnumerator<ExpressionOperand[]> GetEnumerator();
 
         //=== DML
         // truncate this table

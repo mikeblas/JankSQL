@@ -2,9 +2,7 @@
 {
     public class DualSource : IEngineTable
     {
-        int IEngineTable.RowCount => 1;
-
-        int IEngineTable.ColumnCount => 0;
+        public int ColumnCount => 0;
 
         int IEngineTable.ColumnIndex(string columnName)
         {
@@ -14,12 +12,6 @@
         FullColumnName IEngineTable.ColumnName(int n)
         {
             throw new NotImplementedException();
-        }
-
-        ExpressionOperand[] IEngineTable.Row(int n)
-        {
-            ExpressionOperand[] ret = Array.Empty<ExpressionOperand>();
-            return ret;
         }
 
         void Load()
@@ -39,6 +31,15 @@
         public int DeleteRows(List<int> rowIndexesToDelete)
         {
             throw new NotImplementedException();
+        }
+
+        public IEnumerator<ExpressionOperand[]> GetEnumerator()
+        {
+            List<ExpressionOperand[]> xl = new();
+            ExpressionOperand[] x = Array.Empty<ExpressionOperand>();
+            xl.Add(x);
+
+            return xl.GetEnumerator();
         }
     }
 }

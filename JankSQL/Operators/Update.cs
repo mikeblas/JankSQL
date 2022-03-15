@@ -54,7 +54,7 @@ namespace JankSQL
                     continue;
 
                 // meets the predicate, so delete it
-                int bookmarkIndex = batch.ColumnIndex(FullColumnName.FromColumnName("bookmark"));
+                int bookmarkIndex = batch.ColumnIndex(FullColumnName.FromColumnName("bookmark_key"));
                 int bookmark = batch.Row(i)[bookmarkIndex].AsInteger();
                 bookmarksToDelete.Add(bookmark);
 

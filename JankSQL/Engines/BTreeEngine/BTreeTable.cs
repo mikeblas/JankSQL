@@ -1,7 +1,7 @@
 ﻿
 using CSharpTest.Net.Collections;
 using CSharpTest.Net.Serialization;
-
+using System.Collections;
 
 namespace JankSQL.Engines
 {
@@ -55,6 +55,47 @@ namespace JankSQL.Engines
     }
 
 
+    internal class BTreeRowEnumerator : IEnumerator<ExpressionOperand[]>
+    {
+        IEnumerator<KeyValuePair<ExpressionOperand[], ExpressionOperand[]>> treeEnumerator;
+
+        internal BTreeRowEnumerator(BPlusTree<ExpressionOperand[], ExpressionOperand[]> tree)
+        {
+            treeEnumerator = tree.GetEnumerator();
+        }
+
+        public ExpressionOperand[] Current
+        {
+            get
+            {
+                return treeEnumerator.Current.Value;
+            }
+        }
+
+        object IEnumerator.Current
+        {
+            get
+            {
+                return Current;
+            }
+        }
+
+        public void Dispose()
+        {
+            treeEnumerator.Dispose();
+        }
+
+        public bool MoveNext()
+        {
+            return treeEnumerator.MoveNext();
+        }
+
+        public void Reset()
+        {
+            treeEnumerator.Reset();
+        }
+    }
+
     internal class BTreeTable : IEngineTable
     {
         List<FullColumnName> keyColumnNames;
@@ -84,8 +125,6 @@ namespace JankSQL.Engines
                 columnNameIndexes.Add(valueColumnNames[i], n++);
         }
 
-        public int RowCount => throw new NotImplementedException();
-
         public int ColumnCount => keyColumnNames.Count + valueColumnNames.Count;
 
         public int ColumnIndex(string columnName)
@@ -113,6 +152,11 @@ namespace JankSQL.Engines
             throw new NotImplementedException();
         }
 
+        public IEnumerator<ExpressionOperand[]> GetEnumerator()
+        {
+            return new BTreeRowEnumerator(myTree);
+        }
+
         public void InsertRow(ExpressionOperand[] row)
         {
             if (keyColumnNames[0].ColumnNameOnly().Equals("bookmark_key"))
@@ -132,12 +176,6 @@ namespace JankSQL.Engines
 
                 myTree.Add(key, value);
             }
-        }
-
-        public ExpressionOperand[] Row(int n)
-        {
-
-            throw new NotImplementedException();
         }
 
         public void TruncateTable()

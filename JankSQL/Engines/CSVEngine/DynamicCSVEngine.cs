@@ -154,11 +154,11 @@ namespace JankSQL.Engines
             // make sure file doesn't exist, too
             int idxFile = sysTables.ColumnIndex("file_name");
             int idxName = sysTables.ColumnIndex("table_name");
-            for (int i = 0; i < sysTables.RowCount; i++)
+            foreach(var row in sysTables)
             {
-                if (sysTables.Row(i)[idxFile].AsString().Equals(fullPath, StringComparison.InvariantCultureIgnoreCase))
+                if (row[idxFile].AsString().Equals(fullPath, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    string otherTableName = sysTables.Row(i)[idxName].AsString();
+                    string otherTableName = row[idxName].AsString();
                     throw new ExecutionException($"File name {fullPath} already exists for table {otherTableName}");
                 }
             }
@@ -172,7 +172,7 @@ namespace JankSQL.Engines
             file.Close();
 
             // add row to sys_tables
-            ExpressionOperand[] newRow = new ExpressionOperand[2];
+            ExpressionOperand[] newRow = new ExpressionOperand[sysTables.ColumnCount-1];
             newRow[idxFile] = ExpressionOperand.NVARCHARFromString(fullPath);
             newRow[idxName] = ExpressionOperand.NVARCHARFromString(tableName.TableName);
 
@@ -188,7 +188,7 @@ namespace JankSQL.Engines
 
             for (int i = 0; i < columnNames.Count; i++)
             {
-                ExpressionOperand[] columnRow = new ExpressionOperand[sysColumns.ColumnCount];
+                ExpressionOperand[] columnRow = new ExpressionOperand[sysColumns.ColumnCount-1];
 
                 columnRow[idxIdx] = ExpressionOperand.IntegerFromInt(i);
                 columnRow[idxTableName] = ExpressionOperand.NVARCHARFromString(tableName.TableName);
@@ -230,10 +230,12 @@ namespace JankSQL.Engines
 
             List<int> rowIndexesToDelete = new();
 
-            for (int i = 0; i < sysColumns.RowCount; i++)
+            foreach (var row in sysColumns)
             {
-                if (sysColumns.Row(i)[tableNameIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
-                    rowIndexesToDelete.Add(i);
+                if (row[tableNameIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    rowIndexesToDelete.Add(-1);
+                }
             }
 
             sysColumns.DeleteRows(rowIndexesToDelete);
@@ -242,10 +244,10 @@ namespace JankSQL.Engines
             rowIndexesToDelete = new();
             int idxName = sysTables.ColumnIndex("table_name");
 
-            for (int i = 0; i < sysTables.RowCount; i++)
+            foreach (var row in sysTables)
             {
-                if (sysTables.Row(i)[idxName].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
-                    rowIndexesToDelete.Add(i);
+                if (row[idxName].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
+                    rowIndexesToDelete.Add(-1);
             }
 
             sysTables.DeleteRows(rowIndexesToDelete);
@@ -257,19 +259,13 @@ namespace JankSQL.Engines
             int idxName = sysTables.ColumnIndex("table_name");
             int idxFile = sysTables.ColumnIndex("file_name");
 
-            int foundRow = -1;
-            for (int i = 0; i < sysTables.RowCount; i++)
+            foreach (var row in sysTables)
             {
-                if (sysTables.Row(i)[idxName].AsString().Equals(effectiveTableName, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    foundRow = i;
-                    break;
-                }
+                if (row[idxName].AsString().Equals(effectiveTableName, StringComparison.InvariantCultureIgnoreCase))
+                    return row[idxFile].AsString();
             }
-            if (foundRow == -1)
-                return null;
 
-            return sysTables.Row(foundRow)[idxFile].AsString();
+            return null;
         }
 
 
