@@ -155,9 +155,10 @@ namespace JankSQL.Engines
 
         public void Dump()
         {
+            Console.WriteLine($"BTree Table {tableName}, hasUniqueKey == {hasUniqueKey}:");
             foreach(var row in myTree)
             {
-                Console.WriteLine($"{row.Key} ==> {row.Value}");
+                Console.WriteLine($"    {String.Join(",", row.Key.Select(x => "[" + x + "]"))} ==> {String.Join(",", row.Value.Select(x => "[" + x + "]"))}");
             }
         }
     }

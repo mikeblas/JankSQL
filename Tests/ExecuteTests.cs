@@ -86,8 +86,6 @@ namespace Tests
         [TestMethod, Timeout(1000)]
         public void TestCompoundSelectList()
         {
-            Console.WriteLine($"mode = {mode}");
-
             var ec = Parser.ParseSQLFileFromString("SELECT [city_name], [population]*2, [population] FROM [mytable];");
 
             ExecuteResult result = ec.ExecuteSingle(engine);

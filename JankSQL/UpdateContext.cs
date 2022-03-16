@@ -13,9 +13,9 @@ namespace JankSQL
 
     internal class SetOperation
     {
-        FullColumnName fcn;
-        Expression expression;
-        SetOperator op;
+        readonly FullColumnName fcn;
+        readonly Expression expression;
+        readonly SetOperator op;
 
         internal SetOperation(FullColumnName fcn, SetOperator op, Expression expression)
         {
@@ -26,8 +26,7 @@ namespace JankSQL
 
         public override string ToString()
         {
-            string s = $"{fcn} {op} {expression}";
-            return s;
+            return $"{fcn} {op} {expression}";
         }
 
         internal void Execute(IRowValueAccessor outputaccessor, IRowValueAccessor inputAccessor)
@@ -42,11 +41,11 @@ namespace JankSQL
 
     internal class UpdateContext : IExecutableContext
     {
-        FullTableName tableName;
-        TSqlParser.Update_statementContext context;
+        readonly FullTableName tableName;
+        readonly TSqlParser.Update_statementContext context;
         PredicateContext? predicateContext;
 
-        List<SetOperation> setList = new();
+        readonly List<SetOperation> setList = new();
 
         internal UpdateContext(TSqlParser.Update_statementContext context, FullTableName tableName)
         {

@@ -3,13 +3,13 @@ namespace JankSQL
 {
     public class SelectContext : IExecutableContext
     {
-        TSqlParser.Select_statementContext statementContext;
+        readonly TSqlParser.Select_statementContext statementContext;
         SelectListContext? selectList;
 
         // for WHERE clauses
         PredicateContext? predicateContext;
 
-        List<JoinContext> joinContexts = new List<JoinContext>();
+        readonly List<JoinContext> joinContexts = new List<JoinContext>();
 
 
         internal void AddJoin(JoinContext jc, PredicateContext predicateContext)

@@ -72,7 +72,7 @@ namespace JankSQL
             // -- these need tests --
             // str = "DROP TABLE mytable";
             // str = "CREATE TABLE [Schema].[NewTable] (keycolumn INTEGER, city_name VARCHAR(30), state_code VARCHAR, population DECIMAL);";
-            str = "DELETE FROM Mytable WHERE keycolumn = 2;";
+            // str = "DELETE FROM Mytable WHERE keycolumn = 2; SELECT * FROM MyTable;";
             // -- those need tests --
 
             // str = "UPDATE MyTable SET population = population * 1.12 WHERE keycolumn = 2;";
@@ -88,7 +88,7 @@ namespace JankSQL
 
             string tempPath = System.IO.Path.GetTempPath();
             tempPath = Path.Combine(tempPath, "XYZZY");
-            var engine = Engines.DynamicCSVEngine.OpenObliterate(tempPath);
+            var csvEngine = Engines.DynamicCSVEngine.OpenObliterate(tempPath);
 
             Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
                 .WithTableName("mytable")
@@ -99,15 +99,18 @@ namespace JankSQL
                 .WithRow(new object[] { 3, "New York", "NY", 11500000 })
                 .Build();
 
-            engine.InjectTestTable(tt);
+            csvEngine.InjectTestTable(tt);
             btreeEngine.InjectTestTable(tt);
+
+
+            var engine = btreeEngine;
 
             ExecutableBatch batch = Parser.ParseSQLFileFromString(str);
             if (batch.TotalErrors == 0)
             {
                 batch.Dump();
 
-                ExecuteResult[] sets = batch.Execute(btreeEngine);
+                ExecuteResult[] sets = batch.Execute(engine);
                 for (int i = 0; i < sets.Length; i++)
                 {
                     Console.WriteLine($"ExecuteResult #{i} =====");

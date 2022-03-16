@@ -273,7 +273,7 @@ namespace JankSQL.Engines
                 {
                     // line number is an ordinal, rows to delete contains indexes
                     // line number 2 is index 0
-                    if (rowIndexesToDelete.IndexOf(lineNumber - 2) != -1)
+                    if (rowIndexesToDelete.IndexOf(lineNumber - 1) != -1)
                         keep = false;
                 }
 
