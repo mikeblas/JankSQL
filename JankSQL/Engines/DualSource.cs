@@ -33,11 +33,14 @@
             throw new NotImplementedException();
         }
 
-        public IEnumerator<ExpressionOperand[]> GetEnumerator()
+        public IEnumerator<RowWithBookmark> GetEnumerator()
         {
-            List<ExpressionOperand[]> xl = new();
+            List<RowWithBookmark> xl = new();
+            
             ExpressionOperand[] x = Array.Empty<ExpressionOperand>();
-            xl.Add(x);
+            ExpressionOperandBookmark bm = new ExpressionOperandBookmark(Array.Empty<ExpressionOperand>());
+
+            xl.Add(new RowWithBookmark(x, bm));
 
             return xl.GetEnumerator();
         }

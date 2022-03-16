@@ -27,9 +27,15 @@ namespace JankSQL.Engines
                 throw new ArgumentException($"Must have at types for each column; got {columnNames.Count} names and {columnTypes.Count} types");
 
             // create the table
+            /*
             BTreeTable table = new BTreeTable(tableName.TableName,
                 new ExpressionOperandType[] { ExpressionOperandType.INTEGER },
                 new FullColumnName[] { FullColumnName.FromColumnName("bookmark_key") }.ToList(),
+                columnTypes.ToArray(),
+                columnNames);
+            */
+
+            BTreeTable table = new BTreeTable(tableName.TableName,
                 columnTypes.ToArray(),
                 columnNames);
 
@@ -59,7 +65,38 @@ namespace JankSQL.Engines
 
         public void DropTable(FullTableName tableName)
         {
-            throw new NotImplementedException();
+            // delete the file (remove from map)
+            if (!inMemoryTables.ContainsKey(tableName.TableName))
+            {
+                throw new ExecutionException($"table {tableName} does not exist");
+            }
+            inMemoryTables.Remove(tableName.TableName);
+
+            // delete from sys_tables
+            ExpressionOperand tableKey = ExpressionOperand.NVARCHARFromString(tableName.TableName);
+            ExpressionOperandBookmark tableBookmark = new ExpressionOperandBookmark(new ExpressionOperand[] { tableKey } );
+            List<ExpressionOperandBookmark> tableMark = new() { tableBookmark };
+            sysTables.DeleteRows(tableMark);
+
+            // delete from sys_columns
+            List<ExpressionOperandBookmark> columnRows = new();
+            int tableIndex = sysColumns.ColumnIndex("table_name");
+            int columnIndex = sysColumns.ColumnIndex("column_name");
+
+            foreach(var row in sysColumns)
+            {
+                if (row.RowData[tableIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    var k = new ExpressionOperand[] { row.RowData[tableIndex], row.RowData[columnIndex] };
+                    ExpressionOperandBookmark columnMark = new ExpressionOperandBookmark( k );
+                    columnRows.Add(columnMark);
+                }
+            }
+
+            sysColumns.DeleteRows(columnRows);
+
+            sysColumns.Dump();
+            sysTables.Dump();
         }
 
         public IEngineTable? GetEngineTable(FullTableName tableName)

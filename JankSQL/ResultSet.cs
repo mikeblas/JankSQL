@@ -84,8 +84,6 @@ namespace JankSQL
                 throw new InvalidOperationException($"Can't add row: expected {columnNames.Count} columns, got {row.Length} columns");
             }
 
-
-
             rows.Add(row);
         }
 

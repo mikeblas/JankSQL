@@ -72,7 +72,7 @@ namespace JankSQL
             // -- these need tests --
             // str = "DROP TABLE mytable";
             // str = "CREATE TABLE [Schema].[NewTable] (keycolumn INTEGER, city_name VARCHAR(30), state_code VARCHAR, population DECIMAL);";
-            // str = "DELETE FROM Mytable WHERE keycolumn = 2;";
+            str = "DELETE FROM Mytable WHERE keycolumn = 2;";
             // -- those need tests --
 
             // str = "UPDATE MyTable SET population = population * 1.12 WHERE keycolumn = 2;";
@@ -100,13 +100,14 @@ namespace JankSQL
                 .Build();
 
             engine.InjectTestTable(tt);
+            btreeEngine.InjectTestTable(tt);
 
             ExecutableBatch batch = Parser.ParseSQLFileFromString(str);
             if (batch.TotalErrors == 0)
             {
                 batch.Dump();
 
-                ExecuteResult[] sets = batch.Execute(engine);
+                ExecuteResult[] sets = batch.Execute(btreeEngine);
                 for (int i = 0; i < sets.Length; i++)
                 {
                     Console.WriteLine($"ExecuteResult #{i} =====");

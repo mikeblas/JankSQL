@@ -14,7 +14,7 @@
 
         //=== data access
         // iterate over the available rows
-        IEnumerator<ExpressionOperand[]> GetEnumerator();
+        IEnumerator<RowWithBookmark> GetEnumerator();
 
         //=== DML
         // truncate this table

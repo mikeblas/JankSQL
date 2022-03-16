@@ -41,21 +41,21 @@ namespace JankSQL
 
             ExecuteResult results = new ExecuteResult();
 
-            Engines.IEngineTable? engineSource = engine.GetEngineTable(TableName);
+            Engines.IEngineTable? engineTarget = engine.GetEngineTable(TableName);
 
-            if (engineSource == null)
+            if (engineTarget == null)
             {
                 throw new ExecutionException($"Table {TableName} does not exist");
             }
             else
             {
-                if (engineSource.ColumnCount-1 != constructors[0].Count)
+                if (engineTarget.ColumnCount != constructors[0].Count)
                 {
-                    throw new ExecutionException($"Expected {engineSource.ColumnCount} columns, got {constructors[0].Count}");
+                    throw new ExecutionException($"InsertContext expected {engineTarget.ColumnCount} columns, got {constructors[0].Count}");
                 }
 
                 ConstantRowSource source = new ConstantRowSource(TargetColumns, constructors);
-                Insert inserter = new Insert(engineSource, source);
+                Insert inserter = new Insert(engineTarget, source);
 
                 ResultSet? resultSet = null;
 

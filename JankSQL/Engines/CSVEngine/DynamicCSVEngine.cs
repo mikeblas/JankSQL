@@ -156,9 +156,9 @@ namespace JankSQL.Engines
             int idxName = sysTables.ColumnIndex("table_name");
             foreach(var row in sysTables)
             {
-                if (row[idxFile].AsString().Equals(fullPath, StringComparison.InvariantCultureIgnoreCase))
+                if (row.RowData[idxFile].AsString().Equals(fullPath, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    string otherTableName = row[idxName].AsString();
+                    string otherTableName = row.RowData[idxName].AsString();
                     throw new ExecutionException($"File name {fullPath} already exists for table {otherTableName}");
                 }
             }
@@ -172,7 +172,7 @@ namespace JankSQL.Engines
             file.Close();
 
             // add row to sys_tables
-            ExpressionOperand[] newRow = new ExpressionOperand[sysTables.ColumnCount-1];
+            ExpressionOperand[] newRow = new ExpressionOperand[sysTables.ColumnCount];
             newRow[idxFile] = ExpressionOperand.NVARCHARFromString(fullPath);
             newRow[idxName] = ExpressionOperand.NVARCHARFromString(tableName.TableName);
 
@@ -188,7 +188,7 @@ namespace JankSQL.Engines
 
             for (int i = 0; i < columnNames.Count; i++)
             {
-                ExpressionOperand[] columnRow = new ExpressionOperand[sysColumns.ColumnCount-1];
+                ExpressionOperand[] columnRow = new ExpressionOperand[sysColumns.ColumnCount];
 
                 columnRow[idxIdx] = ExpressionOperand.IntegerFromInt(i);
                 columnRow[idxTableName] = ExpressionOperand.NVARCHARFromString(tableName.TableName);
@@ -229,30 +229,25 @@ namespace JankSQL.Engines
             int tableNameIndex = sysColumns.ColumnIndex("table_name");
 
             List<ExpressionOperandBookmark> rowIndexesToDelete = new();
-            int sysColsBookmarkIndex = sysColumns.ColumnIndex("bookmark_key");
-
             foreach (var row in sysColumns)
             {
-                if (row[tableNameIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
+                if (row.RowData[tableNameIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    int bookmark = row[sysColsBookmarkIndex].AsInteger();
-                    rowIndexesToDelete.Add(ExpressionOperandBookmark.FromInteger(bookmark));
+                    rowIndexesToDelete.Add(row.Bookmark);
                 }
             }
 
             sysColumns.DeleteRows(rowIndexesToDelete);
 
             // remove from sys_tables
-            rowIndexesToDelete = new();
+            rowIndexesToDelete.Clear();
             int idxName = sysTables.ColumnIndex("table_name");
-            int sysTablesBookmarkIndex = sysTables.ColumnIndex("bookmark_key");
 
             foreach (var row in sysTables)
             {
-                if (row[idxName].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
+                if (row.RowData[idxName].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    int bookmark = row[sysTablesBookmarkIndex].AsInteger();
-                    rowIndexesToDelete.Add(ExpressionOperandBookmark.FromInteger(bookmark));
+                    rowIndexesToDelete.Add(row.Bookmark);
                 }
             }
 
@@ -267,8 +262,8 @@ namespace JankSQL.Engines
 
             foreach (var row in sysTables)
             {
-                if (row[idxName].AsString().Equals(effectiveTableName, StringComparison.InvariantCultureIgnoreCase))
-                    return row[idxFile].AsString();
+                if (row.RowData[idxName].AsString().Equals(effectiveTableName, StringComparison.InvariantCultureIgnoreCase))
+                    return row.RowData[idxFile].AsString();
             }
 
             return null;

@@ -4,9 +4,10 @@ namespace JankSQL
 
     internal class TableSource : IComponentOutput
     {
-        Engines.IEngineTable source;
+        readonly Engines.IEngineTable source;
+
         // int currentRow = 0;
-        IEnumerator<ExpressionOperand[]> rowEnumerator;
+        readonly IEnumerator<Engines.RowWithBookmark> rowEnumerator;
         bool enumeratorExhausted;
 
         internal TableSource(Engines.IEngineTable source)
@@ -16,7 +17,7 @@ namespace JankSQL
             enumeratorExhausted = false;
         }
 
-        void IComponentOutput.Rewind()
+        public void Rewind()
         {
             // currentRow = 0;
             enumeratorExhausted = false;
@@ -29,7 +30,7 @@ namespace JankSQL
             List<FullColumnName> columnNames = new List<FullColumnName>();
             for (int n = 0; n < source.ColumnCount; n++)
                 columnNames.Add(source.ColumnName(n));
-            // columnNames.Add(FullColumnName.FromColumnName("bookmark_key"));
+            columnNames.Add(FullColumnName.FromColumnName("bookmark_key"));
            
             rs.SetColumnNames(columnNames);
 
@@ -42,37 +43,14 @@ namespace JankSQL
                 if (enumeratorExhausted)
                     break;
 
-                ExpressionOperand[] thisRow = new ExpressionOperand[source.ColumnCount];
+                ExpressionOperand[] thisRow = new ExpressionOperand[source.ColumnCount + 1];
 
-                for (int i = 0; i < source.ColumnCount; i++)
-                {
-                    thisRow[i] = rowEnumerator.Current[i];
-                }
-                // thisRow[source.ColumnCount] = ExpressionOperand.IntegerFromInt(currentRow);
+                Array.Copy(rowEnumerator.Current.RowData, 0, thisRow, 0, source.ColumnCount);
+
+                thisRow[source.ColumnCount] = rowEnumerator.Current.Bookmark;
 
                 rs.AddRow(thisRow);
             }
-
-            /*
-            if (currentRow >= source.RowCount)
-            {
-                return null;
-            }
-
-            while (currentRow < source.RowCount && rs.RowCount < max)
-            {
-                ExpressionOperand[] thisRow = new ExpressionOperand[source.ColumnCount+1];
-
-                for (int i = 0; i < source.ColumnCount; i++)
-                {
-                    thisRow[i] = source.Row(currentRow)[i];
-                }
-                thisRow[source.ColumnCount] = ExpressionOperand.IntegerFromInt(currentRow);
-
-                rs.AddRow(thisRow);
-                currentRow++;
-            }
-            */
 
             return rs;
         }

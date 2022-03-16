@@ -15,12 +15,12 @@
 
         internal List<Expression> Predicates { set { predicateExpressionLists = value; } }
 
-        void IComponentOutput.Rewind()
+        public void Rewind()
         {
             myInput.Rewind();
         }
 
-        ResultSet? IComponentOutput.GetRows(int max)
+        public ResultSet? GetRows(int max)
         {
             ResultSet? rsInput = myInput.GetRows(max);
             if (rsInput == null)
@@ -48,7 +48,6 @@
 
                 rsOutput.AddRowFrom(rsInput, i);
             }
-
 
             return rsOutput;
         }

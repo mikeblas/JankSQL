@@ -17,11 +17,13 @@ namespace JankSQL.Engines
 
         // list of lines; each line is a list of values
         private List<ExpressionOperand[]> values;
+        private List<ExpressionOperandBookmark> bookmarks;
 
         public DynamicCSVTable(string filename, string tableName, IEngine engine)
         {
             this.filename = filename;
             this.values = new List<ExpressionOperand[]>();
+            this.bookmarks = new List<ExpressionOperandBookmark>();
             this.tableName = tableName;
             this.engine = engine;
         }
@@ -58,12 +60,11 @@ namespace JankSQL.Engines
                 int columnNameIndex = sysColumns.ColumnIndex("column_name");
                 int typeIndex = sysColumns.ColumnIndex("column_type");
                 int indexIndex = sysColumns.ColumnIndex("index");
-                int bookmarkKeyIndex = sysColumns.ColumnIndex("bookmark_key");
 
                 int matchCount = 0;
                 foreach (var row in sysColumns)
                 {
-                    if (row[tableNameIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
+                    if (row.RowData[tableNameIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
                         matchCount++;
                 }
 
@@ -71,15 +72,15 @@ namespace JankSQL.Engines
 
                 foreach (var row in sysColumns)
                 {
-                    if (row[tableNameIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
+                    if (row.RowData[tableNameIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
                     {
                         ExpressionOperandType operandType;
-                        if (!ExpressionNode.TypeFromString(row[typeIndex].AsString(), out operandType))
+                        if (!ExpressionNode.TypeFromString(row.RowData[typeIndex].AsString(), out operandType))
                         {
-                            throw new ExecutionException($"unknown type {row[typeIndex].AsString()} in table {tableName.TableName}");
+                            throw new ExecutionException($"unknown type {row.RowData[typeIndex].AsString()} in table {tableName.TableName}");
                         }
 
-                        int index = row[indexIndex].AsInteger();
+                        int index = row.RowData[indexIndex].AsInteger();
 
                         ret[index] = operandType;
                     }
@@ -109,9 +110,8 @@ namespace JankSQL.Engines
                 string[] fileFields = line.Split(",");
                 if (lineNumber == 0)
                 {
-                    string[] fields = new string[fileFields.Length + 1];
+                    string[] fields = new string[fileFields.Length];
                     Array.Copy(fileFields, fields, fileFields.Length);
-                    fields[fields.Length-1] = "bookmark_key";
 
                     columnNames = new FullColumnName[fields.Length];
                     for (int i = 0; i < fields.Length; ++i)
@@ -122,7 +122,7 @@ namespace JankSQL.Engines
                 }
                 else
                 {
-                    ExpressionOperand[] newRow = new ExpressionOperand[fileFields.Length + 1];
+                    ExpressionOperand[] newRow = new ExpressionOperand[fileFields.Length];
 
                     for (int i = 0; i < fileFields.Length; i++)
                     {
@@ -149,10 +149,10 @@ namespace JankSQL.Engines
                         }
                     }
 
-                    // last one is bookmark_key
-                    newRow[fileFields.Length] = ExpressionOperand.IntegerFromInt(lineNumber);
-
                     values.Add(newRow);
+                    ExpressionOperand bmk = ExpressionOperand.IntegerFromInt(lineNumber);
+                    ExpressionOperandBookmark bm = new(new ExpressionOperand[] { bmk } );
+                    bookmarks.Add(bm);
                 }
 
                 lineNumber++;
@@ -211,8 +211,8 @@ namespace JankSQL.Engines
 
         public void InsertRow(ExpressionOperand[] row)
         {
-            if (row.Length != columnNames!.Length - 1)
-                throw new ExecutionException($"table {tableName}: can't insert row with {row.Length} columns, need {columnNames.Length - 1} columns");
+            if (row.Length != columnNames!.Length)
+                throw new ExecutionException($"table {tableName}: can't insert row with {row.Length} columns, need {columnNames.Length} columns");
 
             StringBuilder sb = new StringBuilder();
 
@@ -234,8 +234,6 @@ namespace JankSQL.Engines
 
         public int DeleteRows(List<ExpressionOperandBookmark> bookmarksToDelete)
         {
-            if (bookmarksToDelete == null)
-                throw new ArgumentNullException("bookmarksToDelete");
             if (bookmarksToDelete[0].Tuple.Length != 1)
                 throw new ArgumentException("CSV bookmarks have a single field");
             if (bookmarksToDelete[0].Tuple[0].NodeType != ExpressionOperandType.INTEGER)
@@ -293,9 +291,10 @@ namespace JankSQL.Engines
             return deletedCount;
         }
 
-        public IEnumerator<ExpressionOperand[]> GetEnumerator()
+        public IEnumerator<RowWithBookmark> GetEnumerator()
         {
-            return values.GetEnumerator();
+            DynamicCSVRowEnumerator e = new DynamicCSVRowEnumerator(values.GetEnumerator(), bookmarks.GetEnumerator());
+            return e;
         }
     }
 

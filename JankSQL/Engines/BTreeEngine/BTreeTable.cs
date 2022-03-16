@@ -1,122 +1,27 @@
 ﻿
 using CSharpTest.Net.Collections;
 using CSharpTest.Net.Serialization;
-using System.Collections;
 
 namespace JankSQL.Engines
 {
-    class IExpressionOperandComparer : IComparer<ExpressionOperand[]>
-    {
-        int[]? keyOrder;
-
-        public IExpressionOperandComparer(int[] keyOrder)
-        {
-            this.keyOrder = keyOrder;
-        }
-
-        public IExpressionOperandComparer()
-        {
-            keyOrder = null;
-        }
-
-        public int Compare(ExpressionOperand[]? x, ExpressionOperand[]? y)
-        {
-            if (x == null)
-                throw new ArgumentNullException("x");
-            if (y == null)
-                throw new ArgumentNullException("y");
-            if (x.Length != y.Length)
-                throw new ArgumentException($"sizes are different: {x.Length} and {y.Length}");
-
-            int ret;
-            if (keyOrder != null)
-            {
-                int keyNumber = 0;
-                do
-                {
-                    ret = x[keyOrder[keyNumber]].CompareTo(y[keyOrder[keyNumber]]);
-                    keyNumber++;
-                } while (ret == 0 && keyNumber < keyOrder.Length);
-            }
-            else
-            {
-                int keyNumber = 0;
-                do
-                {
-                    ret = x[keyNumber].CompareTo(y[keyNumber]);
-                    keyNumber++;
-                } while (ret == 0 && keyNumber < x.Length);
-            }
-
-            // Console.WriteLine($"{String.Join(",", x)} compared to {String.Join(",", y)} --> {ret}");
-
-            return ret;
-        }
-    }
-
-
-    internal class BTreeRowEnumerator : IEnumerator<ExpressionOperand[]>
-    {
-        IEnumerator<KeyValuePair<ExpressionOperand[], ExpressionOperand[]>> treeEnumerator;
-
-        internal BTreeRowEnumerator(BPlusTree<ExpressionOperand[], ExpressionOperand[]> tree)
-        {
-            treeEnumerator = tree.GetEnumerator();
-        }
-
-        public ExpressionOperand[] Current
-        {
-            get
-            {
-                ExpressionOperand[] result = new ExpressionOperand[treeEnumerator.Current.Value.Length + 1];
-
-                for (int i = 0; i < treeEnumerator.Current.Value.Length; i++)
-                    result[i] = treeEnumerator.Current.Value[i];
-
-                result[treeEnumerator.Current.Value.Length] = new ExpressionOperandBookmark(treeEnumerator.Current.Key);
-                return result;
-            }
-        }
-
-        object IEnumerator.Current
-        {
-            get
-            {
-                return Current;
-            }
-        }
-
-        public void Dispose()
-        {
-            treeEnumerator.Dispose();
-        }
-
-        public bool MoveNext()
-        {
-            return treeEnumerator.MoveNext();
-        }
-
-        public void Reset()
-        {
-            treeEnumerator.Reset();
-        }
-    }
 
     internal class BTreeTable : IEngineTable
     {
         List<FullColumnName> keyColumnNames;
         List<FullColumnName> valueColumnNames;
-        Dictionary<FullColumnName, int> columnNameIndexes;
-        ExpressionOperandType[] keyTypes;
-        ExpressionOperandType[] valueTypes;
+        Dictionary<string, int> columnNameIndexes;
+        readonly ExpressionOperandType[] keyTypes;
+        readonly ExpressionOperandType[] valueTypes;
         int nextBookmark = 1;
-        string tableName;
+        readonly string tableName;
+        bool hasUniqueKey;
 
         BPlusTree<ExpressionOperand[], ExpressionOperand[]> myTree;
 
         internal BTreeTable(string tableName, ExpressionOperandType[] keyTypes, List<FullColumnName> keyNames, ExpressionOperandType[] valueTypes, List<FullColumnName> valueNames)
         {
             myTree = new BPlusTree<ExpressionOperand[], ExpressionOperand[]>(new IExpressionOperandComparer());
+            hasUniqueKey = true;
 
             this.keyTypes = keyTypes;
             this.valueTypes = valueTypes;
@@ -125,30 +30,67 @@ namespace JankSQL.Engines
             keyColumnNames = new();
             valueColumnNames = new();
 
-            columnNameIndexes = new Dictionary<FullColumnName, int>();
+            columnNameIndexes = new Dictionary<string, int>();
             int n = 0;
             for (int i = 0; i < valueNames.Count; i++)
             {
                 FullColumnName fcn = FullColumnName.FromTableColumnName(tableName, valueNames[i].ColumnNameOnly());
                 valueColumnNames.Add(fcn);
-                columnNameIndexes.Add(fcn, n++);
+                columnNameIndexes.Add(fcn.ColumnNameOnly(), n++);
             }
             for (int i = 0; i < keyNames.Count; i++)
             {
                 FullColumnName fcn = FullColumnName.FromTableColumnName(tableName, keyNames[i].ColumnNameOnly());
                 keyColumnNames.Add(fcn);
-                columnNameIndexes.Add(fcn, n++);
+                columnNameIndexes.Add(fcn.ColumnNameOnly(), n++);
             }
         }
 
-        public int ColumnCount => keyColumnNames.Count + valueColumnNames.Count;
+        internal BTreeTable(string tableName, ExpressionOperandType[] valueTypes, List<FullColumnName> valueNames)
+        {
+            myTree = new BPlusTree<ExpressionOperand[], ExpressionOperand[]>(new IExpressionOperandComparer());
+            hasUniqueKey = false;
+
+            this.keyTypes = new ExpressionOperandType[] { ExpressionOperandType.INTEGER };
+            this.valueTypes = valueTypes;
+            this.tableName = tableName;
+
+            keyColumnNames = new();
+            valueColumnNames = new();
+
+            columnNameIndexes = new Dictionary<string, int>();
+            int n = 0;
+            for (int i = 0; i < valueNames.Count; i++)
+            {
+                FullColumnName fcn = FullColumnName.FromTableColumnName(tableName, valueNames[i].ColumnNameOnly());
+                valueColumnNames.Add(fcn);
+                columnNameIndexes.Add(fcn.ColumnNameOnly(), n++);
+            }
+
+            // just the bookmark key
+            FullColumnName fcnBookmark = FullColumnName.FromTableColumnName(tableName, "bookmark_key");
+            keyColumnNames.Add(fcnBookmark);
+            columnNameIndexes.Add(fcnBookmark.ColumnNameOnly(), n++);
+        }
+
+
+        public int ColumnCount
+        {
+            get
+            {
+                if (hasUniqueKey)
+                    return keyColumnNames.Count + valueColumnNames.Count;
+                else
+                    return valueColumnNames.Count;
+            }
+        }
 
         public int ColumnIndex(string columnName)
         {
             FullColumnName probe = FullColumnName.FromColumnName(columnName);
 
             int index;
-            if (columnNameIndexes.TryGetValue(probe, out index))
+            if (columnNameIndexes.TryGetValue(probe.ColumnNameOnly(), out index))
                 return index;
             else
                 return -1;
@@ -165,10 +107,22 @@ namespace JankSQL.Engines
 
         public int DeleteRows(List<ExpressionOperandBookmark> bookmarksToDelete)
         {
-            throw new NotImplementedException();
+            if (bookmarksToDelete[0].Tuple.Length != keyColumnNames.Count)
+            {
+                throw new ArgumentException($"bookmark key should be {keyColumnNames.Count} columns, received {bookmarksToDelete[0].Tuple.Length} columns");
+            }
+
+            int deletedCount = 0;
+            foreach(var bookmark in bookmarksToDelete)
+            {
+                bool found = myTree.Remove(bookmark.Tuple);
+                if (found) deletedCount++;
+            }
+
+            return deletedCount;
         }
 
-        public IEnumerator<ExpressionOperand[]> GetEnumerator()
+        public IEnumerator<RowWithBookmark> GetEnumerator()
         {
             return new BTreeRowEnumerator(myTree);
         }
@@ -197,6 +151,14 @@ namespace JankSQL.Engines
         public void TruncateTable()
         {
             myTree.Clear();
+        }
+
+        public void Dump()
+        {
+            foreach(var row in myTree)
+            {
+                Console.WriteLine($"{row.Key} ==> {row.Value}");
+            }
         }
     }
 }
