@@ -8,7 +8,7 @@ namespace Tests
     public class ExecuteWhereTests
     {
         internal string mode = "base";
-        internal Engines.IEngine? engine = null;
+        internal Engines.IEngine engine;
 
 
         [TestMethod, Timeout(1000)]

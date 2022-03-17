@@ -6,7 +6,7 @@ namespace JankSQL
         string? linkedServerName;
         string? schemaName;
         string? databaseName;
-        string tableName;
+        readonly string tableName;
 
         internal static FullTableName FromTableNameContext(TSqlParser.Table_nameContext context)
         {

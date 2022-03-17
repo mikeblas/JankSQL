@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace JankSQL
 {
     public class FullColumnName
@@ -11,7 +6,7 @@ namespace JankSQL
         string? serverName;
         string? schemaName;
         string? tableName;
-        string columnName;
+        readonly string columnName;
 
         FullColumnName(string columnName)
         {
@@ -42,8 +37,7 @@ namespace JankSQL
 
         public override bool Equals(object? o)
         {
-            var other = o as FullColumnName;
-            if (other == null)
+            if (o is not FullColumnName other)
                 return false;
 
             if (other.serverName != null && !other.serverName.Equals(this.serverName, StringComparison.InvariantCultureIgnoreCase))

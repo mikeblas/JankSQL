@@ -8,7 +8,7 @@ namespace JankSQL
     {
         private int depth = 0;
 
-        ExecutionContext executionContext = new ExecutionContext();
+        readonly ExecutionContext executionContext = new();
         SelectContext? selectContext;
         PredicateContext? predicateContext;
 
@@ -75,12 +75,10 @@ namespace JankSQL
             if (selectContext.SelectListContext == null)
                 throw new InternalErrorException("Expected a SelectListContext");
 
-
-            List<List<Expression>> xList = new();
             foreach (var elem in context.select_list_elem())
             {
                 FullColumnName? fcn = null;
-                Expression? x = null;
+                Expression? x;
 
                 if (elem.column_elem() != null)
                 {
@@ -282,21 +280,21 @@ namespace JankSQL
                 FullTableName otherTableName = FullTableName.FromTableNameContext(context.cross_join().table_source().table_source_item_joined().table_source_item().table_name_with_hint().table_name());
                 Console.WriteLine($"CROSS JOIN On {otherTableName}");
 
-                JoinContext jc = new JoinContext(JoinType.CROSS_JOIN, otherTableName);
-                PredicateContext pcon = new PredicateContext();
+                JoinContext jc = new(JoinType.CROSS_JOIN, otherTableName);
+                PredicateContext pcon = new();
                 selectContext.AddJoin(jc, pcon);
             }
             else if (context.join_on() != null)
             {
                 Expression x = GobbleSearchCondition(context.join_on().search_condition());
-                PredicateContext pcon = new PredicateContext();
+                PredicateContext pcon = new();
                 pcon.EndPredicateExpressionList(x);
 
                 // ON join
                 FullTableName otherTableName = FullTableName.FromTableNameContext(context.join_on().table_source().table_source_item_joined().table_source_item().table_name_with_hint().table_name());
                 Console.WriteLine($"INNER JOIN On {otherTableName}");
 
-                JoinContext jc = new JoinContext(JoinType.INNER_JOIN, otherTableName);
+                JoinContext jc = new(JoinType.INNER_JOIN, otherTableName);
                 selectContext.AddJoin(jc, pcon);
             }
             else 
