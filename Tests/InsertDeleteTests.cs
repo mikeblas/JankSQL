@@ -2,7 +2,6 @@
 
 using JankSQL;
 using Engines = JankSQL.Engines;
-using System.Collections.Generic;
 
 namespace Tests
 {

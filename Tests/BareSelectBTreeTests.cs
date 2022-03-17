@@ -1,7 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Engines = JankSQL.Engines;
-using System;
 
 namespace Tests
 {

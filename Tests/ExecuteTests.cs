@@ -2,14 +2,13 @@
 
 using JankSQL;
 using Engines = JankSQL.Engines;
-using System;
 
 namespace Tests
 {
     public class ExecuteTests
     {
         internal string mode = "base";
-        internal Engines.IEngine? engine = null;
+        internal Engines.IEngine engine;
 
         [TestMethod, Timeout(1000)]
         public void TestSelectExpressionPowerExpressionParams()
