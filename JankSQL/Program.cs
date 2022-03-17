@@ -79,6 +79,11 @@ namespace JankSQL
             // str = "SELECT [city_name], [population]*2, [population] FROM [mytable];";
             // str = "SELECT POWER((10/2), 15/5) FROM [mytable];";
 
+            str = "SELECT SUM(number_id) FROM ten";
+            str = "SELECT SUM(number_id), COUNT(number_id) FROM ten";
+            str = "SELECT SUM(number_id), COUNT(number_id) FROM ten GROUP BY Polarity";
+
+
 
             // Engines.DynamicCSVEngine engine = Engines.DynamicCSVEngine.OpenAlways("F:\\JankTests\\Test33");
 
@@ -89,6 +94,25 @@ namespace JankSQL
             string tempPath = System.IO.Path.GetTempPath();
             tempPath = Path.Combine(tempPath, "XYZZY");
             var csvEngine = Engines.DynamicCSVEngine.OpenObliterate(tempPath);
+
+            Engines.TestTable tt10 = Engines.TestTableBuilder.NewBuilder()
+                .WithTableName("ten")
+                .WithColumnNames(new string[] { "number_id", "number_name" })
+                .WithColumnTypes(new ExpressionOperandType[] { ExpressionOperandType.INTEGER, ExpressionOperandType.VARCHAR })
+                .WithRow(new object[] { 1, "one" })
+                .WithRow(new object[] { 2, "two" })
+                .WithRow(new object[] { 3, "three" })
+                .WithRow(new object[] { 4, "four" })
+                .WithRow(new object[] { 5, "fiave" })
+                .WithRow(new object[] { 6, "six" })
+                .WithRow(new object[] { 7, "seven" })
+                .WithRow(new object[] { 8, "eight" })
+                .WithRow(new object[] { 9, "nine" })
+                .WithRow(new object[] { 0, "zero" })
+                .Build();
+
+            csvEngine.InjectTestTable(tt10);
+            btreeEngine.InjectTestTable(tt10);
 
             Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
                 .WithTableName("mytable")
