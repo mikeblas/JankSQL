@@ -4,12 +4,12 @@
     {
         public int ColumnCount => 0;
 
-        int IEngineTable.ColumnIndex(string columnName)
+        public int ColumnIndex(string columnName)
         {
             return -1;
         }
 
-        FullColumnName IEngineTable.ColumnName(int n)
+        public FullColumnName ColumnName(int n)
         {
             throw new NotImplementedException();
         }
