@@ -81,7 +81,7 @@ namespace JankSQL
 
             str = "SELECT SUM(number_id) FROM ten";
             str = "SELECT SUM(number_id), COUNT(number_id) FROM ten";
-            str = "SELECT SUM(number_id), COUNT(number_id) FROM ten GROUP BY Polarity";
+            str = "SELECT 23 * SUM(number_id), COUNT(number_id) FROM ten GROUP BY Polarity";
 
 
 

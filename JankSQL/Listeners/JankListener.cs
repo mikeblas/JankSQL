@@ -209,6 +209,19 @@ namespace JankSQL
                                 stack.Add(exprContext.expression()[e]);
                             }
                         }
+                        else if (childContext is TSqlParser.Aggregate_windowed_functionContext)
+                        {
+                            TSqlParser.Aggregate_windowed_functionContext awfc = (TSqlParser.Aggregate_windowed_functionContext)(childContext);
+                            Aggregation agg = GobbleAggregateFunctionContext(awfc);
+
+                            // throw new NotImplementedException("can't yet handle AWFC in expresion");
+                            ExpressionNode n = new ExpressionOperandFromColumn(FullColumnName.FromColumnName("AGGREGATION_OUTPUT"));
+                            x.Add(n);
+                        }
+                        else
+                        {
+                            throw new NotImplementedException("Unknown function_call type");
+                        }
                     }
 
                 }
