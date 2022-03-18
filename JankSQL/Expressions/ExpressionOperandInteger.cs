@@ -1,6 +1,6 @@
 ﻿namespace JankSQL
 {
-    internal class ExpressionOperandInteger : ExpressionOperand, IComparable<ExpressionOperandInteger>
+    internal class ExpressionOperandInteger : ExpressionOperand, IComparable<ExpressionOperandInteger>, IEquatable<ExpressionOperandInteger>
     {
         internal int n;
         internal ExpressionOperandInteger(int n)
@@ -174,6 +174,21 @@
             ExpressionOperandInteger o = (ExpressionOperandInteger)other;
             int result = n.CompareTo(o.n);
             return result;
+        }
+
+        public bool Equals(ExpressionOperandInteger? other)
+        {
+            return 0 == CompareTo(other);
+        }
+
+        public override bool Equals(object o)
+        {
+            return this.Equals(o as ExpressionOperandInteger);
+        }
+
+        public override int GetHashCode()
+        {
+            return n.GetHashCode();
         }
     }
 }

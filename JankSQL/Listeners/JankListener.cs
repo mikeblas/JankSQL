@@ -90,12 +90,9 @@ namespace JankSQL
                 }
                 else if (elem.expression_elem() != null)
                 {
-                    Console.WriteLine("NNN: Got expression");
-
                     if (elem.expression_elem().as_column_alias() != null)
                     {
                         fcn = FullColumnName.FromColumnName(elem.expression_elem().as_column_alias().GetText());
-                        // throw new NotImplementedException("Can't handle AS alias");
                     }
 
                     x = GobbleExpression(elem.expression_elem().expression());
@@ -104,7 +101,6 @@ namespace JankSQL
                 {
                     Console.WriteLine("asterisk!");
                     continue;
-                    //TODO: what should this do?
                 }
                 else
                 {
@@ -117,38 +113,39 @@ namespace JankSQL
                 else
                     selectContext.SelectListContext.AddUnknownRowsetColumnName();
 
-                Console.WriteLine($"NNN:   {String.Join(" ", x)}");
-                selectContext.EndSelectListExpressionList(x);
+                Console.WriteLine($"SelectListElement:   {String.Join(" ", x)}");
+                selectContext.AddSelectListExpressionList(x);
             }
         }
+
 
         Expression GobbleExpression(TSqlParser.ExpressionContext expr)
         {
             Expression x = new();
             List<object> stack = new();
             stack.Add(expr);
+            int expressionID = 1001;
 
             while (stack.Count > 0)
             {
                 // object rule = stack.Pop();
                 object rule = stack[^1];
                 stack.RemoveAt(stack.Count - 1);
-                if (rule is TSqlParser.Primitive_expressionContext)
+                if (rule is TSqlParser.Primitive_expressionContext primitiveContext)
                 {
-                    TSqlParser.Primitive_expressionContext context = (TSqlParser.Primitive_expressionContext)(rule);
-                    if (context.constant().FLOAT() is not null)
+                    if (primitiveContext.constant().FLOAT() != null)
                     {
-                        string str = context.constant().FLOAT().GetText();
+                        string str = primitiveContext.constant().FLOAT().GetText();
                         Console.WriteLine($"constant: '{str}'");
-                        bool isNegative = context.constant().sign() is not null;
+                        bool isNegative = primitiveContext.constant().sign() != null;
                         ExpressionNode n = ExpressionOperand.DecimalFromString(isNegative, str);
                         x.Add(n);
                     }
-                    else if (context.constant().DECIMAL() is not null)
+                    else if (primitiveContext.constant().DECIMAL() != null)
                     {
-                        string str = context.constant().DECIMAL().GetText();
+                        string str = primitiveContext.constant().DECIMAL().GetText();
                         Console.WriteLine($"constant: '{str}'");
-                        bool isNegative = context.constant().sign() is not null;
+                        bool isNegative = primitiveContext.constant().sign() != null;
 
                         ExpressionOperandType t = ExpressionOperand.IntegerOrDecimal(str);
                         ExpressionNode n;
@@ -160,72 +157,73 @@ namespace JankSQL
 
                         x.Add(n);
                     }
-                    else if (context.constant().STRING() is not null)
+                    else if (primitiveContext.constant().STRING() != null)
                     {
                         // up to us to decide if its NVARCHAR or not
-                        string str = context.constant().STRING().GetText();
+                        string str = primitiveContext.constant().STRING().GetText();
                         if (str[0] == 'N')
                         {
-                            Console.WriteLine($"constant: '{context.constant().STRING()}'");
+                            Console.WriteLine($"constant: '{primitiveContext.constant().STRING()}'");
                             ExpressionNode n = ExpressionOperand.NVARCHARFromStringContext(str);
                             x.Add(n);
                         }
                         else
                         {
-                            Console.WriteLine($"constant: '{context.constant().STRING()}'");
+                            Console.WriteLine($"constant: '{primitiveContext.constant().STRING()}'");
                             ExpressionNode n = ExpressionOperand.VARCHARFromStringContext(str);
                             x.Add(n);
                         }
                     }
                 }
-                else if (rule is TSqlParser.Function_callContext)
+                else if (rule is TSqlParser.Function_callContext functionCallContext)
                 {
-                    TSqlParser.Function_callContext context = (TSqlParser.Function_callContext)rule;
-                    Console.WriteLine("Function_callContext");
-                    string? functionNane = null;
+                    Console.WriteLine($"Function_callContext with {functionCallContext.ChildCount} children");
+                    string? functionNane;
                     int firstTop = stack.Count;
 
-                    for (int i = context.ChildCount - 1; i >= 0; i--)
-                    {
-                        IParseTree childContext = context.GetChild(i);
+                    // why doesn't Function_callContext have any useful members?
+                    // we must go after child nodes with GetChild() directly
 
-                        if (childContext is TSqlParser.Scalar_function_nameContext scalarContext)
-                        {
-                            functionNane = scalarContext.func_proc_name_server_database_schema().func_proc_name_database_schema().func_proc_name_schema().procedure.GetText();
-                            ExpressionNode n = new ExpressionOperator(functionNane);
-                            stack.Insert(firstTop, n);
-                        }
-                        else if (childContext is TSqlParser.ExpressionContext)
-                        {
-                            stack.Add(childContext);
-                        }
-                        else if (childContext is TSqlParser.Expression_listContext exprContext)
+                    IParseTree childContext = functionCallContext.GetChild(0);
+                    if (childContext is TSqlParser.Scalar_function_nameContext scalarContext)
+                    {
+                        // get a function call
+                        functionNane = scalarContext.func_proc_name_server_database_schema().func_proc_name_database_schema().func_proc_name_schema().procedure.GetText();
+                        ExpressionNode n = new ExpressionOperator(functionNane);
+                        stack.Insert(firstTop, n);
+
+                        // and its argument list
+                        if (functionCallContext.GetChild(2) is TSqlParser.Expression_listContext exprContext)
                         {
                             for (int e = exprContext.expression().Length - 1; e >= 0; e--)
                             {
                                 stack.Add(exprContext.expression()[e]);
                             }
                         }
-                        else if (childContext is TSqlParser.Aggregate_windowed_functionContext awfc)
-                        {
-                            AggregateContext agg = GobbleAggregateFunctionContext(awfc);
-
-                            // throw new NotImplementedException("can't yet handle AWFC in expresion");
-                            ExpressionNode n = new ExpressionOperandFromColumn(FullColumnName.FromColumnName("AGGREGATION_OUTPUT"));
-                            x.Add(n);
-                        }
-                        else
-                        {
-                            throw new NotImplementedException("Unknown function_call type");
-                        }
                     }
+                    else if (childContext is TSqlParser.Aggregate_windowed_functionContext awfc)
+                    {
+                        if (selectContext == null)
+                            throw new InternalErrorException("Expected a SelectContext");
 
+                        AggregateContext agg = GobbleAggregateFunctionContext(awfc, expressionID++);
+                        selectContext.AddAggregate(agg);
+
+                        // throw new NotImplementedException("can't yet handle AWFC in expresion");
+                        ExpressionNode n = new ExpressionOperandFromColumn(FullColumnName.FromColumnName(agg.ExpressionName));
+                        x.Add(n);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"functionCallContext: skpping {childContext.GetText()}");
+                        // throw new NotImplementedException("Unknown function_call type");
+                    }
                 }
                 else if (rule is TSqlParser.ExpressionContext xContext)
                 {
                     if (xContext.op != null)
                     {
-                        Console.WriteLine($"operator: '{xContext.op.Text}'");
+                        Console.WriteLine($"expressionContext: '{xContext.op.Text}'");
                         ExpressionNode n = new ExpressionOperator(xContext.op.Text);
                         stack.Add(n);
                     }

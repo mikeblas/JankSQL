@@ -79,9 +79,10 @@ namespace JankSQL
             // str = "SELECT [city_name], [population]*2, [population] FROM [mytable];";
             // str = "SELECT POWER((10/2), 15/5) FROM [mytable];";
 
-            str = "SELECT SUM(number_id) FROM ten";
-            str = "SELECT SUM(number_id), COUNT(number_id) FROM ten";
-            str = "SELECT 23 * SUM(number_id), COUNT(number_id) FROM ten GROUP BY Polarity";
+            // str = "SELECT SUM(number_id) FROM ten";
+            // str = "SELECT SUM(number_id), COUNT(number_id) FROM ten";
+            str = "SELECT 10* SUM(number_id), COUNT(number_id) * 100 FROM ten";
+            // str = "SELECT 23 * SUM(number_id), COUNT(number_id) FROM ten GROUP BY Polarity";
 
 
 

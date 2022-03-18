@@ -380,6 +380,21 @@ namespace Tests
         }
 
         [TestMethod, Timeout(1000)]
+        public void TestFunctionPI()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT PI();");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.AreEqual(3.14159, result.ResultSet.Row(0)[0].AsDouble(), 0.00001);
+        }
+
+
+        [TestMethod, Timeout(1000)]
         public void TestFunctionPOWER()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT POWER(9, 3);");

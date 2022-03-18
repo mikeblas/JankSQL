@@ -10,12 +10,20 @@ namespace JankSQL
     internal class AggregateContext
     {
         private AggregationOperatorType aggregationOperatorType;
-        Expression expression;
+        readonly Expression expression;
+        readonly string expressionName;
 
-        internal AggregateContext(AggregationOperatorType aggregationType, Expression expression)
+        internal string ExpressionName { get { return expressionName; } }
+
+        internal Expression Expression { get { return expression; } }
+
+        internal AggregationOperatorType AggregationOperatorType { get { return aggregationOperatorType; } }
+
+        internal AggregateContext(AggregationOperatorType aggregationType, Expression expression, int expressionID)
         {
             this.expression = expression;
             this.aggregationOperatorType = aggregationType;
+            expressionName = $"EXPR{expressionID}";
         }
     }
 }

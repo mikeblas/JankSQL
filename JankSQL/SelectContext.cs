@@ -35,7 +35,7 @@ namespace JankSQL
         internal PredicateContext? PredicateContext { get { return predicateContext; } set { predicateContext = value; } }
 
 
-        internal void EndSelectListExpressionList(Expression expression)
+        internal void AddSelectListExpressionList(Expression expression)
         {
             if (selectList == null)
                 throw new InternalErrorException("Expected a SelectList");
@@ -105,6 +105,13 @@ namespace JankSQL
             {
                 Filter filter = new Filter(lastLeftOutput, predicateContext.PredicateExpressions);
                 lastLeftOutput = filter;
+            }
+
+            // finally, see if we have an aggregation
+            if (aggregateContexts.Count > 0)
+            {
+                Aggregation agger = new Aggregation(lastLeftOutput, aggregateContexts, null);
+                lastLeftOutput = agger;
             }
 
             // then the select

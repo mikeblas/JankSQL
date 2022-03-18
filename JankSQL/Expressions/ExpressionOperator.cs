@@ -64,6 +64,12 @@
                 ExpressionOperand result = ExpressionOperand.DecimalFromDouble(d);
                 return result;
             }
+            else if (str == "PI")
+            {
+                double d = Math.PI;
+                ExpressionOperand result = ExpressionOperand.DecimalFromDouble(d);
+                return result;
+            }
             else
             {
                 throw new NotImplementedException($"ExpressionOperator: no implementation for {str}");
