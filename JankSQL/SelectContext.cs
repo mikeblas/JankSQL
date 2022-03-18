@@ -9,8 +9,8 @@ namespace JankSQL
         // for WHERE clauses
         PredicateContext? predicateContext;
 
-        readonly List<JoinContext> joinContexts = new List<JoinContext>();
-
+        readonly List<JoinContext> joinContexts = new ();
+        readonly List<AggregateContext> aggregateContexts = new();
 
         internal void AddJoin(JoinContext jc, PredicateContext predicateContext)
         {
@@ -19,6 +19,13 @@ namespace JankSQL
                 jc.PredicateExpressions = predicateContext.PredicateExpressions;
             predicateContext = new PredicateContext();
         }
+
+        internal void AddAggregate(AggregateContext ac)
+        {
+            aggregateContexts.Add(ac);
+        }
+
+
 
         internal SelectContext(TSqlParser.Select_statementContext context)
         {

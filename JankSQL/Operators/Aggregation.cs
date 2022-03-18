@@ -1,25 +1,40 @@
 ﻿
 namespace JankSQL
 {
-    internal enum AggregationOperatorType
-    {
-        AVG, MAX, MIN, SUM, STDEV, STDEVP, VAR, VARP, COUNT, COUNT_BIG
-    }
-
     internal class Aggregation : IComponentOutput
     {
-        AggregationOperatorType operatorType;
-        Expression expression;
+        List<AggregationOperatorType> operatorTypes;
+        List<Expression> expressions;
 
-        internal Aggregation(AggregationOperatorType operatorType, Expression expression)
+        List<Expression> groupByExpressions;
+
+        IComponentOutput myInput;
+        bool inputExhausted;
+
+        internal Aggregation(IComponentOutput input, List<AggregationOperatorType> operators, List<Expression> expressions,
+            List<Expression> groupByExpressions)
         {
-            this.operatorType = operatorType;
-            this.expression = expression;
+            this.operatorTypes = operators;
+            this.expressions = expressions;
+            this.groupByExpressions = groupByExpressions;
+            myInput = input;
+            inputExhausted = false;
         }
 
         public ResultSet? GetRows(int max)
         {
+            if (!inputExhausted)
+                ReadInput();
+
             throw new NotImplementedException();
+        }
+
+        void ReadInput()
+        {
+
+
+
+            inputExhausted = false;
         }
 
         public void Rewind()
@@ -28,3 +43,4 @@ namespace JankSQL
         }
     }
 }
+
