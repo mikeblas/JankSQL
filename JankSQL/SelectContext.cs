@@ -11,6 +11,7 @@ namespace JankSQL
 
         readonly List<JoinContext> joinContexts = new ();
         readonly List<AggregateContext> aggregateContexts = new();
+        readonly List<Expression> groupByExpressions = new();
 
         internal void AddJoin(JoinContext jc, PredicateContext predicateContext)
         {
@@ -24,6 +25,11 @@ namespace JankSQL
         {
             ac.ExpressionName = $"Aggregate{aggregateContexts.Count + 1001}";
             aggregateContexts.Add(ac);
+        }
+
+        internal void AddGroupByExpression(Expression expression)
+        {
+            groupByExpressions.Add(expression);
         }
 
         internal SelectContext(TSqlParser.Select_statementContext context)
@@ -109,7 +115,7 @@ namespace JankSQL
             // finally, see if we have an aggregation
             if (aggregateContexts.Count > 0)
             {
-                Aggregation agger = new Aggregation(lastLeftOutput, aggregateContexts, null);
+                Aggregation agger = new Aggregation(lastLeftOutput, aggregateContexts, groupByExpressions);
                 lastLeftOutput = agger;
             }
 

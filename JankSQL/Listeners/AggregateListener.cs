@@ -67,6 +67,17 @@ namespace JankSQL
 
             return ac;
         }
+
+        public override void EnterGroup_by_item([NotNull] TSqlParser.Group_by_itemContext context)
+        {
+            base.EnterGroup_by_item(context);
+
+            if (selectContext == null)
+                throw new InternalErrorException("Expected a SelectContext");
+
+            Expression gbe = GobbleExpression(context.expression());
+            selectContext.AddGroupByExpression(gbe);
+        }
     }
 }
 

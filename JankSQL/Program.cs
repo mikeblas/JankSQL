@@ -84,8 +84,10 @@ namespace JankSQL
             str = "SELECT 10* SUM(number_id), COUNT(number_id) * 100 FROM ten";
             // str = "SELECT 23 * SUM(number_id), COUNT(number_id) FROM ten GROUP BY Polarity";
 
-            str = "SELECT MIN(number_name), MAX(number_name) FROM ten";
+            // str = "SELECT MIN(number_name), MAX(number_name) FROM ten";
 
+            // str = "SELECT MIN(number_name), MAX(number_name) FROM ten GROUP BY is_even";
+            str = "SELECT is_even, MIN(number_name), MAX(number_name) FROM ten GROUP BY is_even";
 
             // Engines.DynamicCSVEngine engine = Engines.DynamicCSVEngine.OpenAlways("F:\\JankTests\\Test33");
 
@@ -99,18 +101,18 @@ namespace JankSQL
 
             Engines.TestTable tt10 = Engines.TestTableBuilder.NewBuilder()
                 .WithTableName("ten")
-                .WithColumnNames(new string[] { "number_id", "number_name" })
-                .WithColumnTypes(new ExpressionOperandType[] { ExpressionOperandType.INTEGER, ExpressionOperandType.VARCHAR })
-                .WithRow(new object[] { 1, "one" })
-                .WithRow(new object[] { 2, "two" })
-                .WithRow(new object[] { 3, "three" })
-                .WithRow(new object[] { 4, "four" })
-                .WithRow(new object[] { 5, "five" })
-                .WithRow(new object[] { 6, "six" })
-                .WithRow(new object[] { 7, "seven" })
-                .WithRow(new object[] { 8, "eight" })
-                .WithRow(new object[] { 9, "nine" })
-                .WithRow(new object[] { 0, "zero" })
+                .WithColumnNames(new string[] { "number_id", "number_name", "is_even" })
+                .WithColumnTypes(new ExpressionOperandType[] { ExpressionOperandType.INTEGER, ExpressionOperandType.VARCHAR, ExpressionOperandType.INTEGER })
+                .WithRow(new object[] { 1, "one",   0 })
+                .WithRow(new object[] { 2, "two",   1 })
+                .WithRow(new object[] { 3, "three", 0 })
+                .WithRow(new object[] { 4, "four",  1 })
+                .WithRow(new object[] { 5, "five",  0 })
+                .WithRow(new object[] { 6, "six",   1 })
+                .WithRow(new object[] { 7, "seven", 0 })
+                .WithRow(new object[] { 8, "eight", 1 })
+                .WithRow(new object[] { 9, "nine",  0 })
+                .WithRow(new object[] { 0, "zero",  1 })
                 .Build();
 
             csvEngine.InjectTestTable(tt10);
