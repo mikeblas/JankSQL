@@ -31,7 +31,7 @@ namespace Tests
                 .WithRow(new object[] { 2, "two" })
                 .WithRow(new object[] { 3, "three" })
                 .WithRow(new object[] { 4, "four" })
-                .WithRow(new object[] { 5, "fiave" })
+                .WithRow(new object[] { 5, "five" })
                 .WithRow(new object[] { 6, "six" })
                 .WithRow(new object[] { 7, "seven" })
                 .WithRow(new object[] { 8, "eight" })

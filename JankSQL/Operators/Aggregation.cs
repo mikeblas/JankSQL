@@ -35,6 +35,59 @@ namespace JankSQL
         }
     }
 
+    class MaxAccumulator : IAggregateAccumulator
+    {
+        ExpressionOperand? max;
+
+        internal MaxAccumulator()
+        {
+        }
+
+        public void Accumulate(ExpressionOperand op)
+        {
+            if (max == null)
+                max = op;
+            else
+            {
+                int comp = max.CompareTo(op);
+                if (comp < 0)
+                    max = op;
+            }
+        }
+
+        public ExpressionOperand FinalValue()
+        {
+            return max;
+        }
+    }
+
+
+    class MinAccumulator : IAggregateAccumulator
+    {
+        ExpressionOperand? min;
+
+        internal MinAccumulator()
+        {
+        }
+
+        public void Accumulate(ExpressionOperand op)
+        {
+            if (min == null)
+                min = op;
+            else
+            {
+                int comp = min.CompareTo(op);
+                if (comp > 0)
+                    min = op;
+            }
+        }
+
+        public ExpressionOperand FinalValue()
+        {
+            return min;
+        }
+    }
+
 
     class CountAccumulator : IAggregateAccumulator
     {
@@ -96,7 +149,7 @@ namespace JankSQL
         readonly List<string> expressionNames;
         readonly List<Expression>? groupByExpressions;
 
-        Dictionary<ExpressionOperand[], List<IAggregateAccumulator>> listDictResults2;
+        Dictionary<ExpressionOperand[], List<IAggregateAccumulator>> dictKeyToAggs;
 
         readonly List<FullColumnName> outputNames = new();
 
@@ -110,7 +163,7 @@ namespace JankSQL
             expressionNames = new List<string>();
             expressions = new List<Expression>();
             operatorTypes = new List<AggregationOperatorType>();
-            listDictResults2 = new Dictionary<ExpressionOperand[], List<IAggregateAccumulator>>(new ExpressionOperandEqualityComparator());
+            dictKeyToAggs = new Dictionary<ExpressionOperand[], List<IAggregateAccumulator>>(new ExpressionOperandEqualityComparator());
 
             foreach (var context in contexts)
             {
@@ -132,24 +185,15 @@ namespace JankSQL
             foreach (var operatorType in operatorTypes)
             {
                 IAggregateAccumulator? accum = null;
-                switch (operatorType)
+                accum = operatorType switch
                 {
-                    case AggregationOperatorType.SUM:
-                        accum = new SumAccumulator();
-                        break;
-
-                    case AggregationOperatorType.AVG:
-                        accum = new AvgAccumulator();
-                        break;
-
-                    case AggregationOperatorType.COUNT:
-                        accum = new CountAccumulator();
-
-                        break;
-
-                    default:
-                        throw new NotImplementedException($"Can't yet accumulate {operatorType}");
-                }
+                    AggregationOperatorType.SUM => new SumAccumulator(),
+                    AggregationOperatorType.AVG => new AvgAccumulator(),
+                    AggregationOperatorType.COUNT => new CountAccumulator(),
+                    AggregationOperatorType.MIN => new MinAccumulator(),
+                    AggregationOperatorType.MAX => new MaxAccumulator(),
+                    _ => throw new NotImplementedException($"Can't yet accumulate {operatorType}"),
+                };
                 accumulators.Add(accum);
             }
 
@@ -168,7 +212,7 @@ namespace JankSQL
                 BuildOutputColumnNames();
             }
 
-            foreach(var kv in listDictResults2)
+            foreach(var kv in dictKeyToAggs)
             {
                 Console.Write($"{String.Join(",", kv.Key.Select(x => "[" + x + "]"))}");
 
@@ -189,7 +233,7 @@ namespace JankSQL
                 // the number of columns equal to the number of aggregaton expressions
                 ExpressionOperand[] outputRow = new ExpressionOperand[expressions.Count];
 
-                var kvFirst = listDictResults2.First();
+                var kvFirst = dictKeyToAggs.First();
                 for (int j = 0; j < kvFirst.Value.Count; j++)
                 {
                     Console.WriteLine($"Expression: {expressions[j]}");
@@ -235,15 +279,15 @@ namespace JankSQL
 
                     // get a rack of accumulators for this key
                     List<IAggregateAccumulator> aggs;
-                    if (!listDictResults2.ContainsKey(groupByKey))
+                    if (!dictKeyToAggs.ContainsKey(groupByKey))
                     {
                         // new one!
                         aggs = GetAccumulatorRow();
-                        listDictResults2.Add(groupByKey, aggs);
+                        dictKeyToAggs.Add(groupByKey, aggs);
                     }
                     else
                     {
-                        aggs = listDictResults2[groupByKey];
+                        aggs = dictKeyToAggs[groupByKey];
                     }
 
                     // evaluate each expression and offer it for them

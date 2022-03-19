@@ -84,6 +84,7 @@ namespace JankSQL
             str = "SELECT 10* SUM(number_id), COUNT(number_id) * 100 FROM ten";
             // str = "SELECT 23 * SUM(number_id), COUNT(number_id) FROM ten GROUP BY Polarity";
 
+            str = "SELECT MIN(number_name), MAX(number_name) FROM ten";
 
 
             // Engines.DynamicCSVEngine engine = Engines.DynamicCSVEngine.OpenAlways("F:\\JankTests\\Test33");
@@ -104,7 +105,7 @@ namespace JankSQL
                 .WithRow(new object[] { 2, "two" })
                 .WithRow(new object[] { 3, "three" })
                 .WithRow(new object[] { 4, "four" })
-                .WithRow(new object[] { 5, "fiave" })
+                .WithRow(new object[] { 5, "five" })
                 .WithRow(new object[] { 6, "six" })
                 .WithRow(new object[] { 7, "seven" })
                 .WithRow(new object[] { 8, "eight" })

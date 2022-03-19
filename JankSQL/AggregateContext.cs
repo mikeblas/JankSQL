@@ -11,9 +11,9 @@ namespace JankSQL
     {
         private AggregationOperatorType aggregationOperatorType;
         readonly Expression expression;
-        readonly string expressionName;
+        string? expressionName;
 
-        internal string ExpressionName { get { return expressionName; } }
+        internal string? ExpressionName { get { return expressionName; } set { expressionName = value; } }
 
         internal Expression Expression { get { return expression; } }
 
@@ -25,5 +25,12 @@ namespace JankSQL
             this.aggregationOperatorType = aggregationType;
             expressionName = $"EXPR{expressionID}";
         }
+
+        internal AggregateContext(AggregationOperatorType aggregationType, Expression expression)
+        {
+            this.expression = expression;
+            this.aggregationOperatorType = aggregationType;
+        }
+
     }
 }

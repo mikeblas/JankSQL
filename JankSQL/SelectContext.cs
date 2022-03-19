@@ -22,10 +22,9 @@ namespace JankSQL
 
         internal void AddAggregate(AggregateContext ac)
         {
+            ac.ExpressionName = $"Aggregate{aggregateContexts.Count + 1001}";
             aggregateContexts.Add(ac);
         }
-
-
 
         internal SelectContext(TSqlParser.Select_statementContext context)
         {

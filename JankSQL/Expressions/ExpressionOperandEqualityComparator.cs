@@ -6,6 +6,11 @@ namespace JankSQL
     {
         public bool Equals(ExpressionOperand[]? x, ExpressionOperand[]? y)
         {
+            if (x == null)
+                throw new ArgumentNullException(nameof(x));
+            if (y == null)
+                throw new ArgumentNullException(nameof(y));
+
             if (x.Length != y.Length)
             {
                 return false;

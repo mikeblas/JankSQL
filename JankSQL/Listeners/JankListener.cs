@@ -124,7 +124,6 @@ namespace JankSQL
             Expression x = new();
             List<object> stack = new();
             stack.Add(expr);
-            int expressionID = 1001;
 
             while (stack.Count > 0)
             {
@@ -206,7 +205,7 @@ namespace JankSQL
                         if (selectContext == null)
                             throw new InternalErrorException("Expected a SelectContext");
 
-                        AggregateContext agg = GobbleAggregateFunctionContext(awfc, expressionID++);
+                        AggregateContext agg = GobbleAggregateFunctionContext(awfc);
                         selectContext.AddAggregate(agg);
 
                         // throw new NotImplementedException("can't yet handle AWFC in expresion");

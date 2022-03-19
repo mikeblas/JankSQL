@@ -181,7 +181,7 @@
             return 0 == CompareTo(other);
         }
 
-        public override bool Equals(object o)
+        public override bool Equals(object? o)
         {
             return this.Equals(o as ExpressionOperandInteger);
         }
