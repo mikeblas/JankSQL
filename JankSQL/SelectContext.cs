@@ -11,6 +11,7 @@ namespace JankSQL
 
         readonly List<JoinContext> joinContexts = new List<JoinContext>();
 
+        OrderByContext? orderByContext;
 
         internal void AddJoin(JoinContext jc, PredicateContext predicateContext)
         {
@@ -27,6 +28,7 @@ namespace JankSQL
 
         internal PredicateContext? PredicateContext { get { return predicateContext; } set { predicateContext = value; } }
 
+        internal OrderByContext? OrderByContext { get { return orderByContext; } set { orderByContext = value; } }
 
         internal void EndSelectListExpressionList(Expression expression)
         {
