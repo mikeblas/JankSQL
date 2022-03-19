@@ -86,8 +86,8 @@ namespace JankSQL
 
             // str = "SELECT MIN(number_name), MAX(number_name) FROM ten";
 
-            // str = "SELECT MIN(number_name), MAX(number_name) FROM ten GROUP BY is_even";
-            str = "SELECT is_even, MIN(number_name), MAX(number_name) FROM ten GROUP BY is_even";
+            str = "SELECT MIN(number_name), MAX(number_name) FROM ten GROUP BY is_even";
+            // str = "SELECT is_even, MIN(number_name), MAX(number_name) FROM ten GROUP BY is_even";
 
             // Engines.DynamicCSVEngine engine = Engines.DynamicCSVEngine.OpenAlways("F:\\JankTests\\Test33");
 

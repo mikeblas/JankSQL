@@ -5,7 +5,10 @@ namespace JankSQL
     {
         internal Expression()
         {
+            ContainsAggregate = false;
         }
+
+        internal bool ContainsAggregate { get; set; }
 
         internal ExpressionOperand Evaluate(IRowValueAccessor? accessor)
         {

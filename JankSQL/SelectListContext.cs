@@ -49,6 +49,17 @@ namespace JankSQL
 
         internal string? CurrentAlias { get { return currentAlias; } set { currentAlias = value; } }
 
+        internal string? BindNameForExpression(Expression x)
+        {
+            for (int i = 0; i < expressionList.Count; i++)
+            {
+                if (expressionList[i].Equals(x))
+                    return RowsetColumnName(i).ColumnNameOnly();
+            }
+
+            return null;
+        }
+
         internal ExpressionOperand Execute(int index, ResultSet resultSet, int rowIndex)
         {
             return expressionList[index].Evaluate(new RowsetValueAccessor(resultSet, rowIndex));

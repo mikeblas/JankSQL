@@ -211,6 +211,7 @@ namespace JankSQL
                         // throw new NotImplementedException("can't yet handle AWFC in expresion");
                         ExpressionNode n = new ExpressionOperandFromColumn(FullColumnName.FromColumnName(agg.ExpressionName));
                         x.Add(n);
+                        x.ContainsAggregate = true;
                     }
                     else
                     {

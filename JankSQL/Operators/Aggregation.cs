@@ -141,6 +141,7 @@ namespace JankSQL
         readonly List<string> expressionNames;
         readonly List<Expression>? groupByExpressions;
         readonly Dictionary<ExpressionOperand[], List<IAggregateAccumulator>> dictKeyToAggs;
+        readonly List<string>? groupByExpressionBindNames;
 
         readonly List<FullColumnName> outputNames = new();
 
@@ -149,12 +150,13 @@ namespace JankSQL
         bool outputExhausted;
 
 
-        internal Aggregation(IComponentOutput input, List<AggregateContext> contexts, List<Expression>? groupByExpressions)
+        internal Aggregation(IComponentOutput input, List<AggregateContext> contexts, List<Expression>? groupByExpressions, List<string>? groupByExpressionBindNames)
         {
             expressionNames = new List<string>();
             expressions = new List<Expression>();
             operatorTypes = new List<AggregationOperatorType>();
             dictKeyToAggs = new Dictionary<ExpressionOperand[], List<IAggregateAccumulator>>(new ExpressionOperandEqualityComparator());
+            this.groupByExpressionBindNames = groupByExpressionBindNames;
 
             foreach (var context in contexts)
             {
@@ -234,13 +236,17 @@ namespace JankSQL
                 // with group bys, we'll hvae a row for each value that's in the keys to aggs dictionary
                 foreach (var kv in dictKeyToAggs)
                 {
-                    ExpressionOperand[] outputRow = new ExpressionOperand[expressions.Count + groupByExpressions.Count];
+                    // expressions.Count + groupByExpressions.Count
+                    ExpressionOperand[] outputRow = new ExpressionOperand[outputNames.Count];
 
                     int n = 0;
 
                     // values from this key (the GROUP BY keys)
-                    for (int j = 0; j < kv.Key.Length; j++)
-                        outputRow[n++] = kv.Key[j];
+                    if (groupByExpressionBindNames != null && groupByExpressionBindNames.Count > 0)
+                    {
+                        for (int j = 0; j < kv.Key.Length; j++)
+                            outputRow[n++] = kv.Key[j];
+                    }
 
                     // values from each aggregate expression
                     for (int j = 0; j < kv.Value.Count; j++)
@@ -258,15 +264,17 @@ namespace JankSQL
         void BuildOutputColumnNames()
         {
             int n = 0;
-            foreach (var x in groupByExpressions)
+            if (groupByExpressionBindNames != null)
             {
-                outputNames.Add(FullColumnName.FromColumnName($"GBX{n}"));
-                n++;
+                foreach (var x in groupByExpressionBindNames)
+                {
+                    outputNames.Add(FullColumnName.FromColumnName(x));
+                    n++;
+                }
             }
+
             foreach (var expressionName in expressionNames)
-            {
                 outputNames.Add(FullColumnName.FromColumnName(expressionName));
-            }
         }
 
         void ReadInput()
