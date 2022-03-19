@@ -140,8 +140,7 @@ namespace JankSQL
         readonly List<Expression> expressions;
         readonly List<string> expressionNames;
         readonly List<Expression>? groupByExpressions;
-
-        Dictionary<ExpressionOperand[], List<IAggregateAccumulator>> dictKeyToAggs;
+        readonly Dictionary<ExpressionOperand[], List<IAggregateAccumulator>> dictKeyToAggs;
 
         readonly List<FullColumnName> outputNames = new();
 
@@ -159,7 +158,7 @@ namespace JankSQL
 
             foreach (var context in contexts)
             {
-                expressions.Add(context.Expression);
+                expressions.Add(context.Expression); 
                 expressionNames.Add(context.ExpressionName);
                 operatorTypes.Add(context.AggregationOperatorType);
             }
@@ -206,13 +205,8 @@ namespace JankSQL
 
             foreach(var kv in dictKeyToAggs)
             {
-                Console.Write($"{String.Join(",", kv.Key.Select(x => "[" + x + "]"))}");
-
-                foreach (var acc in kv.Value)
-                {
-                    Console.Write($"{acc.FinalValue()}, ");
-                }
-
+                Console.Write($"Aggregated key: {String.Join(",", kv.Key.Select(x => "[" + x + "]"))}: ");
+                Console.Write($"{String.Join(",", kv.Value.Select(x => "[" + x.FinalValue() + "]"))}");
                 Console.WriteLine();
             }
 
@@ -237,15 +231,38 @@ namespace JankSQL
             }
             else
             {
-                throw new NotImplementedException();
+                // with group bys, we'll hvae a row for each value that's in the keys to aggs dictionary
+                foreach (var kv in dictKeyToAggs)
+                {
+                    ExpressionOperand[] outputRow = new ExpressionOperand[expressions.Count + groupByExpressions.Count];
+
+                    int n = 0;
+
+                    // values from this key (the GROUP BY keys)
+                    for (int j = 0; j < kv.Key.Length; j++)
+                        outputRow[n++] = kv.Key[j];
+
+                    // values from each aggregate expression
+                    for (int j = 0; j < kv.Value.Count; j++)
+                        outputRow[n++] = kv.Value[j].FinalValue();
+
+                    resultSet.AddRow(outputRow);
+                }
+
+                //TODO: honor max
+                outputExhausted = true;
             }
-
-
             return resultSet;
         }
 
         void BuildOutputColumnNames()
         {
+            int n = 0;
+            foreach (var x in groupByExpressions)
+            {
+                outputNames.Add(FullColumnName.FromColumnName($"GBX{n}"));
+                n++;
+            }
             foreach (var expressionName in expressionNames)
             {
                 outputNames.Add(FullColumnName.FromColumnName(expressionName));
@@ -267,7 +284,8 @@ namespace JankSQL
                 for (int i = 0; i < rs.RowCount; i++)
                 {
                     // first, evaluate groupByExpressions
-                    ExpressionOperand[] groupByKey = EvaluateGroupByKey(rs.Row(i));
+                    var accessor = new RowsetValueAccessor(rs, i);
+                    ExpressionOperand[] groupByKey = EvaluateGroupByKey(accessor);
 
                     // get a rack of accumulators for this key
                     List<IAggregateAccumulator> aggs;
@@ -285,19 +303,23 @@ namespace JankSQL
                     // evaluate each expression and offer it for them
                     for (int j = 0; j < expressions.Count; j++)
                     {
-                        ExpressionOperand result = expressions[j].Evaluate(new RowsetValueAccessor(rs, i));
+                        ExpressionOperand result = expressions[j].Evaluate(accessor);
                         aggs[j].Accumulate(result);
                     }
                 }
             }
         }
 
-        ExpressionOperand[] EvaluateGroupByKey(ExpressionOperand[] row)
+        ExpressionOperand[] EvaluateGroupByKey(RowsetValueAccessor accessor)
         {
             if (groupByExpressions == null || groupByExpressions.Count == 0)
                 return new ExpressionOperand[] { ExpressionOperand.IntegerFromInt(1) };
 
-            throw new NotImplementedException("no group bys yet");
+            ExpressionOperand[] result = new ExpressionOperand[groupByExpressions.Count];
+            for (int i = 0; i < groupByExpressions.Count; i++)
+                result[i] = groupByExpressions[i].Evaluate(accessor);
+
+            return result;
         }
 
 

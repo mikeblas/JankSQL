@@ -54,16 +54,14 @@ namespace JankSQL
 
             ExpressionOperand result = (ExpressionOperand)stack.Pop();
 
-            string str = string.Join(',', this);
-            Console.WriteLine($"{this} ==> [{result}]");
+            Console.WriteLine($"Evaluated {this} ==> [{result}]");
 
             return result;
         }
 
         public override string ToString()
         {
-            string str = string.Join(',', this);
-            return str;
+            return string.Join(',', this);
         }
 
 

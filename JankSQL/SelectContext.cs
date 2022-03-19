@@ -77,9 +77,7 @@ namespace JankSQL
 
                 Engines.IEngineTable? engineSource = engine.GetEngineTable(sourceTableName);
                 if (engineSource == null)
-                {
                     throw new ExecutionException($"Table {sourceTableName} does not exist");
-                }
                 else
                 {
                     // found the source table, so hook it up
@@ -92,9 +90,7 @@ namespace JankSQL
                         // find the other table
                         Engines.IEngineTable? otherTableSource = engine.GetEngineTable(j.OtherTableName);
                         if (otherTableSource == null)
-                        {
                             throw new ExecutionException($"Joined table {j.OtherTableName} does not exist");
-                        }
 
                         // build a join operator with it
                         TableSource joinSource = new TableSource(otherTableSource);

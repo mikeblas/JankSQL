@@ -3,10 +3,10 @@ namespace JankSQL
 {
     internal class Delete : IComponentOutput
     {
-        IComponentOutput myInput;
-        Engines.IEngineTable engineSource;
-        List<Expression> predicateExpressions;
-        List<ExpressionOperandBookmark> bookmarksToDelete = new();
+        readonly IComponentOutput myInput;
+        readonly Engines.IEngineTable engineSource;
+        readonly List<Expression> predicateExpressions;
+        readonly List<ExpressionOperandBookmark> bookmarksToDelete = new();
 
         internal Delete(Engines.IEngineTable targetTable, IComponentOutput input, List<Expression> predicateExpressions)
         {

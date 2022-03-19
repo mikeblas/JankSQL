@@ -85,13 +85,10 @@ namespace JankSQL.Engines
 
     public class TestTable
     {
-        List<ExpressionOperand[]> rows;
-
-        List<FullColumnName> columnNames;
-
-        List<ExpressionOperandType> columnTypes;
-
-        FullTableName tableName;
+        readonly List<ExpressionOperand[]> rows;
+        readonly List<FullColumnName> columnNames;
+        readonly List<ExpressionOperandType> columnTypes;
+        readonly FullTableName tableName;
 
         internal FullTableName TableName { get { return tableName; } }
 

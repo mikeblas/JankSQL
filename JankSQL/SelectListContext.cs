@@ -5,13 +5,12 @@ namespace JankSQL
 
     internal class SelectListContext
     {
-        TSqlParser.Select_listContext context;
-
-        List<Expression> expressionLists = new List<Expression>();
+        readonly TSqlParser.Select_listContext context;
+        readonly List<Expression> expressionList = new();
 
         string? currentAlias = null;
         int unknownColumnID = 1001;
-        List<FullColumnName> rowsetColumnNames = new List<FullColumnName>();
+        readonly List<FullColumnName> rowsetColumnNames = new();
 
 
         internal SelectListContext(TSqlParser.Select_listContext context)
@@ -21,7 +20,7 @@ namespace JankSQL
 
         internal void AddSelectListExpressionList(Expression expressionList)
         {
-            expressionLists.Add(expressionList);
+            this.expressionList.Add(expressionList);
         }
 
 
@@ -46,13 +45,13 @@ namespace JankSQL
 
         internal FullColumnName RowsetColumnName(int idx) { return rowsetColumnNames[idx]; }
 
-        internal int ExpressionListCount { get { return expressionLists.Count; } }
+        internal int ExpressionListCount { get { return expressionList.Count; } }
 
         internal string? CurrentAlias { get { return currentAlias; } set { currentAlias = value; } }
 
         internal ExpressionOperand Execute(int index, ResultSet resultSet, int rowIndex)
         {
-            return expressionLists[index].Evaluate(new RowsetValueAccessor(resultSet, rowIndex));
+            return expressionList[index].Evaluate(new RowsetValueAccessor(resultSet, rowIndex));
         }
 
         internal void Dump()
@@ -62,7 +61,7 @@ namespace JankSQL
             for (int i = 0; i < ExpressionListCount; i++)
             {
                 Console.Write($"  #{i}: ");
-                foreach (var x in expressionLists[i])
+                foreach (var x in expressionList[i])
                 {
                     Console.Write($"{x} ");
                 }
