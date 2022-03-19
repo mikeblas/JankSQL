@@ -32,7 +32,7 @@ namespace Tests
             Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
             result.ResultSet.Dump();
             Assert.AreEqual(90, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(8, result.ResultSet.ColumnCount, "column count mismatch");
+            Assert.AreEqual(9, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -46,7 +46,7 @@ namespace Tests
             Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
             result.ResultSet.Dump();
             Assert.AreEqual(63, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(8, result.ResultSet.ColumnCount, "column count mismatch");
+            Assert.AreEqual(9, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
 
