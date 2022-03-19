@@ -123,6 +123,8 @@
         public abstract ExpressionOperand OperatorTimes(ExpressionOperand other);
         public abstract ExpressionOperand OperatorSlash(ExpressionOperand other);
 
+        public abstract void AddToSelf(ExpressionOperand other);
+
         public abstract object Clone();
 
         public int Compare(ExpressionOperand? x, ExpressionOperand? y)

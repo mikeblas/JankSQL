@@ -19,14 +19,9 @@ namespace JankSQL
         public void Accumulate(ExpressionOperand op)
         {
             if (sum == null)
-                sum = ExpressionOperand.FromObjectAndType(0, op.NodeType);
-
-            if (sum.NodeType == ExpressionOperandType.DECIMAL)
-                sum = ExpressionOperand.DecimalFromDouble(sum.AsDouble() + op.AsDouble());
-            else if (sum.NodeType == ExpressionOperandType.INTEGER)
-                sum = ExpressionOperand.IntegerFromInt(sum.AsInteger() + op.AsInteger());
+                sum = op;
             else
-                throw new InvalidOperationException();
+                sum.AddToSelf(op);
         }
 
         public ExpressionOperand FinalValue()
@@ -120,15 +115,12 @@ namespace JankSQL
 
         public void Accumulate(ExpressionOperand op)
         {
-            if (sum == null || count == 0)
-                sum = ExpressionOperand.FromObjectAndType(0, op.NodeType);
-
-            if (sum.NodeType == ExpressionOperandType.DECIMAL)
-                sum = ExpressionOperand.DecimalFromDouble(sum.AsDouble() + op.AsDouble());
-            else if (sum.NodeType == ExpressionOperandType.INTEGER)
-                sum = ExpressionOperand.IntegerFromInt(sum.AsInteger() + op.AsInteger());
+            if (sum == null)
+                sum = op;
             else
-                throw new InvalidOperationException();
+                sum.AddToSelf(op);
+
+            count += 1;
         }
 
         public ExpressionOperand FinalValue()

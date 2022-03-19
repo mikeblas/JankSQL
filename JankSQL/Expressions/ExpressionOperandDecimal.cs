@@ -161,6 +161,11 @@
             }
         }
 
+        public override void AddToSelf(ExpressionOperand other)
+        {
+            d += other.AsDouble();
+        }
+
         public int CompareTo(ExpressionOperandDecimal? other)
         {
             if (other == null)

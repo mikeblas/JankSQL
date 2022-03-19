@@ -142,6 +142,11 @@
             }
         }
 
+        public override void AddToSelf(ExpressionOperand other)
+        {
+            throw new NotImplementedException();
+        }
+
         public int CompareTo(ExpressionOperandVARCHAR? other)
         {
             if (other == null)

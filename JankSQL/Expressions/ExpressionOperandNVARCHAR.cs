@@ -148,6 +148,11 @@
             }
         }
 
+        public override void AddToSelf(ExpressionOperand other)
+        {
+            throw new NotImplementedException();
+        }
+
         public int CompareTo(ExpressionOperandNVARCHAR? other)
         {
             if (other == null)

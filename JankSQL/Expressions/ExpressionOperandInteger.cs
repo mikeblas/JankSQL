@@ -158,6 +158,11 @@
             }
         }
 
+        public override void AddToSelf(ExpressionOperand other)
+        {
+            n += other.AsInteger();
+        }
+
         public int CompareTo(ExpressionOperandInteger? other)
         {
             if (other == null)
