@@ -1,6 +1,10 @@
 ﻿
 namespace JankSQL
 {
+    /// <summary>
+    /// Wraps a Rowset and accepts a row index so an individual row
+    /// can be accessed by Expression.Evaluate()
+    /// </summary>
     internal class RowsetValueAccessor : IRowValueAccessor
     {
         ResultSet resultSet;
