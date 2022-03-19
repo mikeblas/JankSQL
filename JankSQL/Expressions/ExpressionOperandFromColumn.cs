@@ -1,6 +1,6 @@
 ﻿namespace JankSQL
 {
-    internal class ExpressionOperandFromColumn : ExpressionNode
+    internal class ExpressionOperandFromColumn : ExpressionNode, IEquatable<ExpressionOperandFromColumn>
     {
         internal FullColumnName columnName;
 
@@ -10,6 +10,27 @@
         }
 
         internal FullColumnName ColumnName { get { return columnName; } }
+
+        public bool Equals(ExpressionOperandFromColumn? other)
+        {
+            if (other == null)
+                throw new ArgumentNullException("other");
+
+            if (ReferenceEquals(this, other))
+                return true;
+
+            return columnName.Equals(other.ColumnName);
+        }
+
+        public override bool Equals(object? o)
+        {
+            return Equals((ExpressionOperandFromColumn?)o);
+        }
+
+        public override int GetHashCode()
+        {
+            return columnName.GetHashCode();
+        }
 
         public override string ToString()
         {

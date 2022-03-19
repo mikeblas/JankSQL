@@ -1,6 +1,6 @@
 ﻿namespace JankSQL
 {
-    internal class ExpressionOperandVARCHAR : ExpressionOperand, IComparable<ExpressionOperandVARCHAR>
+    internal class ExpressionOperandVARCHAR : ExpressionOperand, IComparable<ExpressionOperandVARCHAR>, IEquatable<ExpressionOperandVARCHAR>
     {
         internal string str;
         internal ExpressionOperandVARCHAR(string str)
@@ -163,6 +163,24 @@
             ExpressionOperandVARCHAR o = (ExpressionOperandVARCHAR)other;
             int result = str.CompareTo(o.str);
             return result;
+        }
+
+        public bool Equals(ExpressionOperandVARCHAR? other)
+        {
+            return 0 == CompareTo(other);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            ExpressionOperandVARCHAR? o = obj as ExpressionOperandVARCHAR;
+            if (o == null)
+                return false;
+            return Equals(o);
+        }
+
+        public override int GetHashCode()
+        {
+            return str.GetHashCode();
         }
     }
 }

@@ -93,8 +93,7 @@ namespace JankSQL.Engines
 
         public IEngineTable? GetEngineTable(FullTableName tableName)
         {
-            BTreeTable? table;
-            inMemoryTables.TryGetValue(tableName.TableName, out table);
+            inMemoryTables.TryGetValue(tableName.TableName, out BTreeTable? table);
             return table;
         }
 

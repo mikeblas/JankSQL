@@ -1,8 +1,9 @@
 ﻿namespace JankSQL
 {
-    internal class ExpressionOperandNVARCHAR : ExpressionOperand, IComparable<ExpressionOperandNVARCHAR>
+    internal class ExpressionOperandNVARCHAR : ExpressionOperand, IComparable<ExpressionOperandNVARCHAR>, IEquatable<ExpressionOperandNVARCHAR>
     {
         internal string str;
+
         internal ExpressionOperandNVARCHAR(string str)
             : base(ExpressionOperandType.NVARCHAR)
         {
@@ -171,6 +172,23 @@
             return result;
         }
 
+        public bool Equals(ExpressionOperandNVARCHAR? other)
+        {
+            return 0 == CompareTo(other);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            ExpressionOperandNVARCHAR? o = obj as ExpressionOperandNVARCHAR;
+            if (o == null)
+                return false;
+            return Equals(o);
+        }
+
+        public override int GetHashCode()
+        {
+            return str.GetHashCode();
+        }
     }
 }
 

@@ -20,8 +20,7 @@ namespace JankSQL
         {
             int idx = resultSet.ColumnIndex(fcn);
             if (idx == -1)
-                throw new ExecutionException($"Invalid column name {fcn}");
-            // Console.WriteLine($"Need value from {r.ColumnName}, column index {idx}");
+                throw new ExecutionException($"Invalid column name {fcn}; valid names are {String.Join(",", resultSet.GetColumnNames())}");
 
             ExpressionOperand[] thisRow = resultSet.Row(rowIndex);
             ExpressionOperand val = thisRow[idx];

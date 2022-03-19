@@ -1,12 +1,33 @@
 ﻿namespace JankSQL
 {
-    public class ExpressionOperator : ExpressionNode
+    public class ExpressionOperator : ExpressionNode, IEquatable<ExpressionOperator>
     {
         internal string str;
 
         internal ExpressionOperator(string str)
         {
             this.str = str;
+        }
+
+        public bool Equals(ExpressionOperator? other)
+        {
+            if (other == null)
+                throw new ArgumentNullException("other");
+
+            if (ReferenceEquals(this, other))
+                return true;
+
+            return str.Equals(other.str, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return Equals(obj as ExpressionOperator);
+        }
+
+        public override int GetHashCode()
+        {
+            return str.GetHashCode();
         }
 
         public override String ToString()

@@ -1,4 +1,5 @@
-﻿namespace JankSQL
+﻿
+namespace JankSQL
 {
     public abstract class ExpressionOperand : ExpressionNode, ICloneable, IComparable<ExpressionOperand>
     {

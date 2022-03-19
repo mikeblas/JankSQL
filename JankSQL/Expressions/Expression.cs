@@ -1,7 +1,7 @@
 ﻿
 namespace JankSQL
 {
-    internal class Expression : List<ExpressionNode>
+    internal class Expression : List<ExpressionNode>, IEquatable<Expression>
     {
         internal Expression()
         {
@@ -64,6 +64,35 @@ namespace JankSQL
             return string.Join(',', this);
         }
 
+        public virtual bool Equals(Expression? other)
+        {
+            if (other == null)
+                throw new ArgumentNullException("other");
+
+            if (ReferenceEquals(this, other))
+                return true;
+
+            if (this.Count != other.Count)
+                return false;
+
+            for (int i = 0; i < this.Count; i++)
+            {
+                if (!this[i].Equals(other[i]))
+                    return false;
+            }
+
+            return true;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return Equals(obj as Expression);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
 
     }
 }

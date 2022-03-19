@@ -184,6 +184,23 @@
             return result;
         }
 
+        public bool Equals(ExpressionOperandDecimal? other)
+        {
+            return 0 == CompareTo(other);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            ExpressionOperandDecimal? o = obj as ExpressionOperandDecimal;
+            if (o == null)
+                return false;
+            return Equals(o);
+        }
+
+        public override int GetHashCode()
+        {
+            return d.GetHashCode();
+        }
     }
 }
 

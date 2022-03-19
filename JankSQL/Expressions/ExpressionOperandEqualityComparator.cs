@@ -1,5 +1,10 @@
 ﻿
 
+/// <summary>
+/// This class implements IEqualityComparer for ExpressionOperand[] arrays so that
+/// such arrayts can be used as keys in hashed containers, like Dictionary<> in
+/// the implementation of the Aggregation operator.
+/// </summary>
 namespace JankSQL
 {
     internal class ExpressionOperandEqualityComparator : IEqualityComparer<ExpressionOperand[]>

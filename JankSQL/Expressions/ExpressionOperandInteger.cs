@@ -166,7 +166,7 @@
         public int CompareTo(ExpressionOperandInteger? other)
         {
             if (other == null)
-                throw new ArgumentNullException("obj");
+                throw new ArgumentNullException("other");
 
             int result = n.CompareTo(other.n);
             return result;
@@ -188,7 +188,10 @@
 
         public override bool Equals(object? o)
         {
-            return this.Equals(o as ExpressionOperandInteger);
+            ExpressionOperandInteger? other = o as ExpressionOperandInteger;
+            if (other == null)
+                return false;
+            return this.Equals(other);
         }
 
         public override int GetHashCode()
