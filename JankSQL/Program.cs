@@ -84,12 +84,13 @@ namespace JankSQL
             str = "SELECT 10* SUM(number_id), COUNT(number_id) * 100 FROM ten";
             // str = "SELECT 23 * SUM(number_id), COUNT(number_id) FROM ten GROUP BY Polarity";
 
-            str = "SELECT state, SUM(population) FROM mytable GROUP BY state ORDER BY state, state DESC, state";
             // str = "SELECT MIN(number_name), MAX(number_name) FROM ten";
 
-            str = "SELECT MIN(number_name), MAX(number_name) FROM ten GROUP BY is_even";
+            // str = "SELECT MIN(number_name), MAX(number_name) FROM ten GROUP BY is_even";
             // str = "SELECT is_even, MIN(number_name), MAX(number_name) FROM ten GROUP BY is_even";
-            str = "SELECT number_name, MIN(number_name), MAX(number_name) FROM ten GROUP BY is_even";
+            // str = "SELECT number_name, MIN(number_name), MAX(number_name) FROM ten GROUP BY is_even";
+
+            str = "SELECT state_code FROM mytable GROUP BY state_code ORDER BY state_code";
 
 
             // Engines.DynamicCSVEngine engine = Engines.DynamicCSVEngine.OpenAlways("F:\\JankTests\\Test33");

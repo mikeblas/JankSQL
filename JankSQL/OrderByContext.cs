@@ -10,6 +10,8 @@ namespace JankSQL
         {
         }
 
+        internal List<Expression> ExpressionList { get { return expressionList; } }
+
         internal void AddExpression(Expression x, bool isAscending)
         {
             expressionList.Add(x);

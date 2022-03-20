@@ -111,7 +111,7 @@ namespace JankSQL
                 lastLeftOutput = filter;
             }
 
-            // finally, see if we have an aggregation
+            // next, see if we have an aggregation
             if (aggregateContexts.Count > 0)
             {
                 // get names for all the expressions
@@ -147,6 +147,14 @@ namespace JankSQL
 
                 Aggregation agger = new Aggregation(lastLeftOutput, aggregateContexts, groupByExpressions, groupByExpressionBindNames);
                 lastLeftOutput = agger;
+            }
+
+            // and check for an order by
+            if (orderByContext != null)
+            {
+                Sort sort = new Sort(lastLeftOutput, orderByContext.ExpressionList);
+
+                lastLeftOutput = sort;
             }
 
             // then the select
