@@ -64,6 +64,9 @@ namespace JankSQL.Engines
                 {
                     ExpressionOperand[] convertedRow = new ExpressionOperand[row.Length];
 
+                    if (columnTypes.Count != row.Length)
+                        throw new ArgumentException($"found a row with {row.Length} values, but {columnTypes.Count} column types");
+
                     for (int i = 0; i < row.Length; i++)
                     {
                         var op = ExpressionOperand.FromObjectAndType(row[i], columnTypes[i]);
@@ -82,13 +85,10 @@ namespace JankSQL.Engines
 
     public class TestTable
     {
-        List<ExpressionOperand[]> rows;
-
-        List<FullColumnName> columnNames;
-
-        List<ExpressionOperandType> columnTypes;
-
-        FullTableName tableName;
+        readonly List<ExpressionOperand[]> rows;
+        readonly List<FullColumnName> columnNames;
+        readonly List<ExpressionOperandType> columnTypes;
+        readonly FullTableName tableName;
 
         internal FullTableName TableName { get { return tableName; } }
 

@@ -1,6 +1,10 @@
 ﻿
 namespace JankSQL
 {
+    /// <summary>
+    /// wraps a discrete row and a list of column names to be used by 
+    /// the Expression.Evaluate() method
+    /// </summary>
     internal class TemporaryRowValueAccessor : IRowValueAccessor
     {
         readonly List<FullColumnName> names;

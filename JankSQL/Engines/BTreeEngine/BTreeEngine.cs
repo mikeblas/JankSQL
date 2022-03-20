@@ -27,14 +27,6 @@ namespace JankSQL.Engines
                 throw new ArgumentException($"Must have at types for each column; got {columnNames.Count} names and {columnTypes.Count} types");
 
             // create the table
-            /*
-            BTreeTable table = new BTreeTable(tableName.TableName,
-                new ExpressionOperandType[] { ExpressionOperandType.INTEGER },
-                new FullColumnName[] { FullColumnName.FromColumnName("bookmark_key") }.ToList(),
-                columnTypes.ToArray(),
-                columnNames);
-            */
-
             BTreeTable table = new BTreeTable(tableName.TableName,
                 columnTypes.ToArray(),
                 columnNames);
@@ -101,8 +93,7 @@ namespace JankSQL.Engines
 
         public IEngineTable? GetEngineTable(FullTableName tableName)
         {
-            BTreeTable? table;
-            inMemoryTables.TryGetValue(tableName.TableName, out table);
+            inMemoryTables.TryGetValue(tableName.TableName, out BTreeTable? table);
             return table;
         }
 

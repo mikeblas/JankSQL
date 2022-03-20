@@ -1,11 +1,14 @@
 ﻿
 namespace JankSQL
 {
-    internal class Expression : List<ExpressionNode>
+    internal class Expression : List<ExpressionNode>, IEquatable<Expression>
     {
         internal Expression()
         {
+            ContainsAggregate = false;
         }
+
+        internal bool ContainsAggregate { get; set; }
 
         internal ExpressionOperand Evaluate(IRowValueAccessor? accessor)
         {
@@ -54,18 +57,45 @@ namespace JankSQL
 
             ExpressionOperand result = (ExpressionOperand)stack.Pop();
 
-            string str = string.Join(',', this);
-            Console.WriteLine($"{this} ==> [{result}]");
+            Console.WriteLine($"Evaluated {this} ==> [{result}]");
 
             return result;
         }
 
         public override string ToString()
         {
-            string str = string.Join(',', this);
-            return str;
+            return string.Join(',', this);
         }
 
+        public virtual bool Equals(Expression? other)
+        {
+            if (other == null)
+                throw new ArgumentNullException("other");
+
+            if (ReferenceEquals(this, other))
+                return true;
+
+            if (this.Count != other.Count)
+                return false;
+
+            for (int i = 0; i < this.Count; i++)
+            {
+                if (!this[i].Equals(other[i]))
+                    return false;
+            }
+
+            return true;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return Equals(obj as Expression);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
 
     }
 }

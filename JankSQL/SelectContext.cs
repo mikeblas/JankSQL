@@ -4,12 +4,14 @@ namespace JankSQL
     public class SelectContext : IExecutableContext
     {
         readonly TSqlParser.Select_statementContext statementContext;
-        SelectListContext? selectList;
+        SelectListContext? selectListContext;
 
         // for WHERE clauses
         PredicateContext? predicateContext;
 
-        readonly List<JoinContext> joinContexts = new List<JoinContext>();
+        readonly List<JoinContext> joinContexts = new ();
+        readonly List<AggregateContext> aggregateContexts = new();
+        readonly List<Expression> groupByExpressions = new();
 
         OrderByContext? orderByContext;
 
@@ -21,6 +23,17 @@ namespace JankSQL
             predicateContext = new PredicateContext();
         }
 
+        internal void AddAggregate(AggregateContext ac)
+        {
+            ac.ExpressionName = $"Aggregate{aggregateContexts.Count + 1001}";
+            aggregateContexts.Add(ac);
+        }
+
+        internal void AddGroupByExpression(Expression expression)
+        {
+            groupByExpressions.Add(expression);
+        }
+
         internal SelectContext(TSqlParser.Select_statementContext context)
         {
             statementContext = context;
@@ -30,19 +43,19 @@ namespace JankSQL
 
         internal OrderByContext? OrderByContext { get { return orderByContext; } set { orderByContext = value; } }
 
-        internal void EndSelectListExpressionList(Expression expression)
+        internal void AddSelectListExpressionList(Expression expression)
         {
-            if (selectList == null)
+            if (selectListContext == null)
                 throw new InternalErrorException("Expected a SelectList");
 
-            selectList.AddSelectListExpressionList(expression);
+            selectListContext.AddSelectListExpressionList(expression);
         }
 
-        internal SelectListContext SelectListContext { get { return selectList!; } set { selectList = value; } }
+        internal SelectListContext SelectListContext { get { return selectListContext!; } set { selectListContext = value; } }
 
         public ExecuteResult Execute(Engines.IEngine engine)
         {
-            if (selectList == null)
+            if (selectListContext == null)
                 throw new InternalErrorException("Expected a SelectList");
 
             ExecuteResult results = new ExecuteResult();
@@ -67,9 +80,7 @@ namespace JankSQL
 
                 Engines.IEngineTable? engineSource = engine.GetEngineTable(sourceTableName);
                 if (engineSource == null)
-                {
                     throw new ExecutionException($"Table {sourceTableName} does not exist");
-                }
                 else
                 {
                     // found the source table, so hook it up
@@ -82,9 +93,7 @@ namespace JankSQL
                         // find the other table
                         Engines.IEngineTable? otherTableSource = engine.GetEngineTable(j.OtherTableName);
                         if (otherTableSource == null)
-                        {
                             throw new ExecutionException($"Joined table {j.OtherTableName} does not exist");
-                        }
 
                         // build a join operator with it
                         TableSource joinSource = new TableSource(otherTableSource);
@@ -102,8 +111,46 @@ namespace JankSQL
                 lastLeftOutput = filter;
             }
 
+            // finally, see if we have an aggregation
+            if (aggregateContexts.Count > 0)
+            {
+                // get names for all the expressions
+                List<string> groupByExpressionBindNames = new();
+                foreach(var gbe in groupByExpressions)
+                {
+                    string? bindName = selectListContext.BindNameForExpression(gbe);
+                    if (bindName != null)
+                        groupByExpressionBindNames.Add(bindName);
+                }
+
+                // make sure there are no uncovered non-aggregate functions
+                foreach (var expr in selectListContext.SelectExpressions)
+                {
+                    // if it has an aggregate function, it's fine
+                    if (expr.ContainsAggregate)
+                        continue;
+
+                    // otherwise, it needs a match in the group expressoins
+                    bool found = false;
+                    foreach (var gbe in groupByExpressions)
+                    {
+                        if (gbe.Equals(expr))
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (!found)
+                        throw new ExecutionException($"non-aggregate {expr} in select list is not covered in GROUP BY");
+                }
+
+                Aggregation agger = new Aggregation(lastLeftOutput, aggregateContexts, groupByExpressions, groupByExpressionBindNames);
+                lastLeftOutput = agger;
+            }
+
             // then the select
-            Select select = new Select(lastLeftOutput, querySpecs.select_list().select_list_elem(), selectList);
+            Select select = new Select(lastLeftOutput, querySpecs.select_list().select_list_elem(), selectListContext);
             ResultSet? resultSet = null;
 
             while (true)
@@ -123,10 +170,10 @@ namespace JankSQL
 
         public void Dump()
         {
-            if (selectList == null)
+            if (selectListContext == null)
                 Console.WriteLine("No select list found");
             else
-                selectList.Dump();
+                selectListContext.Dump();
 
             Console.WriteLine("PredicateExpressions:");
             if (predicateContext == null)

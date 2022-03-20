@@ -2,11 +2,11 @@
 {
     internal class Select
     {
-        IComponentOutput myInput;
+        readonly IComponentOutput myInput;
         TSqlParser.Select_list_elemContext[] selectListContexts;
-        SelectListContext selectList;
+        readonly SelectListContext selectList;
 
-        internal IComponentOutput Input { get { return myInput; } set { myInput = value; } }
+        // internal IComponentOutput Input { get { return myInput; } set { myInput = value; } }
 
         internal Select(IComponentOutput input, TSqlParser.Select_list_elemContext[] selectListContexts, SelectListContext selectList)
         {
@@ -35,12 +35,9 @@
                         if (fcn.ColumnNameOnly() == "bookmark_key")
                             continue;
                         effectiveColumns.Add(fcn);
-                        ExpressionNode x = new ExpressionOperandFromColumn(rsInput.GetColumnName(i));
-                        Expression xlist = new Expression
-                        {
-                            x
-                        };
-                        selectList.AddSelectListExpressionList(xlist);
+                        ExpressionNode node = new ExpressionOperandFromColumn(rsInput.GetColumnName(i));
+                        Expression expression = new Expression { node };
+                        selectList.AddSelectListExpressionList(expression);
                     }
                 }
                 else

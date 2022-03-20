@@ -12,8 +12,8 @@ namespace JankSQL
 
     internal class JoinContext
     {
-        FullTableName tableName;
-        JoinType joinType;
+        readonly FullTableName tableName;
+        readonly JoinType joinType;
         List<Expression>? predicateExpressions;
 
         internal JoinContext(JoinType joinType, FullTableName tableName)
