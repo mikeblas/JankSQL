@@ -90,8 +90,9 @@ namespace JankSQL
             // str = "SELECT is_even, MIN(number_name), MAX(number_name) FROM ten GROUP BY is_even";
             // str = "SELECT number_name, MIN(number_name), MAX(number_name) FROM ten GROUP BY is_even";
 
-            str = "SELECT state_code FROM mytable GROUP BY state_code ORDER BY state_code";
-
+            // str = "SELECT state_code FROM mytable GROUP BY state_code ORDER BY state_code";
+            str = "SELECT number_name FROM ten ORDER BY number_name";
+            str = "SELECT number_name FROM ten ORDER BY number_name DESC";
 
             // Engines.DynamicCSVEngine engine = Engines.DynamicCSVEngine.OpenAlways("F:\\JankTests\\Test33");
 

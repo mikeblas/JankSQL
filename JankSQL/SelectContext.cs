@@ -152,7 +152,7 @@ namespace JankSQL
             // and check for an order by
             if (orderByContext != null)
             {
-                Sort sort = new Sort(lastLeftOutput, orderByContext.ExpressionList);
+                Sort sort = new Sort(lastLeftOutput, orderByContext.ExpressionList, orderByContext.IsAscendingList);
 
                 lastLeftOutput = sort;
             }

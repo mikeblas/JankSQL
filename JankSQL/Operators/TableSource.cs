@@ -52,6 +52,9 @@ namespace JankSQL
                 rs.AddRow(thisRow);
             }
 
+            if (enumeratorExhausted && rs.RowCount == 0)
+                return null;
+
             return rs;
         }
     }
