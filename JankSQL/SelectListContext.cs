@@ -12,6 +12,7 @@ namespace JankSQL
         int unknownColumnID = 1001;
         readonly List<FullColumnName> rowsetColumnNames = new();
 
+        internal List<Expression> SelectExpressions { get { return expressionList; } }
 
         internal SelectListContext(TSqlParser.Select_listContext context)
         {

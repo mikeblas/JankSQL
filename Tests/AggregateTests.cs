@@ -216,8 +216,6 @@ namespace Tests
             Assert.AreEqual(3854000, result.ResultSet.Row(0)[0].AsDouble(), 0.0001);
         }
 
-
-
         [Ignore]
         [TestMethod]
         public void IntegerCastAverage()
@@ -234,6 +232,15 @@ namespace Tests
             Assert.AreEqual(4, result.ResultSet.Row(0)[0].AsInteger());
         }
 
+        [TestMethod]
+        public void NotCoveredGroupingSelect()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT number_name, MIN(number_name), MAX(number_name) FROM ten GROUP BY is_even");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNull(result.ResultSet, "Expected error not caught");
+            Assert.IsNotNull(result.ErrorMessage);
+       }
     }
 }
 

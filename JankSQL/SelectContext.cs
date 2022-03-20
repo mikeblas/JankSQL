@@ -111,16 +111,35 @@ namespace JankSQL
             // finally, see if we have an aggregation
             if (aggregateContexts.Count > 0)
             {
+                // get names for all the expressions
                 List<string> groupByExpressionBindNames = new();
                 foreach(var gbe in groupByExpressions)
                 {
                     string? bindName = selectListContext.BindNameForExpression(gbe);
                     if (bindName != null)
                         groupByExpressionBindNames.Add(bindName);
-                    //TODO: make sure all SELECT statements have matched
-                    // for each selectListContext epxression,
-                    //      if that expression does not contain an aggregate
-                    //      it must match something in groupByExpressions
+                }
+
+                // make sure there are no uncovered non-aggregate functions
+                foreach (var expr in selectListContext.SelectExpressions)
+                {
+                    // if it has an aggregate function, it's fine
+                    if (expr.ContainsAggregate)
+                        continue;
+
+                    // otherwise, it needs a match in the group expressoins
+                    bool found = false;
+                    foreach (var gbe in groupByExpressions)
+                    {
+                        if (gbe.Equals(expr))
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (!found)
+                        throw new ExecutionException($"non-aggregate {expr} in select list is not covered in GROUP BY");
                 }
 
                 Aggregation agger = new Aggregation(lastLeftOutput, aggregateContexts, groupByExpressions, groupByExpressionBindNames);
