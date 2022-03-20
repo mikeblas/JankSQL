@@ -55,9 +55,9 @@ namespace JankSQL
 
     internal class Sort : IComponentOutput
     {
-        IComponentOutput myInput;
-        bool[] isAscending;
-        Expression[] sortExpressions;
+        readonly IComponentOutput myInput;
+        readonly bool[] isAscending;
+        readonly Expression[] sortExpressions;
 
         ResultSet? totalResults;
         bool inputExhausted = false;

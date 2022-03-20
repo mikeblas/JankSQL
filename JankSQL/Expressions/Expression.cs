@@ -57,7 +57,7 @@ namespace JankSQL
 
             ExpressionOperand result = (ExpressionOperand)stack.Pop();
 
-            Console.WriteLine($"Evaluated {this} ==> [{result}]");
+            // Console.WriteLine($"Evaluated {this} ==> [{result}]");
 
             return result;
         }

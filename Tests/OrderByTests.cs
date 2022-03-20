@@ -53,7 +53,6 @@ namespace Tests
             }
         }
 
-
         [TestMethod]
         public void TestOrderByOneStringDesc()
         {
@@ -140,6 +139,64 @@ namespace Tests
                 Assert.IsTrue(previous.CompareTo(current) >= 0, $"expected {previous} >= {current}");
                 previous = current;
             }
+        }
+
+
+        [TestMethod]
+        public void TestOrderByManynIntegers()
+        {
+            Random random = new();
+            int testRowCount = 10000;
+
+            // create a table
+            var ecCreate = Parser.ParseSQLFileFromString("CREATE TABLE TransientTestTable (SomeKey INTEGER, SomeInteger INTEGER);");
+
+            Assert.IsNotNull(ecCreate);
+            Assert.AreEqual(0, ecCreate.TotalErrors);
+
+            ExecuteResult resultsCreate = ecCreate.ExecuteSingle(engine);
+            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsCreate.ExecuteStatus, resultsCreate.ErrorMessage);
+            Assert.IsNull(resultsCreate.ResultSet);
+
+            // insert some rows
+            int checksum = 0;
+            for (int i = 1; i <= testRowCount; i++)
+            {
+                int r = random.Next();
+                checksum += r;
+                string statement = $"INSERT INTO TransientTestTable (SomeKey, SomeInteger) VALUES({i}, {r});";
+                var ecInsert = Parser.ParseSQLFileFromString(statement);
+
+                Assert.IsNotNull(ecInsert);
+                Assert.AreEqual(0, ecInsert.TotalErrors);
+
+                ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
+                Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsInsert.ExecuteStatus, resultsCreate.ErrorMessage);
+                Assert.IsNotNull(resultsInsert.ResultSet);
+            }
+
+            // select it out
+            var ecSelect = Parser.ParseSQLFileFromString("SELECT SomeKey, SomeInteger FROM TransientTestTable ORDER BY SomeKey;");
+
+            ExecuteResult resultsSelect = ecSelect.ExecuteSingle(engine);
+            Assert.IsNotNull(resultsSelect.ResultSet, resultsSelect.ErrorMessage);
+            resultsSelect.ResultSet.Dump();
+            Assert.AreEqual(testRowCount, resultsSelect.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(2, resultsSelect.ResultSet.ColumnCount, "column count mismatch");
+
+            int testsum = resultsSelect.ResultSet.Row(0)[1].AsInteger();
+            int previous = resultsSelect.ResultSet.Row(0)[0].AsInteger();
+            for (int i = 1; i < resultsSelect.ResultSet.RowCount; i++)
+            {
+                int current = resultsSelect.ResultSet.Row(i)[0].AsInteger();
+                Assert.IsTrue(previous.CompareTo(current) <= 0, $"expected {previous} <= {current}");
+                previous = current;
+
+                int x = resultsSelect.ResultSet.Row(i)[1].AsInteger();
+                testsum += x;
+            }
+
+            Assert.AreEqual(checksum, testsum);
         }
     }
 }
