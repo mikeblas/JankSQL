@@ -2,6 +2,8 @@
 using JankSQL;
 using Engines = JankSQL.Engines;
 
+using static JankSQL.ExpressionOperandType;
+
 namespace Tests
 {
     internal class TestHelpers
@@ -11,7 +13,7 @@ namespace Tests
             Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
                 .WithTableName("mytable")
                 .WithColumnNames(new string[] { "keycolumn", "city_name", "state_code", "population" })
-                .WithColumnTypes(new ExpressionOperandType[] { ExpressionOperandType.INTEGER, ExpressionOperandType.VARCHAR, ExpressionOperandType.VARCHAR, ExpressionOperandType.DECIMAL })
+                .WithColumnTypes(new ExpressionOperandType[] { INTEGER, VARCHAR, VARCHAR, DECIMAL })
                 .WithRow(new object[] { 1, "Monroeville", "PA", 25000 })
                 .WithRow(new object[] { 2, "Sammamish", "WA", 37000 })
                 .WithRow(new object[] { 3, "New York", "NY", 11500000 })
@@ -26,7 +28,7 @@ namespace Tests
             Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
                 .WithTableName("ten")
                 .WithColumnNames(new string[] { "number_id", "number_name", "is_even" })
-                .WithColumnTypes(new ExpressionOperandType[] { ExpressionOperandType.INTEGER, ExpressionOperandType.VARCHAR, ExpressionOperandType.INTEGER })
+                .WithColumnTypes(new ExpressionOperandType[] { INTEGER, VARCHAR, INTEGER })
                 .WithRow(new object[] { 1, "one",   0 })
                 .WithRow(new object[] { 2, "two",   1 })
                 .WithRow(new object[] { 3, "three", 0 })
@@ -48,7 +50,7 @@ namespace Tests
             Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
                 .WithTableName("states")
                 .WithColumnNames(new string[] { "state_code", "state_name" })
-                .WithColumnTypes(new ExpressionOperandType[] { ExpressionOperandType.VARCHAR, ExpressionOperandType.VARCHAR })
+                .WithColumnTypes(new ExpressionOperandType[] { VARCHAR, VARCHAR })
                 .WithRow(new object[] { "PA", "Pennsylvania" })
                 .WithRow(new object[] { "AK", "Arkansas" })
                 .WithRow(new object[] { "HI", "Hawaii" })
@@ -68,7 +70,7 @@ namespace Tests
             Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
                 .WithTableName("three")
                 .WithColumnNames(new string[] { "number_id", "number_name" })
-                .WithColumnTypes(new ExpressionOperandType[] { ExpressionOperandType.DECIMAL, ExpressionOperandType.VARCHAR })
+                .WithColumnTypes(new ExpressionOperandType[] { DECIMAL, VARCHAR })
                 .WithRow(new object[] { 1, "one" })
                 .WithRow(new object[] { 2, "two" })
                 .WithRow(new object[] { 3, "three" })
