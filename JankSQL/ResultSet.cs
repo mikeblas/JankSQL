@@ -92,6 +92,11 @@ namespace JankSQL
             AddRow(rs.Row(index));
         }
 
+        internal void Sort(IComparer<ExpressionOperand[]> ic)
+        {
+            rows.Sort(ic);
+        }
+
         public void Dump()
         {
             foreach(var name in columnNames)

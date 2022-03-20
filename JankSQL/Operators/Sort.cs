@@ -9,6 +9,7 @@ namespace JankSQL
         bool inputExhausted = false;
         bool outputExhausted = false;
 
+        //TODO: hook up descending flags
         public Sort(IComponentOutput myInput, List<Expression> sortKeyList)
         {
             this.myInput = myInput;
@@ -34,6 +35,16 @@ namespace JankSQL
                 totalResults.Append(rs);
             }
 
+            //TODO: needs our own IEXpressionOperandComparer that uses expressions instead of key ordinals
+            // and understands descending
+            /*
+            int[] keyOrder = new int[sortKeyList.Count];
+            keyOrder[0] = 1;
+
+            Engines.IExpressionOperandComparer ic = new Engines.IExpressionOperandComparer(keyOrder);
+
+            totalResults.Sort(ic);
+            */
 
             outputExhausted = true;
 
