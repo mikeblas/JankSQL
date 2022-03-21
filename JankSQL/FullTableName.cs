@@ -10,18 +10,18 @@ namespace JankSQL
 
         internal static FullTableName FromTableNameContext(TSqlParser.Table_nameContext context)
         {
-            var r = new FullTableName(Program.GetEffectiveName(context.table.GetText()));
-            r.databaseName = (context.database != null) ? Program.GetEffectiveName(context.database.GetText()) : null;
-            r.schemaName = (context.schema != null) ? Program.GetEffectiveName(context.schema.GetText()) : null;
+            var r = new FullTableName(GetEffectiveName(context.table.GetText()));
+            r.databaseName = (context.database != null) ? GetEffectiveName(context.database.GetText()) : null;
+            r.schemaName = (context.schema != null) ? GetEffectiveName(context.schema.GetText()) : null;
             return r;
         }
 
         internal static FullTableName FromFullTableNameContext(TSqlParser.Full_table_nameContext context)
         {
-            var r = new FullTableName(Program.GetEffectiveName(context.table.GetText()));
-            r.databaseName = (context.database != null) ? Program.GetEffectiveName(context.database.GetText()) : null;
-            r.schemaName = (context.schema != null) ? Program.GetEffectiveName(context.schema.GetText()) : null;
-            r.linkedServerName = (context.linkedServer != null) ? Program.GetEffectiveName(context.linkedServer.GetText()) : null;
+            var r = new FullTableName(GetEffectiveName(context.table.GetText()));
+            r.databaseName = (context.database != null) ? GetEffectiveName(context.database.GetText()) : null;
+            r.schemaName = (context.schema != null) ? GetEffectiveName(context.schema.GetText()) : null;
+            r.linkedServerName = (context.linkedServer != null) ? GetEffectiveName(context.linkedServer.GetText()) : null;
             return r;
         }
 
@@ -80,6 +80,15 @@ namespace JankSQL
             }
 
             return ret;
+        }
+
+        private static string GetEffectiveName(string objectName)
+        {
+            // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/proposals/csharp-8.0/ranges
+            if (objectName[0] != '[' || objectName[^1] != ']')
+                return objectName;
+
+            return objectName[1..^1];
         }
 
     }

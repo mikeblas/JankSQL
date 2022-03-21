@@ -15,23 +15,23 @@ namespace JankSQL
 
         public static FullColumnName FromContext(TSqlParser.Full_column_nameContext context)
         {
-            var r = new FullColumnName(Program.GetEffectiveName(context.column_name.GetText()));
-            r.serverName = (context.server != null) ? Program.GetEffectiveName(context.server.GetText()) : null;
-            r.schemaName = (context.schema != null) ? Program.GetEffectiveName(context.schema.GetText()) : null;
-            r.tableName = (context.tablename != null) ? Program.GetEffectiveName(context.tablename.GetText()) : null;
+            var r = new FullColumnName(GetEffectiveName(context.column_name.GetText()));
+            r.serverName = (context.server != null) ? GetEffectiveName(context.server.GetText()) : null;
+            r.schemaName = (context.schema != null) ? GetEffectiveName(context.schema.GetText()) : null;
+            r.tableName = (context.tablename != null) ? GetEffectiveName(context.tablename.GetText()) : null;
             return r;
         }
 
         public static FullColumnName FromColumnName(string columnName)
         {
-            var r = new FullColumnName(Program.GetEffectiveName(columnName));
+            var r = new FullColumnName(GetEffectiveName(columnName));
             return r;
         }
 
         public static FullColumnName FromTableColumnName(string tableName, string columnName)
         {
-            var r = new FullColumnName(Program.GetEffectiveName(columnName));
-            r.tableName = Program.GetEffectiveName(tableName);
+            var r = new FullColumnName(GetEffectiveName(columnName));
+            r.tableName = GetEffectiveName(tableName);
             return r;
         }
 
@@ -97,6 +97,15 @@ namespace JankSQL
             ret += $"[{columnName}]";
 
             return ret;
+        }
+
+        private static string GetEffectiveName(string objectName)
+        {
+            // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/proposals/csharp-8.0/ranges
+            if (objectName[0] != '[' || objectName[^1] != ']')
+                return objectName;
+
+            return objectName[1..^1];
         }
     }
 }

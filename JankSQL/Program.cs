@@ -166,16 +166,6 @@ namespace JankSQL
 
             Engines.DynamicCSVEngine.RemoveDatabase(tempPath);
         }
-
-
-        public static string GetEffectiveName(string objectName)
-        {
-            // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/proposals/csharp-8.0/ranges
-            if (objectName[0] != '[' || objectName[^1] != ']')
-                return objectName;
-
-            return objectName[1..^1];
-        }
     }
 }
 

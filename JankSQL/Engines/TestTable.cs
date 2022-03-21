@@ -1,12 +1,8 @@
 ﻿
-
 namespace JankSQL.Engines
 {
-
     public class TestTableBuilder
     {
-
-
         List<object[]>? rows;
 
         List<FullColumnName> columnNames = new();
@@ -98,7 +94,7 @@ namespace JankSQL.Engines
 
         internal List<ExpressionOperand[]> Rows { get { return rows; } }
 
-
+            
         internal TestTable(FullTableName tableName, List<FullColumnName> columnNames, List<ExpressionOperandType> columnTypes, List<ExpressionOperand[]> rows)
         {
             this.tableName = tableName;
