@@ -2,7 +2,7 @@
 {
     public interface IEngineTable
     {
-        //=== metadata
+        // === metadata
         // get the number of columns
         int ColumnCount { get; }
 
@@ -12,18 +12,16 @@
         // get the index of a column name
         int ColumnIndex(string columnName);
 
-        //=== data access
+        // === data access
         // iterate over the available rows
         IEnumerator<RowWithBookmark> GetEnumerator();
 
-        //=== DML
+        // === DML
         // truncate this table
         void TruncateTable();
 
         void InsertRow(ExpressionOperand[] row);
 
         int DeleteRows(List<ExpressionOperandBookmark> bookmarksToDelete);
-
     }
 }
-

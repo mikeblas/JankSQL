@@ -2,7 +2,8 @@
 {
     internal class ExpressionOperandDecimal : ExpressionOperand
     {
-        internal double d;
+        private double d;
+
         internal ExpressionOperandDecimal(double d)
             : base(ExpressionOperandType.DECIMAL)
         {
@@ -44,7 +45,7 @@
         {
             if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
             {
-                return (other.AsDouble() == AsDouble());
+                return other.AsDouble() == AsDouble();
             }
             else if (other.NodeType == ExpressionOperandType.NVARCHAR || other.NodeType == ExpressionOperandType.VARCHAR)
             {
@@ -60,7 +61,7 @@
         {
             if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
             {
-                return (AsDouble() > other.AsDouble());
+                return AsDouble() > other.AsDouble();
             }
             else if (other.NodeType == ExpressionOperandType.NVARCHAR || other.NodeType == ExpressionOperandType.VARCHAR)
             {
@@ -76,7 +77,7 @@
         {
             if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
             {
-                return (AsDouble() < other.AsDouble());
+                return AsDouble() < other.AsDouble();
             }
             else if (other.NodeType == ExpressionOperandType.NVARCHAR || other.NodeType == ExpressionOperandType.VARCHAR)
             {

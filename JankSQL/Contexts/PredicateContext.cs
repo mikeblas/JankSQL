@@ -1,5 +1,4 @@
-﻿
-namespace JankSQL.Contexts
+﻿namespace JankSQL.Contexts
 {
     internal class PredicateContext
     {
@@ -9,9 +8,15 @@ namespace JankSQL.Contexts
         {
         }
 
-        internal int PredicateExpressionListCount { get { return predicateExpressionLists.Count; } }
+        internal int PredicateExpressionListCount
+        {
+            get { return predicateExpressionLists.Count; }
+        }
 
-        internal List<Expression> PredicateExpressions { get { return predicateExpressionLists; } }
+        internal List<Expression> PredicateExpressions
+        {
+            get { return predicateExpressionLists; }
+        }
 
         internal void EndPredicateExpressionList(Expression expression)
         {
@@ -34,6 +39,5 @@ namespace JankSQL.Contexts
 
             predicateExpressionLists.Add(newList);
         }
-
     }
 }

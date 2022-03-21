@@ -1,5 +1,4 @@
-﻿
-namespace JankSQL
+﻿namespace JankSQL
 {
     public class InternalErrorException : Exception
     {

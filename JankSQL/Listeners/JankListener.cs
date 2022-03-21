@@ -1,21 +1,25 @@
-﻿using Antlr4.Runtime;
-using Antlr4.Runtime.Misc;
-using Antlr4.Runtime.Tree;
-
-using JankSQL.Contexts;
-using ExecutionContext = JankSQL.Contexts.ExecutionContext;
-
-namespace JankSQL
+﻿namespace JankSQL
 {
+    using Antlr4.Runtime;
+    using Antlr4.Runtime.Misc;
+    using Antlr4.Runtime.Tree;
+
+    using JankSQL.Contexts;
+    using ExecutionContext = JankSQL.Contexts.ExecutionContext;
+
     public partial class JankListener : TSqlParserBaseListener
     {
+        private readonly ExecutionContext executionContext = new ();
+
         private int depth = 0;
 
-        readonly ExecutionContext executionContext = new();
-        SelectContext? selectContext;
-        PredicateContext? predicateContext;
+        private SelectContext? selectContext;
+        private PredicateContext? predicateContext;
 
-        internal ExecutionContext ExecutionContext { get { return executionContext; } }
+        internal ExecutionContext ExecutionContext
+        {
+            get { return executionContext; }
+        }
 
         public override void EnterEveryRule([NotNull] ParserRuleContext context)
         {
@@ -86,7 +90,7 @@ namespace JankSQL
                 if (elem.column_elem() != null)
                 {
                     ExpressionNode n = new ExpressionOperandFromColumn(FullColumnName.FromContext(elem.column_elem().full_column_name()));
-                    x = new();
+                    x = new ();
                     x.Add(n);
 
                     fcn = FullColumnName.FromContext(elem.column_elem().full_column_name());
@@ -116,16 +120,16 @@ namespace JankSQL
                 else
                     selectContext.SelectListContext.AddUnknownRowsetColumnName();
 
-                Console.WriteLine($"SelectListElement:   {String.Join(" ", x)}");
+                Console.WriteLine($"SelectListElement:   {string.Join(" ", x)}");
                 selectContext.AddSelectListExpressionList(x);
             }
         }
 
 
-        Expression GobbleExpression(TSqlParser.ExpressionContext expr)
+        internal Expression GobbleExpression(TSqlParser.ExpressionContext expr)
         {
-            Expression x = new();
-            List<object> stack = new();
+            Expression x = new ();
+            List<object> stack = new ();
             stack.Add(expr);
 
             while (stack.Count > 0)
@@ -266,8 +270,6 @@ namespace JankSQL
             return x;
         }
 
-
-
         public override void ExitJoin_part([NotNull] TSqlParser.Join_partContext context)
         {
             base.ExitJoin_part(context);
@@ -277,7 +279,6 @@ namespace JankSQL
             if (predicateContext == null)
                 throw new InternalErrorException("Expected a PredicateContext");
 
-
             // figure out which join type
             if (context.cross_join() != null)
             {
@@ -286,29 +287,28 @@ namespace JankSQL
                 FullTableName otherTableName = FullTableName.FromTableNameContext(context.cross_join().table_source().table_source_item_joined().table_source_item().table_name_with_hint().table_name());
                 Console.WriteLine($"CROSS JOIN On {otherTableName}");
 
-                JoinContext jc = new(JoinType.CROSS_JOIN, otherTableName);
-                PredicateContext pcon = new();
+                JoinContext jc = new (JoinType.CROSS_JOIN, otherTableName);
+                PredicateContext pcon = new ();
                 selectContext.AddJoin(jc, pcon);
             }
             else if (context.join_on() != null)
             {
                 Expression x = GobbleSearchCondition(context.join_on().search_condition());
-                PredicateContext pcon = new();
+                PredicateContext pcon = new ();
                 pcon.EndPredicateExpressionList(x);
 
                 // ON join
                 FullTableName otherTableName = FullTableName.FromTableNameContext(context.join_on().table_source().table_source_item_joined().table_source_item().table_name_with_hint().table_name());
                 Console.WriteLine($"INNER JOIN On {otherTableName}");
 
-                JoinContext jc = new(JoinType.INNER_JOIN, otherTableName);
+                JoinContext jc = new (JoinType.INNER_JOIN, otherTableName);
                 selectContext.AddJoin(jc, pcon);
             }
-            else 
+            else
             {
                 throw new NotImplementedException("unsupported JOIN type enountered");
             }
         }
-
 
         public override void EnterOrder_by_clause([NotNull] TSqlParser.Order_by_clauseContext context)
         {
@@ -317,12 +317,12 @@ namespace JankSQL
             if (selectContext == null)
                 throw new InternalErrorException("Expected a SelectContext");
 
-            OrderByContext obc = new();
+            OrderByContext obc = new ();
 
             foreach (var expr in context.order_by_expression())
             {
                 Expression obx = GobbleExpression(expr.expression());
-                Console.Write($"   {String.Join(",", obx.Select(x => "[" + x + "]"))} ");
+                Console.Write($"   {string.Join(",", obx.Select(x => "[" + x + "]"))} ");
                 if (expr.DESC() != null)
                     Console.WriteLine("DESC");
                 else

@@ -1,14 +1,11 @@
-﻿
-namespace JankSQL.Operators
+﻿namespace JankSQL.Operators
 {
-
     internal class TableSource : IComponentOutput
     {
-        readonly Engines.IEngineTable source;
+        private readonly Engines.IEngineTable source;
 
-        // int currentRow = 0;
-        readonly IEnumerator<Engines.RowWithBookmark> rowEnumerator;
-        bool enumeratorExhausted;
+        private readonly IEnumerator<Engines.RowWithBookmark> rowEnumerator;
+        private bool enumeratorExhausted;
 
         internal TableSource(Engines.IEngineTable source)
         {
@@ -19,20 +16,19 @@ namespace JankSQL.Operators
 
         public void Rewind()
         {
-            // currentRow = 0;
             enumeratorExhausted = false;
             rowEnumerator.Reset();
         }
 
         public ResultSet? GetRows(int max)
         {
-            ResultSet rs = new ResultSet();
-            List<FullColumnName> columnNames = new List<FullColumnName>();
+            //REVIEW: only do this once
+            List<FullColumnName> columnNames = new ();
             for (int n = 0; n < source.ColumnCount; n++)
                 columnNames.Add(source.ColumnName(n));
             columnNames.Add(FullColumnName.FromColumnName("bookmark_key"));
-           
-            rs.SetColumnNames(columnNames);
+
+            ResultSet rs = new (columnNames);
 
             if (enumeratorExhausted)
                 return null;

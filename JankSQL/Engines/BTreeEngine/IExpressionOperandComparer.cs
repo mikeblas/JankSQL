@@ -2,7 +2,7 @@
 {
     class IExpressionOperandComparer : IComparer<ExpressionOperand[]>
     {
-        int[]? keyOrder;
+        private readonly int[]? keyOrder;
 
         public IExpressionOperandComparer(int[] keyOrder)
         {
@@ -14,12 +14,12 @@
             keyOrder = null;
         }
 
-        public int Compare(ExpressionOperand[]? x, ExpressionOperand[]? y)
+        public int Compare(ExpressionOperand[] ? x, ExpressionOperand[]? y)
         {
             if (x == null)
-                throw new ArgumentNullException("x");
+                throw new ArgumentNullException(nameof(x));
             if (y == null)
-                throw new ArgumentNullException("y");
+                throw new ArgumentNullException(nameof(y));
             if (x.Length != y.Length)
                 throw new ArgumentException($"sizes are different: {x.Length} and {y.Length}");
 
@@ -31,7 +31,8 @@
                 {
                     ret = x[keyOrder[keyNumber]].CompareTo(y[keyOrder[keyNumber]]);
                     keyNumber++;
-                } while (ret == 0 && keyNumber < keyOrder.Length);
+                }
+                while (ret == 0 && keyNumber < keyOrder.Length);
             }
             else
             {
@@ -40,7 +41,8 @@
                 {
                     ret = x[keyNumber].CompareTo(y[keyNumber]);
                     keyNumber++;
-                } while (ret == 0 && keyNumber < x.Length);
+                }
+                while (ret == 0 && keyNumber < x.Length);
             }
 
             // Console.WriteLine($"{String.Join(",", x)} compared to {String.Join(",", y)} --> {ret}");

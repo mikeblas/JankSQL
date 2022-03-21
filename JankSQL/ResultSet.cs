@@ -1,26 +1,24 @@
-﻿
-namespace JankSQL
+﻿namespace JankSQL
 {
     public class ResultSet
     {
-        List<ExpressionOperand[]> rows;
+        private readonly List<ExpressionOperand[]> rows;
+        private readonly List<FullColumnName> columnNames;
 
-        List<FullColumnName> columnNames;
-
-        internal ResultSet()
+        internal ResultSet(List<FullColumnName> columnNames)
         {
             rows = new List<ExpressionOperand[]>();
-            columnNames = new List<FullColumnName>();
+            this.columnNames = columnNames;
         }
 
-        internal static ResultSet NewWithShape(ResultSet other)
+        public int RowCount
         {
-            ResultSet ret = new()
-            {
-                columnNames = other.columnNames
-            };
+            get { return rows.Count; }
+        }
 
-            return ret;
+        public int ColumnCount
+        {
+            get { return columnNames.Count; }
         }
 
         public int ColumnIndex(FullColumnName name)
@@ -33,30 +31,24 @@ namespace JankSQL
             return rows[index];
         }
 
+        internal static ResultSet NewWithShape(ResultSet other)
+        {
+            ResultSet ret = new (other.columnNames);
+            return ret;
+        }
+
         internal void Append(ResultSet other)
         {
             if (rows == null)
-            {
                 throw new InvalidOperationException();
-            }
-            if (rows.Count > 0  && rows[0].Length != other.rows[0].Length)
-            {
+
+            if (rows.Count > 0 && rows[0].Length != other.rows[0].Length)
                 throw new InvalidOperationException();
-            }
+
             if (columnNames != null && other.columnNames != null && other.columnNames.Count != columnNames.Count)
-            {
                 throw new InvalidOperationException();
-            }
+
             rows.AddRange(other.rows);
-        }
-
-        public int RowCount { get { return rows.Count; } }
-
-        public int ColumnCount {  get { return columnNames.Count; } }
-
-        internal void SetColumnNames(List<FullColumnName> names)
-        {
-            columnNames = names;
         }
 
         internal List<FullColumnName> GetColumnNames()
@@ -69,7 +61,7 @@ namespace JankSQL
             return columnNames[index];
         }
 
-        internal  void AddRow(ExpressionOperand[] row)
+        internal void AddRow(ExpressionOperand[] row)
         {
             if (rows.Count > 0)
             {
@@ -99,11 +91,13 @@ namespace JankSQL
 
         public void Dump()
         {
-            foreach(var name in columnNames)
+            //REVIEW: use string.Join here
+            foreach (var name in columnNames)
             {
                 Console.Write(name);
                 Console.Write(",");
             }
+
             Console.WriteLine();
 
             foreach (var row in rows)

@@ -1,21 +1,21 @@
-﻿
-using JankSQL.Operators;
-
-namespace JankSQL.Contexts
+﻿namespace JankSQL.Contexts
 {
+    using JankSQL.Operators;
+
     public class SelectContext : IExecutableContext
     {
-        readonly TSqlParser.Select_statementContext statementContext;
-        SelectListContext? selectListContext;
+        private readonly TSqlParser.Select_statementContext statementContext;
+
+        private readonly List<JoinContext> joinContexts = new ();
+        private readonly List<AggregateContext> aggregateContexts = new ();
+        private readonly List<Expression> groupByExpressions = new ();
+
+        private OrderByContext? orderByContext;
+
+        private SelectListContext? selectListContext;
 
         // for WHERE clauses
-        PredicateContext? predicateContext;
-
-        readonly List<JoinContext> joinContexts = new ();
-        readonly List<AggregateContext> aggregateContexts = new();
-        readonly List<Expression> groupByExpressions = new();
-
-        OrderByContext? orderByContext;
+        private PredicateContext? predicateContext;
 
         internal void AddJoin(JoinContext jc, PredicateContext predicateContext)
         {
@@ -117,8 +117,8 @@ namespace JankSQL.Contexts
             if (aggregateContexts.Count > 0)
             {
                 // get names for all the expressions
-                List<string> groupByExpressionBindNames = new();
-                foreach(var gbe in groupByExpressions)
+                List<string> groupByExpressionBindNames = new ();
+                foreach (var gbe in groupByExpressions)
                 {
                     string? bindName = selectListContext.BindNameForExpression(gbe);
                     if (bindName != null)
@@ -177,7 +177,6 @@ namespace JankSQL.Contexts
             return results;
         }
 
-
         public void Dump()
         {
             if (selectListContext == null)
@@ -187,18 +186,15 @@ namespace JankSQL.Contexts
 
             Console.WriteLine("PredicateExpressions:");
             if (predicateContext == null)
-            {
                 Console.WriteLine("  No predicate context");
-            }
             else
             {
                 for (int i = 0; i < predicateContext.PredicateExpressionListCount; i++)
                 {
                     Console.Write($"  #{i}: ");
                     foreach (var x in predicateContext.PredicateExpressions[i])
-                    {
                         Console.Write($"{x} ");
-                    }
+
                     Console.WriteLine();
                 }
             }

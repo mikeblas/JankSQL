@@ -1,9 +1,8 @@
-﻿
-namespace JankSQL.Operators
+﻿namespace JankSQL.Operators
 {
     /// <summary>
-    /// wraps a discrete row and a list of column names to be used by 
-    /// the Expression.Evaluate() method
+    /// wraps a discrete row and a list of column names to be used by
+    /// the Expression.Evaluate() method.
     /// </summary>
     internal class TemporaryRowValueAccessor : IRowValueAccessor
     {
@@ -26,7 +25,6 @@ namespace JankSQL.Operators
 
             throw new ExecutionException($"column {fcn} not found in TemporaryRowValueAccessor");
         }
-
 
         void IRowValueAccessor.SetValue(FullColumnName fcn, ExpressionOperand op)
         {

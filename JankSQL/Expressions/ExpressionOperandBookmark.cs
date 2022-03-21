@@ -2,7 +2,8 @@
 {
     public class ExpressionOperandBookmark : ExpressionOperand
     {
-        ExpressionOperand[] tuple;
+        private readonly ExpressionOperand[] tuple;
+
         internal ExpressionOperandBookmark(ExpressionOperand[] tuple)
             : base(ExpressionOperandType.NVARCHAR)
         {
@@ -60,6 +61,7 @@
         {
             throw new NotImplementedException();
         }
+
         public override ExpressionOperand OperatorPlus(ExpressionOperand other)
         {
             throw new NotImplementedException();
@@ -98,6 +100,7 @@
             {
                 ret = tuple[index].CompareTo(other.tuple[index]);
             }
+
             return ret;
         }
 
@@ -116,6 +119,7 @@
             {
                 ret = tuple[index].CompareTo(o.tuple[index]);
             }
+
             return ret;
         }
 

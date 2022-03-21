@@ -2,7 +2,8 @@
 {
     internal class ExpressionOperandVARCHAR : ExpressionOperand, IComparable<ExpressionOperandVARCHAR>, IEquatable<ExpressionOperandVARCHAR>
     {
-        internal string str;
+        private readonly string str;
+
         internal ExpressionOperandVARCHAR(string str)
             : base(ExpressionOperandType.VARCHAR)
         {
@@ -21,7 +22,7 @@
 
         public override double AsDouble()
         {
-            return Double.Parse(str);
+            return double.Parse(str);
         }
 
         public override bool IsTrue()
@@ -36,7 +37,7 @@
 
         public override int AsInteger()
         {
-            return Int32.Parse(str);
+            return int.Parse(str);
         }
 
         public override bool OperatorEquals(ExpressionOperand other)

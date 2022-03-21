@@ -2,14 +2,17 @@
 {
     internal class ExpressionOperandFromColumn : ExpressionNode, IEquatable<ExpressionOperandFromColumn>
     {
-        internal FullColumnName columnName;
+        private FullColumnName columnName;
 
         internal ExpressionOperandFromColumn(FullColumnName columnName)
         {
             this.columnName = columnName;
         }
 
-        internal FullColumnName ColumnName { get { return columnName; } }
+        internal FullColumnName ColumnName
+        {
+            get { return columnName; }
+        }
 
         public bool Equals(ExpressionOperandFromColumn? other)
         {

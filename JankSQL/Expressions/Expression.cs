@@ -1,5 +1,4 @@
-﻿
-namespace JankSQL
+﻿namespace JankSQL
 {
     internal class Expression : List<ExpressionNode>, IEquatable<Expression>
     {
@@ -53,7 +52,8 @@ namespace JankSQL
                     }
 
                 }
-            } while (stack.Count > 1);
+            }
+            while (stack.Count > 1);
 
             ExpressionOperand result = (ExpressionOperand)stack.Pop();
 

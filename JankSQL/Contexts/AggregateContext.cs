@@ -1,20 +1,12 @@
-﻿
-using JankSQL.Operators;
-
-namespace JankSQL.Contexts
+﻿namespace JankSQL.Contexts
 {
+    using JankSQL.Operators;
 
     internal class AggregateContext
     {
-        private AggregationOperatorType aggregationOperatorType;
-        readonly Expression expression;
-        string? expressionName;
-
-        internal string? ExpressionName { get { return expressionName; } set { expressionName = value; } }
-
-        internal Expression Expression { get { return expression; } }
-
-        internal AggregationOperatorType AggregationOperatorType { get { return aggregationOperatorType; } }
+        private readonly AggregationOperatorType aggregationOperatorType;
+        private readonly Expression expression;
+        private string? expressionName;
 
         internal AggregateContext(AggregationOperatorType aggregationType, Expression expression, int expressionID)
         {
@@ -29,5 +21,19 @@ namespace JankSQL.Contexts
             this.aggregationOperatorType = aggregationType;
         }
 
+        internal string? ExpressionName
+        {
+            get { return expressionName; } set { expressionName = value; }
+        }
+
+        internal Expression Expression
+        {
+            get { return expression; }
+        }
+
+        internal AggregationOperatorType AggregationOperatorType
+        {
+            get { return aggregationOperatorType; }
+        }
     }
 }

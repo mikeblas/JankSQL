@@ -1,23 +1,25 @@
-﻿using System.Text;
-
-namespace JankSQL.Engines
+﻿namespace JankSQL.Engines
 {
-    // represents a table in a CSV engine
+    using System.Text;
+
+    /// <summary>
+    /// represents a table in a CSV engine.
+    /// </summary>
     public class DynamicCSVTable : IEngineTable
     {
         private readonly string filename;
         private readonly string tableName;
-        private IEngine engine;
+        private readonly IEngine engine;
+
+        // list of lines; each line is a list of values
+        private readonly List<ExpressionOperand[]> values;
+        private readonly List<ExpressionOperandBookmark> bookmarks;
 
         // list of column names
         private FullColumnName[]? columnNames;
 
         // list of types
         private ExpressionOperandType[]? columnTypes;
-
-        // list of lines; each line is a list of values
-        private List<ExpressionOperand[]> values;
-        private List<ExpressionOperandBookmark> bookmarks;
 
         public DynamicCSVTable(string filename, string tableName, IEngine engine)
         {
@@ -28,14 +30,14 @@ namespace JankSQL.Engines
             this.engine = engine;
         }
 
-        ExpressionOperandType[] GetColumnTypes(FullTableName tableName)
+        private ExpressionOperandType[] GetColumnTypes(FullTableName tableName)
         {
             ExpressionOperandType[] ret;
 
             // we'd infinitely recurse if we had to look up columns for sys_columns by looking up sys_columns ...
             if (tableName.TableName.Equals("sys_columns", StringComparison.InvariantCultureIgnoreCase))
             {
-                List<ExpressionOperandType> types = new();
+                List<ExpressionOperandType> types = new ();
 
                 // table_name
                 types.Add(ExpressionOperandType.VARCHAR);
@@ -129,7 +131,7 @@ namespace JankSQL.Engines
                         switch (columnTypes[i])
                         {
                             case ExpressionOperandType.DECIMAL:
-                                newRow[i] = new ExpressionOperandDecimal(Double.Parse(fileFields[i]));
+                                newRow[i] = new ExpressionOperandDecimal(double.Parse(fileFields[i]));
                                 break;
 
                             case ExpressionOperandType.VARCHAR:
@@ -141,7 +143,7 @@ namespace JankSQL.Engines
                                 break;
 
                             case ExpressionOperandType.INTEGER:
-                                newRow[i] = new ExpressionOperandInteger(Int32.Parse(fileFields[i]));
+                                newRow[i] = new ExpressionOperandInteger(int.Parse(fileFields[i]));
                                 break;
 
                             default:
@@ -151,7 +153,7 @@ namespace JankSQL.Engines
 
                     values.Add(newRow);
                     ExpressionOperand bmk = ExpressionOperand.IntegerFromInt(lineNumber);
-                    ExpressionOperandBookmark bm = new(new ExpressionOperand[] { bmk } );
+                    ExpressionOperandBookmark bm = new (new ExpressionOperand[] { bmk });
                     bookmarks.Add(bm);
                 }
 
@@ -194,20 +196,20 @@ namespace JankSQL.Engines
                     throw new ExecutionException($"table in {filename} doesn't have header row");
                 }
             }
+
             fileStream.Close();
 
             // delete the file
             File.Delete(filename);
 
             // re-create it with that line
-            using StreamWriter writer = new(filename);
+            using StreamWriter writer = new (filename);
             writer.WriteLine(firstLine);
             writer.Flush();
             writer.Close();
 
             Load();
         }
-
 
         public void InsertRow(ExpressionOperand[] row)
         {
@@ -240,7 +242,7 @@ namespace JankSQL.Engines
                 throw new ArgumentException("Bogus tuple type for CSV");
 
             // convert generic bookmarks to our integers
-            List<int> rowIndexesToDelete = new();
+            List<int> rowIndexesToDelete = new ();
             foreach (var mark in bookmarksToDelete)
             {
                 rowIndexesToDelete.Add(mark.Tuple[0].AsInteger());
@@ -260,7 +262,7 @@ namespace JankSQL.Engines
             using IDisposable disposable = (IDisposable)lines;
             int lineNumber = 0;
 
-            using StreamWriter writer = new(filename);
+            using StreamWriter writer = new (filename);
 
             columnTypes = GetColumnTypes(FullTableName.FromTableName(tableName));
 

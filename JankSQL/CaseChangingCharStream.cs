@@ -1,16 +1,15 @@
-﻿
-// due to this documentation:
+﻿// due to this documentation:
 //      https://github.com/antlr/antlr4/blob/master/doc/case-insensitive-lexing.md
 
 /* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using Antlr4.Runtime;
-using Antlr4.Runtime.Misc;
-
 namespace JankSQL
 {
+    using Antlr4.Runtime;
+    using Antlr4.Runtime.Misc;
+
     /// <summary>
     /// This class supports case-insensitive lexing by wrapping an existing
     /// <see cref="ICharStream"/> and forcing the lexer to see either upper or
@@ -22,8 +21,8 @@ namespace JankSQL
     /// </summary>
     public class CaseChangingCharStream : ICharStream
     {
-        private ICharStream stream;
-        private bool upper;
+        private readonly ICharStream stream;
+        private readonly bool upper;
 
         /// <summary>
         /// Constructs a new CaseChangingCharStream wrapping the given <paramref name="stream"/> forcing
@@ -107,4 +106,3 @@ namespace JankSQL
         }
     }
 }
-

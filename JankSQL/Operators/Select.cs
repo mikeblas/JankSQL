@@ -1,12 +1,12 @@
-﻿using JankSQL.Contexts;
-
-namespace JankSQL.Operators
+﻿namespace JankSQL.Operators
 {
+    using JankSQL.Contexts;
+
     internal class Select
     {
-        readonly IComponentOutput myInput;
-        TSqlParser.Select_list_elemContext[] selectListContexts;
-        readonly SelectListContext selectList;
+        private readonly IComponentOutput myInput;
+        private readonly SelectListContext selectList;
+        private readonly TSqlParser.Select_list_elemContext[] selectListContexts;
 
         // internal IComponentOutput Input { get { return myInput; } set { myInput = value; } }
 
@@ -24,7 +24,7 @@ namespace JankSQL.Operators
                 return null;
 
             // get an effective column list ...
-            List<FullColumnName> effectiveColumns = new List<FullColumnName>();
+            List<FullColumnName> effectiveColumns = new ();
             int resultSetColumnIndex = 0;
             foreach (var c in selectListContexts)
             {
@@ -38,7 +38,7 @@ namespace JankSQL.Operators
                             continue;
                         effectiveColumns.Add(fcn);
                         ExpressionNode node = new ExpressionOperandFromColumn(rsInput.GetColumnName(i));
-                        Expression expression = new Expression { node };
+                        Expression expression = new () { node };
                         selectList.AddSelectListExpressionList(expression);
                     }
                 }
@@ -48,9 +48,7 @@ namespace JankSQL.Operators
                 }
             }
 
-
-            ResultSet rsOutput = new ResultSet();
-            rsOutput.SetColumnNames(effectiveColumns);
+            ResultSet rsOutput = new (effectiveColumns);
 
             for (int i = 0; i < rsInput.RowCount; i++)
             {
@@ -73,6 +71,7 @@ namespace JankSQL.Operators
                     {
                         rowResults[rsIndex] = thisRow[idx];
                     }
+
                     rsIndex++;
                 }
 

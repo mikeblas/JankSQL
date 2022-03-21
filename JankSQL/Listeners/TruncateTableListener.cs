@@ -1,8 +1,8 @@
-﻿using Antlr4.Runtime.Misc;
-using JankSQL.Contexts;
-
-namespace JankSQL
+﻿namespace JankSQL
 {
+    using Antlr4.Runtime.Misc;
+    using JankSQL.Contexts;
+
     public partial class JankListener : TSqlParserBaseListener
     {
         public override void ExitTruncate_table([NotNull] TSqlParser.Truncate_tableContext context)
@@ -11,9 +11,8 @@ namespace JankSQL
 
             FullTableName ftn = FullTableName.FromTableNameContext(context.table_name());
 
-            TruncateTableContext c = new TruncateTableContext(ftn);
+            TruncateTableContext c = new (ftn);
             executionContext.ExecuteContexts.Add(c);
-
         }
     }
 }

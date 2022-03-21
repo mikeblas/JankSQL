@@ -31,7 +31,7 @@ namespace Tests
 
 
             int keyColIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("keycolumn"));
-            List<int> keys = new();
+            List<int> keys = new ();
             for (int i = 0; i < resultSelect.ResultSet.RowCount; i++)
             {
                 keys.Add(resultSelect.ResultSet.Row(i)[keyColIndex].AsInteger());
@@ -76,8 +76,8 @@ namespace Tests
 
             int someIntegerIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("someinteger"));
             int anotherIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("anotherone"));
-            List<int> someIntegers = new();
-            List<int> moreIntegers = new();
+            List<int> someIntegers = new ();
+            List<int> moreIntegers = new ();
             for (int i = 0; i < resultSelect.ResultSet.RowCount; i++)
             {
                 someIntegers.Add(resultSelect.ResultSet.Row(i)[someIntegerIndex].AsInteger());
@@ -128,8 +128,8 @@ namespace Tests
 
             int someIntegerIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("someinteger"));
             int anotherIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("anotherone"));
-            List<int> someIntegers = new();
-            List<int> moreIntegers = new();
+            List<int> someIntegers = new ();
+            List<int> moreIntegers = new ();
             for (int i = 0; i < resultSelect.ResultSet.RowCount; i++)
             {
                 someIntegers.Add(resultSelect.ResultSet.Row(i)[someIntegerIndex].AsInteger());

@@ -2,12 +2,19 @@
 {
     internal class ExpressionBooleanOperator : ExpressionNode
     {
-        enum BooleanOperatorType
+        private readonly BooleanOperatorType opType;
+
+        internal enum BooleanOperatorType
         {
-            AND, OR, NOT
+            AND,
+            OR,
+            NOT,
         }
 
-        BooleanOperatorType opType;
+        internal ExpressionBooleanOperator(BooleanOperatorType opType)
+        {
+            this.opType = opType;
+        }
 
         internal static ExpressionBooleanOperator GetOrOperator()
         {
@@ -24,12 +31,7 @@
             return new ExpressionBooleanOperator(BooleanOperatorType.NOT);
         }
 
-        ExpressionBooleanOperator(BooleanOperatorType opType)
-        {
-            this.opType = opType;
-        }
-
-        public override String ToString()
+        public override string ToString()
         {
             return opType.ToString();
         }
@@ -38,22 +40,18 @@
         {
             bool result = true;
 
-            ExpressionOperand right = (ExpressionOperand)stack.Pop();
+            ExpressionOperand right = stack.Pop();
 
             switch (opType)
             {
                 case BooleanOperatorType.AND:
-                    {
-                        ExpressionOperand left = (ExpressionOperand)stack.Pop();
-                        result = right.IsTrue() && left.IsTrue();
-                    }
+                    ExpressionOperand leftAnd = stack.Pop();
+                    result = right.IsTrue() && leftAnd.IsTrue();
                     break;
 
                 case BooleanOperatorType.OR:
-                    {
-                        ExpressionOperand left = (ExpressionOperand)stack.Pop();
-                        result = right.IsTrue() || left.IsTrue();
-                    }
+                    ExpressionOperand leftOr = stack.Pop();
+                    result = right.IsTrue() || leftOr.IsTrue();
                     break;
 
                 case BooleanOperatorType.NOT:

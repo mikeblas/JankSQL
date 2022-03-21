@@ -145,7 +145,7 @@ namespace Tests
         [TestMethod]
         public void TestOrderByManynIntegers()
         {
-            Random random = new();
+            Random random = new ();
             int testRowCount = 10000;
 
             // create a table

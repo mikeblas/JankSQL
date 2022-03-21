@@ -1,9 +1,7 @@
-﻿
-namespace JankSQL.Engines
+﻿namespace JankSQL.Engines
 {
     public interface IEngine
     {
-
         public void DropTable(FullTableName tableName);
 
         public void CreateTable(FullTableName tableName, List<FullColumnName> columnNames, List<ExpressionOperandType> columnTypes);

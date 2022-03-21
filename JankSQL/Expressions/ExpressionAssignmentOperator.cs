@@ -1,16 +1,15 @@
-﻿
-namespace JankSQL
+﻿namespace JankSQL
 {
     internal class ExpressionAssignmentOperator : ExpressionNode
     {
-        internal string str;
+        private readonly string str;
 
         internal ExpressionAssignmentOperator(string str)
         {
             this.str = str;
         }
 
-        public override String ToString()
+        public override string ToString()
         {
             return str;
         }

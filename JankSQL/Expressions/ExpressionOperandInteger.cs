@@ -2,7 +2,8 @@
 {
     internal class ExpressionOperandInteger : ExpressionOperand, IComparable<ExpressionOperandInteger>, IEquatable<ExpressionOperandInteger>
     {
-        internal int n;
+        private int n;
+
         internal ExpressionOperandInteger(int n)
             : base(ExpressionOperandType.INTEGER)
         {
@@ -28,6 +29,7 @@
         {
             return $"{n}";
         }
+
         public override int AsInteger()
         {
             return n;
@@ -42,7 +44,7 @@
         {
             if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
             {
-                return (other.AsDouble() == AsDouble());
+                return other.AsDouble() == AsDouble();
             }
             else if (other.NodeType == ExpressionOperandType.NVARCHAR || other.NodeType == ExpressionOperandType.VARCHAR)
             {

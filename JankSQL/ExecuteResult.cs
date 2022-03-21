@@ -1,5 +1,4 @@
-﻿
-namespace JankSQL
+﻿namespace JankSQL
 {
     public class ExecuteResult
     {
@@ -16,7 +15,10 @@ namespace JankSQL
             this.ExecuteStatus = ExecuteStatus.NOT_EXECUTED;
         }
 
-        public ResultSet? ResultSet { get { return resultSet; } set { resultSet = value; } }
+        public ResultSet? ResultSet
+        {
+            get { return resultSet; } set { resultSet = value; }
+        }
 
         public ExecuteStatus ExecuteStatus { get; set; }
 

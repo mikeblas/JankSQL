@@ -1,9 +1,8 @@
-﻿
-using Antlr4.Runtime.Misc;
-using JankSQL.Contexts;
-
-namespace JankSQL
+﻿namespace JankSQL
 {
+    using Antlr4.Runtime.Misc;
+    using JankSQL.Contexts;
+
     public partial class JankListener : TSqlParserBaseListener
     {
         InsertContext? insertContext;
@@ -24,7 +23,7 @@ namespace JankSQL
             if (insertContext == null)
                 throw new InternalErrorException("Expected an InsertContext");
 
-            List<FullColumnName> columns = new();
+            List<FullColumnName> columns = new ();
 
             foreach (var col in context.insert_column_id())
             {
@@ -34,7 +33,6 @@ namespace JankSQL
 
             insertContext.TargetColumns = columns;
         }
-
 
         public override void ExitInsert_statement([NotNull] TSqlParser.Insert_statementContext context)
         {
@@ -61,16 +59,17 @@ namespace JankSQL
                 throw new InternalErrorException("Expected an InsertContext");
 
 
-            List<List<Expression>> total = new();
+            List<List<Expression>> total = new ();
 
             foreach (var expressionList in context.expression_list())
             {
-                List<Expression> constructor = new();
+                List<Expression> constructor = new ();
                 foreach (var expr in expressionList.expression())
                 {
                     Expression x = GobbleExpression(expr);
                     constructor.Add(x);
                 }
+
                 total.Add(constructor);
             }
 

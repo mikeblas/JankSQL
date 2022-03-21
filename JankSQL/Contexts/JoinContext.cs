@@ -1,5 +1,4 @@
-﻿
-namespace JankSQL.Contexts
+﻿namespace JankSQL.Contexts
 {
     internal enum JoinType
     {
@@ -12,9 +11,9 @@ namespace JankSQL.Contexts
 
     internal class JoinContext
     {
-        readonly FullTableName tableName;
-        readonly JoinType joinType;
-        List<Expression>? predicateExpressions;
+        private readonly FullTableName tableName;
+        private readonly JoinType joinType;
+        private List<Expression>? predicateExpressions;
 
         internal JoinContext(JoinType joinType, FullTableName tableName)
         {
@@ -22,11 +21,19 @@ namespace JankSQL.Contexts
             this.joinType = joinType;
         }
 
-        internal FullTableName OtherTableName { get { return tableName; } }
+        internal FullTableName OtherTableName
+        {
+            get { return tableName; }
+        }
 
-        internal List<Expression> PredicateExpressions { get { return predicateExpressions!; } set { predicateExpressions = value; } }
+        internal List<Expression> PredicateExpressions
+        {
+            get { return predicateExpressions!; } set { predicateExpressions = value; }
+        }
 
-        internal JoinType JoinType { get { return joinType; } }
-
+        internal JoinType JoinType
+        {
+            get { return joinType; }
+        }
     }
 }

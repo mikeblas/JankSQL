@@ -2,7 +2,7 @@
 {
     internal class ExpressionOperandNVARCHAR : ExpressionOperand, IComparable<ExpressionOperandNVARCHAR>, IEquatable<ExpressionOperandNVARCHAR>
     {
-        internal string str;
+        private string str;
 
         internal ExpressionOperandNVARCHAR(string str)
             : base(ExpressionOperandType.NVARCHAR)
@@ -22,7 +22,7 @@
 
         public override double AsDouble()
         {
-            return Double.Parse(str);
+            return double.Parse(str);
         }
 
         public override bool IsTrue()
@@ -37,7 +37,7 @@
 
         public override int AsInteger()
         {
-            return Int32.Parse(str);
+            return int.Parse(str);
         }
 
         public override bool OperatorEquals(ExpressionOperand other)

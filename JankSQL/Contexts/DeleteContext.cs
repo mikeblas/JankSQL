@@ -1,18 +1,21 @@
-﻿using JankSQL.Operators;
-
-namespace JankSQL.Contexts
+﻿namespace JankSQL.Contexts
 {
+    using JankSQL.Operators;
+
     internal class DeleteContext : IExecutableContext
     {
-        readonly FullTableName tableName;
-        PredicateContext? predicateContext;
+        private readonly FullTableName tableName;
+        private PredicateContext? predicateContext;
 
         internal DeleteContext(FullTableName tableName)
         {
             this.tableName = tableName;
         }
 
-        internal PredicateContext PredicateContext { get { return predicateContext!; } set { predicateContext = value; } }
+        internal PredicateContext PredicateContext
+        {
+            get { return predicateContext!; } set { predicateContext = value; }
+        }
 
         public void Dump()
         {
@@ -44,7 +47,7 @@ namespace JankSQL.Contexts
             else
             {
                 // found the source table, so load it
-                TableSource source = new(tableSource);
+                TableSource source = new (tableSource);
                 Delete delete = new Delete(tableSource, source, PredicateContext.PredicateExpressions);
 
                 while (true)

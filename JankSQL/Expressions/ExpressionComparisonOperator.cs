@@ -2,13 +2,14 @@
 {
     internal class ExpressionComparisonOperator : ExpressionNode
     {
-        internal string str;
+        private readonly string str;
+
         internal ExpressionComparisonOperator(string str)
         {
             this.str = str;
         }
 
-        public override String ToString()
+        public override string ToString()
         {
             return str;
         }

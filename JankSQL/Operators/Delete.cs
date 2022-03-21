@@ -1,12 +1,11 @@
-﻿
-namespace JankSQL.Operators
+﻿namespace JankSQL.Operators
 {
     internal class Delete : IComponentOutput
     {
         readonly IComponentOutput myInput;
         readonly Engines.IEngineTable engineSource;
         readonly List<Expression> predicateExpressions;
-        readonly List<ExpressionOperandBookmark> bookmarksToDelete = new();
+        readonly List<ExpressionOperandBookmark> bookmarksToDelete = new ();
 
         internal Delete(Engines.IEngineTable targetTable, IComponentOutput input, List<Expression> predicateExpressions)
         {

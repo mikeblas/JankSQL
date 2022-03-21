@@ -1,7 +1,7 @@
-﻿using JankSQL.Operators;
-
-namespace JankSQL.Contexts
+﻿namespace JankSQL.Contexts
 {
+    using JankSQL.Operators;
+
     enum SetOperator
     {
         ASSIGN,
@@ -15,9 +15,9 @@ namespace JankSQL.Contexts
     //TODO: move to Operators
     internal class SetOperation
     {
-        readonly FullColumnName fcn;
-        readonly Expression expression;
-        readonly SetOperator op;
+        private readonly FullColumnName fcn;
+        private readonly Expression expression;
+        private readonly SetOperator op;
 
         internal SetOperation(FullColumnName fcn, SetOperator op, Expression expression)
         {
@@ -43,11 +43,11 @@ namespace JankSQL.Contexts
 
     internal class UpdateContext : IExecutableContext
     {
-        readonly FullTableName tableName;
-        readonly TSqlParser.Update_statementContext context;
-        PredicateContext? predicateContext;
+        private readonly FullTableName tableName;
+        private readonly TSqlParser.Update_statementContext context;
+        private readonly List<SetOperation> setList = new();
 
-        readonly List<SetOperation> setList = new();
+        private PredicateContext? predicateContext;
 
         internal UpdateContext(TSqlParser.Update_statementContext context, FullTableName tableName)
         {
@@ -55,16 +55,22 @@ namespace JankSQL.Contexts
             this.tableName = tableName;
         }
 
-        internal PredicateContext PredicateContext { get { return predicateContext!; } set { predicateContext = value;  } }
+        internal PredicateContext PredicateContext
+        {
+            get { return predicateContext!; } set { predicateContext = value;  }
+        }
 
-        internal FullTableName TableName { get { return tableName; } }
+        internal FullTableName TableName
+        {
+            get { return tableName; }
+        }
 
         internal void AddAssignment(FullColumnName fcn, Expression x)
         {
             SetOperation op = new SetOperation(fcn, SetOperator.ASSIGN, x);
             setList.Add(op);
         }
-        
+
         internal void AddAssignmentOperator(FullColumnName fcn, string op, Expression x)
         {
             throw new NotImplementedException();
@@ -114,7 +120,7 @@ namespace JankSQL.Contexts
             {
                 // found the source table, so build ourselves up
                 TableSource source = new TableSource(engineSource);
-                Update update  = new Update(engineSource, source, PredicateContext.PredicateExpressions, setList);
+                Update update = new Update(engineSource, source, PredicateContext.PredicateExpressions, setList);
 
                 while (true)
                 {

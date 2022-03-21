@@ -1,26 +1,30 @@
-﻿
-namespace JankSQL.Operators
+﻿namespace JankSQL.Operators
 {
-
-    class EvaluatingComparer : IComparer<ExpressionOperand[]>
+    internal class EvaluatingComparer : IComparer<ExpressionOperand[]>
     {
-        readonly Expression[] _keyExpressions;
-        readonly bool[] _isAscending;
-        readonly List<FullColumnName> _columnNames;
+        private readonly Expression[] keyExpressions;
+        private readonly bool[] isAscending;
+        private readonly List<FullColumnName> columnNames;
 
-        int keyComparisons = 0;
-        int rowComparisons = 0;
-
+        private int keyComparisons = 0;
+        private int rowComparisons = 0;
 
         internal EvaluatingComparer(Expression[] keyExpressions, bool[] isAscending, List<FullColumnName> columnNames)
         {
-            _keyExpressions = keyExpressions;
-            _isAscending = isAscending;
-            _columnNames = columnNames;
+            this.keyExpressions = keyExpressions;
+            this.isAscending = isAscending;
+            this.columnNames = columnNames;
         }
 
-        internal int KeyComparisons { get { return keyComparisons; } }
-        internal int RowComparisons { get { return rowComparisons; } }
+        internal int KeyComparisons
+        {
+            get { return keyComparisons; }
+        }
+
+        internal int RowComparisons
+        {
+            get { return rowComparisons; }
+        }
 
         public int Compare(ExpressionOperand[]? x, ExpressionOperand[]? y)
         {
@@ -31,39 +35,38 @@ namespace JankSQL.Operators
             if (x.Length != y.Length)
                 throw new ArgumentException($"sizes are different: {x.Length} and {y.Length}");
 
-            var _xAccessor = new TemporaryRowValueAccessor(x, _columnNames);
-            var _yAccessor = new TemporaryRowValueAccessor(y, _columnNames);
+            var xAccessor = new TemporaryRowValueAccessor(x, columnNames);
+            var yAccessor = new TemporaryRowValueAccessor(y, columnNames);
 
             int ret;
             int keyNumber = 0;
             do
             {
-                ExpressionOperand xop = _keyExpressions[keyNumber].Evaluate(_xAccessor);
-                ExpressionOperand yop = _keyExpressions[keyNumber].Evaluate(_yAccessor);
+                ExpressionOperand xop = keyExpressions[keyNumber].Evaluate(xAccessor);
+                ExpressionOperand yop = keyExpressions[keyNumber].Evaluate(yAccessor);
                 ret = xop.CompareTo(yop);
-                if (!_isAscending[keyNumber])
+                if (!isAscending[keyNumber])
                     ret = -ret;
                 keyNumber++;
                 keyComparisons += 1;
-            } while (ret == 0 && keyNumber < _keyExpressions.Length);
+            }
+            while (ret == 0 && keyNumber < keyExpressions.Length);
 
             rowComparisons += 1;
             return ret;
         }
     }
 
-
     internal class Sort : IComponentOutput
     {
-        readonly IComponentOutput myInput;
-        readonly bool[] isAscending;
-        readonly Expression[] sortExpressions;
+        private readonly IComponentOutput myInput;
+        private readonly bool[] isAscending;
+        private readonly Expression[] sortExpressions;
 
-        ResultSet? totalResults;
-        bool inputExhausted = false;
-        bool outputExhausted = false;
+        private ResultSet? totalResults;
+        private bool inputExhausted = false;
+        private bool outputExhausted = false;
 
-        
         public Sort(IComponentOutput myInput, List<Expression> sortKeyList, List<bool> isAscendingList)
         {
             this.myInput = myInput;
@@ -92,7 +95,6 @@ namespace JankSQL.Operators
 
             //TODO: honor max
             // we've completely built totalResults, so sort it
-            
             var evaluatingComparer = new EvaluatingComparer(sortExpressions, isAscending, totalResults.GetColumnNames());
             totalResults.Sort(evaluatingComparer);
             Console.WriteLine($"Sorted! {evaluatingComparer.KeyComparisons} key comparisons, {evaluatingComparer.RowComparisons} row comparisons");

@@ -14,10 +14,6 @@
             throw new NotImplementedException();
         }
 
-        void Load()
-        {
-        }
-
         public void TruncateTable()
         {
             throw new NotImplementedException();
@@ -35,8 +31,8 @@
 
         public IEnumerator<RowWithBookmark> GetEnumerator()
         {
-            List<RowWithBookmark> xl = new();
-            
+            List<RowWithBookmark> xl = new ();
+
             ExpressionOperand[] x = Array.Empty<ExpressionOperand>();
             ExpressionOperandBookmark bm = new ExpressionOperandBookmark(Array.Empty<ExpressionOperand>());
 

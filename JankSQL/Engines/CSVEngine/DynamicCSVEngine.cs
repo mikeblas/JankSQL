@@ -1,7 +1,5 @@
-﻿
-namespace JankSQL.Engines
+﻿namespace JankSQL.Engines
 {
-
     public enum OpenPolicy
     {
         ExistingOnly,   // fail if not found
@@ -11,9 +9,9 @@ namespace JankSQL.Engines
 
     public class DynamicCSVEngine : IEngine
     {
-        readonly string basePath;
-        readonly string sysTablesPath;
-        readonly string sysColumnsPath;
+        private readonly string basePath;
+        private readonly string sysTablesPath;
+        private readonly string sysColumnsPath;
 
         public static DynamicCSVEngine Open(string basePath, OpenPolicy policy)
         {
@@ -64,7 +62,9 @@ namespace JankSQL.Engines
             }
             catch (FileNotFoundException)
             {
+                // it's okay; we're meant to handle this
             }
+
             if (engine == null)
                 engine = OpenObliterate(basePath);
 
@@ -103,7 +103,7 @@ namespace JankSQL.Engines
             }
         }
 
-        static (string sysTablesPath, string sysColsPath) GetCatalogPaths(string basePath)
+        protected static (string sysTablesPath, string sysColsPath) GetCatalogPaths(string basePath)
         {
             string sysTablesPath = Path.Combine(basePath, "sys_tables.csv");
             string sysColsPath = Path.Combine(basePath, "sys_columns.csv");
@@ -115,31 +115,32 @@ namespace JankSQL.Engines
         {
             (string sysTablesPath, string sysColsPath) = GetCatalogPaths(rootPath);
 
-            string[] sysTablesStrings = new string[] {
+            string[] sysTablesStrings = new string[]
+            {
                 "table_name,file_name",
                 $"sys_tables,{sysTablesPath}",
                 $"sys_columns,{sysColsPath}",
             };
 
-            string[] sysColsStrings = new string[] {
+            string[] sysColsStrings = new string[]
+            {
                 "table_name,column_name,column_type,index",
                 "sys_tables, table_name,NVARCHAR,0",
                 "sys_tables,file_name,NVARCHAR,1",
                 "sys_columns,table_name,NVARCHAR,0",
                 "sys_columns,column_name,NVARCHAR,1",
                 "sys_columns,column_type,NVARCHAR,2",
-                "sys_columns,index,INTEGER,3"
+                "sys_columns,index,INTEGER,3",
             };
 
             File.WriteAllLines(sysTablesPath, sysTablesStrings);
             File.WriteAllLines(sysColsPath, sysColsStrings);
         }
 
-
         public void CreateTable(FullTableName tableName, List<FullColumnName> columnNames, List<ExpressionOperandType> columnTypes)
         {
             // guess file name
-            string fileName = tableName.TableName.Replace("[", "").Replace("]", "") + ".csv";
+            string fileName = tableName.TableName.Replace("[", string.Empty).Replace("]", string.Empty) + ".csv";
             string fullPath = Path.Combine(basePath, fileName);
 
             // see if table doesn't exist
@@ -154,7 +155,7 @@ namespace JankSQL.Engines
             // make sure file doesn't exist, too
             int idxFile = sysTables.ColumnIndex("file_name");
             int idxName = sysTables.ColumnIndex("table_name");
-            foreach(var row in sysTables)
+            foreach (var row in sysTables)
             {
                 if (row.RowData[idxFile].AsString().Equals(fullPath, StringComparison.InvariantCultureIgnoreCase))
                 {
@@ -164,9 +165,9 @@ namespace JankSQL.Engines
             }
 
             // create file
-            using StreamWriter file = new(fullPath);
-            string types = String.Join(',', columnTypes);
-            string names = String.Join(',', columnNames.Select(c => c.ColumnNameOnly()).ToArray());
+            using StreamWriter file = new (fullPath);
+            string types = string.Join(',', columnTypes);
+            string names = string.Join(',', columnNames.Select(c => c.ColumnNameOnly()).ToArray());
             // file.WriteLine(types);
             file.WriteLine(names);
             file.Close();
@@ -228,7 +229,7 @@ namespace JankSQL.Engines
             IEngineTable sysColumns = GetSysColumns();
             int tableNameIndex = sysColumns.ColumnIndex("table_name");
 
-            List<ExpressionOperandBookmark> rowIndexesToDelete = new();
+            List<ExpressionOperandBookmark> rowIndexesToDelete = new ();
             foreach (var row in sysColumns)
             {
                 if (row.RowData[tableNameIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
@@ -254,7 +255,7 @@ namespace JankSQL.Engines
             sysTables.DeleteRows(rowIndexesToDelete);
         }
 
-        static public string? FileFromSysTables(IEngineTable sysTables, string effectiveTableName)
+        public static string? FileFromSysTables(IEngineTable sysTables, string effectiveTableName)
         {
             // is this source table in there?
             int idxName = sysTables.ColumnIndex("table_name");
@@ -305,11 +306,10 @@ namespace JankSQL.Engines
                 throw new InvalidOperationException();
             }
 
-
             DynamicCSVTable table = new DynamicCSVTable(effectiveTableFileName, testTable.TableName.TableName, this);
             table.Load();
 
-            foreach(var row in testTable.Rows)
+            foreach (var row in testTable.Rows)
             {
                 table.InsertRow(row);
             }
@@ -317,5 +317,3 @@ namespace JankSQL.Engines
         }
     }
 }
-
-

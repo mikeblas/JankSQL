@@ -1,9 +1,8 @@
-﻿using Antlr4.Runtime.Misc;
-
-using JankSQL.Contexts;
-
-namespace JankSQL
+﻿namespace JankSQL
 {
+    using Antlr4.Runtime.Misc;
+    using JankSQL.Contexts;
+
     public partial class JankListener : TSqlParserBaseListener
     {
         public override void ExitCreate_table([NotNull] TSqlParser.Create_tableContext context)
@@ -11,8 +10,8 @@ namespace JankSQL
             base.ExitCreate_table(context);
 
             var tableName = FullTableName.FromTableNameContext(context.table_name());
-            List<FullColumnName> columnNames = new();
-            List<ExpressionOperandType> columnTypes = new();
+            List<FullColumnName> columnNames = new ();
+            List<ExpressionOperandType> columnTypes = new ();
 
             var cdtcs = context.column_def_table_constraints();
             var cdtc = cdtcs.column_def_table_constraint();
@@ -49,11 +48,9 @@ namespace JankSQL
                     if (!ExpressionNode.TypeFromString(dt.ext_type.keyword().GetText(), out columnType))
                         throw new ExecutionException($"Unknown column type {typeName} on column {id0.ID()}");
 
-
                     // null or not, if it's VARCHAR or not.
                     var dktvc = dt.ext_type.keyword().VARCHAR();
                     var dktnvc = dt.ext_type.keyword().NVARCHAR();
-                    // TSqlParser.VARCHAR
 
                     if (dktvc is not null)
                     {
@@ -66,18 +63,12 @@ namespace JankSQL
                         columnTypes.Add(ExpressionOperandType.NVARCHAR);
                     }
                     else
-                    {
                         throw new ExecutionException($"Unknown scaled column type {typeName} on column {id0.ID()}");
-                    }
 
                     if (dt.prec is not null)
-                    {
                         Console.Write($"({dt.scale.Text}, {dt.prec.Text}) ");
-                    }
                     else
-                    {
                         Console.Write($"({dt.scale.Text}) ");
-                    }
                 }
 
                 if (cd.null_notnull() == null || cd.null_notnull().NULL_() == null)

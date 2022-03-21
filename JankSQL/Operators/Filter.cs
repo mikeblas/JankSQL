@@ -11,7 +11,10 @@
             this.predicateExpressionLists = predicateExpressionLists;
         }
 
-        internal IComponentOutput Input { get { return myInput; } set { myInput = value; } }
+        internal IComponentOutput Input
+        {
+            get { return myInput; } set { myInput = value; }
+        }
 
         internal List<Expression> Predicates { set { predicateExpressionLists = value; } }
 

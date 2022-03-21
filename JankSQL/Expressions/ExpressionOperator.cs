@@ -2,7 +2,7 @@
 {
     public class ExpressionOperator : ExpressionNode, IEquatable<ExpressionOperator>
     {
-        internal string str;
+        private readonly string str;
 
         internal ExpressionOperator(string str)
         {
@@ -30,7 +30,7 @@
             return str.GetHashCode();
         }
 
-        public override String ToString()
+        public override string ToString()
         {
             return str;
         }
@@ -47,7 +47,7 @@
             }
             else if (str == "+")
             {
-                ExpressionOperand op1 = stack.Pop(); 
+                ExpressionOperand op1 = stack.Pop();
                 ExpressionOperand op2 = stack.Pop();
 
                 ExpressionOperand result = op2.OperatorPlus(op1);

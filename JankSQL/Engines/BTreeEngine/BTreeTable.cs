@@ -1,22 +1,20 @@
-﻿
-using CSharpTest.Net.Collections;
-using CSharpTest.Net.Serialization;
-
-namespace JankSQL.Engines
+﻿namespace JankSQL.Engines
 {
+    using CSharpTest.Net.Collections;
 
     internal class BTreeTable : IEngineTable
     {
-        List<FullColumnName> keyColumnNames;
-        List<FullColumnName> valueColumnNames;
-        Dictionary<string, int> columnNameIndexes;
-        readonly ExpressionOperandType[] keyTypes;
-        readonly ExpressionOperandType[] valueTypes;
-        int nextBookmark = 1;
-        readonly string tableName;
-        bool hasUniqueKey;
+        private readonly List<FullColumnName> keyColumnNames;
+        private readonly List<FullColumnName> valueColumnNames;
+        private readonly Dictionary<string, int> columnNameIndexes;
+        private readonly string tableName;
+        private readonly bool hasUniqueKey;
 
-        BPlusTree<ExpressionOperand[], ExpressionOperand[]> myTree;
+        private readonly ExpressionOperandType[] keyTypes;
+        private readonly ExpressionOperandType[] valueTypes;
+        private int nextBookmark = 1;
+
+        private readonly BPlusTree<ExpressionOperand[], ExpressionOperand[]> myTree;
 
         internal BTreeTable(string tableName, ExpressionOperandType[] keyTypes, List<FullColumnName> keyNames, ExpressionOperandType[] valueTypes, List<FullColumnName> valueNames)
         {
@@ -27,8 +25,8 @@ namespace JankSQL.Engines
             this.valueTypes = valueTypes;
             this.tableName = tableName;
 
-            keyColumnNames = new();
-            valueColumnNames = new();
+            keyColumnNames = new ();
+            valueColumnNames = new ();
 
             columnNameIndexes = new Dictionary<string, int>();
             int n = 0;
@@ -38,6 +36,7 @@ namespace JankSQL.Engines
                 valueColumnNames.Add(fcn);
                 columnNameIndexes.Add(fcn.ColumnNameOnly(), n++);
             }
+
             for (int i = 0; i < keyNames.Count; i++)
             {
                 FullColumnName fcn = FullColumnName.FromTableColumnName(tableName, keyNames[i].ColumnNameOnly());
@@ -55,8 +54,8 @@ namespace JankSQL.Engines
             this.valueTypes = valueTypes;
             this.tableName = tableName;
 
-            keyColumnNames = new();
-            valueColumnNames = new();
+            keyColumnNames = new ();
+            valueColumnNames = new ();
 
             columnNameIndexes = new Dictionary<string, int>();
             int n = 0;
@@ -113,7 +112,7 @@ namespace JankSQL.Engines
             }
 
             int deletedCount = 0;
-            foreach(var bookmark in bookmarksToDelete)
+            foreach (var bookmark in bookmarksToDelete)
             {
                 bool found = myTree.Remove(bookmark.Tuple);
                 if (found) deletedCount++;
@@ -156,9 +155,9 @@ namespace JankSQL.Engines
         public void Dump()
         {
             Console.WriteLine($"BTree Table {tableName}, hasUniqueKey == {hasUniqueKey}:");
-            foreach(var row in myTree)
+            foreach (var row in myTree)
             {
-                Console.WriteLine($"    {String.Join(",", row.Key.Select(x => "[" + x + "]"))} ==> {String.Join(",", row.Value.Select(x => "[" + x + "]"))}");
+                Console.WriteLine($"    {string.Join(",", row.Key.Select(x => "[" + x + "]"))} ==> {string.Join(",", row.Value.Select(x => "[" + x + "]"))}");
             }
         }
     }

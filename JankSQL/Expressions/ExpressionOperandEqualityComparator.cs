@@ -1,6 +1,4 @@
-﻿
-
-/// <summary>
+﻿/// <summary>
 /// This class implements IEqualityComparer for ExpressionOperand[] arrays so that
 /// such arrayts can be used as keys in hashed containers, like Dictionary<> in
 /// the implementation of the Aggregation operator.
@@ -20,6 +18,7 @@ namespace JankSQL
             {
                 return false;
             }
+
             for (int i = 0; i < x.Length; i++)
             {
                 if (! x[i].Equals(y[i]))
@@ -27,6 +26,7 @@ namespace JankSQL
                     return false;
                 }
             }
+
             return true;
         }
 
@@ -37,9 +37,10 @@ namespace JankSQL
             {
                 unchecked
                 {
-                    result = result * 23 + obj[i].GetHashCode();
+                    result = (result * 23) + obj[i].GetHashCode();
                 }
             }
+
             return result;
         }
     }

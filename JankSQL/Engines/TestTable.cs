@@ -1,17 +1,14 @@
-﻿
-namespace JankSQL.Engines
+﻿namespace JankSQL.Engines
 {
     public class TestTableBuilder
     {
-        List<object[]>? rows;
+        private readonly List<FullColumnName> columnNames = new ();
+        private List<object[]>? rows;
+        private List<ExpressionOperandType>? columnTypes;
 
-        List<FullColumnName> columnNames = new();
+        private FullTableName? tableName;
 
-        List<ExpressionOperandType>? columnTypes;
-
-        FullTableName? tableName;
-
-        static public TestTableBuilder NewBuilder()
+        public static TestTableBuilder NewBuilder()
         {
             return new TestTableBuilder();
         }
@@ -31,9 +28,7 @@ namespace JankSQL.Engines
         public TestTableBuilder WithColumnNames(string[] columnNames)
         {
             foreach (string name in columnNames)
-            {
                 this.columnNames.Add(FullColumnName.FromColumnName(name));
-            }
             return this;
         }
 
@@ -78,23 +73,21 @@ namespace JankSQL.Engines
         }
     }
 
-
     public class TestTable
     {
-        readonly List<ExpressionOperand[]> rows;
-        readonly List<FullColumnName> columnNames;
-        readonly List<ExpressionOperandType> columnTypes;
-        readonly FullTableName tableName;
+        private readonly List<ExpressionOperand[]> rows;
+        private readonly List<FullColumnName> columnNames;
+        private readonly List<ExpressionOperandType> columnTypes;
+        private readonly FullTableName tableName;
 
         internal FullTableName TableName { get { return tableName; } }
 
         internal List<ExpressionOperandType> ColumnTypes { get { return columnTypes; } }
 
-        internal List<FullColumnName> ColumnNames { get { return columnNames;} }
+        internal List<FullColumnName> ColumnNames { get { return columnNames; } }
 
         internal List<ExpressionOperand[]> Rows { get { return rows; } }
 
-            
         internal TestTable(FullTableName tableName, List<FullColumnName> columnNames, List<ExpressionOperandType> columnTypes, List<ExpressionOperand[]> rows)
         {
             this.tableName = tableName;

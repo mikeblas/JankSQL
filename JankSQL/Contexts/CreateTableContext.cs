@@ -1,12 +1,10 @@
-﻿
-
-namespace JankSQL.Contexts
+﻿namespace JankSQL.Contexts
 {
     internal class CreateTableContext : IExecutableContext
     {
-        FullTableName tableName;
-        List<FullColumnName> columnNames;
-        List<ExpressionOperandType> columnTypes;
+        private readonly FullTableName tableName;
+        private readonly List<FullColumnName> columnNames;
+        private readonly List<ExpressionOperandType> columnTypes;
 
         internal CreateTableContext(FullTableName tableName, List<FullColumnName> columnNames, List<ExpressionOperandType> columnTypes)
         {
@@ -28,7 +26,7 @@ namespace JankSQL.Contexts
         {
             engine.CreateTable(tableName, columnNames, columnTypes);
 
-            ExecuteResult ret = new();
+            ExecuteResult ret = new ();
             ret.ExecuteStatus = ExecuteStatus.SUCCESSFUL;
             return ret;
         }

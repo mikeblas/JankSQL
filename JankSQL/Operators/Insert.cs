@@ -1,11 +1,9 @@
-﻿
-namespace JankSQL.Operators
+﻿namespace JankSQL.Operators
 {
     internal class Insert : IComponentOutput
     {
-        IComponentOutput myInput;
-        Engines.IEngineTable engineTable;
-        
+        private readonly IComponentOutput myInput;
+        private readonly Engines.IEngineTable engineTable;
 
         internal Insert(Engines.IEngineTable destTable, IComponentOutput input)
         {

@@ -1,12 +1,12 @@
-﻿
-namespace JankSQL
+﻿namespace JankSQL
 {
     public class FullTableName
     {
-        string? linkedServerName;
-        string? schemaName;
-        string? databaseName;
-        readonly string tableName;
+        private readonly string tableName;
+
+        private string? linkedServerName;
+        private string? schemaName;
+        private string? databaseName;
 
         internal static FullTableName FromTableNameContext(TSqlParser.Table_nameContext context)
         {
@@ -42,13 +42,13 @@ namespace JankSQL
             int hash = 19;
 
             if (linkedServerName != null)
-                hash = hash * 31 + linkedServerName.GetHashCode();
+                hash = (hash * 31) + linkedServerName.GetHashCode();
             if (databaseName != null)
-                hash = hash * 31 + databaseName.GetHashCode();
+                hash = (hash * 31) + databaseName.GetHashCode();
             if (schemaName != null)
-                hash = hash * 31 + schemaName.GetHashCode();
+                hash = (hash * 31) + schemaName.GetHashCode();
             if (tableName != null)
-                hash = hash * 31 + tableName.GetHashCode();
+                hash = (hash * 31) + tableName.GetHashCode();
 
             return hash;
         }
@@ -56,7 +56,7 @@ namespace JankSQL
         public override string ToString()
         {
             //REVIEW: is this right? could be that serverName != null but schemaName == null, and ...
-            string ret = "";
+            string ret = string.Empty;
             if (linkedServerName != null)
                 ret += $"[{linkedServerName}]";
 
@@ -66,12 +66,14 @@ namespace JankSQL
                     ret += ".";
                 ret += $"[{databaseName}]";
             }
+
             if (schemaName != null)
             {
                 if (ret.Length > 0)
                     ret += ".";
                 ret += $"[{schemaName}]";
             }
+
             if (tableName != null)
             {
                 if (ret.Length > 0)

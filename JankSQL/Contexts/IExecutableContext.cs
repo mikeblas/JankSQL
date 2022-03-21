@@ -1,7 +1,5 @@
-﻿
-namespace JankSQL.Contexts
+﻿namespace JankSQL.Contexts
 {
-
     public interface IExecutableContext
     {
         ExecuteResult Execute(Engines.IEngine engine);

@@ -1,14 +1,11 @@
-﻿
-using CSharpTest.Net.Collections;
-using System.Collections;
-
-namespace JankSQL.Engines
+﻿namespace JankSQL.Engines
 {
+    using System.Collections;
 
     internal class DynamicCSVRowEnumerator : IEnumerator<RowWithBookmark>
     {
-        IEnumerator<ExpressionOperand[]> valuesEnumerator;
-        IEnumerator<ExpressionOperandBookmark> bookmarksEnumerator;
+        private readonly IEnumerator<ExpressionOperand[]> valuesEnumerator;
+        private readonly IEnumerator<ExpressionOperandBookmark> bookmarksEnumerator;
 
         internal DynamicCSVRowEnumerator(IEnumerator<ExpressionOperand[]> valuesEnumerator, IEnumerator<ExpressionOperandBookmark> bookmarksEnumerator)
         {

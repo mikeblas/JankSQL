@@ -2,7 +2,8 @@
 {
     internal class ExpressionOperandBoolean : ExpressionOperand
     {
-        internal bool b;
+        private readonly bool b;
+
         internal ExpressionOperandBoolean(bool b)
             : base(ExpressionOperandType.BOOLEAN)
         {
@@ -53,6 +54,7 @@
         {
             throw new NotImplementedException();
         }
+
         public override ExpressionOperand OperatorPlus(ExpressionOperand other)
         {
             throw new NotImplementedException();

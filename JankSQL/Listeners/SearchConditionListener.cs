@@ -1,7 +1,7 @@
-﻿using Antlr4.Runtime.Misc;
-
-namespace JankSQL
+﻿namespace JankSQL
 {
+    using Antlr4.Runtime.Misc;
+
     public partial class JankListener : TSqlParserBaseListener
     {
         public override void EnterQuery_specification([NotNull] TSqlParser.Query_specificationContext context)
@@ -12,15 +12,14 @@ namespace JankSQL
             {
                 Expression x = GobbleSearchCondition(context.search_condition()[0]);
 
-                predicateContext = new();
+                predicateContext = new ();
                 predicateContext.EndPredicateExpressionList(x);
             }
         }
 
-
-        Expression GobbleSearchCondition(TSqlParser.Search_conditionContext context)
+        internal Expression GobbleSearchCondition(TSqlParser.Search_conditionContext context)
         {
-            Expression x = new();
+            Expression x = new ();
 
             if (context.OR() != null)
             {
@@ -91,15 +90,14 @@ namespace JankSQL
             return x;
         }
 
-
-        Expression GobblePredicate(TSqlParser.PredicateContext context)
+        internal Expression GobblePredicate(TSqlParser.PredicateContext context)
         {
             ExpressionNode comparison = new ExpressionComparisonOperator(context.comparison_operator().GetText());
 
             Expression left = GobbleExpression(context.expression()[0]);
             Expression right = GobbleExpression(context.expression()[1]);
 
-            Expression x = new();
+            Expression x = new ();
             x.AddRange(left);
             x.AddRange(right);
             x.Add(comparison);

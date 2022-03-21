@@ -1,25 +1,24 @@
-﻿
-// Install-Package Antlr4.Runtime.Standard -Version 4.9.3
-
-// install, and setup Antlr (now, just setantlr.bat in c:\bin)
-//      https://github.com/antlr/antlr4/blob/master/doc/getting-started.md
-
-// walkthrough of TSQL grammar in Antlr:
-//      https://dskrzypiec.dev/parsing-tsql/
-
-// TSQL Grammar in Antlr:
-//      just this directory; this contains many many grammars
-//      https://github.com/antlr/grammars-v4/tree/master/sql/tsql
-
-// build the grammar over in the $/grammar directory:
-//      antlr4 -Dlanguage=CSharp TSqlLexer.g4 TSqlParser.g4 -o tmp -visitor
-//
-// then that's in tmp, so copy it back down:
-//      copy . ..\..\JankSQL1
-//
-// and now can build ...
-
-
+﻿/*
+ * Install-Package Antlr4.Runtime.Standard -Version 4.9.3
+ *
+ *    install, and setup Antlr (now, just setantlr.bat in c:\bin)
+ *         https://github.com/antlr/antlr4/blob/master/doc/getting-started.md
+ *
+ *    walkthrough of TSQL grammar in Antlr:
+ *         https://dskrzypiec.dev/parsing-tsql/
+ *
+ *    TSQL Grammar in Antlr:
+ *         just this directory; this contains many many grammars
+ *         https://github.com/antlr/grammars-v4/tree/master/sql/tsql
+ *
+ *    build the grammar over in the $/grammar directory:
+ *         antlr4 -Dlanguage=CSharp TSqlLexer.g4 TSqlParser.g4 -o tmp -visitor
+ *
+ *    then that's in tmp, so copy it back down:
+ *         copy . ..\..\JankSQL1
+ *
+ *    and now can build ...
+*/
 
 namespace JankSQL
 {
@@ -30,7 +29,7 @@ namespace JankSQL
 
             // ExecutionContext ecFile = Parser.ParseSQLFileFromFileName("t5.sql");
 
-            String str;
+            string str;
 
             // str = "SELECT [city_name],  [population], [population]*2 FROM [mytable];";
             // str = "SELECT [mytable].[city_name], [mytable].[population], [population]*2 FROM [mytable];";
@@ -96,9 +95,7 @@ namespace JankSQL
 
             // Engines.DynamicCSVEngine engine = Engines.DynamicCSVEngine.OpenAlways("F:\\JankTests\\Test33");
 
-
             var btreeEngine = Engines.BTreeEngine.CreateInMemory();
-
 
             string tempPath = System.IO.Path.GetTempPath();
             tempPath = Path.Combine(tempPath, "XYZZY");

@@ -1,9 +1,8 @@
 ﻿namespace JankSQL.Contexts
 {
-
     internal class TruncateTableContext : IExecutableContext
     {
-        FullTableName tableName;
+        private readonly FullTableName tableName;
 
         internal TruncateTableContext(FullTableName tableName)
         {
@@ -33,6 +32,4 @@
             Console.WriteLine("TRUNCATE TABLE of ${tableName}");
         }
     }
-
-
 }

@@ -1,23 +1,23 @@
-﻿
-using JankSQL.Contexts;
-
-namespace JankSQL.Operators
+﻿namespace JankSQL.Operators
 {
+    using JankSQL.Contexts;
+
     internal class Join : IComponentOutput
     {
-        IComponentOutput leftInput;
-        IComponentOutput rightInput;
-        JoinType joinType;
-        ResultSet? outputSet = null;
-        int outputIndex = 0;
+        private readonly JoinType joinType;
 
-        int leftIndex = -1;
-        int rightIndex = -1;
+        private IComponentOutput leftInput;
+        private IComponentOutput rightInput;
+        private ResultSet? outputSet = null;
+        private int outputIndex = 0;
 
-        List<FullColumnName>? allColumnNames = null;
+        private int leftIndex = -1;
+        private int rightIndex = -1;
 
-        ResultSet? leftRows = null;
-        ResultSet? rightRows = null;
+        private List<FullColumnName>? allColumnNames = null;
+
+        private ResultSet? leftRows = null;
+        private ResultSet? rightRows = null;
 
         internal Join(JoinType joinType, IComponentOutput leftInput, IComponentOutput rightInput, List<Expression> predicateExpressions)
         {
@@ -27,14 +27,19 @@ namespace JankSQL.Operators
             this.PredicateExpressions = predicateExpressions;
         }
 
+        internal IComponentOutput LeftInput
+        {
+            get { return leftInput; } set { leftInput = value; }
+        }
 
-        internal IComponentOutput LeftInput { get { return leftInput; } set { leftInput = value; } }
-
-        internal IComponentOutput RightInput { get { return rightInput; } set { rightInput = value; } }
+        internal IComponentOutput RightInput
+        {
+            get { return rightInput; } set { rightInput = value; }
+        }
 
         internal List<Expression> PredicateExpressions { get; set; }
 
-        List<FullColumnName> GetAllColumnNames()
+        protected List<FullColumnName> GetAllColumnNames()
         {
             if (allColumnNames == null)
             {
@@ -46,18 +51,17 @@ namespace JankSQL.Operators
             return allColumnNames;
         }
 
-        bool FillLeftRows(int max)
+        protected bool FillLeftRows(int max)
         {
             leftRows = leftInput.GetRows(max);
-            return (leftRows != null && leftRows.RowCount > 0);
+            return leftRows != null && leftRows.RowCount > 0;
         }
 
-        bool FillRightRows(int max)
+        protected bool FillRightRows(int max)
         {
             rightRows = rightInput.GetRows(max);
-            return (rightRows != null && rightRows.RowCount > 0);
+            return rightRows != null && rightRows.RowCount > 0;
         }
-
 
         public void Rewind()
         {
@@ -83,10 +87,8 @@ namespace JankSQL.Operators
             return resultSlice;
         }
 
-        ResultSet ProduceOutputSet()
-        { 
-            ResultSet output = new ResultSet();
-
+        protected ResultSet ProduceOutputSet()
+        {
             const int max = 25;
 
             if (leftRows == null)
@@ -94,13 +96,14 @@ namespace JankSQL.Operators
                 FillLeftRows(max);
                 leftIndex = 0;
             }
+
             if (rightRows == null)
             {
                 FillRightRows(max);
                 rightIndex = 0;
             }
 
-            output.SetColumnNames(GetAllColumnNames());
+            ResultSet output = new (GetAllColumnNames());
 
             while (leftIndex < leftRows!.RowCount && rightIndex < rightRows!.RowCount)
             {
@@ -111,6 +114,7 @@ namespace JankSQL.Operators
                 {
                     totalRow[outColumnCount++] = leftRows.Row(leftIndex)[i];
                 }
+
                 for (int i = 0; i < rightRows.ColumnCount; i++)
                 {
                     totalRow[outColumnCount++] = rightRows.Row(rightIndex)[i];
@@ -155,6 +159,7 @@ namespace JankSQL.Operators
                         FillRightRows(max);
                         leftIndex += 1;
                     }
+
                     rightIndex = 0;
                 }
             }

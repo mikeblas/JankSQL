@@ -1,5 +1,4 @@
-﻿
-namespace JankSQL
+﻿namespace JankSQL
 {
     public enum ExpressionOperandType
     {
@@ -9,7 +8,7 @@ namespace JankSQL
         INTEGER,
         DECIMAL,
         BOOLEAN,
-    };
+    }
 
     public class ExpressionNode
     {

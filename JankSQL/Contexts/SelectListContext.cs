@@ -1,16 +1,14 @@
-﻿
-
-namespace JankSQL.Contexts
+﻿namespace JankSQL.Contexts
 {
-
     internal class SelectListContext
     {
-        readonly TSqlParser.Select_listContext context;
-        readonly List<Expression> expressionList = new();
+        private readonly TSqlParser.Select_listContext context;
+        private readonly List<Expression> expressionList = new ();
+        private readonly List<FullColumnName> rowsetColumnNames = new ();
 
-        string? currentAlias = null;
-        int unknownColumnID = 1001;
-        readonly List<FullColumnName> rowsetColumnNames = new();
+        private string? currentAlias = null;
+
+        private int unknownColumnID = 1001;
 
         internal List<Expression> SelectExpressions { get { return expressionList; } }
 
@@ -69,7 +67,7 @@ namespace JankSQL.Contexts
 
         internal void Dump()
         {
-            Console.WriteLine($"rowsetColumnNames: {String.Join(", ", rowsetColumnNames)}");
+            Console.WriteLine($"rowsetColumnNames: {string.Join(", ", rowsetColumnNames)}");
             Console.WriteLine("SelectExpressions:");
             for (int i = 0; i < ExpressionListCount; i++)
             {
@@ -78,6 +76,7 @@ namespace JankSQL.Contexts
                 {
                     Console.Write($"{x} ");
                 }
+
                 Console.WriteLine();
             }
         }

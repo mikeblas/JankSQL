@@ -1,12 +1,13 @@
-﻿
-
-namespace JankSQL.Contexts
+﻿namespace JankSQL.Contexts
 {
     public class ExecutionContext
     {
-        List<IExecutableContext> executeContexts = new();
+        private List<IExecutableContext> executeContexts = new ();
 
-        public List<IExecutableContext> ExecuteContexts { get { return executeContexts; } set { executeContexts = value; } }
+        public List<IExecutableContext> ExecuteContexts
+        {
+            get { return executeContexts; } set { executeContexts = value; }
+        }
 
         public void Dump()
         {
@@ -17,7 +18,7 @@ namespace JankSQL.Contexts
         public ExecuteResult[] Execute(Engines.IEngine engine)
         {
             List<ExecuteResult> results = new ();
-            foreach(IExecutableContext context in executeContexts)
+            foreach (IExecutableContext context in executeContexts)
             {
                 try
                 {
@@ -34,7 +35,6 @@ namespace JankSQL.Contexts
 
             return results.ToArray();
         }
-         
 
         public ExecuteResult ExecuteSingle(Engines.IEngine engine)
         {

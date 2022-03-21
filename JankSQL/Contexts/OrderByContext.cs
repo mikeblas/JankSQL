@@ -1,18 +1,23 @@
-﻿
-namespace JankSQL.Contexts
+﻿namespace JankSQL.Contexts
 {
     internal class OrderByContext
     {
-        readonly List<Expression> expressionList = new();
-        readonly List<bool> isAscendingList = new();
+        private readonly List<Expression> expressionList = new ();
+        private readonly List<bool> isAscendingList = new ();
 
         internal OrderByContext()
         {
         }
 
-        internal List<Expression> ExpressionList { get { return expressionList; } }
+        internal List<Expression> ExpressionList
+        {
+            get { return expressionList; }
+        }
 
-        internal List<bool> IsAscendingList { get { return isAscendingList; } } 
+        internal List<bool> IsAscendingList
+        {
+            get { return isAscendingList; }
+        }
 
         internal void AddExpression(Expression x, bool isAscending)
         {
@@ -20,6 +25,4 @@ namespace JankSQL.Contexts
             isAscendingList.Add(isAscending);
         }
     }
-
 }
-

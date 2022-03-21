@@ -1,22 +1,21 @@
-﻿
-namespace JankSQL.Engines
+﻿namespace JankSQL.Engines
 {
     public class BTreeEngine : IEngine
     {
-        BTreeTable sysColumns;
-        BTreeTable sysTables;
+        private readonly BTreeTable sysColumns;
+        private readonly BTreeTable sysTables;
 
-        Dictionary<string, BTreeTable> inMemoryTables = new(StringComparer.InvariantCultureIgnoreCase);
+        private readonly Dictionary<string, BTreeTable> inMemoryTables = new (StringComparer.InvariantCultureIgnoreCase);
+
+        protected BTreeEngine()
+        {
+            sysColumns = CreateSysColumns();
+            sysTables = CreateSysTables();
+        }
 
         public static BTreeEngine CreateInMemory()
         {
             return new BTreeEngine();
-        }
-
-        BTreeEngine()
-        {
-            sysColumns = CreateSysColumns();
-            sysTables = CreateSysTables();
         }
 
         public void CreateTable(FullTableName tableName, List<FullColumnName> columnNames, List<ExpressionOperandType> columnTypes)
@@ -27,15 +26,13 @@ namespace JankSQL.Engines
                 throw new ArgumentException($"Must have at types for each column; got {columnNames.Count} names and {columnTypes.Count} types");
 
             // create the table
-            BTreeTable table = new BTreeTable(tableName.TableName,
-                columnTypes.ToArray(),
-                columnNames);
+            BTreeTable table = new (tableName.TableName, columnTypes.ToArray(), columnNames);
 
             // add a row to sys_tables
             ExpressionOperand[] tablesRow = new ExpressionOperand[]
             {
                 ExpressionOperand.NVARCHARFromString(tableName.TableName),
-                ExpressionOperand.NVARCHARFromString("")
+                ExpressionOperand.NVARCHARFromString(string.Empty),
             };
             sysTables.InsertRow(tablesRow);
 
@@ -47,7 +44,7 @@ namespace JankSQL.Engines
                     ExpressionOperand.NVARCHARFromString(tableName.TableName),
                     ExpressionOperand.NVARCHARFromString(columnNames[i].ColumnNameOnly()),
                     ExpressionOperand.NVARCHARFromString(columnTypes[i].ToString()), // type
-                    ExpressionOperand.IntegerFromInt(i) // ordinal
+                    ExpressionOperand.IntegerFromInt(i), // ordinal
                 };
                 sysColumns.InsertRow(columnRow);
             }
@@ -59,28 +56,27 @@ namespace JankSQL.Engines
         {
             // delete the file (remove from map)
             if (!inMemoryTables.ContainsKey(tableName.TableName))
-            {
                 throw new ExecutionException($"table {tableName} does not exist");
-            }
+
             inMemoryTables.Remove(tableName.TableName);
 
             // delete from sys_tables
             ExpressionOperand tableKey = ExpressionOperand.NVARCHARFromString(tableName.TableName);
-            ExpressionOperandBookmark tableBookmark = new ExpressionOperandBookmark(new ExpressionOperand[] { tableKey } );
-            List<ExpressionOperandBookmark> tableMark = new() { tableBookmark };
+            ExpressionOperandBookmark tableBookmark = new ExpressionOperandBookmark(new ExpressionOperand[] { tableKey });
+            List<ExpressionOperandBookmark> tableMark = new () { tableBookmark };
             sysTables.DeleteRows(tableMark);
 
             // delete from sys_columns
-            List<ExpressionOperandBookmark> columnRows = new();
+            List<ExpressionOperandBookmark> columnRows = new ();
             int tableIndex = sysColumns.ColumnIndex("table_name");
             int columnIndex = sysColumns.ColumnIndex("column_name");
 
-            foreach(var row in sysColumns)
+            foreach (var row in sysColumns)
             {
                 if (row.RowData[tableIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
                 {
                     var k = new ExpressionOperand[] { row.RowData[tableIndex], row.RowData[columnIndex] };
-                    ExpressionOperandBookmark columnMark = new ExpressionOperandBookmark( k );
+                    ExpressionOperandBookmark columnMark = new ExpressionOperandBookmark(k);
                     columnRows.Add(columnMark);
                 }
             }
@@ -131,8 +127,8 @@ namespace JankSQL.Engines
             ExpressionOperandType[] keyTypes = new[] { ExpressionOperandType.NVARCHAR, ExpressionOperandType.NVARCHAR };
             ExpressionOperandType[] valueTypes = new[] { ExpressionOperandType.NVARCHAR, ExpressionOperandType.INTEGER };
 
-            List<FullColumnName> keyNames = new();
-            List<FullColumnName> valueNames = new();
+            List<FullColumnName> keyNames = new ();
+            List<FullColumnName> valueNames = new ();
 
             keyNames.Add(FullColumnName.FromColumnName("table_name"));
             keyNames.Add(FullColumnName.FromColumnName("column_name"));
@@ -148,7 +144,7 @@ namespace JankSQL.Engines
                 ExpressionOperand.NVARCHARFromString("sys_tables"),
                 ExpressionOperand.NVARCHARFromString("table_name"),
                 ExpressionOperand.NVARCHARFromString("NVARCHAR"),
-                ExpressionOperand.IntegerFromInt(1)
+                ExpressionOperand.IntegerFromInt(1),
             };
             table.InsertRow(row);
 
@@ -157,7 +153,7 @@ namespace JankSQL.Engines
                 ExpressionOperand.NVARCHARFromString("sys_tables"),
                 ExpressionOperand.NVARCHARFromString("file_name"),
                 ExpressionOperand.NVARCHARFromString("NVARCHAR"),
-                ExpressionOperand.IntegerFromInt(2)
+                ExpressionOperand.IntegerFromInt(2),
             };
             table.InsertRow(row);
 
@@ -167,7 +163,7 @@ namespace JankSQL.Engines
                 ExpressionOperand.NVARCHARFromString("sys_columns"),
                 ExpressionOperand.NVARCHARFromString("table_name"),
                 ExpressionOperand.NVARCHARFromString("NVARCHAR"),
-                ExpressionOperand.IntegerFromInt(1)
+                ExpressionOperand.IntegerFromInt(1),
             };
             table.InsertRow(row);
 
@@ -176,7 +172,7 @@ namespace JankSQL.Engines
                 ExpressionOperand.NVARCHARFromString("sys_columns"),
                 ExpressionOperand.NVARCHARFromString("column_name"),
                 ExpressionOperand.NVARCHARFromString("NVARCHAR"),
-                ExpressionOperand.IntegerFromInt(2)
+                ExpressionOperand.IntegerFromInt(2),
             };
             table.InsertRow(row);
 
@@ -185,7 +181,7 @@ namespace JankSQL.Engines
                 ExpressionOperand.NVARCHARFromString("sys_columns"),
                 ExpressionOperand.NVARCHARFromString("column_type"),
                 ExpressionOperand.NVARCHARFromString("NVARCHAR"),
-                ExpressionOperand.IntegerFromInt(3)
+                ExpressionOperand.IntegerFromInt(3),
             };
             table.InsertRow(row);
 
@@ -194,7 +190,7 @@ namespace JankSQL.Engines
                 ExpressionOperand.NVARCHARFromString("sys_columns"),
                 ExpressionOperand.NVARCHARFromString("index"),
                 ExpressionOperand.NVARCHARFromString("INTEGER"),
-                ExpressionOperand.IntegerFromInt(4)
+                ExpressionOperand.IntegerFromInt(4),
             };
             table.InsertRow(row);
 
@@ -206,8 +202,8 @@ namespace JankSQL.Engines
             ExpressionOperandType[] keyTypes = new[] { ExpressionOperandType.NVARCHAR };
             ExpressionOperandType[] valueTypes = new[] { ExpressionOperandType.NVARCHAR };
 
-            List<FullColumnName> keyNames = new();
-            List<FullColumnName> valueNames = new();
+            List<FullColumnName> keyNames = new ();
+            List<FullColumnName> valueNames = new ();
 
             keyNames.Add(FullColumnName.FromColumnName("table_name"));
             valueNames.Add(FullColumnName.FromColumnName("file_name"));
@@ -219,14 +215,14 @@ namespace JankSQL.Engines
             row = new ExpressionOperand[]
             {
                 ExpressionOperand.NVARCHARFromString("sys_tables"),
-                ExpressionOperand.NVARCHARFromString("")
+                ExpressionOperand.NVARCHARFromString(string.Empty),
             };
             table.InsertRow(row);
 
             row = new ExpressionOperand[]
             {
                 ExpressionOperand.NVARCHARFromString("sys_columns"),
-                ExpressionOperand.NVARCHARFromString("")
+                ExpressionOperand.NVARCHARFromString(string.Empty),
             };
             table.InsertRow(row);
 

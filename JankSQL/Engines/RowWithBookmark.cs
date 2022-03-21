@@ -2,8 +2,8 @@
 {
     public class RowWithBookmark
     {
-        ExpressionOperand[] rowData;
-        ExpressionOperandBookmark bookmark;
+        private readonly ExpressionOperand[] rowData;
+        private readonly ExpressionOperandBookmark bookmark;
 
         public RowWithBookmark(ExpressionOperand[] rowData, ExpressionOperandBookmark bookmark)
         {
@@ -11,7 +11,14 @@
             this.bookmark = bookmark;
         }
 
-        public ExpressionOperand[] RowData { get { return rowData; } }
-        public ExpressionOperandBookmark Bookmark { get { return bookmark; } } 
+        public ExpressionOperand[] RowData
+        {
+            get { return rowData; }
+        }
+
+        public ExpressionOperandBookmark Bookmark
+        {
+            get { return bookmark; }
+        }
     }
 }

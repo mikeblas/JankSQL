@@ -1,39 +1,17 @@
-﻿
-using JankSQL.Operators;
-
-namespace JankSQL.Contexts
+﻿namespace JankSQL.Contexts
 {
+    using JankSQL.Operators;
+
     internal class InsertContext : IExecutableContext
     {
-        TSqlParser.Insert_statementContext context;
-        List<FullColumnName>? targetColumns;
+        private readonly TSqlParser.Insert_statementContext context;
+        private List<FullColumnName>? targetColumns;
+        private List<List<Expression>>? constructors = null;
 
         internal InsertContext(TSqlParser.Insert_statementContext context, FullTableName tableName)
         {
             this.context = context;
             this.TableName = tableName;
-        }
-
-        internal List<FullColumnName> TargetColumns { get { return targetColumns!; } set { targetColumns = value; } }
-
-        internal List<List<Expression>>? constructors = null;
-        
-        internal FullTableName TableName { get; set; }
-
-        internal void AddExpressionList(List<Expression> expressionList)
-        {
-            if (constructors is null)
-                constructors = new();
-
-            this.constructors.Add(expressionList);
-        }
-
-        internal void AddExpressionLists(List<List<Expression>> expressionLists)
-        {
-            if (constructors is null)
-                constructors = new();
-
-            this.constructors.AddRange(expressionLists);
         }
 
         public ExecuteResult Execute(Engines.IEngine engine)
@@ -118,14 +96,38 @@ namespace JankSQL.Contexts
                         first = false;
                     }
                     else
+                    {
                         Console.Write($"                ");
+                    }
 
                     Console.Write($"len={expression.Count} ");
 
-                    Console.WriteLine(String.Join(',', expression.Select(x => "[" + x + "]")));
+                    Console.WriteLine(string.Join(',', expression.Select(x => "[" + x + "]")));
                 }
             }
+        }
 
+        internal List<FullColumnName> TargetColumns
+        {
+            get { return targetColumns!; } set { targetColumns = value; }
+        }
+
+        internal FullTableName TableName { get; set; }
+
+        internal void AddExpressionList(List<Expression> expressionList)
+        {
+            if (constructors is null)
+                constructors = new();
+
+            this.constructors.Add(expressionList);
+        }
+
+        internal void AddExpressionLists(List<List<Expression>> expressionLists)
+        {
+            if (constructors is null)
+                constructors = new();
+
+            this.constructors.AddRange(expressionLists);
         }
     }
 }

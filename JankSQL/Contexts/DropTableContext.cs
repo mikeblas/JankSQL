@@ -1,9 +1,8 @@
-﻿
-namespace JankSQL.Contexts
+﻿namespace JankSQL.Contexts
 {
     internal class DropTableContext : IExecutableContext
     {
-        FullTableName tableName;
+        private readonly FullTableName tableName;
 
         internal DropTableContext(FullTableName tableName)
         {
@@ -19,8 +18,10 @@ namespace JankSQL.Contexts
         {
             engine.DropTable(tableName);
 
-            ExecuteResult ret = new ExecuteResult();
-            ret.ExecuteStatus = ExecuteStatus.SUCCESSFUL;
+            ExecuteResult ret = new ()
+            {
+                ExecuteStatus = ExecuteStatus.SUCCESSFUL
+            };
             return ret;
         }
     }

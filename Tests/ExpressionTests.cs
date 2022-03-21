@@ -13,12 +13,12 @@ namespace Tests
         [TestMethod]
         public void TestExpressionObjectEqualityOperator()
         {
-            Expression exp1 = new();
+            Expression exp1 = new ();
             exp1.Add(new ExpressionOperandFromColumn(FullColumnName.FromColumnName("SomeColumn")));
             exp1.Add(ExpressionOperand.IntegerFromInt(3));
             exp1.Add(new ExpressionOperator("+"));
 
-            Expression exp2 = new();
+            Expression exp2 = new ();
             exp2.Add(new ExpressionOperandFromColumn(FullColumnName.FromColumnName("SomeColumn")));
             exp2.Add(ExpressionOperand.IntegerFromInt(3));
             exp2.Add(new ExpressionOperator("+"));
@@ -32,12 +32,12 @@ namespace Tests
         [TestMethod]
         public void TestExpressionObjectEqualsMethod()
         {
-            Expression exp1 = new();
+            Expression exp1 = new ();
             exp1.Add(new ExpressionOperandFromColumn(FullColumnName.FromColumnName("SomeColumn")));
             exp1.Add(ExpressionOperand.IntegerFromInt(3));
             exp1.Add(new ExpressionOperator("+"));
 
-            Expression exp2 = new();
+            Expression exp2 = new ();
             exp2.Add(new ExpressionOperandFromColumn(FullColumnName.FromColumnName("SomeColumn")));
             exp2.Add(ExpressionOperand.IntegerFromInt(3));
             exp2.Add(new ExpressionOperator("+"));
@@ -52,12 +52,12 @@ namespace Tests
         [TestMethod]
         public void TestExpressionObjectEqualsNotMethod()
         {
-            Expression exp1 = new();
+            Expression exp1 = new ();
             exp1.Add(ExpressionOperand.IntegerFromInt(3));
             exp1.Add(new ExpressionOperandFromColumn(FullColumnName.FromColumnName("SomeColumn")));
             exp1.Add(new ExpressionOperator("+"));
 
-            Expression exp2 = new();
+            Expression exp2 = new ();
             exp2.Add(new ExpressionOperandFromColumn(FullColumnName.FromColumnName("SomeColumn")));
             exp2.Add(ExpressionOperand.IntegerFromInt(3));
             exp2.Add(new ExpressionOperator("+"));

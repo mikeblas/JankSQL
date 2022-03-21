@@ -1,9 +1,8 @@
-﻿using Antlr4.Runtime.Misc;
-
-using JankSQL.Contexts;
-
-namespace JankSQL
+﻿namespace JankSQL
 {
+    using Antlr4.Runtime.Misc;
+    using JankSQL.Contexts;
+
     public partial class JankListener : TSqlParserBaseListener
     {
         UpdateContext? updateContext;
@@ -16,7 +15,7 @@ namespace JankSQL
             Console.WriteLine($"UPDATE {updateContext.TableName}");
 
             Expression pred = GobbleSearchCondition(context.search_condition());
-            predicateContext = new();
+            predicateContext = new ();
             predicateContext.EndPredicateExpressionList(pred);
 
             foreach (var element in context.update_elem())
@@ -39,6 +38,7 @@ namespace JankSQL
                 {
                     throw new InvalidOperationException("unknown UPDATE structure");
                 }
+
                 Console.WriteLine($"{x}");
             }
         }

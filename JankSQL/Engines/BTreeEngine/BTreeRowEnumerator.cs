@@ -1,12 +1,11 @@
-﻿
-using CSharpTest.Net.Collections;
-using System.Collections;
-
-namespace JankSQL.Engines
+﻿namespace JankSQL.Engines
 {
+    using System.Collections;
+    using CSharpTest.Net.Collections;
+
     internal class BTreeRowEnumerator : IEnumerator<RowWithBookmark>
     {
-        IEnumerator<KeyValuePair<ExpressionOperand[], ExpressionOperand[]>> treeEnumerator;
+        private readonly IEnumerator<KeyValuePair<ExpressionOperand[], ExpressionOperand[]>> treeEnumerator;
 
         internal BTreeRowEnumerator(BPlusTree<ExpressionOperand[], ExpressionOperand[]> tree)
         {

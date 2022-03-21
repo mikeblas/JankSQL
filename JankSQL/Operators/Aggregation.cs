@@ -1,22 +1,43 @@
-﻿
-using JankSQL.Contexts;
-
-namespace JankSQL.Operators
+﻿namespace JankSQL.Operators
 {
+    using JankSQL.Contexts;
+
     internal enum AggregationOperatorType
     {
-        AVG, MAX, MIN, SUM, STDEV, STDEVP, VAR, VARP, COUNT, COUNT_BIG
+        AVG,
+        MAX,
+        MIN,
+        SUM,
+        STDEV,
+        STDEVP,
+        VAR,
+        VARP,
+        COUNT,
+        COUNT_BIG,
     }
 
-    interface IAggregateAccumulator
+    /// <summary>
+    /// Interface for an accumulator object used by the aggregation operator. Is offered values to
+    /// aggregate, and then asked for a FinalValue after the end of the rowset.
+    /// </summary>
+    internal interface IAggregateAccumulator
     {
+        /// <summary>
+        /// Accepts a value to accumlate in an aggregation. Called once per row within a grouping.
+        /// </summary>
+        /// <param name="op">ExpressionOperand with the value to aggregate.</param>
         void Accumulate(ExpressionOperand op);
+
+        /// <summary>
+        /// Produces the final value of the aggregation. Called only once per grouping.
+        /// </summary>
+        /// <returns>an ExpressionOperand representing the value of this aggregation.</returns>
         ExpressionOperand FinalValue();
     }
 
-    class SumAccumulator : IAggregateAccumulator
+    internal class SumAccumulator : IAggregateAccumulator
     {
-        ExpressionOperand? sum;
+        private ExpressionOperand? sum;
 
         internal SumAccumulator()
         {
@@ -36,9 +57,9 @@ namespace JankSQL.Operators
         }
     }
 
-    class MaxAccumulator : IAggregateAccumulator
+    internal class MaxAccumulator : IAggregateAccumulator
     {
-        ExpressionOperand? max;
+        private ExpressionOperand? max;
 
         internal MaxAccumulator()
         {
@@ -63,9 +84,9 @@ namespace JankSQL.Operators
     }
 
 
-    class MinAccumulator : IAggregateAccumulator
+    internal class MinAccumulator : IAggregateAccumulator
     {
-        ExpressionOperand? min;
+        private ExpressionOperand? min;
 
         internal MinAccumulator()
         {
@@ -89,10 +110,9 @@ namespace JankSQL.Operators
         }
     }
 
-
-    class CountAccumulator : IAggregateAccumulator
+    internal class CountAccumulator : IAggregateAccumulator
     {
-        int count = 0;
+        private int count = 0;
 
         internal CountAccumulator()
         {
@@ -110,10 +130,10 @@ namespace JankSQL.Operators
     }
 
 
-    class AvgAccumulator : IAggregateAccumulator
+    internal class AvgAccumulator : IAggregateAccumulator
     {
-        int count = 0;
-        ExpressionOperand? sum;
+        private int count = 0;
+        private ExpressionOperand? sum;
 
         internal AvgAccumulator()
         {
@@ -142,19 +162,18 @@ namespace JankSQL.Operators
 
     internal class Aggregation : IComponentOutput
     {
-        readonly List<AggregationOperatorType> operatorTypes;
-        readonly List<Expression> expressions;
-        readonly List<string> expressionNames;
-        readonly List<Expression>? groupByExpressions;
-        readonly Dictionary<ExpressionOperand[], List<IAggregateAccumulator>> dictKeyToAggs;
-        readonly List<string>? groupByExpressionBindNames;
+        private readonly List<AggregationOperatorType> operatorTypes;
+        private readonly List<Expression> expressions;
+        private readonly List<string> expressionNames;
+        private readonly List<Expression>? groupByExpressions;
+        private readonly Dictionary<ExpressionOperand[], List<IAggregateAccumulator>> dictKeyToAggs;
+        private readonly List<string>? groupByExpressionBindNames;
 
-        readonly List<FullColumnName> outputNames = new();
+        private readonly List<FullColumnName> outputNames = new ();
 
-        IComponentOutput myInput;
-        bool inputExhausted;
-        bool outputExhausted;
-
+        private readonly IComponentOutput myInput;
+        private bool inputExhausted;
+        private bool outputExhausted;
 
         internal Aggregation(IComponentOutput input, List<AggregateContext> contexts, List<Expression>? groupByExpressions, List<string>? groupByExpressionBindNames)
         {
@@ -166,7 +185,7 @@ namespace JankSQL.Operators
 
             foreach (var context in contexts)
             {
-                expressions.Add(context.Expression); 
+                expressions.Add(context.Expression);
                 expressionNames.Add(context.ExpressionName);
                 operatorTypes.Add(context.AggregationOperatorType);
             }
@@ -177,9 +196,9 @@ namespace JankSQL.Operators
             outputExhausted = false;
         }
 
-        List<IAggregateAccumulator> GetAccumulatorRow()
+        protected List<IAggregateAccumulator> GetAccumulatorRow()
         {
-            List<IAggregateAccumulator> accumulators = new();
+            List<IAggregateAccumulator> accumulators = new ();
 
             foreach (var operatorType in operatorTypes)
             {
@@ -211,15 +230,14 @@ namespace JankSQL.Operators
                 BuildOutputColumnNames();
             }
 
-            foreach(var kv in dictKeyToAggs)
+            foreach (var kv in dictKeyToAggs)
             {
-                Console.Write($"Aggregated key: {String.Join(",", kv.Key.Select(x => "[" + x + "]"))}: ");
-                Console.Write($"{String.Join(",", kv.Value.Select(x => "[" + x.FinalValue() + "]"))}");
+                Console.Write($"Aggregated key: {string.Join(",", kv.Key.Select(x => "[" + x + "]"))}: ");
+                Console.Write($"{string.Join(",", kv.Value.Select(x => "[" + x.FinalValue() + "]"))}");
                 Console.WriteLine();
             }
 
-            ResultSet resultSet = new();
-            resultSet.SetColumnNames(outputNames);
+            ResultSet resultSet = new (outputNames);
 
             if (groupByExpressions == null || groupByExpressions.Count == 0)
             {
@@ -264,10 +282,11 @@ namespace JankSQL.Operators
                 //TODO: honor max
                 outputExhausted = true;
             }
+
             return resultSet;
         }
 
-        void BuildOutputColumnNames()
+        protected void BuildOutputColumnNames()
         {
             int n = 0;
             if (groupByExpressionBindNames != null)
@@ -283,7 +302,7 @@ namespace JankSQL.Operators
                 outputNames.Add(FullColumnName.FromColumnName(expressionName));
         }
 
-        void ReadInput()
+        protected void ReadInput()
         {
             while (!inputExhausted)
             {
@@ -324,7 +343,7 @@ namespace JankSQL.Operators
             }
         }
 
-        ExpressionOperand[] EvaluateGroupByKey(ResultSetValueAccessor accessor)
+        protected ExpressionOperand[] EvaluateGroupByKey(ResultSetValueAccessor accessor)
         {
             if (groupByExpressions == null || groupByExpressions.Count == 0)
                 return new ExpressionOperand[] { ExpressionOperand.IntegerFromInt(1) };
@@ -335,7 +354,6 @@ namespace JankSQL.Operators
 
             return result;
         }
-
 
         public void Rewind()
         {

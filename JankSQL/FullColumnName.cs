@@ -1,5 +1,4 @@
-﻿
-namespace JankSQL
+﻿namespace JankSQL
 {
     public class FullColumnName
     {
@@ -58,12 +57,12 @@ namespace JankSQL
             int hash = 19;
 
             if (serverName != null)
-                hash = hash * 31 + serverName.GetHashCode();
+                hash = (hash * 31) + serverName.GetHashCode();
             if (schemaName != null)
-                hash = hash * 31 + schemaName.GetHashCode();
+                hash = (hash * 31) + schemaName.GetHashCode();
             if (tableName != null)
-                hash = hash * 31 + tableName.GetHashCode();
-            hash = hash * 31 + columnName.GetHashCode();
+                hash = (hash * 31) + tableName.GetHashCode();
+            hash = (hash * 31) + columnName.GetHashCode();
 
             return hash;
         }
@@ -76,7 +75,7 @@ namespace JankSQL
         public override string ToString()
         {
             //REVIEW: is this right? could be that serverName != null but schemaName == null, and ...
-            string ret = "";
+            string ret = string.Empty;
             if (serverName != null)
                 ret += $"[{serverName}]";
             if (schemaName != null)
@@ -85,6 +84,7 @@ namespace JankSQL
                     ret += ".";
                 ret += $"[{schemaName}]";
             }
+
             if (tableName != null)
             {
                 if (ret.Length > 0)
