@@ -1,7 +1,7 @@
 ﻿
 using JankSQL.Contexts;
 
-namespace JankSQL
+namespace JankSQL.Operators
 {
     internal class Update : IComponentOutput
     {

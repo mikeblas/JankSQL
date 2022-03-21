@@ -1,4 +1,5 @@
-﻿
+﻿using JankSQL.Operators;
+
 namespace JankSQL.Contexts
 {
     internal class DeleteContext : IExecutableContext

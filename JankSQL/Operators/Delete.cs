@@ -1,5 +1,5 @@
 ﻿
-namespace JankSQL
+namespace JankSQL.Operators
 {
     internal class Delete : IComponentOutput
     {

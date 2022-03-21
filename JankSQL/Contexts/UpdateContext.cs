@@ -1,4 +1,5 @@
-﻿
+﻿using JankSQL.Operators;
+
 namespace JankSQL.Contexts
 {
     enum SetOperator

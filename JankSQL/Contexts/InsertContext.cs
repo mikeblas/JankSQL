@@ -1,4 +1,6 @@
 ﻿
+using JankSQL.Operators;
+
 namespace JankSQL.Contexts
 {
     internal class InsertContext : IExecutableContext

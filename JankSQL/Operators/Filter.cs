@@ -1,4 +1,4 @@
-﻿namespace JankSQL
+﻿namespace JankSQL.Operators
 {
     internal class Filter : IComponentOutput
     {

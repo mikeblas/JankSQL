@@ -1,6 +1,6 @@
 ﻿using JankSQL.Contexts;
 
-namespace JankSQL
+namespace JankSQL.Operators
 {
     internal class Select
     {

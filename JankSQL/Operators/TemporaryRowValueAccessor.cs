@@ -1,5 +1,5 @@
 ﻿
-namespace JankSQL
+namespace JankSQL.Operators
 {
     /// <summary>
     /// wraps a discrete row and a list of column names to be used by 
