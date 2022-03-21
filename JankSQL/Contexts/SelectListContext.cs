@@ -64,7 +64,7 @@ namespace JankSQL.Contexts
         //TODO: refactor this into Select operator
         internal ExpressionOperand Execute(int index, ResultSet resultSet, int rowIndex)
         {
-            return expressionList[index].Evaluate(new RowsetValueAccessor(resultSet, rowIndex));
+            return expressionList[index].Evaluate(new ResultSetValueAccessor(resultSet, rowIndex));
         }
 
         internal void Dump()

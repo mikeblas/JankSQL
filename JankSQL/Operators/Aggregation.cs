@@ -298,7 +298,7 @@ namespace JankSQL.Operators
                 for (int i = 0; i < rs.RowCount; i++)
                 {
                     // first, evaluate groupByExpressions
-                    var accessor = new RowsetValueAccessor(rs, i);
+                    var accessor = new ResultSetValueAccessor(rs, i);
                     ExpressionOperand[] groupByKey = EvaluateGroupByKey(accessor);
 
                     // get a rack of accumulators for this key
@@ -324,7 +324,7 @@ namespace JankSQL.Operators
             }
         }
 
-        ExpressionOperand[] EvaluateGroupByKey(RowsetValueAccessor accessor)
+        ExpressionOperand[] EvaluateGroupByKey(ResultSetValueAccessor accessor)
         {
             if (groupByExpressions == null || groupByExpressions.Count == 0)
                 return new ExpressionOperand[] { ExpressionOperand.IntegerFromInt(1) };

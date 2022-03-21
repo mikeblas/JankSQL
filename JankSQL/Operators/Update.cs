@@ -42,7 +42,7 @@ namespace JankSQL.Operators
                 bool predicatePassed = true;
                 foreach (var p in predicateExpressions)
                 {
-                    ExpressionOperand result = p.Evaluate(new RowsetValueAccessor(batch, i));
+                    ExpressionOperand result = p.Evaluate(new ResultSetValueAccessor(batch, i));
 
                     if (!result.IsTrue())
                     {
@@ -74,7 +74,7 @@ namespace JankSQL.Operators
 
                 foreach (var set in setList)
                 {
-                    set.Execute(new TemporaryRowValueAccessor(modified, batch.GetColumnNames()), new RowsetValueAccessor(batch, i));
+                    set.Execute(new TemporaryRowValueAccessor(modified, batch.GetColumnNames()), new ResultSetValueAccessor(batch, i));
                 }
                 rowsToInsert.Add(modified);
             }
