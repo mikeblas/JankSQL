@@ -1,15 +1,16 @@
 ﻿
+using JankSQL.Contexts;
+
 namespace JankSQL
 {
-
     internal class Update : IComponentOutput
     {
-        IComponentOutput myInput;
-        Engines.IEngineTable engineTable;
-        List<Expression> predicateExpressions;
-        List<ExpressionOperandBookmark> bookmarksToDelete = new();
-        List<ExpressionOperand[]> rowsToInsert = new();
-        List<SetOperation> setList;
+        readonly IComponentOutput myInput;
+        readonly Engines.IEngineTable engineTable;
+        readonly List<Expression> predicateExpressions;
+        readonly List<ExpressionOperandBookmark> bookmarksToDelete = new();
+        readonly List<ExpressionOperand[]> rowsToInsert = new();
+        readonly List<SetOperation> setList;
 
         internal Update(Engines.IEngineTable targetTable, IComponentOutput input, List<Expression> predicateExpressions, List<SetOperation> setList)
         {

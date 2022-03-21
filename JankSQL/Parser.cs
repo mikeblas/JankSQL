@@ -2,6 +2,9 @@
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 
+using JankSQL.Contexts;
+using ExecutionContext = JankSQL.Contexts.ExecutionContext;
+
 namespace JankSQL
 {
 

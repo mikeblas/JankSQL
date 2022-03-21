@@ -1,5 +1,4 @@
-﻿
-namespace JankSQL
+﻿namespace JankSQL.Contexts
 {
 
     internal class TruncateTableContext : IExecutableContext

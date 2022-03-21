@@ -1,20 +1,17 @@
 ﻿
-namespace JankSQL
+namespace JankSQL.Contexts
 {
     internal class PredicateContext
     {
-        List<Expression> predicateExpressionLists = new List<Expression>();
+        readonly List<Expression> predicateExpressionLists = new List<Expression>();
 
         internal PredicateContext()
         {
-
         }
 
         internal int PredicateExpressionListCount { get { return predicateExpressionLists.Count; } }
 
-
         internal List<Expression> PredicateExpressions { get { return predicateExpressionLists; } }
-
 
         internal void EndPredicateExpressionList(Expression expression)
         {

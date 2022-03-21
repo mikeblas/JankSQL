@@ -1,6 +1,12 @@
 ﻿
+using JankSQL.Contexts;
+
 namespace JankSQL
 {
+    internal enum AggregationOperatorType
+    {
+        AVG, MAX, MIN, SUM, STDEV, STDEVP, VAR, VARP, COUNT, COUNT_BIG
+    }
 
     interface IAggregateAccumulator
     {

@@ -1,4 +1,6 @@
-﻿namespace JankSQL
+﻿using JankSQL.Contexts;
+
+namespace JankSQL
 {
     internal class Select
     {

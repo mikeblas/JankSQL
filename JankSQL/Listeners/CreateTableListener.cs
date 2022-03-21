@@ -1,5 +1,7 @@
 ﻿using Antlr4.Runtime.Misc;
 
+using JankSQL.Contexts;
+
 namespace JankSQL
 {
     public partial class JankListener : TSqlParserBaseListener
@@ -87,8 +89,6 @@ namespace JankSQL
             CreateTableContext createContext = new CreateTableContext(tableName, columnNames, columnTypes);
 
             executionContext.ExecuteContexts.Add(createContext);
-
         }
-
     }
 }

@@ -1,11 +1,6 @@
 ﻿
-namespace JankSQL
+namespace JankSQL.Contexts
 {
-    internal enum AggregationOperatorType
-    {
-        AVG, MAX, MIN, SUM, STDEV, STDEVP, VAR, VARP, COUNT, COUNT_BIG
-    }
-
 
     internal class AggregateContext
     {

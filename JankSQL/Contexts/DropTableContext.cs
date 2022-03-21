@@ -1,5 +1,5 @@
 ﻿
-namespace JankSQL
+namespace JankSQL.Contexts
 {
     internal class DropTableContext : IExecutableContext
     {

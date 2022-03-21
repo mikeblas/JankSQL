@@ -1,5 +1,6 @@
 ﻿
-namespace JankSQL
+
+namespace JankSQL.Contexts
 {
     public class SelectContext : IExecutableContext
     {

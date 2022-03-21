@@ -1,6 +1,6 @@
 ﻿
 
-namespace JankSQL
+namespace JankSQL.Contexts
 {
     public class ExecutionContext
     {

@@ -27,7 +27,7 @@
                 return null;
             ResultSet rsOutput = ResultSet.NewWithShape(rsInput);
 
-            //REVIEW: ignores max
+            //TODO: ignores max
             for (int i = 0; i < rsInput.RowCount; i++)
             {
                 // evaluate the where clauses, if any

@@ -1,6 +1,6 @@
 ﻿
 
-namespace JankSQL
+namespace JankSQL.Contexts
 {
 
     internal class SelectListContext

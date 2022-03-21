@@ -1,4 +1,6 @@
 ﻿
+using JankSQL.Contexts;
+
 namespace JankSQL
 {
     internal class Join : IComponentOutput
