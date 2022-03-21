@@ -7,8 +7,9 @@ namespace JankSQL
     /// </summary>
     internal class RowsetValueAccessor : IRowValueAccessor
     {
-        ResultSet resultSet;
-        int rowIndex;
+        //TODO: refactor this into Operators namespace
+        readonly ResultSet resultSet;
+        readonly int rowIndex;
 
         internal RowsetValueAccessor(ResultSet resultSet, int rowIndex)
         {

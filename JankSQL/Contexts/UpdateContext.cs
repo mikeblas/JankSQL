@@ -11,6 +11,7 @@ namespace JankSQL.Contexts
         MOD_ASSIGN,
     }
 
+    //TODO: move to Operators
     internal class SetOperation
     {
         readonly FullColumnName fcn;

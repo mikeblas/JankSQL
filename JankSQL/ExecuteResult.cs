@@ -1,14 +1,6 @@
 ﻿
 namespace JankSQL
 {
-
-    public enum ExecuteStatus
-    {
-        NOT_EXECUTED,
-        SUCCESSFUL,
-        FAILED,
-    }
-
     public class ExecuteResult
     {
         ResultSet? resultSet;
@@ -29,12 +21,5 @@ namespace JankSQL
         public ExecuteStatus ExecuteStatus { get; set; }
 
         public string? ErrorMessage { get; set; }
-    }
-
-    public interface IExecutableContext
-    {
-        ExecuteResult Execute(Engines.IEngine engine);
-
-        void Dump();
     }
 }
