@@ -12,7 +12,6 @@
 
     public class ExpressionNode
     {
-
         public static bool TypeFromString(string str, out ExpressionOperandType operandType)
         {
             if (str.Equals("INTEGER", StringComparison.OrdinalIgnoreCase) || str.Equals("INT", StringComparison.OrdinalIgnoreCase))

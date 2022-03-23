@@ -1,6 +1,6 @@
 ﻿namespace JankSQL.Engines
 {
-    class IExpressionOperandComparer : IComparer<ExpressionOperand[]>
+    internal class IExpressionOperandComparer : IComparer<ExpressionOperand[]>
     {
         private readonly int[]? keyOrder;
 
