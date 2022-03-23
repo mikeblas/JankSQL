@@ -17,13 +17,6 @@
         {
             get
             {
-                /*
-                ExpressionOperand[] rowResult = new ExpressionOperand[valuesEnumerator.Current.Length];
-                Array.Copy(valuesEnumerator.Current, rowResult, valuesEnumerator.Current.Length);
-                ExpressionOperandBookmark bookmarkResult = bookmarksEnumerator.Current;
-                return new RowWithBookmark(rowResult, bookmarkResult);
-                */
-
                 ExpressionOperandBookmark bookmarkResult = bookmarksEnumerator.Current;
                 return new RowWithBookmark(valuesEnumerator.Current, bookmarkResult);
             }
