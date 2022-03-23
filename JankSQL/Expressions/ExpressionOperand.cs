@@ -9,6 +9,53 @@
             nodeType = t;
         }
 
+        public ExpressionOperandType NodeType
+        {
+            get { return nodeType; }
+        }
+
+        public abstract bool IsTrue();
+
+        public abstract string AsString();
+
+        public abstract double AsDouble();
+
+        public abstract int AsInteger();
+
+        public abstract bool OperatorEquals(ExpressionOperand other);
+
+        public abstract bool OperatorGreaterThan(ExpressionOperand other);
+
+        public abstract bool OperatorLessThan(ExpressionOperand other);
+
+        public abstract ExpressionOperand OperatorPlus(ExpressionOperand other);
+
+        public abstract ExpressionOperand OperatorMinus(ExpressionOperand other);
+
+        public abstract ExpressionOperand OperatorTimes(ExpressionOperand other);
+
+        public abstract ExpressionOperand OperatorSlash(ExpressionOperand other);
+
+        public abstract void AddToSelf(ExpressionOperand other);
+
+        public abstract object Clone();
+
+        public int Compare(ExpressionOperand? x, ExpressionOperand? y)
+        {
+            if (x == null)
+                throw new ArgumentNullException("x");
+            if (y == null)
+                throw new ArgumentNullException("y");
+
+            if (x.NodeType != y.NodeType)
+                throw new ArgumentException($"can't compare {x.NodeType} to {y.NodeType}");
+
+            int ret = x.Compare(x, y);
+            return ret;
+        }
+
+        public abstract int CompareTo(ExpressionOperand? other);
+
         internal static ExpressionOperand DecimalFromString(bool isNegative, string str)
         {
             double d = double.Parse(str);
@@ -62,22 +109,7 @@
             throw new ArgumentException($"Can't make ExpressionOperand of {opType} out of {o.GetType()}");
         }
 
-        private static string NormalizeString(string str)
-        {
-            // remove 'N' if we have it
-            string temp = str;
-            if (str[0] == 'N')
-                temp = str[1..];
-
-            // trim leading and trailing ticks
-            temp = temp[1..^1];
-
-            // unescape double ticks
-            temp = temp.Replace("''", "'");
-            return temp;
-        }
-
-        public static ExpressionOperandType IntegerOrDecimal(string str)
+        internal static ExpressionOperandType IntegerOrDecimal(string str)
         {
             if (str.IndexOf('.') != -1)
                 return ExpressionOperandType.DECIMAL;
@@ -105,53 +137,20 @@
             return new ExpressionOperandVARCHAR(NormalizeString(str));
         }
 
-
-        public abstract bool IsTrue();
-
-        public abstract string AsString();
-
-        public abstract double AsDouble();
-
-        public abstract int AsInteger();
-
-        public ExpressionOperandType NodeType
+        private static string NormalizeString(string str)
         {
-            get { return nodeType; }
+            // remove 'N' if we have it
+            string temp = str;
+            if (str[0] == 'N')
+                temp = str[1..];
+
+            // trim leading and trailing ticks
+            temp = temp[1..^1];
+
+            // unescape double ticks
+            temp = temp.Replace("''", "'");
+            return temp;
         }
-
-        public abstract bool OperatorEquals(ExpressionOperand other);
-
-        public abstract bool OperatorGreaterThan(ExpressionOperand other);
-
-        public abstract bool OperatorLessThan(ExpressionOperand other);
-
-        public abstract ExpressionOperand OperatorPlus(ExpressionOperand other);
-
-        public abstract ExpressionOperand OperatorMinus(ExpressionOperand other);
-
-        public abstract ExpressionOperand OperatorTimes(ExpressionOperand other);
-
-        public abstract ExpressionOperand OperatorSlash(ExpressionOperand other);
-
-        public abstract void AddToSelf(ExpressionOperand other);
-
-        public abstract object Clone();
-
-        public int Compare(ExpressionOperand? x, ExpressionOperand? y)
-        {
-            if (x == null)
-                throw new ArgumentNullException("x");
-            if (y == null)
-                throw new ArgumentNullException("y");
-
-            if (x.NodeType != y.NodeType)
-                throw new ArgumentException($"can't compare {x.NodeType} to {y.NodeType}");
-
-            int ret = x.Compare(x, y);
-            return ret;
-        }
-
-        public abstract int CompareTo(ExpressionOperand? other);
     }
 }
 

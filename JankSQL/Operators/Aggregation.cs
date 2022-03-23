@@ -53,29 +53,7 @@
             outputExhausted = false;
         }
 
-        protected List<IAggregateAccumulator> GetAccumulatorRow()
-        {
-            List<IAggregateAccumulator> accumulators = new ();
-
-            foreach (var operatorType in operatorTypes)
-            {
-                IAggregateAccumulator? accum = null;
-                accum = operatorType switch
-                {
-                    AggregationOperatorType.SUM => new SumAccumulator(),
-                    AggregationOperatorType.AVG => new AvgAccumulator(),
-                    AggregationOperatorType.COUNT => new CountAccumulator(),
-                    AggregationOperatorType.MIN => new MinAccumulator(),
-                    AggregationOperatorType.MAX => new MaxAccumulator(),
-                    _ => throw new NotImplementedException($"Can't yet accumulate {operatorType}"),
-                };
-                accumulators.Add(accum);
-            }
-
-            return accumulators;
-        }
-
-
+        #region IComponentOutput implementation
         public ResultSet? GetRows(int max)
         {
             if (outputExhausted)
@@ -142,6 +120,35 @@
 
             return resultSet;
         }
+
+        public void Rewind()
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
+
+        protected List<IAggregateAccumulator> GetAccumulatorRow()
+        {
+            List<IAggregateAccumulator> accumulators = new ();
+
+            foreach (var operatorType in operatorTypes)
+            {
+                IAggregateAccumulator? accum = null;
+                accum = operatorType switch
+                {
+                    AggregationOperatorType.SUM => new SumAccumulator(),
+                    AggregationOperatorType.AVG => new AvgAccumulator(),
+                    AggregationOperatorType.COUNT => new CountAccumulator(),
+                    AggregationOperatorType.MIN => new MinAccumulator(),
+                    AggregationOperatorType.MAX => new MaxAccumulator(),
+                    _ => throw new NotImplementedException($"Can't yet accumulate {operatorType}"),
+                };
+                accumulators.Add(accum);
+            }
+
+            return accumulators;
+        }
+
 
         protected void BuildOutputColumnNames()
         {
@@ -212,10 +219,6 @@
             return result;
         }
 
-        public void Rewind()
-        {
-            throw new NotImplementedException();
-        }
     }
 }
 

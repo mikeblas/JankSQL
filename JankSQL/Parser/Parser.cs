@@ -12,40 +12,6 @@
     public class Parser
     {
         /// <summary>
-        /// Helper to build and visit a parse tree produced by the given lexer.
-        /// </summary>
-        /// <param name="lexer">TSqlLexer initialized from the TSqlLexer.</param>
-        /// <returns>an ExecutableBatch.</returns>
-        private static ExecutableBatch ParseTreeFromLexer(TSqlLexer lexer)
-        {
-            var tokenErrorListener = DescriptiveErrorListener.Instance;
-            lexer.RemoveErrorListeners();
-            lexer.AddErrorListener(tokenErrorListener);
-
-            var tokenStream = new CommonTokenStream(lexer);
-
-            var parser = new TSqlParser(tokenStream);
-            var errorListener = new AntlrErrors<IToken>();
-            parser.RemoveErrorListeners();
-            parser.AddErrorListener(errorListener);
-
-            var tree = parser.tsql_file();
-
-            ExecutionContext? context = null;
-
-            Console.WriteLine($"{parser.NumberOfSyntaxErrors} syntax errors");
-            if (parser.NumberOfSyntaxErrors == 0)
-            {
-                var ml = new JankListener();
-                ParseTreeWalker.Default.Walk(ml, tree);
-                context = ml.ExecutionContext;
-            }
-
-            ExecutableBatch batch = new ExecutableBatch(errorListener.ErrorList, tokenErrorListener.ErrorList, context);
-            return batch;
-        }
-
-        /// <summary>
         /// case-sensitive parsing; this wkips the CaseChangingCharStream and requires
         /// all-upper SQL tokens. Mixed-case identifiers must be in [QuoteBrackets].
         /// Eventually, I can remove this and commit to mixed-case the parsing solution.
@@ -98,5 +64,38 @@
             return Parser.ParseSQLFileFromTextReader(str);
         }
 
+        /// <summary>
+        /// Helper to build and visit a parse tree produced by the given lexer.
+        /// </summary>
+        /// <param name="lexer">TSqlLexer initialized from the TSqlLexer.</param>
+        /// <returns>an ExecutableBatch.</returns>
+        private static ExecutableBatch ParseTreeFromLexer(TSqlLexer lexer)
+        {
+            var tokenErrorListener = DescriptiveErrorListener.Instance;
+            lexer.RemoveErrorListeners();
+            lexer.AddErrorListener(tokenErrorListener);
+
+            var tokenStream = new CommonTokenStream(lexer);
+
+            var parser = new TSqlParser(tokenStream);
+            var errorListener = new AntlrErrors<IToken>();
+            parser.RemoveErrorListeners();
+            parser.AddErrorListener(errorListener);
+
+            var tree = parser.tsql_file();
+
+            ExecutionContext? context = null;
+
+            Console.WriteLine($"{parser.NumberOfSyntaxErrors} syntax errors");
+            if (parser.NumberOfSyntaxErrors == 0)
+            {
+                var ml = new JankListener();
+                ParseTreeWalker.Default.Walk(ml, tree);
+                context = ml.ExecutionContext;
+            }
+
+            ExecutableBatch batch = new ExecutableBatch(errorListener.ErrorList, tokenErrorListener.ErrorList, context);
+            return batch;
+        }
     }
 }

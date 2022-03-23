@@ -13,6 +13,11 @@
             this.tableName = tableName;
         }
 
+        internal string TableName
+        {
+            get { return tableName; }
+        }
+
         internal static FullTableName FromTableNameContext(TSqlParser.Table_nameContext context)
         {
             var r = new FullTableName(GetEffectiveName(context.table.GetText()));
@@ -33,11 +38,6 @@
         internal static FullTableName FromTableName(string tableName)
         {
             return new FullTableName(tableName);
-        }
-
-        internal string TableName
-        {
-            get { return tableName;  }
         }
 
         public override int GetHashCode()

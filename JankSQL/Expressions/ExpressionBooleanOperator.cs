@@ -16,6 +16,11 @@
             NOT,
         }
 
+        public override string ToString()
+        {
+            return opType.ToString();
+        }
+
         internal static ExpressionBooleanOperator GetOrOperator()
         {
             return new ExpressionBooleanOperator(BooleanOperatorType.OR);
@@ -29,11 +34,6 @@
         internal static ExpressionBooleanOperator GetNotOperator()
         {
             return new ExpressionBooleanOperator(BooleanOperatorType.NOT);
-        }
-
-        public override string ToString()
-        {
-            return opType.ToString();
         }
 
         internal ExpressionOperand Evaluate(Stack<ExpressionOperand> stack)

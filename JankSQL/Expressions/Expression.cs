@@ -14,59 +14,6 @@
             return string.Join(',', this);
         }
 
-        internal ExpressionOperand Evaluate(IRowValueAccessor? accessor)
-        {
-            Stack<ExpressionOperand> stack = new Stack<ExpressionOperand>();
-
-            do
-            {
-                foreach (ExpressionNode n in this)
-                {
-                    if (n is ExpressionOperand)
-                        stack.Push((ExpressionOperand) n);
-                    else if (n is ExpressionOperator)
-                    {
-                        // it's an operator
-                        var oper = (ExpressionOperator)n;
-                        ExpressionOperand r = oper.Evaluate(stack);
-                        stack.Push(r);
-                    }
-                    else if (n is ExpressionOperandFromColumn)
-                    {
-                        if (accessor == null)
-                            throw new ExecutionException("Not in a row context to evaluate {this}");
-
-                        var r = (ExpressionOperandFromColumn)n;
-                        stack.Push(accessor.GetValue(r.ColumnName));
-                    }
-                    else if (n is ExpressionComparisonOperator)
-                    {
-                        var oper = (ExpressionComparisonOperator)n;
-                        ExpressionOperand r = oper.Evaluate(stack);
-                        stack.Push(r);
-                    }
-                    else if (n is ExpressionBooleanOperator)
-                    {
-                        var oper = (ExpressionBooleanOperator)n;
-                        ExpressionOperand r = oper.Evaluate(stack);
-                        stack.Push(r);
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException();
-                    }
-
-                }
-            }
-            while (stack.Count > 1);
-
-            ExpressionOperand result = (ExpressionOperand)stack.Pop();
-
-            // Console.WriteLine($"Evaluated {this} ==> [{result}]");
-
-            return result;
-        }
-
         public virtual bool Equals(Expression? other)
         {
             if (other == null)
@@ -97,5 +44,52 @@
             return base.GetHashCode();
         }
 
+        internal ExpressionOperand Evaluate(IRowValueAccessor? accessor)
+        {
+            Stack<ExpressionOperand> stack = new Stack<ExpressionOperand>();
+
+            do
+            {
+                foreach (ExpressionNode n in this)
+                {
+                    if (n is ExpressionOperand expressionOperand)
+                        stack.Push(expressionOperand);
+                    else if (n is ExpressionOperator expressionOperator)
+                    {
+                        // it's an operator
+                        ExpressionOperand r = expressionOperator.Evaluate(stack);
+                        stack.Push(r);
+                    }
+                    else if (n is ExpressionOperandFromColumn columnOperand)
+                    {
+                        if (accessor == null)
+                            throw new ExecutionException("Not in a row context to evaluate {this}");
+                        stack.Push(accessor.GetValue(columnOperand.ColumnName));
+                    }
+                    else if (n is ExpressionComparisonOperator comparisonOperator)
+                    {
+                        ExpressionOperand r = comparisonOperator.Evaluate(stack);
+                        stack.Push(r);
+                    }
+                    else if (n is ExpressionBooleanOperator booleanOperator)
+                    {
+                        ExpressionOperand r = booleanOperator.Evaluate(stack);
+                        stack.Push(r);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"Not prepared for ExpressionNode {n}");
+                    }
+
+                }
+            }
+            while (stack.Count > 1);
+
+            ExpressionOperand result = (ExpressionOperand)stack.Pop();
+
+            // Console.WriteLine($"Evaluated {this} ==> [{result}]");
+
+            return result;
+        }
     }
 }

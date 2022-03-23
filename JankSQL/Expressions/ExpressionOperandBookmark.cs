@@ -10,12 +10,7 @@
             this.tuple = tuple;
         }
 
-        internal static ExpressionOperandBookmark FromInteger(int mark)
-        {
-            ExpressionOperand bmk = ExpressionOperand.IntegerFromInt(mark);
-            var ret = new ExpressionOperandBookmark(new ExpressionOperand[] { bmk });
-            return ret;
-        }
+        public ExpressionOperand[] Tuple => tuple;
 
         public override object Clone()
         {
@@ -123,7 +118,12 @@
             return ret;
         }
 
-        public ExpressionOperand[] Tuple => tuple;
+        internal static ExpressionOperandBookmark FromInteger(int mark)
+        {
+            ExpressionOperand bmk = ExpressionOperand.IntegerFromInt(mark);
+            var ret = new ExpressionOperandBookmark(new ExpressionOperand[] { bmk });
+            return ret;
+        }
     }
 }
 

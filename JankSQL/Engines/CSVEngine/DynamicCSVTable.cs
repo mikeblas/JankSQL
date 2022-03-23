@@ -30,66 +30,9 @@
             this.engine = engine;
         }
 
-        private ExpressionOperandType[] GetColumnTypes(FullTableName tableName)
+        public int ColumnCount
         {
-            ExpressionOperandType[] ret;
-
-            // we'd infinitely recurse if we had to look up columns for sys_columns by looking up sys_columns ...
-            if (tableName.TableName.Equals("sys_columns", StringComparison.InvariantCultureIgnoreCase))
-            {
-                List<ExpressionOperandType> types = new ();
-
-                // table_name
-                types.Add(ExpressionOperandType.VARCHAR);
-
-                // column_name
-                types.Add(ExpressionOperandType.VARCHAR);
-
-                // column_type
-                types.Add(ExpressionOperandType.VARCHAR);
-
-                // index
-                types.Add(ExpressionOperandType.INTEGER);
-
-                ret = types.ToArray();
-            }
-            else
-            {
-                IEngineTable sysColumns = engine.GetSysColumns();
-
-                // table_name,column_name,column_type,index
-                int tableNameIndex = sysColumns.ColumnIndex("table_name");
-                int columnNameIndex = sysColumns.ColumnIndex("column_name");
-                int typeIndex = sysColumns.ColumnIndex("column_type");
-                int indexIndex = sysColumns.ColumnIndex("index");
-
-                int matchCount = 0;
-                foreach (var row in sysColumns)
-                {
-                    if (row.RowData[tableNameIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
-                        matchCount++;
-                }
-
-                ret = new ExpressionOperandType[matchCount];
-
-                foreach (var row in sysColumns)
-                {
-                    if (row.RowData[tableNameIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        ExpressionOperandType operandType;
-                        if (!ExpressionNode.TypeFromString(row.RowData[typeIndex].AsString(), out operandType))
-                        {
-                            throw new ExecutionException($"unknown type {row.RowData[typeIndex].AsString()} in table {tableName.TableName}");
-                        }
-
-                        int index = row.RowData[indexIndex].AsInteger();
-
-                        ret[index] = operandType;
-                    }
-                }
-            }
-
-            return ret;
+            get { return columnNames!.Length; }
         }
 
         public void Load()
@@ -161,12 +104,6 @@
             }
         }
 
-        public int ColumnCount
-        {
-            get { return columnNames!.Length; }
-        }
-
-
         public FullColumnName ColumnName(int n)
         {
             return columnNames![n];
@@ -229,11 +166,8 @@
                 sb.Append(col);
             }
 
-            using (StreamWriter sw = File.AppendText(this.filename))
-            {
-                sw.WriteLine(sb.ToString());
-                // Console.WriteLine($"Table writer: {sb.ToString()}");
-            }
+            using StreamWriter sw = File.AppendText(this.filename);
+            sw.WriteLine(sb.ToString());
         }
 
 
@@ -301,7 +235,68 @@
             DynamicCSVRowEnumerator e = new DynamicCSVRowEnumerator(values.GetEnumerator(), bookmarks.GetEnumerator());
             return e;
         }
-    }
 
+        private ExpressionOperandType[] GetColumnTypes(FullTableName tableName)
+        {
+            ExpressionOperandType[] ret;
+
+            // we'd infinitely recurse if we had to look up columns for sys_columns by looking up sys_columns ...
+            if (tableName.TableName.Equals("sys_columns", StringComparison.InvariantCultureIgnoreCase))
+            {
+                List<ExpressionOperandType> types = new();
+
+                // table_name
+                types.Add(ExpressionOperandType.VARCHAR);
+
+                // column_name
+                types.Add(ExpressionOperandType.VARCHAR);
+
+                // column_type
+                types.Add(ExpressionOperandType.VARCHAR);
+
+                // index
+                types.Add(ExpressionOperandType.INTEGER);
+
+                ret = types.ToArray();
+            }
+            else
+            {
+                IEngineTable sysColumns = engine.GetSysColumns();
+
+                // table_name,column_name,column_type,index
+                int tableNameIndex = sysColumns.ColumnIndex("table_name");
+                int columnNameIndex = sysColumns.ColumnIndex("column_name");
+                int typeIndex = sysColumns.ColumnIndex("column_type");
+                int indexIndex = sysColumns.ColumnIndex("index");
+
+                int matchCount = 0;
+                foreach (var row in sysColumns)
+                {
+                    if (row.RowData[tableNameIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
+                        matchCount++;
+                }
+
+                ret = new ExpressionOperandType[matchCount];
+
+                foreach (var row in sysColumns)
+                {
+                    if (row.RowData[tableNameIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        ExpressionOperandType operandType;
+                        if (!ExpressionNode.TypeFromString(row.RowData[typeIndex].AsString(), out operandType))
+                        {
+                            throw new ExecutionException($"unknown type {row.RowData[typeIndex].AsString()} in table {tableName.TableName}");
+                        }
+
+                        int index = row.RowData[indexIndex].AsInteger();
+
+                        ret[index] = operandType;
+                    }
+                }
+            }
+
+            return ret;
+        }
+    }
 }
 

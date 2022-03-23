@@ -2,7 +2,7 @@
 {
     using JankSQL.Operators;
 
-    enum SetOperator
+    internal enum SetOperator
     {
         ASSIGN,
         ADD_ASSIGN,
@@ -53,6 +53,17 @@
         {
             this.context = context;
             this.tableName = tableName;
+        }
+
+        internal PredicateContext? PredicateContext
+        {
+            get { return predicateContext; }
+            set { predicateContext = value; }
+        }
+
+        internal FullTableName TableName
+        {
+            get { return tableName; }
         }
 
         public void Dump()
@@ -114,16 +125,6 @@
             return results;
         }
 
-        internal PredicateContext PredicateContext
-        {
-            get { return predicateContext!; } set { predicateContext = value;  }
-        }
-
-        internal FullTableName TableName
-        {
-            get { return tableName; }
-        }
-
         internal void AddAssignment(FullColumnName fcn, Expression x)
         {
             SetOperation op = new SetOperation(fcn, SetOperator.ASSIGN, x);
@@ -134,6 +135,5 @@
         {
             throw new NotImplementedException();
         }
-
     }
 }

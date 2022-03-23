@@ -14,7 +14,7 @@
             keyOrder = null;
         }
 
-        public int Compare(ExpressionOperand[] ? x, ExpressionOperand[]? y)
+        public int Compare(ExpressionOperand[]? x, ExpressionOperand[]? y)
         {
             if (x == null)
                 throw new ArgumentNullException(nameof(x));

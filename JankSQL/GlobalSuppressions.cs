@@ -19,3 +19,13 @@ using System.Diagnostics.CodeAnalysis;
 // no need for line nannying
 [assembly: SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1508:Closing braces should not be preceded by blank line", Justification = "silly")]
 [assembly: SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1507:Code should not contain multiple blank lines in a row", Justification = "silly")]
+
+// StyleCop fires this warning for []? nullable arrays
+// see https://github.com/DotNetAnalyzers/StyleCopAnalyzers/issues/2927
+[assembly: SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1011:Closing square bracket should be followed by a space", Justification = "StyleCop bug")]
+
+// incompatible with TODO and REVIEW comments, which are useful and built-in to Visual Studio
+[assembly: SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1005:Single line comment should begin with a space", Justification = "Not my style")]
+
+
+[assembly: SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1633:The file header XML is invalid", Justification = "not using file headers just yet")]

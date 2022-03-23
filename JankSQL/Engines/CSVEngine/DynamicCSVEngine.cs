@@ -112,46 +112,6 @@
             }
         }
 
-        protected static void CreateDatabase(string basePath)
-        {
-            Directory.CreateDirectory(basePath);
-            CreateSystemCatalog(basePath);
-        }
-
-        protected static (string sysTablesPath, string sysColsPath) GetCatalogPaths(string basePath)
-        {
-            string sysTablesPath = Path.Combine(basePath, "sys_tables.csv");
-            string sysColsPath = Path.Combine(basePath, "sys_columns.csv");
-
-            return (sysTablesPath, sysColsPath);
-        }
-
-        protected static void CreateSystemCatalog(string rootPath)
-        {
-            (string sysTablesPath, string sysColsPath) = GetCatalogPaths(rootPath);
-
-            string[] sysTablesStrings = new string[]
-            {
-                "table_name,file_name",
-                $"sys_tables,{sysTablesPath}",
-                $"sys_columns,{sysColsPath}",
-            };
-
-            string[] sysColsStrings = new string[]
-            {
-                "table_name,column_name,column_type,index",
-                "sys_tables, table_name,NVARCHAR,0",
-                "sys_tables,file_name,NVARCHAR,1",
-                "sys_columns,table_name,NVARCHAR,0",
-                "sys_columns,column_name,NVARCHAR,1",
-                "sys_columns,column_type,NVARCHAR,2",
-                "sys_columns,index,INTEGER,3",
-            };
-
-            File.WriteAllLines(sysTablesPath, sysTablesStrings);
-            File.WriteAllLines(sysColsPath, sysColsStrings);
-        }
-
         public void CreateTable(FullTableName tableName, List<FullColumnName> columnNames, List<ExpressionOperandType> columnTypes)
         {
             // guess file name
@@ -180,10 +140,9 @@
             }
 
             // create file
-            using StreamWriter file = new(fullPath);
+            using StreamWriter file = new (fullPath);
             string types = string.Join(',', columnTypes);
             string names = string.Join(',', columnNames.Select(c => c.ColumnNameOnly()).ToArray());
-            // file.WriteLine(types);
             file.WriteLine(names);
             file.Close();
 
@@ -312,7 +271,47 @@
             {
                 table.InsertRow(row);
             }
-
         }
+
+        protected static void CreateDatabase(string basePath)
+        {
+            Directory.CreateDirectory(basePath);
+            CreateSystemCatalog(basePath);
+        }
+
+        protected static (string sysTablesPath, string sysColsPath) GetCatalogPaths(string basePath)
+        {
+            string sysTablesPath = Path.Combine(basePath, "sys_tables.csv");
+            string sysColsPath = Path.Combine(basePath, "sys_columns.csv");
+
+            return (sysTablesPath, sysColsPath);
+        }
+
+        protected static void CreateSystemCatalog(string rootPath)
+        {
+            (string sysTablesPath, string sysColsPath) = GetCatalogPaths(rootPath);
+
+            string[] sysTablesStrings = new string[]
+            {
+                "table_name,file_name",
+                $"sys_tables,{sysTablesPath}",
+                $"sys_columns,{sysColsPath}",
+            };
+
+            string[] sysColsStrings = new string[]
+            {
+                "table_name,column_name,column_type,index",
+                "sys_tables, table_name,NVARCHAR,0",
+                "sys_tables,file_name,NVARCHAR,1",
+                "sys_columns,table_name,NVARCHAR,0",
+                "sys_columns,column_name,NVARCHAR,1",
+                "sys_columns,column_type,NVARCHAR,2",
+                "sys_columns,index,INTEGER,3",
+            };
+
+            File.WriteAllLines(sysTablesPath, sysTablesStrings);
+            File.WriteAllLines(sysColsPath, sysColsStrings);
+        }
+
     }
 }

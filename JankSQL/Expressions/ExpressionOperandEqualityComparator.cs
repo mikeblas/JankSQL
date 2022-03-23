@@ -15,16 +15,13 @@ namespace JankSQL
                 throw new ArgumentNullException(nameof(y));
 
             if (x.Length != y.Length)
-            {
                 return false;
-            }
 
             for (int i = 0; i < x.Length; i++)
             {
-                if (! x[i].Equals(y[i]))
-                {
+                // at first not equal, we know
+                if (!x[i].Equals(y[i]))
                     return false;
-                }
             }
 
             return true;

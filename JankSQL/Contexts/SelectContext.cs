@@ -22,6 +22,24 @@
             statementContext = context;
         }
 
+        internal PredicateContext? PredicateContext
+        {
+            get { return predicateContext; }
+            set { predicateContext = value; }
+        }
+
+        internal OrderByContext? OrderByContext
+        {
+            get { return orderByContext; }
+            set { orderByContext = value; }
+        }
+
+        internal SelectListContext SelectListContext
+        {
+            get { return selectListContext!; }
+            set { selectListContext = value; }
+        }
+
         public ExecuteResult Execute(Engines.IEngine engine)
         {
             if (selectListContext == null)
@@ -84,7 +102,7 @@
             if (aggregateContexts.Count > 0)
             {
                 // get names for all the expressions
-                List<string> groupByExpressionBindNames = new();
+                List<string> groupByExpressionBindNames = new ();
                 foreach (var gbe in groupByExpressions)
                 {
                     string? bindName = selectListContext.BindNameForExpression(gbe);
@@ -184,22 +202,6 @@
         internal void AddGroupByExpression(Expression expression)
         {
             groupByExpressions.Add(expression);
-        }
-
-        internal PredicateContext? PredicateContext
-        {
-            get { return predicateContext; } set { predicateContext = value; }
-        }
-
-        internal OrderByContext? OrderByContext
-        {
-            get { return orderByContext; } set { orderByContext = value; }
-        }
-
-        internal SelectListContext SelectListContext
-        {
-            get { return selectListContext!; }
-            set { selectListContext = value; }
         }
 
         internal void AddSelectListExpressionList(Expression expression)

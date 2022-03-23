@@ -26,8 +26,6 @@ namespace JankSQL
     {
         static void Main()
         {
-            // ExecutionContext ecFile = Parser.ParseSQLFileFromFileName("t5.sql");
-
             string str;
 
             // str = "SELECT [city_name],  [population], [population]*2 FROM [mytable];";

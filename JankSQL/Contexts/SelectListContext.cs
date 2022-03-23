@@ -15,6 +15,11 @@
             this.context = context;
         }
 
+        internal List<Expression> SelectExpressions
+        {
+            get { return expressionList; }
+        }
+
         internal int ExpressionListCount
         {
             get { return expressionList.Count; }
@@ -29,11 +34,6 @@
         internal FullColumnName RowsetColumnName(int idx)
         {
             return rowsetColumnNames[idx];
-        }
-
-        internal List<Expression> SelectExpressions
-        {
-            get { return expressionList; }
         }
 
         internal void AddSelectListExpressionList(Expression expressionList)
