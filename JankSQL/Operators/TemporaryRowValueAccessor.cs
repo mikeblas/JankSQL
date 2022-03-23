@@ -6,8 +6,8 @@
     /// </summary>
     internal class TemporaryRowValueAccessor : IRowValueAccessor
     {
-        readonly List<FullColumnName> names;
-        readonly ExpressionOperand[] rowData;
+        private readonly List<FullColumnName> names;
+        private readonly ExpressionOperand[] rowData;
 
         internal TemporaryRowValueAccessor(ExpressionOperand[] rowData, List<FullColumnName> names)
         {

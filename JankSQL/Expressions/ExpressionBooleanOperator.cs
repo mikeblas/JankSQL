@@ -4,16 +4,16 @@
     {
         private readonly BooleanOperatorType opType;
 
+        internal ExpressionBooleanOperator(BooleanOperatorType opType)
+        {
+            this.opType = opType;
+        }
+
         internal enum BooleanOperatorType
         {
             AND,
             OR,
             NOT,
-        }
-
-        internal ExpressionBooleanOperator(BooleanOperatorType opType)
-        {
-            this.opType = opType;
         }
 
         internal static ExpressionBooleanOperator GetOrOperator()

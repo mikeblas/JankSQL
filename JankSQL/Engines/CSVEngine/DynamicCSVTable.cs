@@ -161,7 +161,10 @@
             }
         }
 
-        public int ColumnCount { get { return columnNames!.Length; } }
+        public int ColumnCount
+        {
+            get { return columnNames!.Length; }
+        }
 
 
         public FullColumnName ColumnName(int n)

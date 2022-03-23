@@ -5,7 +5,7 @@
 
     public partial class JankListener : TSqlParserBaseListener
     {
-        UpdateContext? updateContext;
+        private UpdateContext? updateContext;
 
         public override void EnterUpdate_statement([NotNull] TSqlParser.Update_statementContext context)
         {

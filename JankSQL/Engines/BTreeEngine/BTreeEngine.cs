@@ -122,7 +122,7 @@
             }
         }
 
-        static BTreeTable CreateSysColumns()
+        internal static BTreeTable CreateSysColumns()
         {
             ExpressionOperandType[] keyTypes = new[] { ExpressionOperandType.NVARCHAR, ExpressionOperandType.NVARCHAR };
             ExpressionOperandType[] valueTypes = new[] { ExpressionOperandType.NVARCHAR, ExpressionOperandType.INTEGER };

@@ -29,12 +29,18 @@
         /// <summary>
         /// gets the number of syntax errors encountered when parsing this file.
         /// </summary>
-        public int NumberOfSyntaxErrors { get { return (syntaxErrors == null) ? 0 : syntaxErrors.Count; } }
+        public int NumberOfSyntaxErrors
+        {
+            get { return (syntaxErrors == null) ? 0 : syntaxErrors.Count; }
+        }
 
         /// <summary>
         /// Gets the number of tokenization errors encountered when parsing this file.
         /// </summary>
-        public int NumberOfTokenErrors { get { return (tokenErrors == null) ? 0 : tokenErrors.Count; } }
+        public int NumberOfTokenErrors
+        {
+            get { return (tokenErrors == null) ? 0 : tokenErrors.Count; }
+        }
 
         /// <summary>
         /// Dumps diagnostic and tracing information about this ExecutableBatch. Useful for
@@ -85,18 +91,6 @@
             results = executionContext.Execute(engine2);
             return results[0];
         }
-
-        [Obsolete("Execute() is obsolete; work towards invoking a specific engine.")]
-        public ExecuteResult[] Execute()
-        {
-            if (executionContext is null)
-                throw new InvalidOperationException("No valid execution context");
-
-            Engines.IEngine engine2 = Engines.DynamicCSVEngine.OpenExistingOnly("F:\\JankTests\\Progress");
-            results = executionContext.Execute(engine2);
-            return results;
-        }
-
     }
 
 
@@ -105,7 +99,10 @@
     {
         private readonly List<string> errorList = new List<string>();
 
-        internal List<string> ErrorList { get { return errorList; } }
+        internal List<string> ErrorList
+        {
+            get { return errorList; }
+        }
 
         public void SyntaxError(TextWriter output, IRecognizer recognizer, TToken offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e)
         {
@@ -121,9 +118,12 @@
     {
         private readonly List<string> errorList = new List<string>();
 
-        internal List<string> ErrorList { get { return errorList; } }
-
         public static DescriptiveErrorListener Instance { get; } = new DescriptiveErrorListener();
+
+        internal List<string> ErrorList
+        {
+            get { return errorList; }
+        }
 
         public void SyntaxError(TextWriter output, IRecognizer recognizer, int offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e)
         {

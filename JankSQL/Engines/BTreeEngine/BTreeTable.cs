@@ -12,9 +12,10 @@
 
         private readonly ExpressionOperandType[] keyTypes;
         private readonly ExpressionOperandType[] valueTypes;
-        private int nextBookmark = 1;
 
         private readonly BPlusTree<ExpressionOperand[], ExpressionOperand[]> myTree;
+
+        private int nextBookmark = 1;
 
         internal BTreeTable(string tableName, ExpressionOperandType[] keyTypes, List<FullColumnName> keyNames, ExpressionOperandType[] valueTypes, List<FullColumnName> valueNames)
         {

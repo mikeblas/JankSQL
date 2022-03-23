@@ -45,7 +45,7 @@
     {
         private readonly FullTableName tableName;
         private readonly TSqlParser.Update_statementContext context;
-        private readonly List<SetOperation> setList = new();
+        private readonly List<SetOperation> setList = new ();
 
         private PredicateContext? predicateContext;
 
@@ -53,27 +53,6 @@
         {
             this.context = context;
             this.tableName = tableName;
-        }
-
-        internal PredicateContext PredicateContext
-        {
-            get { return predicateContext!; } set { predicateContext = value;  }
-        }
-
-        internal FullTableName TableName
-        {
-            get { return tableName; }
-        }
-
-        internal void AddAssignment(FullColumnName fcn, Expression x)
-        {
-            SetOperation op = new SetOperation(fcn, SetOperator.ASSIGN, x);
-            setList.Add(op);
-        }
-
-        internal void AddAssignmentOperator(FullColumnName fcn, string op, Expression x)
-        {
-            throw new NotImplementedException();
         }
 
         public void Dump()
@@ -134,5 +113,27 @@
 
             return results;
         }
+
+        internal PredicateContext PredicateContext
+        {
+            get { return predicateContext!; } set { predicateContext = value;  }
+        }
+
+        internal FullTableName TableName
+        {
+            get { return tableName; }
+        }
+
+        internal void AddAssignment(FullColumnName fcn, Expression x)
+        {
+            SetOperation op = new SetOperation(fcn, SetOperator.ASSIGN, x);
+            setList.Add(op);
+        }
+
+        internal void AddAssignmentOperator(FullColumnName fcn, string op, Expression x)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

@@ -2,10 +2,10 @@
 {
     internal class Delete : IComponentOutput
     {
-        readonly IComponentOutput myInput;
-        readonly Engines.IEngineTable engineSource;
-        readonly List<Expression> predicateExpressions;
-        readonly List<ExpressionOperandBookmark> bookmarksToDelete = new ();
+        private readonly IComponentOutput myInput;
+        private readonly Engines.IEngineTable engineSource;
+        private readonly List<Expression> predicateExpressions;
+        private readonly List<ExpressionOperandBookmark> bookmarksToDelete = new ();
 
         internal Delete(Engines.IEngineTable targetTable, IComponentOutput input, List<Expression> predicateExpressions)
         {

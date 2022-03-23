@@ -31,6 +31,14 @@
             return rows[index];
         }
 
+        public void Dump()
+        {
+            Console.WriteLine($"{string.Join(",", columnNames)}");
+
+            foreach (var row in rows)
+                Console.WriteLine($"{string.Join(",", row.Select(x => x))}");
+        }
+
         internal static ResultSet NewWithShape(ResultSet other)
         {
             ResultSet ret = new (other.columnNames);
@@ -87,29 +95,6 @@
         internal void Sort(IComparer<ExpressionOperand[]> ic)
         {
             rows.Sort(ic);
-        }
-
-        public void Dump()
-        {
-            //REVIEW: use string.Join here
-            foreach (var name in columnNames)
-            {
-                Console.Write(name);
-                Console.Write(",");
-            }
-
-            Console.WriteLine();
-
-            foreach (var row in rows)
-            {
-                foreach (var cell in row)
-                {
-                    Console.Write(cell.ToString());
-                    Console.Write(",");
-                }
-
-                Console.WriteLine();
-            }
         }
     }
 }

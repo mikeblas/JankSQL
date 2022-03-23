@@ -14,6 +14,14 @@
             this.TableName = tableName;
         }
 
+        internal List<FullColumnName> TargetColumns
+        {
+            get { return targetColumns!; }
+            set { targetColumns = value; }
+        }
+
+        internal FullTableName TableName { get; set; }
+
         public ExecuteResult Execute(Engines.IEngine engine)
         {
             if (constructors == null)
@@ -107,17 +115,10 @@
             }
         }
 
-        internal List<FullColumnName> TargetColumns
-        {
-            get { return targetColumns!; } set { targetColumns = value; }
-        }
-
-        internal FullTableName TableName { get; set; }
-
         internal void AddExpressionList(List<Expression> expressionList)
         {
             if (constructors is null)
-                constructors = new();
+                constructors = new ();
 
             this.constructors.Add(expressionList);
         }
@@ -125,7 +126,7 @@
         internal void AddExpressionLists(List<List<Expression>> expressionLists)
         {
             if (constructors is null)
-                constructors = new();
+                constructors = new ();
 
             this.constructors.AddRange(expressionLists);
         }

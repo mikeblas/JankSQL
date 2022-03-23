@@ -2,7 +2,7 @@
 {
     public class ExecuteResult
     {
-        ResultSet? resultSet;
+        private ResultSet? resultSet;
 
         public ExecuteResult(ExecuteStatus status, string message)
         {

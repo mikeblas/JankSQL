@@ -2,8 +2,8 @@
 {
     internal class Filter : IComponentOutput
     {
-        IComponentOutput myInput;
-        List<Expression> predicateExpressionLists;
+        private IComponentOutput myInput;
+        private List<Expression> predicateExpressionLists;
 
         internal Filter(IComponentOutput input, List<Expression> predicateExpressionLists)
         {
@@ -16,7 +16,10 @@
             get { return myInput; } set { myInput = value; }
         }
 
-        internal List<Expression> Predicates { set { predicateExpressionLists = value; } }
+        internal List<Expression> Predicates
+        {
+            set { predicateExpressionLists = value; }
+        }
 
         public void Rewind()
         {

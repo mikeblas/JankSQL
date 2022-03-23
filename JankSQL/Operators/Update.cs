@@ -83,7 +83,7 @@
         }
 
 
-        void DoUpdateWork()
+        protected void DoUpdateWork()
         {
             // first, delete everything we want
             engineTable.DeleteRows(bookmarksToDelete);

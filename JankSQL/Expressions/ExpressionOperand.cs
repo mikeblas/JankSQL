@@ -4,6 +4,11 @@
     {
         private readonly ExpressionOperandType nodeType;
 
+        internal ExpressionOperand(ExpressionOperandType t)
+        {
+            nodeType = t;
+        }
+
         internal static ExpressionOperand DecimalFromString(bool isNegative, string str)
         {
             double d = double.Parse(str);
@@ -100,10 +105,6 @@
             return new ExpressionOperandVARCHAR(NormalizeString(str));
         }
 
-        internal ExpressionOperand(ExpressionOperandType t)
-        {
-            nodeType = t;
-        }
 
         public abstract bool IsTrue();
 

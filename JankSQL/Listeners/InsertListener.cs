@@ -5,7 +5,7 @@
 
     public partial class JankListener : TSqlParserBaseListener
     {
-        InsertContext? insertContext;
+        private InsertContext? insertContext;
 
         public override void EnterInsert_statement([NotNull] TSqlParser.Insert_statementContext context)
         {

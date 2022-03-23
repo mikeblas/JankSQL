@@ -39,30 +39,6 @@
 
         internal List<Expression> PredicateExpressions { get; set; }
 
-        protected List<FullColumnName> GetAllColumnNames()
-        {
-            if (allColumnNames == null)
-            {
-                allColumnNames = new List<FullColumnName>();
-                allColumnNames.AddRange(leftRows!.GetColumnNames());
-                allColumnNames.AddRange(rightRows!.GetColumnNames());
-            }
-
-            return allColumnNames;
-        }
-
-        protected bool FillLeftRows(int max)
-        {
-            leftRows = leftInput.GetRows(max);
-            return leftRows != null && leftRows.RowCount > 0;
-        }
-
-        protected bool FillRightRows(int max)
-        {
-            rightRows = rightInput.GetRows(max);
-            return rightRows != null && rightRows.RowCount > 0;
-        }
-
         public void Rewind()
         {
             outputIndex = 0;
@@ -85,6 +61,31 @@
             }
 
             return resultSlice;
+        }
+
+
+        protected List<FullColumnName> GetAllColumnNames()
+        {
+            if (allColumnNames == null)
+            {
+                allColumnNames = new List<FullColumnName>();
+                allColumnNames.AddRange(leftRows!.GetColumnNames());
+                allColumnNames.AddRange(rightRows!.GetColumnNames());
+            }
+
+            return allColumnNames;
+        }
+
+        protected bool FillLeftRows(int max)
+        {
+            leftRows = leftInput.GetRows(max);
+            return leftRows != null && leftRows.RowCount > 0;
+        }
+
+        protected bool FillRightRows(int max)
+        {
+            rightRows = rightInput.GetRows(max);
+            return rightRows != null && rightRows.RowCount > 0;
         }
 
         protected ResultSet ProduceOutputSet()

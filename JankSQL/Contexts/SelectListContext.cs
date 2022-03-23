@@ -10,18 +10,36 @@
 
         private int unknownColumnID = 1001;
 
-        internal List<Expression> SelectExpressions { get { return expressionList; } }
-
         internal SelectListContext(TSqlParser.Select_listContext context)
         {
             this.context = context;
+        }
+
+        internal int ExpressionListCount
+        {
+            get { return expressionList.Count; }
+        }
+
+        internal string? CurrentAlias
+        {
+            get { return currentAlias; }
+            set { currentAlias = value; }
+        }
+
+        internal FullColumnName RowsetColumnName(int idx)
+        {
+            return rowsetColumnNames[idx];
+        }
+
+        internal List<Expression> SelectExpressions
+        {
+            get { return expressionList; }
         }
 
         internal void AddSelectListExpressionList(Expression expressionList)
         {
             this.expressionList.Add(expressionList);
         }
-
 
         internal void EndElement()
         {
@@ -39,14 +57,6 @@
             AddRowsetColumnName(fcn);
             unknownColumnID += 1;
         }
-
-        internal int RowsetColumnNamesCount { get { return rowsetColumnNames.Count; } }
-
-        internal FullColumnName RowsetColumnName(int idx) { return rowsetColumnNames[idx]; }
-
-        internal int ExpressionListCount { get { return expressionList.Count; } }
-
-        internal string? CurrentAlias { get { return currentAlias; } set { currentAlias = value; } }
 
         internal string? BindNameForExpression(Expression x)
         {

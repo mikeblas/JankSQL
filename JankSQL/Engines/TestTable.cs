@@ -80,14 +80,6 @@
         private readonly List<ExpressionOperandType> columnTypes;
         private readonly FullTableName tableName;
 
-        internal FullTableName TableName { get { return tableName; } }
-
-        internal List<ExpressionOperandType> ColumnTypes { get { return columnTypes; } }
-
-        internal List<FullColumnName> ColumnNames { get { return columnNames; } }
-
-        internal List<ExpressionOperand[]> Rows { get { return rows; } }
-
         internal TestTable(FullTableName tableName, List<FullColumnName> columnNames, List<ExpressionOperandType> columnTypes, List<ExpressionOperand[]> rows)
         {
             this.tableName = tableName;
@@ -97,5 +89,24 @@
             this.rows = rows;
         }
 
+        internal FullTableName TableName
+        {
+            get { return tableName; }
+        }
+
+        internal List<ExpressionOperandType> ColumnTypes
+        {
+            get { return columnTypes; }
+        }
+
+        internal List<FullColumnName> ColumnNames
+        {
+            get { return columnNames; }
+        }
+
+        internal List<ExpressionOperand[]> Rows
+        {
+            get { return rows; }
+        }
     }
 }

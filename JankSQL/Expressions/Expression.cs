@@ -9,6 +9,11 @@
 
         internal bool ContainsAggregate { get; set; }
 
+        public override string ToString()
+        {
+            return string.Join(',', this);
+        }
+
         internal ExpressionOperand Evaluate(IRowValueAccessor? accessor)
         {
             Stack<ExpressionOperand> stack = new Stack<ExpressionOperand>();
@@ -62,15 +67,10 @@
             return result;
         }
 
-        public override string ToString()
-        {
-            return string.Join(',', this);
-        }
-
         public virtual bool Equals(Expression? other)
         {
             if (other == null)
-                throw new ArgumentNullException("other");
+                throw new ArgumentNullException(nameof(other));
 
             if (ReferenceEquals(this, other))
                 return true;

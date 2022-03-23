@@ -2,12 +2,13 @@
 {
     public class FullColumnName
     {
-        string? serverName;
-        string? schemaName;
-        string? tableName;
-        readonly string columnName;
+        private readonly string columnName;
 
-        FullColumnName(string columnName)
+        private string? serverName;
+        private string? schemaName;
+        private string? tableName;
+
+        private FullColumnName(string columnName)
         {
             this.columnName = columnName;
         }

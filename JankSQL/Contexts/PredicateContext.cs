@@ -2,7 +2,7 @@
 {
     internal class PredicateContext
     {
-        readonly List<Expression> predicateExpressionLists = new List<Expression>();
+        private readonly List<Expression> predicateExpressionLists = new List<Expression>();
 
         internal PredicateContext()
         {

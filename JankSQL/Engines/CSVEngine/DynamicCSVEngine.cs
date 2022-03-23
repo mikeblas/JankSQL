@@ -13,6 +13,13 @@
         private readonly string sysTablesPath;
         private readonly string sysColumnsPath;
 
+        protected DynamicCSVEngine(string basePath, string sysTablesPath, string sysColsPath)
+        {
+            this.basePath = basePath;
+            this.sysTablesPath = sysTablesPath;
+            this.sysColumnsPath = sysColsPath;
+        }
+
         public static DynamicCSVEngine Open(string basePath, OpenPolicy policy)
         {
             DynamicCSVEngine engine;
@@ -78,17 +85,19 @@
             return OpenExistingOnly(basePath);
         }
 
-        DynamicCSVEngine(string basePath, string sysTablesPath, string sysColsPath)
+        public static string? FileFromSysTables(IEngineTable sysTables, string effectiveTableName)
         {
-            this.basePath = basePath;
-            this.sysTablesPath = sysTablesPath;
-            this.sysColumnsPath = sysColsPath;
-        }
+            // is this source table in there?
+            int idxName = sysTables.ColumnIndex("table_name");
+            int idxFile = sysTables.ColumnIndex("file_name");
 
-        static void CreateDatabase(string basePath)
-        {
-            Directory.CreateDirectory(basePath);
-            CreateSystemCatalog(basePath);
+            foreach (var row in sysTables)
+            {
+                if (row.RowData[idxName].AsString().Equals(effectiveTableName, StringComparison.InvariantCultureIgnoreCase))
+                    return row.RowData[idxFile].AsString();
+            }
+
+            return null;
         }
 
         public static void RemoveDatabase(string basePath)
@@ -103,6 +112,12 @@
             }
         }
 
+        protected static void CreateDatabase(string basePath)
+        {
+            Directory.CreateDirectory(basePath);
+            CreateSystemCatalog(basePath);
+        }
+
         protected static (string sysTablesPath, string sysColsPath) GetCatalogPaths(string basePath)
         {
             string sysTablesPath = Path.Combine(basePath, "sys_tables.csv");
@@ -111,7 +126,7 @@
             return (sysTablesPath, sysColsPath);
         }
 
-        static void CreateSystemCatalog(string rootPath)
+        protected static void CreateSystemCatalog(string rootPath)
         {
             (string sysTablesPath, string sysColsPath) = GetCatalogPaths(rootPath);
 
@@ -165,7 +180,7 @@
             }
 
             // create file
-            using StreamWriter file = new (fullPath);
+            using StreamWriter file = new(fullPath);
             string types = string.Join(',', columnTypes);
             string names = string.Join(',', columnNames.Select(c => c.ColumnNameOnly()).ToArray());
             // file.WriteLine(types);
@@ -254,22 +269,6 @@
 
             sysTables.DeleteRows(rowIndexesToDelete);
         }
-
-        public static string? FileFromSysTables(IEngineTable sysTables, string effectiveTableName)
-        {
-            // is this source table in there?
-            int idxName = sysTables.ColumnIndex("table_name");
-            int idxFile = sysTables.ColumnIndex("file_name");
-
-            foreach (var row in sysTables)
-            {
-                if (row.RowData[idxName].AsString().Equals(effectiveTableName, StringComparison.InvariantCultureIgnoreCase))
-                    return row.RowData[idxFile].AsString();
-            }
-
-            return null;
-        }
-
 
         public IEngineTable? GetEngineTable(FullTableName tableName)
         {
