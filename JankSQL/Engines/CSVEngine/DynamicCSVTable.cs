@@ -243,7 +243,7 @@
             // we'd infinitely recurse if we had to look up columns for sys_columns by looking up sys_columns ...
             if (tableName.TableName.Equals("sys_columns", StringComparison.InvariantCultureIgnoreCase))
             {
-                List<ExpressionOperandType> types = new();
+                List<ExpressionOperandType> types = new ();
 
                 // table_name
                 types.Add(ExpressionOperandType.VARCHAR);

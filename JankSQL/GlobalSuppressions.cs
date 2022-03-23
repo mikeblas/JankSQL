@@ -27,5 +27,9 @@ using System.Diagnostics.CodeAnalysis;
 // incompatible with TODO and REVIEW comments, which are useful and built-in to Visual Studio
 [assembly: SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1005:Single line comment should begin with a space", Justification = "Not my style")]
 
-
+// not using file headers
 [assembly: SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1633:The file header XML is invalid", Justification = "not using file headers just yet")]
+
+// I freely use single-line comments
+[assembly: SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1512:Single-line comments should not be followed by blank line", Justification = "Not my style")]
+[assembly: SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1515:Single-line comment should be preceded by blank line", Justification = "Not my style")]

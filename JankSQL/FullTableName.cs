@@ -18,28 +18,6 @@
             get { return tableName; }
         }
 
-        internal static FullTableName FromTableNameContext(TSqlParser.Table_nameContext context)
-        {
-            var r = new FullTableName(GetEffectiveName(context.table.GetText()));
-            r.databaseName = (context.database != null) ? GetEffectiveName(context.database.GetText()) : null;
-            r.schemaName = (context.schema != null) ? GetEffectiveName(context.schema.GetText()) : null;
-            return r;
-        }
-
-        internal static FullTableName FromFullTableNameContext(TSqlParser.Full_table_nameContext context)
-        {
-            var r = new FullTableName(GetEffectiveName(context.table.GetText()));
-            r.databaseName = (context.database != null) ? GetEffectiveName(context.database.GetText()) : null;
-            r.schemaName = (context.schema != null) ? GetEffectiveName(context.schema.GetText()) : null;
-            r.linkedServerName = (context.linkedServer != null) ? GetEffectiveName(context.linkedServer.GetText()) : null;
-            return r;
-        }
-
-        internal static FullTableName FromTableName(string tableName)
-        {
-            return new FullTableName(tableName);
-        }
-
         public override int GetHashCode()
         {
             int hash = 19;
@@ -85,6 +63,29 @@
             }
 
             return ret;
+        }
+
+
+        internal static FullTableName FromTableNameContext(TSqlParser.Table_nameContext context)
+        {
+            var r = new FullTableName(GetEffectiveName(context.table.GetText()));
+            r.databaseName = (context.database != null) ? GetEffectiveName(context.database.GetText()) : null;
+            r.schemaName = (context.schema != null) ? GetEffectiveName(context.schema.GetText()) : null;
+            return r;
+        }
+
+        internal static FullTableName FromFullTableNameContext(TSqlParser.Full_table_nameContext context)
+        {
+            var r = new FullTableName(GetEffectiveName(context.table.GetText()));
+            r.databaseName = (context.database != null) ? GetEffectiveName(context.database.GetText()) : null;
+            r.schemaName = (context.schema != null) ? GetEffectiveName(context.schema.GetText()) : null;
+            r.linkedServerName = (context.linkedServer != null) ? GetEffectiveName(context.linkedServer.GetText()) : null;
+            return r;
+        }
+
+        internal static FullTableName FromTableName(string tableName)
+        {
+            return new FullTableName(tableName);
         }
 
         private static string GetEffectiveName(string objectName)
