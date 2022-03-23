@@ -1,6 +1,6 @@
 ﻿namespace JankSQL
 {
-    internal class EvaluatingComparer : IComparer<ExpressionOperand[]>
+    internal class EvaluatingComparer : IComparer<Tuple>
     {
         private readonly Expression[] keyExpressions;
         private readonly bool[] isAscending;
@@ -26,7 +26,7 @@
             get { return rowComparisons; }
         }
 
-        public int Compare(ExpressionOperand[]? x, ExpressionOperand[]? y)
+        public int Compare(Tuple? x, Tuple? y)
         {
             if (x == null)
                 throw new ArgumentNullException(nameof(x));

@@ -42,7 +42,7 @@
 
         public TestTable Build()
         {
-            List<ExpressionOperand[]>? convertedRows = new List<ExpressionOperand[]>();
+            List<Tuple> convertedRows = new List<Tuple>();
 
             if (columnTypes == null)
                 throw new InvalidOperationException("no column types provided");
@@ -53,7 +53,7 @@
             {
                 foreach (var row in rows)
                 {
-                    ExpressionOperand[] convertedRow = new ExpressionOperand[row.Length];
+                    Tuple convertedRow = Tuple.CreateEmpty(row.Length);
 
                     if (columnTypes.Count != row.Length)
                         throw new ArgumentException($"found a row with {row.Length} values, but {columnTypes.Count} column types");

@@ -5,9 +5,9 @@
 
     internal class BTreeRowEnumerator : IEnumerator<RowWithBookmark>
     {
-        private readonly IEnumerator<KeyValuePair<ExpressionOperand[], ExpressionOperand[]>> treeEnumerator;
+        private readonly IEnumerator<KeyValuePair<Tuple, Tuple>> treeEnumerator;
 
-        internal BTreeRowEnumerator(BPlusTree<ExpressionOperand[], ExpressionOperand[]> tree)
+        internal BTreeRowEnumerator(BPlusTree<Tuple, Tuple> tree)
         {
             treeEnumerator = tree.GetEnumerator();
         }
@@ -16,7 +16,7 @@
         {
             get
             {
-                ExpressionOperand[] rowResult = new ExpressionOperand[treeEnumerator.Current.Value.Length + treeEnumerator.Current.Key.Length];
+                Tuple rowResult = Tuple.CreateEmpty(treeEnumerator.Current.Value.Length + treeEnumerator.Current.Key.Length);
 
                 int n = 0;
                 for (int i = 0; i < treeEnumerator.Current.Value.Length; i++)
@@ -24,7 +24,7 @@
                 for (int i = 0; i < treeEnumerator.Current.Key.Length; i++)
                     rowResult[n++] = treeEnumerator.Current.Key[i];
 
-                ExpressionOperandBookmark bookmarkResult = new ExpressionOperandBookmark(treeEnumerator.Current.Key);
+                ExpressionOperandBookmark bookmarkResult = new (treeEnumerator.Current.Key);
 
                 return new RowWithBookmark(rowResult, bookmarkResult);
             }

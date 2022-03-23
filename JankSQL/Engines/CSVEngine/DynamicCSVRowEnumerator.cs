@@ -4,10 +4,10 @@
 
     internal class DynamicCSVRowEnumerator : IEnumerator<RowWithBookmark>
     {
-        private readonly IEnumerator<ExpressionOperand[]> valuesEnumerator;
+        private readonly IEnumerator<Tuple> valuesEnumerator;
         private readonly IEnumerator<ExpressionOperandBookmark> bookmarksEnumerator;
 
-        internal DynamicCSVRowEnumerator(IEnumerator<ExpressionOperand[]> valuesEnumerator, IEnumerator<ExpressionOperandBookmark> bookmarksEnumerator)
+        internal DynamicCSVRowEnumerator(IEnumerator<Tuple> valuesEnumerator, IEnumerator<ExpressionOperandBookmark> bookmarksEnumerator)
         {
             this.valuesEnumerator = valuesEnumerator;
             this.bookmarksEnumerator = bookmarksEnumerator;
@@ -17,10 +17,15 @@
         {
             get
             {
+                /*
                 ExpressionOperand[] rowResult = new ExpressionOperand[valuesEnumerator.Current.Length];
                 Array.Copy(valuesEnumerator.Current, rowResult, valuesEnumerator.Current.Length);
                 ExpressionOperandBookmark bookmarkResult = bookmarksEnumerator.Current;
                 return new RowWithBookmark(rowResult, bookmarkResult);
+                */
+
+                ExpressionOperandBookmark bookmarkResult = bookmarksEnumerator.Current;
+                return new RowWithBookmark(valuesEnumerator.Current, bookmarkResult);
             }
         }
 

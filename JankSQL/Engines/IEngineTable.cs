@@ -20,7 +20,7 @@
         // truncate this table
         void TruncateTable();
 
-        void InsertRow(ExpressionOperand[] row);
+        void InsertRow(Tuple row);
 
         int DeleteRows(List<ExpressionOperandBookmark> bookmarksToDelete);
     }

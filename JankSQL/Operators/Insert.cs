@@ -19,7 +19,7 @@
 
             for (int i = 0; i < rsInput.RowCount; i++)
             {
-                ExpressionOperand[] row = rsInput.Row(i);
+                Tuple row = rsInput.Row(i);
                 engineTable.InsertRow(row);
             }
 

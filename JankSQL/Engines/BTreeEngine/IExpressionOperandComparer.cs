@@ -1,6 +1,6 @@
 ﻿namespace JankSQL.Engines
 {
-    internal class IExpressionOperandComparer : IComparer<ExpressionOperand[]>
+    internal class IExpressionOperandComparer : IComparer<Tuple>
     {
         private readonly int[]? keyOrder;
 
@@ -14,7 +14,7 @@
             keyOrder = null;
         }
 
-        public int Compare(ExpressionOperand[]? x, ExpressionOperand[]? y)
+        public int Compare(Tuple? x, Tuple? y)
         {
             if (x == null)
                 throw new ArgumentNullException(nameof(x));

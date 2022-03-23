@@ -2,16 +2,16 @@
 {
     public class RowWithBookmark
     {
-        private readonly ExpressionOperand[] rowData;
+        private readonly Tuple rowData;
         private readonly ExpressionOperandBookmark bookmark;
 
-        public RowWithBookmark(ExpressionOperand[] rowData, ExpressionOperandBookmark bookmark)
+        public RowWithBookmark(Tuple rowData, ExpressionOperandBookmark bookmark)
         {
             this.rowData = rowData;
             this.bookmark = bookmark;
         }
 
-        public ExpressionOperand[] RowData
+        public Tuple RowData
         {
             get { return rowData; }
         }

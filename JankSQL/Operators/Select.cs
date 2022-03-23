@@ -56,8 +56,8 @@
                 int exprIndex = 0;
                 int rsIndex = 0;
 
-                ExpressionOperand[] thisRow = rsInput.Row(i);
-                ExpressionOperand[] rowResults = new ExpressionOperand[effectiveColumns.Count];
+                Tuple thisRow = rsInput.Row(i);
+                Tuple rowResults = Tuple.CreateEmpty(effectiveColumns.Count);
                 foreach (FullColumnName columnName in effectiveColumns)
                 {
                     int idx = rsInput.ColumnIndex(columnName);

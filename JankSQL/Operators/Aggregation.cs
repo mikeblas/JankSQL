@@ -23,7 +23,7 @@
         private readonly List<Expression> expressions;
         private readonly List<string> expressionNames;
         private readonly List<Expression>? groupByExpressions;
-        private readonly Dictionary<ExpressionOperand[], List<IAggregateAccumulator>> dictKeyToAggs;
+        private readonly Dictionary<Tuple, List<IAggregateAccumulator>> dictKeyToAggs;
         private readonly List<string>? groupByExpressionBindNames;
 
         private readonly List<FullColumnName> outputNames = new ();
@@ -37,7 +37,7 @@
             expressionNames = new List<string>();
             expressions = new List<Expression>();
             operatorTypes = new List<AggregationOperatorType>();
-            dictKeyToAggs = new Dictionary<ExpressionOperand[], List<IAggregateAccumulator>>(new ExpressionOperandEqualityComparator());
+            dictKeyToAggs = new Dictionary<Tuple, List<IAggregateAccumulator>>(new ExpressionOperandEqualityComparator());
             this.groupByExpressionBindNames = groupByExpressionBindNames;
 
             foreach (var context in contexts)
@@ -66,11 +66,7 @@
             }
 
             foreach (var kv in dictKeyToAggs)
-            {
-                Console.Write($"Aggregated key: {string.Join(",", kv.Key.Select(x => "[" + x + "]"))}: ");
-                Console.Write($"{string.Join(",", kv.Value.Select(x => "[" + x.FinalValue() + "]"))}");
-                Console.WriteLine();
-            }
+                Console.WriteLine($"Aggregated key: {kv.Key}: {kv.Value}");
 
             ResultSet resultSet = new (outputNames);
 
@@ -78,7 +74,7 @@
             {
                 // with no group by, we should have exactly one row with
                 // the number of columns equal to the number of aggregaton expressions
-                ExpressionOperand[] outputRow = new ExpressionOperand[expressions.Count];
+                Tuple outputRow = Tuple.CreateEmpty(expressions.Count);
 
                 var kvFirst = dictKeyToAggs.First();
                 for (int j = 0; j < kvFirst.Value.Count; j++)
@@ -96,7 +92,7 @@
                 foreach (var kv in dictKeyToAggs)
                 {
                     // expressions.Count + groupByExpressions.Count
-                    ExpressionOperand[] outputRow = new ExpressionOperand[outputNames.Count];
+                    Tuple outputRow = Tuple.CreateEmpty(outputNames.Count);
 
                     int n = 0;
 
@@ -182,7 +178,7 @@
                 {
                     // first, evaluate groupByExpressions
                     var accessor = new ResultSetValueAccessor(rs, i);
-                    ExpressionOperand[] groupByKey = EvaluateGroupByKey(accessor);
+                    Tuple groupByKey = EvaluateGroupByKey(accessor);
 
                     // get a rack of accumulators for this key
                     List<IAggregateAccumulator> aggs;
@@ -207,12 +203,13 @@
             }
         }
 
-        protected ExpressionOperand[] EvaluateGroupByKey(ResultSetValueAccessor accessor)
+        protected Tuple EvaluateGroupByKey(ResultSetValueAccessor accessor)
         {
+            // this key is used as an identity for non-grouped expressions
             if (groupByExpressions == null || groupByExpressions.Count == 0)
-                return new ExpressionOperand[] { ExpressionOperand.IntegerFromInt(1) };
+                return Tuple.FromSingleValue(1);
 
-            ExpressionOperand[] result = new ExpressionOperand[groupByExpressions.Count];
+            Tuple result = Tuple.CreateEmpty(groupByExpressions.Count);
             for (int i = 0; i < groupByExpressions.Count; i++)
                 result[i] = groupByExpressions[i].Evaluate(accessor);
 

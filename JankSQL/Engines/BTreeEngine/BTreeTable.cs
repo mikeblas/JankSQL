@@ -13,13 +13,13 @@
         private readonly ExpressionOperandType[] keyTypes;
         private readonly ExpressionOperandType[] valueTypes;
 
-        private readonly BPlusTree<ExpressionOperand[], ExpressionOperand[]> myTree;
+        private readonly BPlusTree<Tuple, Tuple> myTree;
 
         private int nextBookmark = 1;
 
         internal BTreeTable(string tableName, ExpressionOperandType[] keyTypes, List<FullColumnName> keyNames, ExpressionOperandType[] valueTypes, List<FullColumnName> valueNames)
         {
-            myTree = new BPlusTree<ExpressionOperand[], ExpressionOperand[]>(new IExpressionOperandComparer());
+            myTree = new BPlusTree<Tuple, Tuple>(new IExpressionOperandComparer());
             hasUniqueKey = true;
 
             this.keyTypes = keyTypes;
@@ -48,7 +48,7 @@
 
         internal BTreeTable(string tableName, ExpressionOperandType[] valueTypes, List<FullColumnName> valueNames)
         {
-            myTree = new BPlusTree<ExpressionOperand[], ExpressionOperand[]>(new IExpressionOperandComparer());
+            myTree = new BPlusTree<Tuple, Tuple>(new IExpressionOperandComparer());
             hasUniqueKey = false;
 
             this.keyTypes = new ExpressionOperandType[] { ExpressionOperandType.INTEGER };
@@ -127,22 +127,29 @@
             return new BTreeRowEnumerator(myTree);
         }
 
-        public void InsertRow(ExpressionOperand[] row)
+        public void InsertRow(Tuple row)
         {
             if (keyColumnNames[0].ColumnNameOnly().Equals("bookmark_key"))
             {
-                ExpressionOperand[] key = new ExpressionOperand[1];
+                Tuple key = Tuple.CreateEmpty(1); ;
                 key[0] = ExpressionOperand.IntegerFromInt(nextBookmark++);
 
                 myTree.Add(key, row);
             }
             else
             {
-                ExpressionOperand[] key = new ExpressionOperand[keyColumnNames.Count];
-                ExpressionOperand[] value = new ExpressionOperand[valueColumnNames.Count];
+                /*
+                Tuple key = Tuple.CreateEmpty(keyColumnNames.Count);
+                Tuple value = Tuple.CreateEmpty(valueColumnNames.Count);
 
                 Array.Copy(row, 0, key, 0, keyColumnNames.Count);
                 Array.Copy(row, keyColumnNames.Count, value, 0, valueColumnNames.Count);
+
+                myTree.Add(key, value);
+                */
+
+                Tuple key   = Tuple.CreateFromRange(row, 0, keyColumnNames.Count);
+                Tuple value = Tuple.CreateFromRange(row, keyColumnNames.Count, valueColumnNames.Count);
 
                 myTree.Add(key, value);
             }
@@ -157,9 +164,7 @@
         {
             Console.WriteLine($"BTree Table {tableName}, hasUniqueKey == {hasUniqueKey}:");
             foreach (var row in myTree)
-            {
-                Console.WriteLine($"    {string.Join(",", row.Key.Select(x => "[" + x + "]"))} ==> {string.Join(",", row.Value.Select(x => "[" + x + "]"))}");
-            }
+                Console.WriteLine($"    {row.Key} ==> {row.Value}");
         }
     }
 }

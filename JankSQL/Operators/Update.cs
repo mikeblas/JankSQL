@@ -8,7 +8,7 @@
         private readonly Engines.IEngineTable engineTable;
         private readonly List<Expression> predicateExpressions;
         private readonly List<ExpressionOperandBookmark> bookmarksToDelete = new ();
-        private readonly List<ExpressionOperand[]> rowsToInsert = new ();
+        private readonly List<Tuple> rowsToInsert = new ();
         private readonly List<SetOperation> setList;
 
         internal Update(Engines.IEngineTable targetTable, IComponentOutput input, List<Expression> predicateExpressions, List<SetOperation> setList)
@@ -59,7 +59,7 @@
                 bookmarksToDelete.Add(ExpressionOperandBookmark.FromInteger(bookmark));
 
                 // and build a replacement row
-                ExpressionOperand[] modified = new ExpressionOperand[batch.ColumnCount - 1];
+                Tuple modified = Tuple.CreateEmpty(batch.ColumnCount - 1);
                 List<FullColumnName> outputColumns = new ();
 
                 for (int col = 0, j = 0; j < batch.ColumnCount; j++)

@@ -2,12 +2,12 @@
 {
     public class ResultSet
     {
-        private readonly List<ExpressionOperand[]> rows;
+        private readonly List<Tuple> rows;
         private readonly List<FullColumnName> columnNames;
 
         internal ResultSet(List<FullColumnName> columnNames)
         {
-            rows = new List<ExpressionOperand[]>();
+            rows = new List<Tuple>();
             this.columnNames = columnNames;
         }
 
@@ -26,7 +26,7 @@
             return columnNames.IndexOf(name);
         }
 
-        public ExpressionOperand[] Row(int index)
+        public Tuple Row(int index)
         {
             return rows[index];
         }
@@ -36,7 +36,7 @@
             Console.WriteLine($"{string.Join(",", columnNames)}");
 
             foreach (var row in rows)
-                Console.WriteLine($"{string.Join(",", row.Select(x => x))}");
+                Console.WriteLine($"{row}");
         }
 
         internal static ResultSet NewWithShape(ResultSet other)
@@ -69,7 +69,7 @@
             return columnNames[index];
         }
 
-        internal void AddRow(ExpressionOperand[] row)
+        internal void AddRow(Tuple row)
         {
             if (rows.Count > 0)
             {
@@ -92,7 +92,7 @@
             AddRow(rs.Row(index));
         }
 
-        internal void Sort(IComparer<ExpressionOperand[]> ic)
+        internal void Sort(IComparer<Tuple> ic)
         {
             rows.Sort(ic);
         }

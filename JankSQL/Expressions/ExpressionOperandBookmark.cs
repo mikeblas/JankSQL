@@ -2,15 +2,15 @@
 {
     public class ExpressionOperandBookmark : ExpressionOperand
     {
-        private readonly ExpressionOperand[] tuple;
+        private readonly Tuple tuple;
 
-        internal ExpressionOperandBookmark(ExpressionOperand[] tuple)
+        internal ExpressionOperandBookmark(Tuple tuple)
             : base(ExpressionOperandType.NVARCHAR)
         {
             this.tuple = tuple;
         }
 
-        public ExpressionOperand[] Tuple => tuple;
+        public Tuple Tuple => tuple;
 
         public override object Clone()
         {
@@ -120,8 +120,7 @@
 
         internal static ExpressionOperandBookmark FromInteger(int mark)
         {
-            ExpressionOperand bmk = ExpressionOperand.IntegerFromInt(mark);
-            var ret = new ExpressionOperandBookmark(new ExpressionOperand[] { bmk });
+            var ret = new ExpressionOperandBookmark(Tuple.FromSingleValue(mark));
             return ret;
         }
     }

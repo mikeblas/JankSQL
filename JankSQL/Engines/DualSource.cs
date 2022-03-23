@@ -19,7 +19,7 @@
             throw new NotImplementedException();
         }
 
-        public void InsertRow(ExpressionOperand[] row)
+        public void InsertRow(Tuple row)
         {
             throw new NotImplementedException();
         }
@@ -33,8 +33,8 @@
         {
             List<RowWithBookmark> xl = new ();
 
-            ExpressionOperand[] x = Array.Empty<ExpressionOperand>();
-            ExpressionOperandBookmark bm = new ExpressionOperandBookmark(Array.Empty<ExpressionOperand>());
+            Tuple x = Tuple.CreateEmpty();
+            ExpressionOperandBookmark bm = new ExpressionOperandBookmark(Tuple.CreateEmpty());
 
             xl.Add(new RowWithBookmark(x, bm));
 

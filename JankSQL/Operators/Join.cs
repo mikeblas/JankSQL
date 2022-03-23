@@ -108,7 +108,7 @@
 
             while (leftIndex < leftRows!.RowCount && rightIndex < rightRows!.RowCount)
             {
-                ExpressionOperand[] totalRow = new ExpressionOperand[allColumnNames!.Count];
+                Tuple totalRow = Tuple.CreateEmpty(allColumnNames!.Count);
 
                 int outColumnCount = 0;
                 for (int i = 0; i < leftRows.ColumnCount; i++)

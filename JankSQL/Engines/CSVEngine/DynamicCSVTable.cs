@@ -12,7 +12,7 @@
         private readonly IEngine engine;
 
         // list of lines; each line is a list of values
-        private readonly List<ExpressionOperand[]> values;
+        private readonly List<Tuple> values;
         private readonly List<ExpressionOperandBookmark> bookmarks;
 
         // list of column names
@@ -24,7 +24,7 @@
         public DynamicCSVTable(string filename, string tableName, IEngine engine)
         {
             this.filename = filename;
-            this.values = new List<ExpressionOperand[]>();
+            this.values = new List<Tuple>();
             this.bookmarks = new List<ExpressionOperandBookmark>();
             this.tableName = tableName;
             this.engine = engine;
@@ -67,7 +67,7 @@
                 }
                 else
                 {
-                    ExpressionOperand[] newRow = new ExpressionOperand[fileFields.Length];
+                    Tuple newRow = Tuple.CreateEmpty(fileFields.Length);
 
                     for (int i = 0; i < fileFields.Length; i++)
                     {
@@ -95,8 +95,7 @@
                     }
 
                     values.Add(newRow);
-                    ExpressionOperand bmk = ExpressionOperand.IntegerFromInt(lineNumber);
-                    ExpressionOperandBookmark bm = new (new ExpressionOperand[] { bmk });
+                    ExpressionOperandBookmark bm = new (Tuple.FromSingleValue(lineNumber));
                     bookmarks.Add(bm);
                 }
 
@@ -151,7 +150,7 @@
             Load();
         }
 
-        public void InsertRow(ExpressionOperand[] row)
+        public void InsertRow(Tuple row)
         {
             if (row.Length != columnNames!.Length)
                 throw new ExecutionException($"table {tableName}: can't insert row with {row.Length} columns, need {columnNames.Length} columns");

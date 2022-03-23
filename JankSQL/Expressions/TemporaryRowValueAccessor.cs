@@ -7,9 +7,9 @@
     internal class TemporaryRowValueAccessor : IRowValueAccessor
     {
         private readonly List<FullColumnName> names;
-        private readonly ExpressionOperand[] rowData;
+        private readonly Tuple rowData;
 
-        internal TemporaryRowValueAccessor(ExpressionOperand[] rowData, List<FullColumnName> names)
+        internal TemporaryRowValueAccessor(Tuple rowData, List<FullColumnName> names)
         {
             this.names = names;
             this.rowData = rowData;

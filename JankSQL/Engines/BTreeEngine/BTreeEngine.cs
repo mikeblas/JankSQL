@@ -29,7 +29,7 @@
             BTreeTable table = new (tableName.TableName, columnTypes.ToArray(), columnNames);
 
             // add a row to sys_tables
-            ExpressionOperand[] tablesRow = new ExpressionOperand[]
+            Tuple tablesRow = new ()
             {
                 ExpressionOperand.NVARCHARFromString(tableName.TableName),
                 ExpressionOperand.NVARCHARFromString(string.Empty),
@@ -39,8 +39,8 @@
             // add rows for the sys_columns
             for (int i = 0; i < columnNames.Count; i++)
             {
-                ExpressionOperand[] columnRow = new ExpressionOperand[]
-                {
+                Tuple columnRow = new ()
+                { 
                     ExpressionOperand.NVARCHARFromString(tableName.TableName),
                     ExpressionOperand.NVARCHARFromString(columnNames[i].ColumnNameOnly()),
                     ExpressionOperand.NVARCHARFromString(columnTypes[i].ToString()), // type
@@ -61,8 +61,7 @@
             inMemoryTables.Remove(tableName.TableName);
 
             // delete from sys_tables
-            ExpressionOperand tableKey = ExpressionOperand.NVARCHARFromString(tableName.TableName);
-            ExpressionOperandBookmark tableBookmark = new ExpressionOperandBookmark(new ExpressionOperand[] { tableKey });
+            ExpressionOperandBookmark tableBookmark = new ExpressionOperandBookmark(Tuple.FromSingleValue(tableName.TableName, ExpressionOperandType.NVARCHAR));
             List<ExpressionOperandBookmark> tableMark = new () { tableBookmark };
             sysTables.DeleteRows(tableMark);
 
@@ -75,8 +74,8 @@
             {
                 if (row.RowData[tableIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    var k = new ExpressionOperand[] { row.RowData[tableIndex], row.RowData[columnIndex] };
-                    ExpressionOperandBookmark columnMark = new ExpressionOperandBookmark(k);
+                    var k = Tuple.FromOperands(row.RowData[tableIndex], row.RowData[columnIndex]);
+                    ExpressionOperandBookmark columnMark = new (k);
                     columnRows.Add(columnMark);
                 }
             }
@@ -136,10 +135,10 @@
             valueNames.Add(FullColumnName.FromColumnName("index"));
 
             BTreeTable table = new BTreeTable("sys_columns", keyTypes, keyNames, valueTypes, valueNames);
-            ExpressionOperand[] row;
+            Tuple row;
 
             // --- columns for sys_tables
-            row = new ExpressionOperand[]
+            row = new Tuple()
             {
                 ExpressionOperand.NVARCHARFromString("sys_tables"),
                 ExpressionOperand.NVARCHARFromString("table_name"),
@@ -148,7 +147,7 @@
             };
             table.InsertRow(row);
 
-            row = new ExpressionOperand[]
+            row = new Tuple()
             {
                 ExpressionOperand.NVARCHARFromString("sys_tables"),
                 ExpressionOperand.NVARCHARFromString("file_name"),
@@ -158,7 +157,7 @@
             table.InsertRow(row);
 
             // -- columns for sys_columns
-            row = new ExpressionOperand[]
+            row = new Tuple()
             {
                 ExpressionOperand.NVARCHARFromString("sys_columns"),
                 ExpressionOperand.NVARCHARFromString("table_name"),
@@ -167,7 +166,7 @@
             };
             table.InsertRow(row);
 
-            row = new ExpressionOperand[]
+            row = new Tuple()
             {
                 ExpressionOperand.NVARCHARFromString("sys_columns"),
                 ExpressionOperand.NVARCHARFromString("column_name"),
@@ -176,7 +175,7 @@
             };
             table.InsertRow(row);
 
-            row = new ExpressionOperand[]
+            row = new Tuple()
             {
                 ExpressionOperand.NVARCHARFromString("sys_columns"),
                 ExpressionOperand.NVARCHARFromString("column_type"),
@@ -185,7 +184,7 @@
             };
             table.InsertRow(row);
 
-            row = new ExpressionOperand[]
+            row = new Tuple()
             {
                 ExpressionOperand.NVARCHARFromString("sys_columns"),
                 ExpressionOperand.NVARCHARFromString("index"),
@@ -210,16 +209,16 @@
 
             BTreeTable table = new BTreeTable("sys_tables", keyTypes, keyNames, valueTypes, valueNames);
 
-            ExpressionOperand[] row;
+            Tuple row;
 
-            row = new ExpressionOperand[]
+            row = new Tuple()
             {
                 ExpressionOperand.NVARCHARFromString("sys_tables"),
                 ExpressionOperand.NVARCHARFromString(string.Empty),
             };
             table.InsertRow(row);
 
-            row = new ExpressionOperand[]
+            row = new Tuple()
             {
                 ExpressionOperand.NVARCHARFromString("sys_columns"),
                 ExpressionOperand.NVARCHARFromString(string.Empty),

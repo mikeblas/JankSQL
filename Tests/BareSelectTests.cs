@@ -2,6 +2,7 @@
 
 using JankSQL;
 using Engines = JankSQL.Engines;
+using Tuple = JankSQL.Tuple;
 
 namespace Tests
 {
@@ -348,7 +349,7 @@ namespace Tests
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
 
-            ExpressionOperand[] row = result.ResultSet.Row(0);
+            Tuple row = result.ResultSet.Row(0);
             int[] nums = { -200, 300, 5, 0 };
             for (int n = 0; n < result.ResultSet.ColumnCount; n++)
             {
@@ -370,7 +371,7 @@ namespace Tests
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
 
-            ExpressionOperand[] row = result.ResultSet.Row(0);
+            Tuple row = result.ResultSet.Row(0);
             double[] nums = { 200, 300.1, 5.182837, 0 };
             for (int n = 0; n < result.ResultSet.ColumnCount; n++)
             {

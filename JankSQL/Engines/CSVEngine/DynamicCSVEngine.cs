@@ -147,7 +147,7 @@
             file.Close();
 
             // add row to sys_tables
-            ExpressionOperand[] newRow = new ExpressionOperand[sysTables.ColumnCount];
+            Tuple newRow = Tuple.CreateEmpty(sysTables.ColumnCount);
             newRow[idxFile] = ExpressionOperand.NVARCHARFromString(fullPath);
             newRow[idxName] = ExpressionOperand.NVARCHARFromString(tableName.TableName);
 
@@ -163,7 +163,7 @@
 
             for (int i = 0; i < columnNames.Count; i++)
             {
-                ExpressionOperand[] columnRow = new ExpressionOperand[sysColumns.ColumnCount];
+                Tuple columnRow = Tuple.CreateEmpty(sysColumns.ColumnCount);
 
                 columnRow[idxIdx] = ExpressionOperand.IntegerFromInt(i);
                 columnRow[idxTableName] = ExpressionOperand.NVARCHARFromString(tableName.TableName);

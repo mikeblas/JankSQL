@@ -1,13 +1,13 @@
 ﻿/// <summary>
-/// This class implements IEqualityComparer for ExpressionOperand[] arrays so that
+/// This class implements IEqualityComparer for Tuples so that
 /// such arrayts can be used as keys in hashed containers, like Dictionary<> in
 /// the implementation of the Aggregation operator.
 /// </summary>
 namespace JankSQL
 {
-    internal class ExpressionOperandEqualityComparator : IEqualityComparer<ExpressionOperand[]>
+    internal class ExpressionOperandEqualityComparator : IEqualityComparer<Tuple>
     {
-        public bool Equals(ExpressionOperand[]? x, ExpressionOperand[]? y)
+        public bool Equals(Tuple? x, Tuple? y)
         {
             if (x == null)
                 throw new ArgumentNullException(nameof(x));
@@ -27,7 +27,7 @@ namespace JankSQL
             return true;
         }
 
-        public int GetHashCode(ExpressionOperand[] obj)
+        public int GetHashCode(Tuple obj)
         {
             int result = 17;
             for (int i = 0; i < obj.Length; i++)

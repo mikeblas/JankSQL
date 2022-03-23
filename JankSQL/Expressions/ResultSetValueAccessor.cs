@@ -22,7 +22,7 @@
             if (idx == -1)
                 throw new ExecutionException($"Invalid column name {fcn}; valid names are {string.Join(",", resultSet.GetColumnNames())}");
 
-            ExpressionOperand[] thisRow = resultSet.Row(rowIndex);
+            Tuple thisRow = resultSet.Row(rowIndex);
             ExpressionOperand val = thisRow[idx];
             return val;
         }
