@@ -45,12 +45,6 @@
             if (selectContext == null)
                 throw new InternalErrorException("Expected a SelectContext");
 
-            if (context.query_expression().query_specification().search_condition().Length > 0)
-            {
-                Expression x = GobbleSearchCondition(context.query_expression().query_specification().search_condition()[0]);
-                selectContext.PredicateContext = new PredicateContext(x);
-            }
-
             executionContext.ExecuteContexts.Add(selectContext);
         }
 
@@ -58,7 +52,15 @@
         {
             base.EnterSelect_statement(context);
 
-            selectContext = new SelectContext(context);
+            PredicateContext? pc = null;
+
+            if (context.query_expression().query_specification().search_condition().Length > 0)
+            {
+                Expression x = GobbleSearchCondition(context.query_expression().query_specification().search_condition()[0]);
+                pc = new PredicateContext(x);
+            }
+
+            selectContext = new SelectContext(context, pc);
         }
 
         public override void EnterSelect_list([NotNull] TSqlParser.Select_listContext context)
@@ -96,9 +98,7 @@
                 else if (elem.expression_elem() != null)
                 {
                     if (elem.expression_elem().as_column_alias() != null)
-                    {
                         fcn = FullColumnName.FromColumnName(elem.expression_elem().as_column_alias().GetText());
-                    }
 
                     x = GobbleExpression(elem.expression_elem().expression());
                 }
