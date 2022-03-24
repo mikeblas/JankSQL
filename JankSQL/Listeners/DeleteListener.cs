@@ -24,9 +24,7 @@
 
             Expression x = GobbleSearchCondition(context.search_condition());
 
-            PredicateContext pcon = new PredicateContext();
-            pcon.EndPredicateExpressionList(x);
-            deleteContext.PredicateContext = pcon;
+            deleteContext.PredicateContext = new PredicateContext(x);
         }
 
         public override void ExitDelete_statement([NotNull] TSqlParser.Delete_statementContext context)
