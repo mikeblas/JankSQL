@@ -50,6 +50,10 @@
             return new Enumerator(this);
         }
 
+        public override string ToString()
+        {
+            return string.Join(",", values.Select(x => "[" + x + "]"));
+        }
         internal static Tuple CreateEmpty(int count)
         {
             return new Tuple(count);
@@ -115,11 +119,6 @@
         IEnumerator IEnumerable.GetEnumerator()
         {
             return new Enumerator(this);
-        }
-
-        public override string ToString()
-        {
-            return string.Join(",", values.Select(x => "[" + x + "]"));
         }
 
         internal class Enumerator : IEnumerator<ExpressionOperand>, System.Collections.IEnumerator

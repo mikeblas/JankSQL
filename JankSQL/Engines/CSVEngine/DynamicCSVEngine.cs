@@ -188,6 +188,16 @@
             return sysColumns;
         }
 
+        public IEngineTable GetSysIndexes()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEngineTable GetSysIndexColumns()
+        {
+            throw new NotImplementedException();
+        }
+
         public void DropTable(FullTableName tableName)
         {
             // delete the file

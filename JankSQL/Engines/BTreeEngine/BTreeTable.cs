@@ -138,17 +138,7 @@
             }
             else
             {
-                /*
-                Tuple key = Tuple.CreateEmpty(keyColumnNames.Count);
-                Tuple value = Tuple.CreateEmpty(valueColumnNames.Count);
-
-                Array.Copy(row, 0, key, 0, keyColumnNames.Count);
-                Array.Copy(row, keyColumnNames.Count, value, 0, valueColumnNames.Count);
-
-                myTree.Add(key, value);
-                */
-
-                Tuple key   = Tuple.CreateFromRange(row, 0, keyColumnNames.Count);
+                Tuple key = Tuple.CreateFromRange(row, 0, keyColumnNames.Count);
                 Tuple value = Tuple.CreateFromRange(row, keyColumnNames.Count, valueColumnNames.Count);
 
                 myTree.Add(key, value);
@@ -163,6 +153,8 @@
         public void Dump()
         {
             Console.WriteLine($"BTree Table {tableName}, hasUniqueKey == {hasUniqueKey}:");
+            Console.WriteLine($" Keys  : {string.Join(",", keyColumnNames)}");
+            Console.WriteLine($" Values: {string.Join(",", valueColumnNames)}");
             foreach (var row in myTree)
                 Console.WriteLine($"    {row.Key} ==> {row.Value}");
         }

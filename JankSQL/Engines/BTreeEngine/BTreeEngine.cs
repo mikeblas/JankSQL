@@ -4,6 +4,8 @@
     {
         private readonly BTreeTable sysColumns;
         private readonly BTreeTable sysTables;
+        private readonly BTreeTable sysIndexes;
+        private readonly BTreeTable sysIndexColumns;
 
         private readonly Dictionary<string, BTreeTable> inMemoryTables = new (StringComparer.InvariantCultureIgnoreCase);
 
@@ -11,6 +13,11 @@
         {
             sysColumns = CreateSysColumns();
             sysTables = CreateSysTables();
+            sysIndexes = CreateSysIndexes();
+            sysIndexColumns = CreateSysIndexColumns();
+
+            sysIndexes.Dump();
+            sysIndexColumns.Dump();
         }
 
         public static BTreeEngine CreateInMemory()
@@ -40,7 +47,7 @@
             for (int i = 0; i < columnNames.Count; i++)
             {
                 Tuple columnRow = new ()
-                { 
+                {
                     ExpressionOperand.NVARCHARFromString(tableName.TableName),
                     ExpressionOperand.NVARCHARFromString(columnNames[i].ColumnNameOnly()),
                     ExpressionOperand.NVARCHARFromString(columnTypes[i].ToString()), // type
@@ -102,6 +109,16 @@
             return sysTables;
         }
 
+        public IEngineTable GetSysIndexes()
+        {
+            return sysIndexes;
+        }
+
+        public IEngineTable GetSysIndexColumns()
+        {
+            return sysIndexColumns;
+        }
+
         public void InjectTestTable(TestTable testTable)
         {
             // create the table ...
@@ -134,7 +151,7 @@
             valueNames.Add(FullColumnName.FromColumnName("column_type"));
             valueNames.Add(FullColumnName.FromColumnName("index"));
 
-            BTreeTable table = new BTreeTable("sys_columns", keyTypes, keyNames, valueTypes, valueNames);
+            BTreeTable table = new ("sys_columns", keyTypes, keyNames, valueTypes, valueNames);
             Tuple row;
 
             // --- columns for sys_tables
@@ -207,7 +224,7 @@
             keyNames.Add(FullColumnName.FromColumnName("table_name"));
             valueNames.Add(FullColumnName.FromColumnName("file_name"));
 
-            BTreeTable table = new BTreeTable("sys_tables", keyTypes, keyNames, valueTypes, valueNames);
+            BTreeTable table = new ("sys_tables", keyTypes, keyNames, valueTypes, valueNames);
 
             Tuple row;
 
@@ -228,6 +245,165 @@
             return table;
         }
 
+        private static BTreeTable CreateSysIndexes()
+        {
+            // key is: table_name, index_name
+            ExpressionOperandType[] keyTypes = new[] { ExpressionOperandType.NVARCHAR, ExpressionOperandType.NVARCHAR };
+
+            // values are: index_type
+            ExpressionOperandType[] valueTypes = new[] { ExpressionOperandType.NVARCHAR };
+
+            List<FullColumnName> keyNames = new ()
+            {
+                FullColumnName.FromColumnName("table_name"),
+                FullColumnName.FromColumnName("index_name"),
+            };
+            List<FullColumnName> valueNames = new ()
+            {
+                FullColumnName.FromColumnName("index_type"),
+            };
+
+            BTreeTable table = new ("sys_indexes", keyTypes, keyNames, valueTypes, valueNames);
+
+            Tuple row;
+
+            // --- for sys_tables
+            row = new Tuple()
+            {
+                ExpressionOperand.NVARCHARFromString("sys_tables"),
+                ExpressionOperand.NVARCHARFromString("sys_tables_pk"),
+                ExpressionOperand.NVARCHARFromString("U"),
+            };
+            table.InsertRow(row);
+
+            // --- for sys_columns
+            row = new Tuple()
+            {
+                ExpressionOperand.NVARCHARFromString("sys_columns"),
+                ExpressionOperand.NVARCHARFromString("sys_columns_pk"),
+                ExpressionOperand.NVARCHARFromString("U"),
+            };
+            table.InsertRow(row);
+
+            // --- for sys_indexes
+            row = new Tuple()
+            {
+                ExpressionOperand.NVARCHARFromString("sys_indexes"),
+                ExpressionOperand.NVARCHARFromString("sys_indexes_pk"),
+                ExpressionOperand.NVARCHARFromString("U"),
+            };
+            table.InsertRow(row);
+
+            // --- for sys_columns
+            row = new Tuple()
+            {
+                ExpressionOperand.NVARCHARFromString("sys_indexcolumns"),
+                ExpressionOperand.NVARCHARFromString("sys_indexcolumns_pk"),
+                ExpressionOperand.NVARCHARFromString("U"),
+            };
+            table.InsertRow(row);
+
+            return table;
+        }
+
+        private static BTreeTable CreateSysIndexColumns()
+        {
+            // key is: table_name, index_name, index
+            ExpressionOperandType[] keyTypes = new[] { ExpressionOperandType.NVARCHAR, ExpressionOperandType.NVARCHAR, ExpressionOperandType.INTEGER };
+
+            // values are: column_name
+            ExpressionOperandType[] valueTypes = new[] { ExpressionOperandType.NVARCHAR };
+
+            List<FullColumnName> keyNames = new ()
+            {
+                FullColumnName.FromColumnName("table_name"),
+                FullColumnName.FromColumnName("index_name"),
+                FullColumnName.FromColumnName("index"),
+            };
+            List<FullColumnName> valueNames = new ()
+            {
+                FullColumnName.FromColumnName("column_name"),
+            };
+
+            BTreeTable table = new ("sys_indexcolumns", keyTypes, keyNames, valueTypes, valueNames);
+
+            Tuple row;
+
+            // --- for sys_tables, the key is just the table name
+            row = new Tuple()
+            {
+                ExpressionOperand.NVARCHARFromString("sys_tables"),
+                ExpressionOperand.NVARCHARFromString("sys_tables_pk"),
+                ExpressionOperand.IntegerFromInt(1),
+                ExpressionOperand.NVARCHARFromString("table_name"),
+            };
+            table.InsertRow(row);
+
+            // --- for sys_columns, the key is (table_name, column_name)
+            row = new Tuple()
+            {
+                ExpressionOperand.NVARCHARFromString("sys_columns"),
+                ExpressionOperand.NVARCHARFromString("sys_columns_pk"),
+                ExpressionOperand.IntegerFromInt(1),
+                ExpressionOperand.NVARCHARFromString("table_name"),
+            };
+            table.InsertRow(row);
+            row = new Tuple()
+            {
+                ExpressionOperand.NVARCHARFromString("sys_columns"),
+                ExpressionOperand.NVARCHARFromString("sys_columns_pk"),
+                ExpressionOperand.IntegerFromInt(2),
+                ExpressionOperand.NVARCHARFromString("column_name"),
+            };
+            table.InsertRow(row);
+
+            // --- for sys_indexes, the key is the table name and the index name
+            row = new Tuple()
+            {
+                ExpressionOperand.NVARCHARFromString("sys_indexes"),
+                ExpressionOperand.NVARCHARFromString("sys_indexes_pk"),
+                ExpressionOperand.IntegerFromInt(1),
+                ExpressionOperand.NVARCHARFromString("table_name"),
+            };
+            table.InsertRow(row);
+            row = new Tuple()
+            {
+                ExpressionOperand.NVARCHARFromString("sys_indexes"),
+                ExpressionOperand.NVARCHARFromString("sys_indexes_pk"),
+                ExpressionOperand.IntegerFromInt(2),
+                ExpressionOperand.NVARCHARFromString("index_name"),
+            };
+            table.InsertRow(row);
+
+
+            // --- for sys_indexcolumns, the key is the tablename, index name, and index
+            row = new Tuple()
+            {
+                ExpressionOperand.NVARCHARFromString("sys_indexcolumns"),
+                ExpressionOperand.NVARCHARFromString("sys_indexcolumns_pk"),
+                ExpressionOperand.IntegerFromInt(1),
+                ExpressionOperand.NVARCHARFromString("table_name"),
+            };
+            table.InsertRow(row);
+            row = new Tuple()
+            {
+                ExpressionOperand.NVARCHARFromString("sys_indexcolumns"),
+                ExpressionOperand.NVARCHARFromString("sys_indexcolumns_pk"),
+                ExpressionOperand.IntegerFromInt(2),
+                ExpressionOperand.NVARCHARFromString("index_name"),
+            };
+            table.InsertRow(row);
+            row = new Tuple()
+            {
+                ExpressionOperand.NVARCHARFromString("sys_indexcolumns"),
+                ExpressionOperand.NVARCHARFromString("sys_indexcolumns_pk"),
+                ExpressionOperand.IntegerFromInt(3),
+                ExpressionOperand.NVARCHARFromString("index"),
+            };
+            table.InsertRow(row);
+
+            return table;
+        }
     }
 }
 
