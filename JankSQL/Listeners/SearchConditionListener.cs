@@ -1,22 +1,7 @@
 ﻿namespace JankSQL
 {
-    using Antlr4.Runtime.Misc;
-
     public partial class JankListener : TSqlParserBaseListener
     {
-        public override void EnterQuery_specification([NotNull] TSqlParser.Query_specificationContext context)
-        {
-            base.EnterQuery_specification(context);
-
-            if (context.search_condition().Length > 0)
-            {
-                Expression x = GobbleSearchCondition(context.search_condition()[0]);
-
-                predicateContext = new ();
-                predicateContext.EndPredicateExpressionList(x);
-            }
-        }
-
         internal Expression GobbleSearchCondition(TSqlParser.Search_conditionContext context)
         {
             Expression x = new ();

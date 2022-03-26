@@ -14,7 +14,6 @@
         private int depth = 0;
 
         private SelectContext? selectContext;
-        private PredicateContext? predicateContext;
 
         internal ExecutionContext ExecutionContext
         {
@@ -45,11 +44,6 @@
 
             if (selectContext == null)
                 throw new InternalErrorException("Expected a SelectContext");
-            if (predicateContext == null)
-                throw new InternalErrorException("Expected a PredicateContext");
-
-            selectContext.PredicateContext = predicateContext;
-            predicateContext = null;
 
             executionContext.ExecuteContexts.Add(selectContext);
         }
@@ -58,9 +52,15 @@
         {
             base.EnterSelect_statement(context);
 
-            selectContext = new SelectContext(context);
-            predicateContext = new PredicateContext();
+            PredicateContext? pc = null;
 
+            if (context.query_expression().query_specification().search_condition().Length > 0)
+            {
+                Expression x = GobbleSearchCondition(context.query_expression().query_specification().search_condition()[0]);
+                pc = new PredicateContext(x);
+            }
+
+            selectContext = new SelectContext(context, pc);
         }
 
         public override void EnterSelect_list([NotNull] TSqlParser.Select_listContext context)
@@ -98,9 +98,7 @@
                 else if (elem.expression_elem() != null)
                 {
                     if (elem.expression_elem().as_column_alias() != null)
-                    {
                         fcn = FullColumnName.FromColumnName(elem.expression_elem().as_column_alias().GetText());
-                    }
 
                     x = GobbleExpression(elem.expression_elem().expression());
                 }
@@ -277,8 +275,6 @@
 
             if (selectContext == null)
                 throw new InternalErrorException("Expected a SelectContext");
-            if (predicateContext == null)
-                throw new InternalErrorException("Expected a PredicateContext");
 
             // figure out which join type
             if (context.cross_join() != null)
@@ -295,8 +291,7 @@
             else if (context.join_on() != null)
             {
                 Expression x = GobbleSearchCondition(context.join_on().search_condition());
-                PredicateContext pcon = new ();
-                pcon.EndPredicateExpressionList(x);
+                PredicateContext pcon = new (x);
 
                 // ON join
                 FullTableName otherTableName = FullTableName.FromTableNameContext(context.join_on().table_source().table_source_item_joined().table_source_item().table_name_with_hint().table_name());

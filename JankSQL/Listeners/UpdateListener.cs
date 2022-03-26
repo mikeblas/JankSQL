@@ -14,10 +14,6 @@
             updateContext = new UpdateContext(context, FullTableName.FromFullTableNameContext(context.ddl_object().full_table_name()));
             Console.WriteLine($"UPDATE {updateContext.TableName}");
 
-            Expression pred = GobbleSearchCondition(context.search_condition());
-            predicateContext = new ();
-            predicateContext.EndPredicateExpressionList(pred);
-
             foreach (var element in context.update_elem())
             {
                 FullColumnName fcn = FullColumnName.FromContext(element.full_column_name());
@@ -50,11 +46,10 @@
 
             if (updateContext == null)
                 throw new InternalErrorException("Expected an UpdateContext");
-            if (predicateContext == null)
-                throw new InternalErrorException("Expected a PredicateContext");
 
-            updateContext.PredicateContext = predicateContext;
-            predicateContext = null;
+            Expression pred = GobbleSearchCondition(context.search_condition());
+
+            updateContext.PredicateContext = new (pred);
 
             executionContext.ExecuteContexts.Add(updateContext);
             updateContext = null;
