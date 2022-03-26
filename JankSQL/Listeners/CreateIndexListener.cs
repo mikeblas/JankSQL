@@ -2,6 +2,7 @@
 {
     using Antlr4.Runtime.Misc;
     using Antlr4.Runtime.Tree;
+    using JankSQL.Contexts;
 
     public partial class JankListener : TSqlParserBaseListener
     {
@@ -13,17 +14,9 @@
             string indexName = context.id_(0).GetText();
             var tableName = FullTableName.FromTableNameContext(context.table_name());
 
+            CreateIndexContext cic = new (tableName, indexName, isUnique);
+
             Console.WriteLine($"create {isUnique} index named {indexName} on {tableName}");
-
-            /*
-            for (int i = 0; i < context.column_name_list_with_order().id_().Length; i++)
-            {
-                bool isDescending = context.column_name_list_with_order().DESC()[i] != null;
-                string columnName = context.column_name_list_with_order().id_(i).ID().GetText();
-
-                Console.WriteLine($"{columnName} {isDescending}");
-            }
-            */
 
             bool isDescending = false;
             string? columnName = null;
@@ -35,6 +28,8 @@
                     if (n.ToString() == ",")
                     {
                         Console.WriteLine($"Got comma! {isDescending}, {columnName}");
+
+                        cic.AddColumn(columnName, isDescending);
                         isDescending = false;
                         columnName = null;
                     }
@@ -55,7 +50,14 @@
                     columnName = idContext.ID().ToString();
                 }
             }
-            Console.WriteLine($"Finally! {isDescending}, {columnName}");
+
+            if (columnName != null)
+            {
+                Console.WriteLine($"Finally! {(isDescending ? "DESC" : "ASC")}, {columnName}");
+                cic.AddColumn(columnName, isDescending);
+            }
+
+            executionContext.ExecuteContexts.Add(cic);
         }
     }
 }

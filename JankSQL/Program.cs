@@ -66,7 +66,7 @@ namespace JankSQL
             str = "SELECT * FROM [mytable] WHERE [population] > POWER(2500, 2);";
 
             // -- these need tests --
-            // str = "DROP TABLE mytable";
+            // str = "DROP TABLE emytable";
             // str = "CREATE TABLE [Schema].[NewTable] (keycolumn INTEGER, city_name VARCHAR(30), state_code VARCHAR, population DECIMAL);";
             // str = "DELETE FROM Mytable WHERE keycolumn = 2; SELECT * FROM MyTable;";
             // -- those need tests --
@@ -90,7 +90,11 @@ namespace JankSQL
             // str = "SELECT number_name FROM ten ORDER BY number_name";
             // str = "SELECT number_name FROM ten ORDER BY number_name DESC";
 
-            str = "CREATE INDEX MyIndex ON MyTable (number_id ASC, something, something_Else DESC)";
+            // -- needs tests
+            // str = "CREATE INDEX MyIndex ON MyTable (number_id ASC, something, something_Else DESC)";
+            str = "CREATE UNIQUE INDEX TenUnique ON ten (number_id ASC)";
+
+            str = "CREATE INDEX TenNotUnique ON ten (is_even ASC)";
 
 
             // Engines.DynamicCSVEngine engine = Engines.DynamicCSVEngine.OpenAlways("F:\\JankTests\\Test33");
@@ -107,12 +111,12 @@ namespace JankSQL
                 .WithColumnTypes(new ExpressionOperandType[] { ExpressionOperandType.INTEGER, ExpressionOperandType.VARCHAR, ExpressionOperandType.INTEGER })
                 .WithRow(new object[] { 1, "one",   0 })
                 .WithRow(new object[] { 2, "two",   1 })
-                .WithRow(new object[] { 3, "three", 0 })
                 .WithRow(new object[] { 4, "four",  1 })
-                .WithRow(new object[] { 5, "five",  0 })
-                .WithRow(new object[] { 6, "six",   1 })
                 .WithRow(new object[] { 7, "seven", 0 })
                 .WithRow(new object[] { 8, "eight", 1 })
+                .WithRow(new object[] { 3, "three", 0 })
+                .WithRow(new object[] { 5, "five",  0 })
+                .WithRow(new object[] { 6, "six",   1 })
                 .WithRow(new object[] { 9, "nine",  0 })
                 .WithRow(new object[] { 0, "zero",  1 })
                 .Build();

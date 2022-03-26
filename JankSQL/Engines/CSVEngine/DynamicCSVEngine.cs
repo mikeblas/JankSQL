@@ -174,6 +174,11 @@
             }
         }
 
+        public void CreateIndex(FullTableName tableName, string indexName, bool isUnique, List<(string columnName, bool isDescending)> columnInfos)
+        {
+            throw new NotImplementedException();
+        }
+
         public IEngineTable GetSysTables()
         {
             DynamicCSVTable sysTables = new DynamicCSVTable(sysTablesPath, "sys_tables", this);

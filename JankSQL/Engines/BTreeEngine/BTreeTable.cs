@@ -2,6 +2,27 @@
 {
     using CSharpTest.Net.Collections;
 
+    internal class IndexDefinition
+    {
+        private readonly string indexName;
+        private readonly bool isUnique;
+        private readonly List<(string columnName, bool isDescending)> columnInfos;
+        private int nextUniquifer = 1;
+
+        internal IndexDefinition(string indexName, bool isUnique, List<(string columnName, bool isDescending)> columnInfos)
+        {
+            this.indexName = indexName;
+            this.isUnique = isUnique;
+            this.columnInfos = columnInfos;
+        }
+
+        internal int GetNextUniquifier()
+        {
+            return nextUniquifer++;
+        }
+    }
+
+
     internal class BTreeTable : IEngineTable
     {
         private readonly List<FullColumnName> keyColumnNames;
@@ -14,6 +35,9 @@
         private readonly ExpressionOperandType[] valueTypes;
 
         private readonly BPlusTree<Tuple, Tuple> myTree;
+
+        private readonly Dictionary<string, IndexDefinition> indexDefinitions = new ();
+        private readonly Dictionary<string, BPlusTree<Tuple, Tuple>> indexes = new ();
 
         private int nextBookmark = 1;
 
@@ -46,6 +70,15 @@
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BTreeTable"/> class as a heap.
+        /// Creates a "heap" table with no unique index. Our approach to this is a table that has a fake
+        /// "uniquifier" key as its bookmar_key. That single-column bookmark key maps to the values,
+        /// which are all the columns given.
+        /// </summary>
+        /// <param name="tableName">string with the name of our table.</param>
+        /// <param name="valueTypes">array containing the value types for each of our columns.</param>
+        /// <param name="valueNames">array containing the names of each of the values in our columns.</param>
         internal BTreeTable(string tableName, ExpressionOperandType[] valueTypes, List<FullColumnName> valueNames)
         {
             myTree = new BPlusTree<Tuple, Tuple>(new IExpressionOperandComparer());
@@ -108,15 +141,14 @@
         public int DeleteRows(List<ExpressionOperandBookmark> bookmarksToDelete)
         {
             if (bookmarksToDelete[0].Tuple.Length != keyColumnNames.Count)
-            {
                 throw new ArgumentException($"bookmark key should be {keyColumnNames.Count} columns, received {bookmarksToDelete[0].Tuple.Length} columns");
-            }
 
             int deletedCount = 0;
             foreach (var bookmark in bookmarksToDelete)
             {
                 bool found = myTree.Remove(bookmark.Tuple);
-                if (found) deletedCount++;
+                if (found)
+                    deletedCount++;
             }
 
             return deletedCount;
@@ -131,7 +163,8 @@
         {
             if (keyColumnNames[0].ColumnNameOnly().Equals("bookmark_key"))
             {
-                Tuple key = Tuple.CreateEmpty(1); ;
+                // this is a heap with absolutely no index
+                Tuple key = Tuple.CreateEmpty(1);
                 key[0] = ExpressionOperand.IntegerFromInt(nextBookmark++);
 
                 myTree.Add(key, row);
@@ -152,11 +185,90 @@
 
         public void Dump()
         {
-            Console.WriteLine($"BTree Table {tableName}, hasUniqueKey == {hasUniqueKey}:");
+            Console.WriteLine("===========");
+            Console.WriteLine($"BTree Table {tableName}, hasUniqueKey == {hasUniqueKey}");
             Console.WriteLine($" Keys  : {string.Join(",", keyColumnNames)}");
             Console.WriteLine($" Values: {string.Join(",", valueColumnNames)}");
             foreach (var row in myTree)
                 Console.WriteLine($"    {row.Key} ==> {row.Value}");
+
+            foreach (var kv in indexDefinitions)
+            {
+                Console.WriteLine($" BTree Table {tableName}, index named {kv.Key}");
+
+                BPlusTree<Tuple, Tuple>? indexTree = indexes[kv.Key];
+
+                foreach (var row in indexTree)
+                    Console.WriteLine($"     {row.Key} ==> {row.Value}");
+            }
+        }
+
+        /// <summary>
+        /// Adds a new index to this table.
+        /// </summary>
+        /// <param name="indexName">string with a name for the new index.</param>
+        /// <param name="isUnique">boolean that's true if this new index is meant to be unique.</param>
+        /// <param name="columnInfos">descriptions of the columns involved in this index</param>
+        /// <exception cref="ExecutionException">Thrown if an error is encountered when building the index.</exception>
+        internal void AddIndex(string indexName, bool isUnique, List<(string columnName, bool isDescending)> columnInfos)
+        {
+            if (indexDefinitions.ContainsKey(indexName))
+                throw new ExecutionException($"Index definition {indexName} already exists");
+
+            var indexTree = new BPlusTree<Tuple, Tuple>(new IExpressionOperandComparer());
+
+            // enumerate and add
+            using var e = myTree.GetEnumerator();
+            IndexDefinition def = new (indexName, isUnique, columnInfos);
+
+            while (e.MoveNext())
+            {
+                var row = e.Current;
+
+                if (isUnique)
+                {
+                    // for a unique index, the key is directly as supplied by the caller
+                    Tuple indexKey = Tuple.CreateEmpty(columnInfos.Count);
+
+                    for (int i = 0; i < columnInfos.Count; i++)
+                    {
+                        int idx = ColumnIndex(columnInfos[i].columnName);
+                        indexKey.Values[i] = row.Value[idx];
+                    }
+
+                    // the values are the key of the main index
+                    Tuple indexValue = Tuple.CreateEmpty(keyTypes.Length);
+                    for (int i = 0; i < keyTypes.Length; i++)
+                        indexValue.Values[i] = row.Key[i];
+
+                    indexTree.Add(indexKey, indexValue);
+                }
+                else
+                {
+                    // for a non-unique index, the key is as given plus a uniquifier integer
+                    Tuple indexKey = Tuple.CreateEmpty(columnInfos.Count + 1);
+                    for (int i = 0; i < columnInfos.Count; i++)
+                    {
+                        int idx = ColumnIndex(columnInfos[i].columnName);
+                        indexKey.Values[i] = row.Value[idx];
+                    }
+
+                    indexKey[columnInfos.Count] = ExpressionOperand.IntegerFromInt(def.GetNextUniquifier());
+
+                    // the value is the key from the main index
+                    Tuple indexValue = Tuple.CreateEmpty(keyTypes.Length);
+                    for (int i = 0; i < keyTypes.Length; i++)
+                        indexValue.Values[i] = row.Key[i];
+
+                    indexTree.Add(indexKey, indexValue);
+                }
+            }
+
+            // add the new index definition and its corresponding tree
+            indexDefinitions.Add(indexName, def);
+            indexes.Add(indexName, indexTree);
+
+            Dump();
         }
     }
 }

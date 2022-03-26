@@ -26,6 +26,16 @@
         /// <param name="columnTypes">Data type of each column, correlate to the columnNames parameter.</param>
         public void CreateTable(FullTableName tableName, List<FullColumnName> columnNames, List<ExpressionOperandType> columnTypes);
 
+
+        /// <summary>
+        /// Creates an index on the given table.
+        /// </summary>
+        /// <param name="tableName">table name upon which the index will be created</param>
+        /// <param name="indexName">string with a name of this index.</param>
+        /// <param name="isUnique">true if this index is meant to be unique, false otherwise.</param>
+        /// <param name="columnInfos">list of column infos for this index</param>
+        public void CreateIndex(FullTableName tableName, string indexName, bool isUnique, List<(string columnName, bool isDescending)> columnInfos);
+
         /// <summary>
         /// Gets an object that implements IEngineTable to talk to a table. The talbe is identified by name.
         /// The returned interface can be used for operations on the individual table.
