@@ -47,7 +47,7 @@
             else
             {
                 // found the source table, so load it
-                TableSource source = new (tableSource);
+                TableSource source = new (tableSource, tableName);
                 Delete delete = new Delete(tableSource, source, PredicateContext.PredicateExpressions);
 
                 while (true)

@@ -20,7 +20,10 @@
         {
             int idx = resultSet.ColumnIndex(fcn);
             if (idx == -1)
-                throw new ExecutionException($"Invalid column name {fcn}; valid names are {string.Join(",", resultSet.GetColumnNames())}");
+            {
+                throw new ExecutionException(
+                    $"Invalid column name {fcn}; valid names are {string.Join(",", resultSet.GetColumnNameList().GetColumnNames().Select(x => x))}");
+            }
 
             Tuple thisRow = resultSet.Row(rowIndex);
             ExpressionOperand val = thisRow[idx];

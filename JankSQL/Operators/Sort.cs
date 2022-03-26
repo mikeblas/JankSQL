@@ -38,7 +38,7 @@
 
             //TODO: honor max
             // we've completely built totalResults, so sort it
-            var evaluatingComparer = new EvaluatingComparer(sortExpressions, isAscending, totalResults.GetColumnNames());
+            var evaluatingComparer = new EvaluatingComparer(sortExpressions, isAscending, totalResults.GetColumnNameList());
             totalResults.Sort(evaluatingComparer);
             Console.WriteLine($"Sorted! {evaluatingComparer.KeyComparisons} key comparisons, {evaluatingComparer.RowComparisons} row comparisons");
 

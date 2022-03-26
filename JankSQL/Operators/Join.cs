@@ -14,7 +14,7 @@
         private int leftIndex = -1;
         private int rightIndex = -1;
 
-        private List<FullColumnName>? allColumnNames = null;
+        private ColumnNameList? allColumnNames = null;
 
         private ResultSet? leftRows = null;
         private ResultSet? rightRows = null;
@@ -64,13 +64,15 @@
         }
 
 
-        protected List<FullColumnName> GetAllColumnNames()
+        protected ColumnNameList GetAllColumnNames()
         {
+            if (leftRows == null || rightRows == null)
+                throw new InternalErrorException("Expected right and left inputs to be ready");
+
             if (allColumnNames == null)
             {
-                allColumnNames = new List<FullColumnName>();
-                allColumnNames.AddRange(leftRows!.GetColumnNames());
-                allColumnNames.AddRange(rightRows!.GetColumnNames());
+                allColumnNames = new ColumnNameList(leftRows.GetColumnNameList());
+                allColumnNames.Append(rightRows.GetColumnNameList());
             }
 
             return allColumnNames;

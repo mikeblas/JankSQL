@@ -6,10 +6,10 @@
     /// </summary>
     internal class TemporaryRowValueAccessor : IRowValueAccessor
     {
-        private readonly List<FullColumnName> names;
+        private readonly ColumnNameList names;
         private readonly Tuple rowData;
 
-        internal TemporaryRowValueAccessor(Tuple rowData, List<FullColumnName> names)
+        internal TemporaryRowValueAccessor(Tuple rowData, ColumnNameList names)
         {
             this.names = names;
             this.rowData = rowData;
@@ -17,28 +17,20 @@
 
         ExpressionOperand IRowValueAccessor.GetValue(FullColumnName fcn)
         {
-            for (int i = 0; i < names.Count; i++)
-            {
-                if (names[i].Equals(fcn))
-                    return rowData[i];
-            }
+            int index = names.GetColumnIndex(fcn);
+            if (index == -1)
+                throw new ExecutionException($"column {fcn} not found in TemporaryRowValueAccessor");
 
-            throw new ExecutionException($"column {fcn} not found in TemporaryRowValueAccessor");
+            return rowData[index];
         }
 
         void IRowValueAccessor.SetValue(FullColumnName fcn, ExpressionOperand op)
         {
-            for (int i = 0; i < names.Count; i++)
-            {
-                if (names[i].Equals(fcn))
-                {
-                    rowData[i] = op;
-                    return;
-                }
-            }
+            int index = names.GetColumnIndex(fcn);
+            if (index == -1)
+                throw new ExecutionException($"column {fcn} not found in TemporaryRowValueAccessor");
 
-            throw new ExecutionException($"column {fcn} not found in TemporaryRowValueAccessor");
+            rowData[index] = op;
         }
-
     }
 }

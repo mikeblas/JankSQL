@@ -73,7 +73,7 @@
 
                 foreach (var set in setList)
                 {
-                    set.Execute(new TemporaryRowValueAccessor(modified, batch.GetColumnNames()), new ResultSetValueAccessor(batch, i));
+                    set.Execute(new TemporaryRowValueAccessor(modified, batch.GetColumnNameList()), new ResultSetValueAccessor(batch, i));
                 }
 
                 rowsToInsert.Add(modified);

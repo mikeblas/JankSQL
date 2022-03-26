@@ -109,7 +109,7 @@
             else
             {
                 // found the source table, so build ourselves up
-                TableSource source = new TableSource(engineSource);
+                TableSource source = new TableSource(engineSource, tableName);
                 Update update = new Update(engineSource, source, PredicateContext.PredicateExpressions, setList);
 
                 while (true)

@@ -57,7 +57,7 @@
             if (querySpecs.table_sources() == null)
             {
                 // no source table!
-                tableSource = new TableSource(new Engines.DualSource());
+                tableSource = new TableSource(new Engines.DualSource(), FullTableName.FromTableName("DualSource"));
                 lastLeftOutput = tableSource;
             }
             else
@@ -71,7 +71,7 @@
                 else
                 {
                     // found the source table, so hook it up
-                    tableSource = new TableSource(engineSource);
+                    tableSource = new TableSource(engineSource, sourceTableName);
                     lastLeftOutput = tableSource;
 
                     // any joins?
@@ -83,7 +83,7 @@
                             throw new ExecutionException($"Joined table {j.OtherTableName} does not exist");
 
                         // build a join operator with it
-                        TableSource joinSource = new TableSource(otherTableSource);
+                        TableSource joinSource = new TableSource(otherTableSource, j.OtherTableName);
                         Join oper = new Join(j.JoinType, lastLeftOutput, joinSource, j.PredicateExpressions);
 
                         lastLeftOutput = oper;

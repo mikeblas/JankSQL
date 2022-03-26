@@ -6,10 +6,12 @@
 
         private readonly IEnumerator<Engines.RowWithBookmark> rowEnumerator;
         private bool enumeratorExhausted;
+        private FullTableName tableName;
 
-        internal TableSource(Engines.IEngineTable source)
+        internal TableSource(Engines.IEngineTable source, FullTableName tableName)
         {
             this.source = source;
+            this.tableName = tableName;
             rowEnumerator = this.source.GetEnumerator();
             enumeratorExhausted = false;
         }
@@ -26,7 +28,7 @@
             List<FullColumnName> columnNames = new ();
             for (int n = 0; n < source.ColumnCount; n++)
                 columnNames.Add(source.ColumnName(n));
-            columnNames.Add(FullColumnName.FromColumnName("bookmark_key"));
+            columnNames.Add(FullColumnName.FromTableColumnName(tableName.TableName, "bookmark_key"));
 
             ResultSet rs = new (columnNames);
 

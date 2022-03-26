@@ -4,12 +4,12 @@
     {
         private readonly Expression[] keyExpressions;
         private readonly bool[] isAscending;
-        private readonly List<FullColumnName> columnNames;
+        private readonly ColumnNameList columnNames;
 
         private int keyComparisons = 0;
         private int rowComparisons = 0;
 
-        internal EvaluatingComparer(Expression[] keyExpressions, bool[] isAscending, List<FullColumnName> columnNames)
+        internal EvaluatingComparer(Expression[] keyExpressions, bool[] isAscending, ColumnNameList columnNames)
         {
             this.keyExpressions = keyExpressions;
             this.isAscending = isAscending;

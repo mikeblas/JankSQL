@@ -1,6 +1,6 @@
 ﻿namespace JankSQL
 {
-    public class FullColumnName
+    public class FullColumnName : IComparable, IComparable<FullColumnName>
     {
         private readonly string columnName;
 
@@ -107,6 +107,68 @@
                 return objectName;
 
             return objectName[1..^1];
+        }
+
+        public int CompareTo(object? obj)
+        {
+            if (obj == null)
+                throw new ArgumentNullException(nameof(obj));
+
+            FullColumnName other = obj as FullColumnName;
+            if (other == null)
+                throw new ArgumentException("Can't compare to other type");
+
+            if (this == other)
+                return 0;
+
+            return CompareTo(other);
+        }
+
+        public int CompareTo(FullColumnName? other)
+        {
+            if (other == null)
+                throw new ArgumentNullException(nameof(other));
+
+            if (this == other)
+                return 0;
+
+            int r;
+            if (other.serverName != null)
+            {
+                r = string.Compare(other.serverName, this.serverName, StringComparison.InvariantCultureIgnoreCase);
+                if (r != 0)
+                    return r;
+            }
+
+            if (other.schemaName != null)
+            {
+                r = string.Compare(other.schemaName, this.schemaName, StringComparison.InvariantCultureIgnoreCase);
+                if (r != 0)
+                    return r;
+            }
+
+            if (other.tableName != null)
+            {
+                r = string.Compare(other.tableName, this.tableName, StringComparison.InvariantCultureIgnoreCase);
+                if (r != 0)
+                    return r;
+            }
+
+            r = string.Compare(other.columnName, this.columnName, StringComparison.InvariantCultureIgnoreCase);
+            return r;
+        }
+
+        protected int SafeStringCompare(string? left, string? right)
+        {
+            if (left == null && right == null)
+                return 0;
+
+            if (left == null)
+                return 1;
+            if (right == null)
+                return -1;
+
+            return string.Compare(left, right, StringComparison.InvariantCultureIgnoreCase);
         }
     }
 }
