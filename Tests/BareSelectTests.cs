@@ -1,11 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using JankSQL;
-using Engines = JankSQL.Engines;
-using Tuple = JankSQL.Tuple;
-
-namespace Tests
+﻿namespace Tests
 {
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+    using JankSQL;
+    using Engines = JankSQL.Engines;
+    using Tuple = JankSQL.Tuple;
+
     public class BareSelectTests
     {
         internal string mode = "base";

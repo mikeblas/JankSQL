@@ -296,6 +296,11 @@
 
             return ret;
         }
+
+        public IndexAccessor Index(string indexName)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 

@@ -7,6 +7,8 @@
     <IsPackable>false</IsPackable>
 
     <ImplicitUsings>enable</ImplicitUsings>
+
+    <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
   </PropertyGroup>
 
   <ItemGroup>

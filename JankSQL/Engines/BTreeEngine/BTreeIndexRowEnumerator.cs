@@ -3,30 +3,25 @@
     using System.Collections;
     using CSharpTest.Net.Collections;
 
-    internal class BTreeRowEnumerator : IEnumerator<RowWithBookmark>
+    internal class BTreeIndexRowEnumerator : IEnumerator<RowWithBookmark>
     {
         private readonly IEnumerator<KeyValuePair<Tuple, Tuple>> treeEnumerator;
+        private readonly IndexDefinition def;
 
-        internal BTreeRowEnumerator(BPlusTree<Tuple, Tuple> tree)
+        internal BTreeIndexRowEnumerator(BPlusTree<Tuple, Tuple> tree, IndexDefinition indexDefinition)
         {
             treeEnumerator = tree.GetEnumerator();
+            def = indexDefinition;
         }
 
         public RowWithBookmark Current
         {
             get
             {
-                Tuple rowResult = Tuple.CreateEmpty(treeEnumerator.Current.Value.Length + treeEnumerator.Current.Key.Length);
+                ExpressionOperandBookmark bookmarkResult = new (treeEnumerator.Current.Value);
 
-                int n = 0;
-                for (int i = 0; i < treeEnumerator.Current.Value.Length; i++)
-                    rowResult[n++] = treeEnumerator.Current.Value[i];
-                for (int i = 0; i < treeEnumerator.Current.Key.Length; i++)
-                    rowResult[n++] = treeEnumerator.Current.Key[i];
-
-                ExpressionOperandBookmark bookmarkResult = new (treeEnumerator.Current.Key);
-
-                return new RowWithBookmark(rowResult, bookmarkResult);
+                Tuple keyCopy = Tuple.CreatePartialCopy(treeEnumerator.Current.Key.Count - 1, treeEnumerator.Current.Key);
+                return new RowWithBookmark(keyCopy, bookmarkResult);
             }
         }
 

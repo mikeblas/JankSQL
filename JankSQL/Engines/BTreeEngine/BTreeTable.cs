@@ -1,74 +1,9 @@
 ﻿namespace JankSQL.Engines
 {
+    using System.Collections;
     using CSharpTest.Net.Collections;
 
-    internal class IndexDefinition
-    {
-        private readonly string indexName;
-        private readonly bool isUnique;
-        private readonly List<(string columnName, bool isDescending, int heapColumnIndex)> columnInfos;
-        private int nextUniquifer = 1;
-
-        internal IndexDefinition(string indexName, bool isUnique, List<(string columnName, bool isDescending)> columnInfos, IEngineTable heap)
-        {
-            this.indexName = indexName;
-            this.isUnique = isUnique;
-
-            this.columnInfos = new List<(string columnName, bool isDescending, int heapColumnIndex)>();
-            foreach (var columnInfo in columnInfos)
-            {
-                int idx = heap.ColumnIndex(columnInfo.columnName);
-                this.columnInfos.Add((columnInfo.columnName, columnInfo.isDescending, idx));
-            }
-        }
-
-        internal List<(string columnName, bool isDescending, int heapColumnIndex)> ColumnInfos
-        {
-            get { return columnInfos; }
-        }
-
-        internal bool IsUnique
-        {
-            get { return isUnique; }
-        }
-
-        internal string IndexName
-        {
-            get { return indexName; }
-        }
-
-        internal int AdvanceNextUniquifier()
-        {
-            return nextUniquifer++;
-        }
-
-        internal Tuple IndexKeyFromHeapRow(Tuple heapRow, BTreeTable heap)
-        {
-            Tuple indexKey;
-            if (IsUnique)
-            {
-                indexKey = Tuple.CreateEmpty(ColumnInfos.Count);
-
-                for (int i = 0; i < ColumnInfos.Count; i++)
-                    indexKey.Values[i] = heapRow[ColumnInfos[i].heapColumnIndex];
-            }
-            else
-            {
-                // for a non-unique index, the key is as given plus a uniquifier integer
-                indexKey = Tuple.CreateEmpty(ColumnInfos.Count + 1);
-                for (int i = 0; i < ColumnInfos.Count; i++)
-                    indexKey.Values[i] = heapRow[ColumnInfos[i].heapColumnIndex];
-
-                indexKey[ColumnInfos.Count] = ExpressionOperand.IntegerFromInt(AdvanceNextUniquifier());
-            }
-
-            return indexKey;
-        }
-
-    }
-
-
-    internal class BTreeTable : IEngineTable
+    internal class BTreeTable : IEngineTable, IEnumerable, IEnumerable<RowWithBookmark>
     {
         private readonly List<FullColumnName> keyColumnNames;
         private readonly List<FullColumnName> valueColumnNames;
@@ -83,7 +18,7 @@
 
         private readonly Dictionary<string, (IndexDefinition def, BPlusTree<Tuple, Tuple> index)> indexes = new ();
 
-        private int nextBookmark = 1;
+        private int nextBookmark = 1337;
 
         internal BTreeTable(string tableName, ExpressionOperandType[] keyTypes, List<FullColumnName> keyNames, ExpressionOperandType[] valueTypes, List<FullColumnName> valueNames)
         {
@@ -182,6 +117,14 @@
             return keyColumnNames[m];
         }
 
+        public IndexAccessor? Index(string indexName)
+        {
+            if (!indexes.TryGetValue(indexName, out (IndexDefinition def, BPlusTree<Tuple, Tuple> index) o))
+                return null;
+
+            return new IndexAccessor(o.def, o.index);
+        }
+
         public int DeleteRows(List<ExpressionOperandBookmark> bookmarksToDelete)
         {
             if (bookmarksToDelete[0].Tuple.Length != keyColumnNames.Count)
@@ -213,7 +156,20 @@
 
         public IEnumerator<RowWithBookmark> GetEnumerator()
         {
-            return new BTreeRowEnumerator(myTree);
+            return new BTreeHeapRowEnumerator(myTree);
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _GetEnumerator();
+        }
+
+        public IEnumerator<RowWithBookmark> GetIndexEnumerator(string indexName)
+        {
+            if (!indexes.TryGetValue(indexName, out (IndexDefinition def, BPlusTree<Tuple, Tuple> index) o))
+                throw new ArgumentException($"No index named {indexName} exists");
+
+            return new BTreeIndexRowEnumerator(o.index, o.def);
         }
 
         public void InsertRow(Tuple row)
@@ -306,6 +262,11 @@
             indexes.Add(indexName, (def, indexTree));
 
             Dump();
+        }
+
+        private IEnumerator _GetEnumerator()
+        {
+            return this.GetEnumerator();
         }
     }
 }

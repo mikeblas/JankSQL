@@ -40,6 +40,11 @@
 
             return xl.GetEnumerator();
         }
+
+        public IndexAccessor Index(string indexName)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 

@@ -1,10 +1,8 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using Engines = JankSQL.Engines;
-
-
-namespace Tests
+﻿namespace Tests
 {
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Engines = JankSQL.Engines;
+
     [TestClass]
     public class DDLBTreeTests : DDLTests
     {

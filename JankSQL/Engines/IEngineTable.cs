@@ -23,5 +23,7 @@
         void InsertRow(Tuple row);
 
         int DeleteRows(List<ExpressionOperandBookmark> bookmarksToDelete);
+
+        IndexAccessor Index(string indexName);
     }
 }

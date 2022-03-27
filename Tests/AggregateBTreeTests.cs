@@ -1,12 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using Engines = JankSQL.Engines;
-
-
-namespace Tests
+﻿namespace Tests
 {
-    [TestClass]
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Engines = JankSQL.Engines;
 
+    [TestClass]
     public class AggregateBTreeTests : AggregateTests
     {
         [TestInitialize]

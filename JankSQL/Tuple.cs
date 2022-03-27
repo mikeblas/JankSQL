@@ -54,6 +54,7 @@
         {
             return string.Join(",", values.Select(x => "[" + x + "]"));
         }
+
         internal static Tuple CreateEmpty(int count)
         {
             return new Tuple(count);
@@ -74,7 +75,7 @@
         internal static Tuple CreatePartialCopy(int count, Tuple source)
         {
             var r = new Tuple(count);
-            Array.Copy(source.values, 0, r.values, 0, source.Count);
+            Array.Copy(source.values, 0, r.values, 0, count);
             return r;
         }
 
