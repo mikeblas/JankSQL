@@ -6,17 +6,23 @@
     {
         private readonly string indexName;
         private readonly bool isUnique;
-        private readonly List<(string columnName, bool isDescending)> columnInfos;
+        private readonly List<(string columnName, bool isDescending, int heapColumnIndex)> columnInfos;
         private int nextUniquifer = 1;
 
-        internal IndexDefinition(string indexName, bool isUnique, List<(string columnName, bool isDescending)> columnInfos)
+        internal IndexDefinition(string indexName, bool isUnique, List<(string columnName, bool isDescending)> columnInfos, IEngineTable heap)
         {
             this.indexName = indexName;
             this.isUnique = isUnique;
-            this.columnInfos = columnInfos;
+
+            this.columnInfos = new List<(string columnName, bool isDescending, int heapColumnIndex)>();
+            foreach (var columnInfo in columnInfos)
+            {
+                int idx = heap.ColumnIndex(columnInfo.columnName);
+                this.columnInfos.Add((columnInfo.columnName, columnInfo.isDescending, idx));
+            }
         }
 
-        internal List<(string columnName, bool isDescending)> ColumnInfos
+        internal List<(string columnName, bool isDescending, int heapColumnIndex)> ColumnInfos
         {
             get { return columnInfos; }
         }
@@ -44,20 +50,14 @@
                 indexKey = Tuple.CreateEmpty(ColumnInfos.Count);
 
                 for (int i = 0; i < ColumnInfos.Count; i++)
-                {
-                    int idx = heap.ColumnIndex(ColumnInfos[i].columnName);
-                    indexKey.Values[i] = heapRow[idx];
-                }
+                    indexKey.Values[i] = heapRow[ColumnInfos[i].heapColumnIndex];
             }
             else
             {
                 // for a non-unique index, the key is as given plus a uniquifier integer
                 indexKey = Tuple.CreateEmpty(ColumnInfos.Count + 1);
                 for (int i = 0; i < ColumnInfos.Count; i++)
-                {
-                    int idx = heap.ColumnIndex(ColumnInfos[i].columnName);
-                    indexKey.Values[i] = heapRow[idx];
-                }
+                    indexKey.Values[i] = heapRow[ColumnInfos[i].heapColumnIndex];
 
                 indexKey[ColumnInfos.Count] = ExpressionOperand.IntegerFromInt(AdvanceNextUniquifier());
             }
@@ -81,8 +81,7 @@
 
         private readonly BPlusTree<Tuple, Tuple> myTree;
 
-        private readonly Dictionary<string, IndexDefinition> indexDefinitions = new ();
-        private readonly Dictionary<string, BPlusTree<Tuple, Tuple>> indexes = new ();
+        private readonly Dictionary<string, (IndexDefinition def, BPlusTree<Tuple, Tuple> index)> indexes = new ();
 
         private int nextBookmark = 1;
 
@@ -201,9 +200,8 @@
                         deletedCount++;
 
                     // now, delete from the other indexes by building a key out of the value we know
-                    foreach ((string indexName, IndexDefinition indexDef) in indexDefinitions)
+                    foreach ((IndexDefinition indexDef, var indexTree) in indexes.Values)
                     {
-                        BPlusTree<Tuple, Tuple>? indexTree = indexes[indexName];
                         Tuple indexKey = indexDef.IndexKeyFromHeapRow(heapRow, this);
                         indexTree.Remove(indexKey);
                     }
@@ -238,15 +236,13 @@
             }
 
             // for each other index we maintain, insert there, too
-            foreach ((string indexName, IndexDefinition indexDef) in indexDefinitions)
+            foreach ((IndexDefinition indexDef, var indexTree) in indexes.Values)
             {
-                BPlusTree<Tuple, Tuple>? indexTree = indexes[indexName];
-
                 Tuple indexKey = indexDef.IndexKeyFromHeapRow(row, this);
                 indexTree.Add(indexKey, heapKey);
             }
 
-            if (indexDefinitions.Count > 0)
+            if (indexes.Count > 0)
                 Dump();
         }
 
@@ -264,13 +260,10 @@
             foreach (var row in myTree)
                 Console.WriteLine($"    {row.Key} ==> {row.Value}");
 
-            foreach (var kv in indexDefinitions)
+            foreach (var kv in indexes)
             {
                 Console.WriteLine($" BTree Table {tableName}, index named {kv.Key}");
-
-                BPlusTree<Tuple, Tuple>? indexTree = indexes[kv.Key];
-
-                foreach (var row in indexTree)
+                foreach (var row in kv.Value.index)
                     Console.WriteLine($"     {row.Key} ==> {row.Value}");
             }
         }
@@ -284,14 +277,14 @@
         /// <exception cref="ExecutionException">Thrown if an error is encountered when building the index.</exception>
         internal void AddIndex(string indexName, bool isUnique, List<(string columnName, bool isDescending)> columnInfos)
         {
-            if (indexDefinitions.ContainsKey(indexName))
+            if (indexes.ContainsKey(indexName))
                 throw new ExecutionException($"Index definition {indexName} already exists");
 
             var indexTree = new BPlusTree<Tuple, Tuple>(new IExpressionOperandComparer());
 
             // enumerate and add
             using var e = myTree.GetEnumerator();
-            IndexDefinition def = new (indexName, isUnique, columnInfos);
+            IndexDefinition def = new (indexName, isUnique, columnInfos, this);
 
             while (e.MoveNext())
             {
@@ -310,8 +303,7 @@
             }
 
             // add the new index definition and its corresponding tree
-            indexDefinitions.Add(indexName, def);
-            indexes.Add(indexName, indexTree);
+            indexes.Add(indexName, (def, indexTree));
 
             Dump();
         }
