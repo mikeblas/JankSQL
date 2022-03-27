@@ -165,6 +165,34 @@ namespace JankSQL
                 Console.WriteLine("Errors!");
             }
 
+            string str2 = "INSERT INTO Ten (numbeR_id, numbeR_name, is_even) VALUES (11, 'Eleven', 0)";
+            ExecutableBatch batch2 = Parser.ParseSQLFileFromString(str2);
+            if (batch2.TotalErrors == 0)
+            {
+                batch2.Dump();
+
+                ExecuteResult[] sets = batch2.Execute(engine);
+                for (int i = 0; i < sets.Length; i++)
+                {
+                    Console.WriteLine($"ExecuteResult #{i} =====");
+                    ResultSet? rs = sets[i].ResultSet;
+                    if (rs != null)
+                    {
+                        rs.Dump();
+                        Console.WriteLine($"{rs.RowCount} total rows");
+                    }
+                    else
+                    {
+                        Console.WriteLine("(no result set)");
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("Errors!");
+            }
+
+
             Engines.DynamicCSVEngine.RemoveDatabase(tempPath);
         }
     }

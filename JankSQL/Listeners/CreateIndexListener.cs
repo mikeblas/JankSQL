@@ -27,21 +27,16 @@
                 {
                     if (n.ToString() == ",")
                     {
-                        Console.WriteLine($"Got comma! {isDescending}, {columnName}");
+                        Console.WriteLine($"Got comma! {(isDescending ? "DESC" : "ASC")}, {columnName}");
 
                         cic.AddColumn(columnName, isDescending);
                         isDescending = false;
                         columnName = null;
                     }
                     else if (n.ToString() == "ASC")
-                    {
-                        Console.WriteLine("ASC!");
-                    }
+                        isDescending = false;
                     else if (n.ToString() == "DESC")
-                    {
-                        Console.WriteLine("DESC!");
                         isDescending = true;
-                    }
                 }
                 else if (n is TSqlParser.Id_Context idContext)
                 {

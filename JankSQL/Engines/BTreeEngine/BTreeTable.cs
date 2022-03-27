@@ -16,10 +16,55 @@
             this.columnInfos = columnInfos;
         }
 
-        internal int GetNextUniquifier()
+        internal List<(string columnName, bool isDescending)> ColumnInfos
+        {
+            get { return columnInfos; }
+        }
+
+        internal bool IsUnique
+        {
+            get { return isUnique; }
+        }
+
+        internal string IndexName
+        {
+            get { return indexName; }
+        }
+
+        internal int AdvanceNextUniquifier()
         {
             return nextUniquifer++;
         }
+
+        internal Tuple IndexKeyFromHeapRow(Tuple heapRow, BTreeTable heap)
+        {
+            Tuple indexKey;
+            if (IsUnique)
+            {
+                indexKey = Tuple.CreateEmpty(ColumnInfos.Count);
+
+                for (int i = 0; i < ColumnInfos.Count; i++)
+                {
+                    int idx = heap.ColumnIndex(ColumnInfos[i].columnName);
+                    indexKey.Values[i] = heapRow[idx];
+                }
+            }
+            else
+            {
+                // for a non-unique index, the key is as given plus a uniquifier integer
+                indexKey = Tuple.CreateEmpty(ColumnInfos.Count + 1);
+                for (int i = 0; i < ColumnInfos.Count; i++)
+                {
+                    int idx = heap.ColumnIndex(ColumnInfos[i].columnName);
+                    indexKey.Values[i] = heapRow[idx];
+                }
+
+                indexKey[ColumnInfos.Count] = ExpressionOperand.IntegerFromInt(AdvanceNextUniquifier());
+            }
+
+            return indexKey;
+        }
+
     }
 
 
@@ -146,9 +191,23 @@
             int deletedCount = 0;
             foreach (var bookmark in bookmarksToDelete)
             {
-                bool found = myTree.Remove(bookmark.Tuple);
-                if (found)
-                    deletedCount++;
+                if (myTree.ContainsKey(bookmark.Tuple))
+                {
+                    // delete it, but get the rest of the row first
+                    Tuple heapRow = myTree[bookmark.Tuple];
+
+                    bool found = myTree.Remove(bookmark.Tuple);
+                    if (found)
+                        deletedCount++;
+
+                    // now, delete from the other indexes by building a key out of the value we know
+                    foreach ((string indexName, IndexDefinition indexDef) in indexDefinitions)
+                    {
+                        BPlusTree<Tuple, Tuple>? indexTree = indexes[indexName];
+                        Tuple indexKey = indexDef.IndexKeyFromHeapRow(heapRow, this);
+                        indexTree.Remove(indexKey);
+                    }
+                }
             }
 
             return deletedCount;
@@ -161,21 +220,34 @@
 
         public void InsertRow(Tuple row)
         {
+            Tuple heapKey;
             if (keyColumnNames[0].ColumnNameOnly().Equals("bookmark_key"))
             {
                 // this is a heap with absolutely no index
-                Tuple key = Tuple.CreateEmpty(1);
-                key[0] = ExpressionOperand.IntegerFromInt(nextBookmark++);
+                heapKey = Tuple.CreateEmpty(1);
+                heapKey[0] = ExpressionOperand.IntegerFromInt(nextBookmark++);
 
-                myTree.Add(key, row);
+                myTree.Add(heapKey, row);
             }
             else
             {
-                Tuple key = Tuple.CreateFromRange(row, 0, keyColumnNames.Count);
+                heapKey = Tuple.CreateFromRange(row, 0, keyColumnNames.Count);
                 Tuple value = Tuple.CreateFromRange(row, keyColumnNames.Count, valueColumnNames.Count);
 
-                myTree.Add(key, value);
+                myTree.Add(heapKey, value);
             }
+
+            // for each other index we maintain, insert there, too
+            foreach ((string indexName, IndexDefinition indexDef) in indexDefinitions)
+            {
+                BPlusTree<Tuple, Tuple>? indexTree = indexes[indexName];
+
+                Tuple indexKey = indexDef.IndexKeyFromHeapRow(row, this);
+                indexTree.Add(indexKey, heapKey);
+            }
+
+            if (indexDefinitions.Count > 0)
+                Dump();
         }
 
         public void TruncateTable()
@@ -225,43 +297,16 @@
             {
                 var row = e.Current;
 
-                if (isUnique)
-                {
-                    // for a unique index, the key is directly as supplied by the caller
-                    Tuple indexKey = Tuple.CreateEmpty(columnInfos.Count);
+                // the values are the key of the main index
+                Tuple indexValue = Tuple.CreateEmpty(keyTypes.Length);
+                for (int i = 0; i < keyTypes.Length; i++)
+                    indexValue.Values[i] = row.Key[i];
 
-                    for (int i = 0; i < columnInfos.Count; i++)
-                    {
-                        int idx = ColumnIndex(columnInfos[i].columnName);
-                        indexKey.Values[i] = row.Value[idx];
-                    }
+                // the key depends on the index
+                Tuple indexKey = def.IndexKeyFromHeapRow(row.Value, this);
 
-                    // the values are the key of the main index
-                    Tuple indexValue = Tuple.CreateEmpty(keyTypes.Length);
-                    for (int i = 0; i < keyTypes.Length; i++)
-                        indexValue.Values[i] = row.Key[i];
-
-                    indexTree.Add(indexKey, indexValue);
-                }
-                else
-                {
-                    // for a non-unique index, the key is as given plus a uniquifier integer
-                    Tuple indexKey = Tuple.CreateEmpty(columnInfos.Count + 1);
-                    for (int i = 0; i < columnInfos.Count; i++)
-                    {
-                        int idx = ColumnIndex(columnInfos[i].columnName);
-                        indexKey.Values[i] = row.Value[idx];
-                    }
-
-                    indexKey[columnInfos.Count] = ExpressionOperand.IntegerFromInt(def.GetNextUniquifier());
-
-                    // the value is the key from the main index
-                    Tuple indexValue = Tuple.CreateEmpty(keyTypes.Length);
-                    for (int i = 0; i < keyTypes.Length; i++)
-                        indexValue.Values[i] = row.Key[i];
-
-                    indexTree.Add(indexKey, indexValue);
-                }
+                // and add it!
+                indexTree.Add(indexKey, indexValue);
             }
 
             // add the new index definition and its corresponding tree
