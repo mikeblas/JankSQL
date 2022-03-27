@@ -110,7 +110,7 @@
 
                     Console.Write($"len={expression.Count} ");
 
-                    Console.WriteLine(string.Join(',', expression.Select(x => "[" + x + "]")));
+                    Console.WriteLine(string.Join(',', expression.Select(x => $"[{x}]")));
                 }
             }
         }
