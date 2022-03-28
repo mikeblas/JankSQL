@@ -74,8 +74,19 @@
         /// <returns>newly created Tuple.</returns>
         internal static Tuple CreatePartialCopy(int count, Tuple source)
         {
+            if (source.Length < count)
+                throw new ArgumentException($"count {count} expected to be lower than length {source.Length}");
             var r = new Tuple(count);
             Array.Copy(source.values, 0, r.values, 0, count);
+            return r;
+        }
+
+        internal static Tuple CreateSuperCopy(int count, Tuple source)
+        {
+            if (source.Length > count)
+                throw new ArgumentException($"count {count} expected to be larger than length {source.Length}");
+            var r = new Tuple(count);
+            Array.Copy(source.values, 0, r.values, 0, source.Length);
             return r;
         }
 

@@ -3,15 +3,24 @@
     internal class IExpressionOperandComparer : IComparer<Tuple>
     {
         private readonly int[]? keyOrder;
+        private readonly bool[]? descendings;
+
+        public IExpressionOperandComparer(bool[] descendings)
+        {
+            this.keyOrder = null;
+            this.descendings = descendings;
+        }
 
         public IExpressionOperandComparer(int[] keyOrder)
         {
             this.keyOrder = keyOrder;
+            this.descendings = null;
         }
 
         public IExpressionOperandComparer()
         {
             keyOrder = null;
+            descendings = null;
         }
 
         public int Compare(Tuple? x, Tuple? y)
@@ -30,6 +39,8 @@
                 do
                 {
                     ret = x[keyOrder[keyNumber]].CompareTo(y[keyOrder[keyNumber]]);
+                    if (descendings != null && keyNumber < descendings.Length && descendings[keyOrder[keyNumber]])
+                        ret = -ret;
                     keyNumber++;
                 }
                 while (ret == 0 && keyNumber < keyOrder.Length);
@@ -40,6 +51,8 @@
                 do
                 {
                     ret = x[keyNumber].CompareTo(y[keyNumber]);
+                    if (descendings != null && keyNumber < descendings.Length && descendings[keyNumber])
+                        ret = -ret;
                     keyNumber++;
                 }
                 while (ret == 0 && keyNumber < x.Length);

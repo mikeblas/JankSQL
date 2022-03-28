@@ -41,7 +41,7 @@
 
                 // create a new tuple with all the columns from the source
                 // and append the bookmark to it
-                Tuple thisRow = Tuple.CreatePartialCopy(source.ColumnCount + 1, rowEnumerator.Current.RowData);
+                Tuple thisRow = Tuple.CreateSuperCopy(source.ColumnCount + 1, rowEnumerator.Current.RowData);
                 thisRow[source.ColumnCount] = rowEnumerator.Current.Bookmark;
 
                 rs.AddRow(thisRow);

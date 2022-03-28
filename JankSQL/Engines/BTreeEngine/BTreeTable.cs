@@ -174,13 +174,15 @@
 
         public void InsertRow(Tuple row)
         {
+            if (row.Length != this.ColumnCount)
+                throw new ArgumentException($"got {row.Length}, expected {this.ColumnCount}");
+            //TODO: check types
+
             Tuple heapKey;
             if (keyColumnNames[0].ColumnNameOnly().Equals("bookmark_key"))
             {
                 // this is a heap with absolutely no index
-                heapKey = Tuple.CreateEmpty(1);
-                heapKey[0] = ExpressionOperand.IntegerFromInt(nextBookmark++);
-
+                heapKey = Tuple.FromSingleValue(nextBookmark++);
                 myTree.Add(heapKey, row);
             }
             else
@@ -236,7 +238,7 @@
             if (indexes.ContainsKey(indexName))
                 throw new ExecutionException($"Index definition {indexName} already exists");
 
-            var indexTree = new BPlusTree<Tuple, Tuple>(new IExpressionOperandComparer());
+            var indexTree = new BPlusTree<Tuple, Tuple>(new IExpressionOperandComparer(columnInfos.Select(x => x.isDescending).ToArray()));
 
             // enumerate and add
             using var e = myTree.GetEnumerator();
