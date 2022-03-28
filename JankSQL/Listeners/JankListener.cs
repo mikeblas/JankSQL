@@ -318,7 +318,7 @@
             foreach (var expr in context.order_by_expression())
             {
                 Expression obx = GobbleExpression(expr.expression());
-                Console.Write($"   {string.Join(",", obx.Select(x => "[" + x + "]"))} ");
+                Console.Write($"   {string.Join(",", obx.Select(x => $"[{x}]"))} ");
                 if (expr.DESC() != null)
                     Console.WriteLine("DESC");
                 else
