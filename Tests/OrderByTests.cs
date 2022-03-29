@@ -118,7 +118,26 @@ namespace Tests
             }
         }
 
+        [TestMethod]
+        public void TestOrderByOneIntegerFilterAsc()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT number_id FROM ten WHERE is_even = 1 ORDER BY number_id ASC;");
 
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            result.ResultSet.Dump();
+            Assert.AreEqual(5, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            int previous = result.ResultSet.Row(0)[0].AsInteger();
+
+            for (int i = 1; i < result.ResultSet.RowCount; i++)
+            {
+                int current = result.ResultSet.Row(i)[0].AsInteger();
+                Assert.IsTrue(previous.CompareTo(current) <= 0, $"expected {previous} <= {current}");
+                previous = current;
+            }
+        }
 
         [TestMethod]
         public void TestOrderByOneIntegerDesc()
@@ -143,7 +162,54 @@ namespace Tests
 
 
         [TestMethod]
-        public void TestOrderByManynIntegers()
+        public void TestOrderByOneIntegerFilterDesc()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT number_id FROM ten WHERE is_even = 0 ORDER BY number_id DESC;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            result.ResultSet.Dump();
+            Assert.AreEqual(5, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            int previous = result.ResultSet.Row(0)[0].AsInteger();
+
+            for (int i = 1; i < result.ResultSet.RowCount; i++)
+            {
+                int current = result.ResultSet.Row(i)[0].AsInteger();
+                Assert.IsTrue(previous.CompareTo(current) >= 0, $"expected {previous} >= {current}");
+                previous = current;
+            }
+        }
+
+
+        [TestMethod]
+        public void TestOrderByOneIntegerFilteredAllDesc()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT number_id FROM ten WHERE is_even = 35 ORDER BY number_id DESC;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            result.ResultSet.Dump();
+            Assert.AreEqual(0, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+        }
+
+
+        [TestMethod]
+        public void TestOrderByOneIntegerFilteredAll()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT number_id FROM ten WHERE is_even = 35 ORDER BY number_id;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            result.ResultSet.Dump();
+            Assert.AreEqual(0, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+        }
+
+        [TestMethod]
+        public void TestOrderByManyNIntegers()
         {
             Random random = new ();
             int testRowCount = 10000;
