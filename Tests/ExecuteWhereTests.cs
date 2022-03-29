@@ -1,10 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using JankSQL;
-using Engines = JankSQL.Engines;
-
+﻿
 namespace Tests
 {
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using JankSQL;
+    using Engines = JankSQL.Engines;
+
     public class ExecuteWhereTests
     {
         internal string mode = "base";
