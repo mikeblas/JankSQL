@@ -301,6 +301,114 @@
             Assert.AreEqual(6, oddCount);
             Assert.AreEqual(5, evenCount);
         }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(ExecutionException), "Expected error from duplicate key")]
+        public void TestFailCreateUniqueIndex()
+        {
+            // create a unique index on a test table, expecting failure
+            List<(string columnName, bool isDescending)> columnInfos = new()
+            {
+                ("is_even", false),
+            };
+
+            engine.CreateIndex(FullTableName.FromTableName("ten"), "evenIndex", true, columnInfos);
+        }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(ExecutionException), "Expected error from duplicate key")]
+        public void TestFailCreateUniqueTwoIndex()
+        {
+            // get our table
+            Engines.IEngineTable? t = engine.GetEngineTable(FullTableName.FromTableName("ten"));
+            Assert.IsNotNull(t);
+
+            // ... and add two-key duplicate row to our test table
+            Tuple newRow = Tuple.CreateEmpty(3);
+            newRow[0] = ExpressionOperand.IntegerFromInt(0);
+            newRow[1] = ExpressionOperand.VARCHARFromString("zero");
+            newRow[2] = ExpressionOperand.IntegerFromInt(1);
+
+            t.InsertRow(newRow);
+
+            // create a unique index on a test table, expecting failure
+            List<(string columnName, bool isDescending)> columnInfos = new()
+            {
+                ("is_even", false),
+                ("number_name", false),
+            };
+
+            engine.CreateIndex(FullTableName.FromTableName("ten"), "evenIndex", true, columnInfos);
+        }
+
+
+        [TestMethod]
+        public void TestCreateUniqueTwoIndex()
+        {
+            // create a non-unique index on a test table
+            List<(string columnName, bool isDescending)> columnInfos = new()
+            {
+                ("is_even", false),
+                ("number_name", false),
+            };
+
+            engine.CreateIndex(FullTableName.FromTableName("ten"), "evenNameIndex", true, columnInfos);
+
+            // get our table
+            Engines.IEngineTable? t = engine.GetEngineTable(FullTableName.FromTableName("ten"));
+            Assert.IsNotNull(t);
+
+            var idx = t.Index("evenNameIndex");
+            Assert.IsNotNull(idx);
+
+            string s = String.Join(",", idx.IndexDefinition.ColumnInfos.Select(x => $"[{x.columnName}, {(x.isDescending ? "DESC" : "ASC")}]"));
+            Console.WriteLine(s);
+
+            foreach (var r in idx)
+            {
+                Console.WriteLine($"{r.RowData} ==> {r.Bookmark}");
+            }
+
+            int oddCount = 0;
+            int evenCount = 0;
+            string? lastName = null;
+            int lastP = -1;
+            int polarityIndex = idx.IndexDefinition.ColumnIndex("is_even");
+            int nameIndex = idx.IndexDefinition.ColumnIndex("number_name");
+            foreach (var indexRow in idx)
+            {
+                int p = indexRow.RowData[polarityIndex].AsInteger();
+                if (p == 0)
+                {
+                    oddCount += 1;
+                    Assert.AreEqual(0, evenCount, "Odds must come before any even");
+                }
+                else if (p == 1)
+                {
+                    evenCount += 1;
+                    Assert.AreEqual(6, oddCount, "Evens must come after all odds");
+                }
+                else
+                    Assert.Fail($"Didn't expect is_even value {p}");
+
+                string thisName = indexRow.RowData[nameIndex].AsString();
+                if (lastName != null)
+                {
+                    int diff = lastName.CompareTo(thisName);
+                    if (lastP == p)
+                        Assert.IsTrue(diff < 0);
+                    else
+                        Assert.IsTrue(diff > 0);
+                }
+                lastName = thisName;
+                lastP = p;
+            }
+
+            Assert.AreEqual(6, oddCount);
+            Assert.AreEqual(5, evenCount);
+        }
     }
 }
 

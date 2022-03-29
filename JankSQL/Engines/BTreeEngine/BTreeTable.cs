@@ -1,6 +1,7 @@
 ﻿namespace JankSQL.Engines
 {
     using System.Collections;
+    using CSharpTest.Net;
     using CSharpTest.Net.Collections;
 
     internal class BTreeTable : IEngineTable, IEnumerable, IEnumerable<RowWithBookmark>
@@ -257,7 +258,14 @@
                 Tuple indexKey = def.IndexKeyFromHeapRow(row.Value, this);
 
                 // and add it!
-                indexTree.Add(indexKey, indexValue);
+                try
+                {
+                    indexTree.Add(indexKey, indexValue);
+                }
+                catch (DuplicateKeyException x)
+                {
+                    throw new ExecutionException($"Duplicate key found when building unique index: {indexKey}");
+                }
             }
 
             // add the new index definition and its corresponding tree
