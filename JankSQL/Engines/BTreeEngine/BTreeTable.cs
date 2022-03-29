@@ -167,7 +167,7 @@
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return _GetEnumerator();
+            return this.GetEnumerator();
         }
 
         public IEnumerator<RowWithBookmark> GetIndexEnumerator(string indexName)
@@ -277,11 +277,6 @@
             indexes.Add(indexName, (def, indexTree));
 
             Dump();
-        }
-
-        private IEnumerator _GetEnumerator()
-        {
-            return this.GetEnumerator();
         }
     }
 }

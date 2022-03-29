@@ -33,14 +33,19 @@
 
                 if (totalResults == null)
                     totalResults = ResultSet.NewWithShape(rs);
+
                 totalResults.Append(rs);
             }
 
-            //TODO: honor max
-            // we've completely built totalResults, so sort it
-            var evaluatingComparer = new EvaluatingComparer(sortExpressions, isAscending, totalResults.GetColumnNames());
-            totalResults.Sort(evaluatingComparer);
-            Console.WriteLine($"Sorted! {evaluatingComparer.KeyComparisons} key comparisons, {evaluatingComparer.RowComparisons} row comparisons");
+            // if totalResults is null at this point, it means we had no input at all.
+            if (totalResults != null)
+            {
+                //TODO: honor max
+                // we've completely built totalResults, so sort it
+                var evaluatingComparer = new EvaluatingComparer(sortExpressions, isAscending, totalResults.GetColumnNames());
+                totalResults.Sort(evaluatingComparer);
+                Console.WriteLine($"Sorted! {evaluatingComparer.KeyComparisons} key comparisons, {evaluatingComparer.RowComparisons} row comparisons");
+            }
 
             // and send it off
             outputExhausted = true;

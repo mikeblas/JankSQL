@@ -103,6 +103,11 @@
             }
         }
 
+        public IndexAccessor Index(string indexName)
+        {
+            throw new NotImplementedException();
+        }
+
         public FullColumnName ColumnName(int n)
         {
             return columnNames![n];
@@ -295,11 +300,6 @@
             }
 
             return ret;
-        }
-
-        public IndexAccessor Index(string indexName)
-        {
-            throw new NotImplementedException();
         }
     }
 }

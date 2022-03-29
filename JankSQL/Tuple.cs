@@ -2,7 +2,7 @@
 {
     using System.Collections;
 
-    public class Tuple : IEnumerable<ExpressionOperand>
+    public class Tuple : IEnumerable<ExpressionOperand>, IEnumerable
     {
         private ExpressionOperand[] values;
 

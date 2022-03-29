@@ -3,7 +3,7 @@
     using System.Collections;
     using CSharpTest.Net.Collections;
 
-    public class IndexAccessor : /* IEnumerable, */ IEnumerable<RowWithBookmark>
+    public class IndexAccessor : IEnumerable, IEnumerable<RowWithBookmark>
     {
         private readonly IndexDefinition def;
         private readonly BPlusTree<Tuple, Tuple> indexTree;

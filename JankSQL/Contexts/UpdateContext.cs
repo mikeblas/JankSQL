@@ -109,8 +109,8 @@
             else
             {
                 // found the source table, so build ourselves up
-                TableSource source = new TableSource(engineSource);
-                Update update = new Update(engineSource, source, PredicateContext.PredicateExpressions, setList);
+                TableSource source = new (engineSource);
+                Update update = new (engineSource, source, PredicateContext.PredicateExpressions, setList);
 
                 while (true)
                 {

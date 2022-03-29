@@ -20,17 +20,6 @@
             }
         }
 
-        public int ColumnIndex(string columnName)
-        {
-            for (int i = 0; i < this.columnInfos.Count; i++)
-            {
-                if (this.columnInfos[i].columnName.Equals(columnName, StringComparison.OrdinalIgnoreCase))
-                    return i;
-            }
-
-            return -1;
-        }
-
         internal List<(string columnName, bool isDescending, int heapColumnIndex)> ColumnInfos
         {
             get { return columnInfos; }
@@ -44,6 +33,17 @@
         internal string IndexName
         {
             get { return indexName; }
+        }
+
+        public int ColumnIndex(string columnName)
+        {
+            for (int i = 0; i < this.columnInfos.Count; i++)
+            {
+                if (this.columnInfos[i].columnName.Equals(columnName, StringComparison.OrdinalIgnoreCase))
+                    return i;
+            }
+
+            return -1;
         }
 
         internal int AdvanceNextUniquifier()

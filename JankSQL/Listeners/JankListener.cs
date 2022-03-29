@@ -127,6 +127,9 @@
                         AggregateContext agg = GobbleAggregateFunctionContext(awfc);
                         selectContext.AddAggregate(agg);
 
+                        if (agg.ExpressionName == null)
+                            throw new InternalErrorException("Expected named expression in aggregation");
+
                         ExpressionNode n = new ExpressionOperandFromColumn(FullColumnName.FromColumnName(agg.ExpressionName));
                         x.Add(n);
                         x.ContainsAggregate = true;
