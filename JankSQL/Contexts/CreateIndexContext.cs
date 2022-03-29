@@ -17,11 +17,20 @@
             columnInfo = new List<(string, bool)>();
         }
 
-        internal FullTableName TableName { get { return tableName; } }
+        internal FullTableName TableName
+        {
+            get { return tableName; }
+        }
 
-        internal string IndexName { get { return indexName; } }
+        internal string IndexName
+        {
+            get { return indexName; }
+        }
 
-        internal bool IsUnique { get { return isUnique; } }
+        internal bool IsUnique
+        {
+            get { return isUnique; }
+        }
 
         public ExecuteResult Execute(IEngine engine)
         {

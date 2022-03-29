@@ -237,7 +237,7 @@
         /// </summary>
         /// <param name="indexName">string with a name for the new index.</param>
         /// <param name="isUnique">boolean that's true if this new index is meant to be unique.</param>
-        /// <param name="columnInfos">descriptions of the columns involved in this index</param>
+        /// <param name="columnInfos">descriptions of the columns involved in this index.</param>
         /// <exception cref="ExecutionException">Thrown if an error is encountered when building the index.</exception>
         internal void AddIndex(string indexName, bool isUnique, List<(string columnName, bool isDescending)> columnInfos)
         {
@@ -267,7 +267,7 @@
                 {
                     indexTree.Add(indexKey, indexValue);
                 }
-                catch (DuplicateKeyException x)
+                catch (DuplicateKeyException)
                 {
                     throw new ExecutionException($"Duplicate key found when building unique index: {indexKey}");
                 }

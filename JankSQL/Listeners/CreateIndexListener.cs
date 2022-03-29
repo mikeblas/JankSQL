@@ -40,7 +40,6 @@
                 }
                 else if (n is TSqlParser.Id_Context idContext)
                 {
-
                     Console.WriteLine($"ID: {idContext.ID()}");
                     columnName = idContext.ID().ToString();
                 }

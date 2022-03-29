@@ -50,6 +50,11 @@
             return new Enumerator(this);
         }
 
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return new Enumerator(this);
+        }
+
         public override string ToString()
         {
             return string.Join(",", values.Select(x => $"[{x}]"));
@@ -126,11 +131,6 @@
             for (int i = 0; i < ops.Length; i++)
                 t[i] = ops[i];
             return t;
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return new Enumerator(this);
         }
 
         internal class Enumerator : IEnumerator<ExpressionOperand>, System.Collections.IEnumerator
