@@ -123,6 +123,11 @@
             if (!indexes.TryGetValue(indexName, out (IndexDefinition def, BPlusTree<Tuple, Tuple> index) o))
                 return null;
 
+            foreach (var row in o.index)
+            {
+                Console.WriteLine($"RawIndex: {row.Key}: {row.Value}");
+            }
+
             return new IndexAccessor(o.def, o.index);
         }
 

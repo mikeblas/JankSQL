@@ -20,7 +20,9 @@
             {
                 ExpressionOperandBookmark bookmarkResult = new (treeEnumerator.Current.Value);
 
-                Tuple keyCopy = Tuple.CreatePartialCopy(treeEnumerator.Current.Key.Count - 1, treeEnumerator.Current.Key);
+                // if it's not unique, don't generate the uniquifier
+                int keyLen = treeEnumerator.Current.Key.Count - (def.IsUnique ? 0 : 1);
+                Tuple keyCopy = Tuple.CreatePartialCopy(keyLen, treeEnumerator.Current.Key);
                 return new RowWithBookmark(keyCopy, bookmarkResult);
             }
         }

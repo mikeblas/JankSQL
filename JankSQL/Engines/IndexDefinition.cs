@@ -73,6 +73,5 @@
 
             return indexKey;
         }
-
     }
 }

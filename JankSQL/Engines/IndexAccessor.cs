@@ -28,6 +28,17 @@
         {
             return new BTreeIndexRowEnumerator(indexTree, def);
         }
+
+        internal void Dump()
+        {
+            Console.WriteLine($"=====");
+            Console.WriteLine($"index {def.IndexName}");
+            string s = string.Join(",", def.ColumnInfos.Select(x => $"[{x.columnName}, {(x.isDescending ? "DESC" : "ASC")}]"));
+            Console.WriteLine($"   {s}");
+
+            foreach (var r in this)
+                Console.WriteLine($"   {r.RowData} ==> {r.Bookmark}");
+        }
     }
 }
 
