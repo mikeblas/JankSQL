@@ -1,6 +1,7 @@
 ﻿namespace JankSQL.Engines
 {
     using System.Collections;
+    using JankSQL.Expressions;
 
     internal class DynamicCSVRowEnumerator : IEnumerator<RowWithBookmark>
     {

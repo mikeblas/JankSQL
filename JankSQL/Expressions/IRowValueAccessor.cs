@@ -1,4 +1,4 @@
-﻿namespace JankSQL
+﻿namespace JankSQL.Expressions
 {
     /// <summary>
     /// Provides by-name access for an Expression into a set of values representing a tuple.

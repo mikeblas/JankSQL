@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Contexts
 {
+    using JankSQL.Expressions;
+
     internal class SelectListContext
     {
         private readonly TSqlParser.Select_listContext context;

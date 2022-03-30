@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Engines
 {
+    using JankSQL.Expressions;
+
     public class DualSource : IEngineTable
     {
         public int ColumnCount => 0;

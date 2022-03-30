@@ -1,10 +1,10 @@
 ﻿
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using JankSQL;
-
 namespace Tests
 {
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using JankSQL;
+    using JankSQL.Expressions;
+
     [TestClass]
     public class ExpressionTests
     {

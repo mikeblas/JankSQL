@@ -1,6 +1,7 @@
 ﻿namespace JankSQL.Operators
 {
     using JankSQL.Contexts;
+    using JankSQL.Expressions;
 
     internal class Join : IComponentOutput
     {

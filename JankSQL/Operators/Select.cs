@@ -1,6 +1,7 @@
 ﻿namespace JankSQL.Operators
 {
     using JankSQL.Contexts;
+    using JankSQL.Expressions;
 
     internal class Select
     {
@@ -37,7 +38,7 @@
                         if (fcn.ColumnNameOnly() == "bookmark_key")
                             continue;
                         effectiveColumns.Add(fcn);
-                        ExpressionNode node = new ExpressionOperandFromColumn(rsInput.GetColumnName(i));
+                        var node = new ExpressionOperandFromColumn(rsInput.GetColumnName(i));
                         Expression expression = new () { node };
                         selectList.AddSelectListExpressionList(expression);
                     }

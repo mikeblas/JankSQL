@@ -3,6 +3,7 @@
     using System.Collections;
     using CSharpTest.Net;
     using CSharpTest.Net.Collections;
+    using JankSQL.Expressions;
 
     internal class BTreeTable : IEngineTable, IEnumerable, IEnumerable<RowWithBookmark>
     {

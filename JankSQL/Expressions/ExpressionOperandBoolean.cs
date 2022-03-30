@@ -1,4 +1,4 @@
-﻿namespace JankSQL
+﻿namespace JankSQL.Expressions
 {
     internal class ExpressionOperandBoolean : ExpressionOperand
     {
@@ -100,7 +100,7 @@
 
         public bool Equals(ExpressionOperandDecimal? other)
         {
-            return 0 == CompareTo(other);
+            return CompareTo(other) == 0;
         }
 
         public override bool Equals(object? obj)

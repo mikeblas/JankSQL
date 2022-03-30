@@ -174,7 +174,7 @@
 
         public bool Equals(ExpressionOperandNVARCHAR? other)
         {
-            return 0 == CompareTo(other);
+            return CompareTo(other) == 0;
         }
 
         public override bool Equals(object? obj)

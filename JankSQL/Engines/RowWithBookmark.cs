@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Engines
 {
+    using JankSQL.Expressions;
+
     public class RowWithBookmark
     {
         private readonly Tuple rowData;

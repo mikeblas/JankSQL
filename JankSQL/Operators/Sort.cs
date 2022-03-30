@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Operators
 {
+    using JankSQL.Expressions;
+
     internal class Sort : IComponentOutput
     {
         private readonly IComponentOutput myInput;

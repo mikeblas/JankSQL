@@ -1,5 +1,7 @@
 ﻿namespace JankSQL
 {
+    using JankSQL.Expressions;
+
     public abstract class ExpressionOperand : ExpressionNode, ICloneable, IComparable<ExpressionOperand>
     {
         private readonly ExpressionOperandType nodeType;

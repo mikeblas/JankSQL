@@ -1,6 +1,7 @@
 ﻿namespace JankSQL.Operators
 {
     using JankSQL.Contexts;
+    using JankSQL.Expressions;
     using JankSQL.Operators.Aggregations;
 
     internal enum AggregationOperatorType

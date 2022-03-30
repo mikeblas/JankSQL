@@ -1,5 +1,6 @@
 ﻿namespace JankSQL.Contexts
 {
+    using JankSQL.Expressions;
     using JankSQL.Operators;
 
     internal enum SetOperator
@@ -12,7 +13,7 @@
         MOD_ASSIGN,
     }
 
-    //TODO: move to Operators
+    //TODO: move to Operators (or Expressions?)
     internal class SetOperation
     {
         private readonly FullColumnName fcn;

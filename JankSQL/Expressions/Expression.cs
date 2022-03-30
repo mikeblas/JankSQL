@@ -1,5 +1,7 @@
 ﻿namespace JankSQL
 {
+    using JankSQL.Expressions;
+
     internal class Expression : List<ExpressionNode>, IEquatable<Expression>
     {
         internal Expression()

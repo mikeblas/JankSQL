@@ -1,4 +1,4 @@
-﻿namespace JankSQL
+﻿namespace JankSQL.Expressions
 {
     internal class ExpressionOperandInteger : ExpressionOperand, IComparable<ExpressionOperandInteger>, IEquatable<ExpressionOperandInteger>
     {
@@ -185,7 +185,7 @@
 
         public bool Equals(ExpressionOperandInteger? other)
         {
-            return 0 == CompareTo(other);
+            return CompareTo(other) == 0;
         }
 
         public override bool Equals(object? o)

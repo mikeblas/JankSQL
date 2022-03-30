@@ -1,4 +1,4 @@
-﻿namespace JankSQL
+﻿namespace JankSQL.Expressions
 {
     internal class ExpressionComparisonOperator : ExpressionNode
     {

@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Engines
 {
+    using JankSQL.Expressions;
+
     /// <summary>
     /// The IEngineTable interface provides an engine-independent contract for working with a table
     /// in a storage engine. Tables may be implemented in any way, but should expose indexible collections

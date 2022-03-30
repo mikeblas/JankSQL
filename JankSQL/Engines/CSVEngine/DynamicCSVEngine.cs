@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Engines
 {
+    using JankSQL.Expressions;
+
     public enum OpenPolicy
     {
         ExistingOnly,   // fail if not found

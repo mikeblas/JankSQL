@@ -2,6 +2,7 @@
 {
     using System.Collections;
     using CSharpTest.Net.Collections;
+    using JankSQL.Expressions;
 
     internal class BTreeIndexRowEnumerator : IEnumerator<RowWithBookmark>
     {

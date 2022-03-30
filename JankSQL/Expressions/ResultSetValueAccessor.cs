@@ -1,4 +1,4 @@
-﻿namespace JankSQL
+﻿namespace JankSQL.Expressions
 {
     /// <summary>
     /// Wraps a Rowset and accepts a row index so an individual row

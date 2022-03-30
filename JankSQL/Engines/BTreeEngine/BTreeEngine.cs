@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Engines
 {
+    using JankSQL.Expressions;
+
     public class BTreeEngine : IEngine
     {
         private readonly BTreeTable sysColumns;

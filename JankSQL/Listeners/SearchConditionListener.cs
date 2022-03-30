@@ -1,5 +1,7 @@
 ﻿namespace JankSQL
 {
+    using JankSQL.Expressions;
+
     public partial class JankListener : TSqlParserBaseListener
     {
         internal Expression GobbleSearchCondition(TSqlParser.Search_conditionContext context)

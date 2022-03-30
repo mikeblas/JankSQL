@@ -27,6 +27,9 @@
                 {
                     if (n.ToString() == ",")
                     {
+                        if (columnName == null)
+                            throw new InternalErrorException("Expected column name before comma");
+
                         Console.WriteLine($"Got comma! {(isDescending ? "DESC" : "ASC")}, {columnName}");
 
                         cic.AddColumn(columnName, isDescending);

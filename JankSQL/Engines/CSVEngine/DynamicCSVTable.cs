@@ -1,6 +1,7 @@
 ﻿namespace JankSQL.Engines
 {
     using System.Text;
+    using JankSQL.Expressions;
 
     /// <summary>
     /// represents a table in a CSV engine.
