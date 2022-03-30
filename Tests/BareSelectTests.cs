@@ -394,6 +394,15 @@
             Assert.AreEqual(3.14159, result.ResultSet.Row(0)[0].AsDouble(), 0.00001);
         }
 
+        [TestMethod, Timeout(1000)]
+        [ExpectedException(typeof(ExecutionException))]
+        public void TestFailFunctionPIWithArg()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT PI(200);");
+
+            //TODO: how does listener raise an error?
+            // Assert.IsTrue(ec.TotalErrors > 0, "Expected an error");
+        }
 
         [TestMethod, Timeout(1000)]
         public void TestFunctionPOWER()
