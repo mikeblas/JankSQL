@@ -42,6 +42,9 @@
 
             foreach (var context in contexts)
             {
+                if (context.ExpressionName == null)
+                    throw new InternalErrorException($"Expected non-null expression name on {context.Expression}");
+
                 expressions.Add(context.Expression);
                 expressionNames.Add(context.ExpressionName);
                 operatorTypes.Add(context.AggregationOperatorType);

@@ -78,6 +78,28 @@ namespace Tests
 
             engine.InjectTestTable(tt);
         }
+
+
+        static internal void InjectTableKeyOrdering(Engines.IEngine engine)
+        {
+            // order matches the description text when key is (K2, K3, K1)
+
+            Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
+                .WithTableName("three")
+                .WithColumnNames(new string[] { "K1", "K2", "K3", "Description" })
+                .WithColumnTypes(new ExpressionOperandType[] { INTEGER, INTEGER, INTEGER, VARCHAR })
+                .WithRow(new object[] { 0, 0, 0, "first" })
+                .WithRow(new object[] { 1, 0, 0, "second" })
+                .WithRow(new object[] { 0, 0, 1, "third" })
+                .WithRow(new object[] { 1, 0, 1, "fourth" })
+                .WithRow(new object[] { 0, 1, 0, "fifth" })
+                .WithRow(new object[] { 1, 1, 0, "sixth" })
+                .WithRow(new object[] { 0, 1, 1, "seventh" })
+                .WithRow(new object[] { 1, 1, 1, "eighth" })
+                .Build();
+
+            engine.InjectTestTable(tt);
+        }
     }
 }
 

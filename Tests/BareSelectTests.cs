@@ -439,5 +439,28 @@
             Assert.AreEqual(1.41421356, result.ResultSet.Row(0)[0].AsDouble(), 0.00000001);
         }
 
+
+        [TestMethod, Timeout(1000)]
+        public void TestFailMissingOperator()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 3 5;");
+            Assert.IsTrue(ec.TotalErrors > 0, "Expected an error");
+        }
+
+
+        [TestMethod, Timeout(1000)]
+        public void TestFailMissingOperand()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 3+;");
+            Assert.IsTrue(ec.TotalErrors > 0, "Expected an error");
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestFailMissingFunctionParameter()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT POWER(2)");
+            Assert.IsTrue(ec.TotalErrors > 0, "Expected an error");
+        }
+
     }
 }

@@ -99,15 +99,16 @@
 
         public ExecuteResult Execute(Engines.IEngine engine)
         {
-            ExecuteResult results = new ExecuteResult();
+            ExecuteResult results = new ();
 
             Engines.IEngineTable? engineSource = engine.GetEngineTable(tableName);
             if (engineSource == null)
-            {
                 throw new ExecutionException($"Table {tableName} does not exist");
-            }
             else
             {
+                if (PredicateContext == null)
+                    throw new InternalErrorException($"Expected predicate on UPDATE statement");
+
                 // found the source table, so build ourselves up
                 TableSource source = new (engineSource);
                 Update update = new (engineSource, source, PredicateContext.PredicateExpressions, setList);
