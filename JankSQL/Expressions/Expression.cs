@@ -60,6 +60,11 @@
                         ExpressionOperand r = expressionOperator.Evaluate(stack);
                         stack.Push(r);
                     }
+                    else if (n is ExpressionFunction expressionFunction)
+                    {
+                        ExpressionOperand r = expressionFunction.Evaluate(stack);
+                        stack.Push(r);
+                    }
                     else if (n is ExpressionOperandFromColumn columnOperand)
                     {
                         if (accessor == null)

@@ -456,11 +456,13 @@
         }
 
         [TestMethod, Timeout(1000)]
+        [ExpectedException(typeof(ExecutionException))]
         public void TestFailMissingFunctionParameter()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT POWER(2)");
-            Assert.IsTrue(ec.TotalErrors > 0, "Expected an error");
-        }
 
+            //TODO: how does listener raise an error?
+            // Assert.IsTrue(ec.TotalErrors > 0, "Expected an error");
+        }
     }
 }
