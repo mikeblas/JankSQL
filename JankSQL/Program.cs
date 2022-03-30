@@ -96,6 +96,10 @@ namespace JankSQL
 
             str = "CREATE INDEX TenNotUnique ON ten (is_even ASC)";
 
+            str = "SELECT 3 + NULL;";
+            str = "SELECT SQRT(NULL);";
+            str = "SELECT -200, 300, NULL, 5, 0;";
+
 
             // Engines.DynamicCSVEngine engine = Engines.DynamicCSVEngine.OpenAlways("F:\\JankTests\\Test33");
 

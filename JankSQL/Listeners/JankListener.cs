@@ -38,7 +38,6 @@
         }
 
 
-
         internal Expression GobbleExpression(TSqlParser.ExpressionContext expr)
         {
             Expression x = new ();
@@ -47,12 +46,17 @@
 
             while (stack.Count > 0)
             {
-                // object rule = stack.Pop();
                 object rule = stack[^1];
                 stack.RemoveAt(stack.Count - 1);
                 if (rule is TSqlParser.Primitive_expressionContext primitiveContext)
                 {
-                    if (primitiveContext.constant().FLOAT() != null)
+                    if (primitiveContext.NULL_() != null)
+                    {
+                        Console.WriteLine($"constant: NULL");
+                        ExpressionNode n = ExpressionOperand.NullLiteral();
+                        x.Add(n);
+                    }
+                    else if (primitiveContext.constant().FLOAT() != null)
                     {
                         string str = primitiveContext.constant().FLOAT().GetText();
                         Console.WriteLine($"constant: '{str}'");

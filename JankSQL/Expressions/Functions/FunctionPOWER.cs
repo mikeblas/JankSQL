@@ -14,6 +14,9 @@
             ExpressionOperand right = stack.Pop();
             ExpressionOperand left = stack.Pop();
 
+            if (right.RepresentsNull || left.RepresentsNull)
+                return ExpressionOperand.NullLiteral();
+
             double d = Math.Pow(left.AsDouble(), right.AsDouble());
             ExpressionOperand result = ExpressionOperand.DecimalFromDouble(d);
             return result;

@@ -22,6 +22,10 @@
 
         public ExpressionOperand FinalValue()
         {
+            // min of nothing is nothing
+            if (min == null)
+                return ExpressionOperand.NullLiteral();
+
             return min;
         }
     }

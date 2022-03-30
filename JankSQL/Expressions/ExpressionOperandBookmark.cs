@@ -10,6 +10,8 @@
             this.tuple = tuple;
         }
 
+        public override bool RepresentsNull => false;
+
         public Tuple Tuple => tuple;
 
         public override object Clone()

@@ -2,7 +2,8 @@
 {
     internal class ExpressionOperandNVARCHAR : ExpressionOperand, IComparable<ExpressionOperandNVARCHAR>, IEquatable<ExpressionOperandNVARCHAR>
     {
-        private string str;
+        private readonly string? str;
+        private bool isNull;
 
         internal ExpressionOperandNVARCHAR(string str)
             : base(ExpressionOperandType.NVARCHAR)
@@ -10,18 +11,36 @@
             this.str = str;
         }
 
+        internal ExpressionOperandNVARCHAR(string? str, bool isNull)
+            : base(ExpressionOperandType.VARCHAR)
+        {
+            this.str = str;
+            if (this.str == null && !isNull)
+                throw new InternalErrorException("got null value without null flag");
+            if (this.str != null && isNull)
+                throw new InternalErrorException("got null flag without null value");
+            this.isNull = isNull;
+        }
+
+        public override bool RepresentsNull
+        {
+            get { return isNull; }
+        }
+
         public override object Clone()
         {
-            return new ExpressionOperandNVARCHAR(str);
+            return new ExpressionOperandNVARCHAR(str, isNull);
         }
 
         public override string ToString()
         {
-            return $"NVARCHAR(\"{str}\")";
+            return $"VARCHAR(\"{(isNull ? "NULL" : str)}\")";
         }
 
         public override double AsDouble()
         {
+            if (isNull)
+                throw new InvalidOperationException("can't convert null NVARCHAR to double");
             return double.Parse(str);
         }
 
@@ -32,16 +51,23 @@
 
         public override string AsString()
         {
+            if (isNull)
+                throw new InvalidOperationException("can't convert null NVARCHAR to string");
             return str;
         }
 
         public override int AsInteger()
         {
+            if (isNull)
+                throw new InvalidOperationException("can't convert null NVARCHAR to integer");
             return int.Parse(str);
         }
 
         public override bool OperatorEquals(ExpressionOperand other)
         {
+            if (RepresentsNull || other.RepresentsNull)
+                return false;
+
             if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.NVARCHAR)
             {
                 return other.AsString() == AsString();
@@ -58,6 +84,9 @@
 
         public override bool OperatorGreaterThan(ExpressionOperand other)
         {
+            if (RepresentsNull || other.RepresentsNull)
+                return false;
+
             if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.NVARCHAR)
             {
                 return AsString().CompareTo(other.AsString()) > 0;
@@ -74,6 +103,9 @@
 
         public override bool OperatorLessThan(ExpressionOperand other)
         {
+            if (RepresentsNull || other.RepresentsNull)
+                return false;
+
             if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.NVARCHAR)
             {
                 return AsString().CompareTo(other.AsString()) < 0;
@@ -90,6 +122,9 @@
 
         public override ExpressionOperand OperatorPlus(ExpressionOperand other)
         {
+            if (RepresentsNull || other.RepresentsNull)
+                return new ExpressionOperandNVARCHAR(null, true);
+
             ExpressionOperand ret;
             if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.NVARCHAR)
             {
@@ -111,6 +146,9 @@
 
         public override ExpressionOperand OperatorMinus(ExpressionOperand other)
         {
+            if (RepresentsNull || other.RepresentsNull)
+                return new ExpressionOperandNVARCHAR(null, true);
+
             if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
             {
                 double result = AsDouble() - other.AsDouble();
@@ -125,6 +163,9 @@
 
         public override ExpressionOperand OperatorSlash(ExpressionOperand other)
         {
+            if (RepresentsNull || other.RepresentsNull)
+                return new ExpressionOperandNVARCHAR(null, true);
+
             if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
             {
                 double result = AsDouble() / other.AsDouble();
@@ -138,6 +179,10 @@
 
         public override ExpressionOperand OperatorTimes(ExpressionOperand other)
         {
+
+            if (RepresentsNull || other.RepresentsNull)
+                return new ExpressionOperandNVARCHAR(null, true);
+
             if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
             {
                 double result = AsDouble() * other.AsDouble();
@@ -157,19 +202,25 @@
         public int CompareTo(ExpressionOperandNVARCHAR? other)
         {
             if (other == null)
-                throw new ArgumentNullException("obj");
+                throw new ArgumentNullException(nameof(other));
 
-            int result = str.CompareTo(other.str);
+            if (isNull && other.isNull)
+                return 0;
+            if (isNull && !other.isNull)
+                return -1;
+            if (!isNull && other.isNull)
+                return 1;
+
+            int result = str!.CompareTo(other.str);
             return result;
         }
 
         public override int CompareTo(ExpressionOperand? other)
         {
             if (other == null)
-                throw new ArgumentNullException("other");
+                throw new ArgumentNullException(nameof(other));
             ExpressionOperandNVARCHAR o = (ExpressionOperandNVARCHAR)other;
-            int result = str.CompareTo(o.str);
-            return result;
+            return CompareTo(o);
         }
 
         public bool Equals(ExpressionOperandNVARCHAR? other)
@@ -187,6 +238,8 @@
 
         public override int GetHashCode()
         {
+            if (str == null)
+                return 8675309;
             return str.GetHashCode();
         }
     }

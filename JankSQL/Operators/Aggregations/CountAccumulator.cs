@@ -10,7 +10,8 @@
 
         public void Accumulate(ExpressionOperand op)
         {
-            count += 1;
+            if (!op.RepresentsNull)
+                count += 1;
         }
 
         public ExpressionOperand FinalValue()

@@ -16,6 +16,8 @@
             get { return nodeType; }
         }
 
+        public abstract bool RepresentsNull { get; }
+
         public abstract bool IsTrue();
 
         public abstract string AsString();
@@ -64,6 +66,11 @@
             if (isNegative)
                 d *= -1;
             return new ExpressionOperandDecimal(d);
+        }
+
+        internal static ExpressionOperand NullLiteral()
+        {
+            return new ExpressionOperandInteger(0, true);
         }
 
         internal static ExpressionOperand IntegerFromString(bool isNegative, string str)

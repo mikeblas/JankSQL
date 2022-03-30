@@ -22,8 +22,24 @@
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
+            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
             Assert.AreEqual(3+5, result.ResultSet.Row(0)[0].AsDouble());
         }
+
+        [TestMethod, Timeout(1000)]
+        public void TestAdditionWithNull()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 3 + NULL;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
+        }
+
 
         [TestMethod, Timeout(1000)]
         public void TestNegativeNumber()
@@ -36,6 +52,7 @@
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
+            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
             Assert.AreEqual(-32, result.ResultSet.Row(0)[0].AsDouble());
         }
 
@@ -51,9 +68,23 @@
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
+            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
             Assert.AreEqual(-32 * -133, result.ResultSet.Row(0)[0].AsDouble());
         }
 
+        [TestMethod, Timeout(1000)]
+        public void TestNegativeNumberMultiplyWithNull()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT -32 * NULL;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
+        }
 
         [TestMethod, Timeout(1000)]
         public void TestAdditionWhere()
@@ -66,8 +97,7 @@
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
-            Assert.AreEqual(8, result.ResultSet.Row(0)[0].AsDouble());
-
+            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
             Assert.AreEqual(3 + 5, result.ResultSet.Row(0)[0].AsDouble());
         }
 
@@ -76,6 +106,19 @@
         public void TestAdditionWhereNot()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 3+5 WHERE 1=0;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(0, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+        }
+
+
+        [TestMethod, Timeout(1000)]
+        public void TestAdditionWithNullWhereNot()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 3 + NULL WHERE 1=0;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             Assert.IsNotNull(result.ResultSet);
@@ -95,9 +138,37 @@
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(3, result.ResultSet.ColumnCount, "column count mismatch");
 
+            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
             Assert.AreEqual("hello", result.ResultSet.Row(0)[0].AsString());
+
+            Assert.IsFalse(result.ResultSet.Row(0)[1].RepresentsNull);
             Assert.AreEqual("goodbye", result.ResultSet.Row(0)[1].AsString());
+
+            Assert.IsFalse(result.ResultSet.Row(0)[2].RepresentsNull);
             Assert.AreEqual("Bob's Burgers", result.ResultSet.Row(0)[2].AsString());
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestThreeStringsAndNull()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT N'hello', 'goodbye', NULL, 'Bob''s Burgers';");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
+            Assert.AreEqual("hello", result.ResultSet.Row(0)[0].AsString());
+
+            Assert.IsFalse(result.ResultSet.Row(0)[1].RepresentsNull);
+            Assert.AreEqual("goodbye", result.ResultSet.Row(0)[1].AsString());
+
+            Assert.IsTrue(result.ResultSet.Row(0)[2].RepresentsNull);
+
+            Assert.IsFalse(result.ResultSet.Row(0)[3].RepresentsNull);
+            Assert.AreEqual("Bob's Burgers", result.ResultSet.Row(0)[3].AsString());
         }
 
         [TestMethod, Timeout(1000)]
@@ -111,7 +182,50 @@
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
+            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
             Assert.AreEqual("Hello, world", result.ResultSet.Row(0)[0].AsString());
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestConcatenateTwoStringsWithNull()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 'Hello' + ', world' + NULL;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestConcatenateNullWithStrings()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT NULL + 'Hello' + ', world';");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestAddNullWithNull()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT NULL + NULL;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
         }
 
         [TestMethod, Timeout(1000)]
@@ -124,6 +238,8 @@
             result.ResultSet.Dump();
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
             Assert.AreEqual("Hello, world, good day!", result.ResultSet.Row(0)[0].AsString());
         }
 
@@ -139,6 +255,7 @@
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
+            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
             Assert.AreEqual(295, result.ResultSet.Row(0)[0].AsDouble());
         }
 
@@ -153,6 +270,7 @@
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
+            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
             Assert.AreEqual(305, result.ResultSet.Row(0)[0].AsDouble());
         }
 
@@ -168,6 +286,7 @@
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
+            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
             Assert.AreEqual(-295, result.ResultSet.Row(0)[0].AsDouble());
         }
 
@@ -182,6 +301,7 @@
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
+            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
             Assert.AreEqual(305, result.ResultSet.Row(0)[0].AsDouble());
         }
 
@@ -353,12 +473,37 @@
             int[] nums = { -200, 300, 5, 0 };
             for (int n = 0; n < result.ResultSet.ColumnCount; n++)
             {
+                Assert.IsFalse(row[n].RepresentsNull);
                 Assert.AreEqual(ExpressionOperandType.INTEGER, row[n].NodeType);
-                Assert.AreEqual(nums[n], row[n].AsDouble());
+                Assert.AreEqual(nums[n], row[n].AsInteger());
             }
         }
 
+        [TestMethod, Timeout(1000)]
+        public void TestNumberIntegersWithNull()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT -200, 300, NULL, 5, 0;");
 
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(5, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Tuple row = result.ResultSet.Row(0);
+            int?[] nums = { -200, 300, null, 5, 0 };
+            for (int n = 0; n < result.ResultSet.ColumnCount; n++)
+            {
+                if (nums[n] == null)
+                    Assert.IsTrue(row[n].RepresentsNull);
+                else
+                {
+                    Assert.IsFalse(row[n].RepresentsNull);
+                    Assert.AreEqual(ExpressionOperandType.INTEGER, row[n].NodeType);
+                    Assert.AreEqual((int) nums[n], row[n].AsInteger());
+                }
+            }
+        }
 
         [TestMethod, Timeout(1000)]
         public void TestNumberDecimals()
@@ -375,10 +520,38 @@
             double[] nums = { 200, 300.1, 5.182837, 0 };
             for (int n = 0; n < result.ResultSet.ColumnCount; n++)
             {
+                Assert.IsFalse(row[n].RepresentsNull);
                 Assert.AreEqual(ExpressionOperandType.DECIMAL, row[n].NodeType);
                 Assert.AreEqual(nums[n], row[n].AsDouble(), 0.00000001);
             }
         }
+
+        [TestMethod, Timeout(1000)]
+        public void TestNumberDecimalsWithNull()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 200., 300.1, NULL, 5.182837, .0;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(5, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Tuple row = result.ResultSet.Row(0);
+            double?[] nums = { 200, 300.1,  null, 5.182837, 0 };
+            for (int n = 0; n < result.ResultSet.ColumnCount; n++)
+            {
+                if (nums[n] == null)
+                    Assert.IsTrue(row[n].RepresentsNull);
+                else
+                {
+                    Assert.IsFalse(row[n].RepresentsNull);
+                    Assert.AreEqual(ExpressionOperandType.DECIMAL, row[n].NodeType);
+                    Assert.AreEqual((double) nums[n], row[n].AsDouble(), 0.00000001);
+                }
+            }
+        }
+
 
         [TestMethod, Timeout(1000)]
         public void TestFunctionPI()
@@ -391,6 +564,7 @@
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
+            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
             Assert.AreEqual(3.14159, result.ResultSet.Row(0)[0].AsDouble(), 0.00001);
         }
 
@@ -415,6 +589,7 @@
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
+            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
             Assert.AreEqual(729, result.ResultSet.Row(0)[0].AsDouble());
         }
 
@@ -430,9 +605,38 @@
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
+            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
             Assert.AreEqual(729 * 2, result.ResultSet.Row(0)[0].AsDouble());
         }
 
+
+        [TestMethod, Timeout(1000)]
+        public void TestFunctionPOWERNullTimes()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT POWER(NULL, 3) * 2;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestFunctionPOWERTimesNull()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT POWER(9, 3) * NULL;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
+        }
 
         [TestMethod, Timeout(1000)]
         public void TestFunctionSQRT()
@@ -445,9 +649,24 @@
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
+            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
             Assert.AreEqual(1.41421356, result.ResultSet.Row(0)[0].AsDouble(), 0.00000001);
         }
 
+
+        [TestMethod, Timeout(1000)]
+        public void TestFunctionSQRTNull()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT SQRT(NULL);");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
+        }
 
         [TestMethod, Timeout(1000)]
         public void TestFailMissingOperator()

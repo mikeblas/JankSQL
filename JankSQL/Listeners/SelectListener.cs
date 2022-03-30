@@ -59,10 +59,23 @@
 
                 if (elem.column_elem() != null)
                 {
-                    ExpressionNode n = new ExpressionOperandFromColumn(FullColumnName.FromContext(elem.column_elem().full_column_name()));
-                    x = new () { n };
+                    // NULL in a select list is a column element, not an expression element
+                    if (elem.column_elem().NULL_() != null)
+                    {
+                        ExpressionNode n = ExpressionOperand.NullLiteral();
+                        x = new () { n };
+                    }
+                    else
+                    {
+                        ExpressionNode n = new ExpressionOperandFromColumn(FullColumnName.FromContext(elem.column_elem().full_column_name()));
+                        x = new () { n };
 
-                    fcn = FullColumnName.FromContext(elem.column_elem().full_column_name());
+                        fcn = FullColumnName.FromContext(elem.column_elem().full_column_name());
+                    }
+
+                    // column elements have the AS clause here
+                    if (elem.column_elem().as_column_alias() != null)
+                        fcn = FullColumnName.FromColumnName(elem.column_elem().as_column_alias().column_alias().id_().GetText());
                 }
                 else if (elem.expression_elem() != null)
                 {

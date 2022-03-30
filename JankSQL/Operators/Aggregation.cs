@@ -80,11 +80,23 @@
                 // the number of columns equal to the number of aggregaton expressions
                 Tuple outputRow = Tuple.CreateEmpty(expressions.Count);
 
-                var kvFirst = dictKeyToAggs.First();
-                for (int j = 0; j < kvFirst.Value.Count; j++)
+                if (dictKeyToAggs.Count == 0)
                 {
-                    Console.WriteLine($"Expression: {expressions[j]}");
-                    outputRow[j] = kvFirst.Value[j].FinalValue();
+                    // if the dictionary is empty, no row was presented so each aggregate
+                    // will present its default value
+                    List<IAggregateAccumulator> aggs = GetAccumulatorRow();
+
+                    for (int i = 0; i < aggs.Count; i++)
+                        outputRow[i] = aggs[i].FinalValue();
+                }
+                else
+                {
+                    var kvFirst = dictKeyToAggs.First();
+                    for (int j = 0; j < kvFirst.Value.Count; j++)
+                    {
+                        Console.WriteLine($"Expression: {expressions[j]}");
+                        outputRow[j] = kvFirst.Value[j].FinalValue();
+                    }
                 }
 
                 resultSet.AddRow(outputRow);

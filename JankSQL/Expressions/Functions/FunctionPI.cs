@@ -11,9 +11,7 @@
 
         internal override ExpressionOperand Evaluate(Stack<ExpressionOperand> stack)
         {
-            double d = Math.PI;
-            ExpressionOperand result = ExpressionOperand.DecimalFromDouble(d);
-            return result;
+            return ExpressionOperand.DecimalFromDouble(Math.PI);
         }
     }
 }
