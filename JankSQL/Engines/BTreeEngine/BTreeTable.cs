@@ -134,6 +134,10 @@
 
         public int DeleteRows(List<ExpressionOperandBookmark> bookmarksToDelete)
         {
+            // nothing to delete?
+            if (bookmarksToDelete.Count == 0)
+                return 0;
+
             if (bookmarksToDelete[0].Tuple.Length != keyColumnNames.Count)
                 throw new ArgumentException($"bookmark key should be {keyColumnNames.Count} columns, received {bookmarksToDelete[0].Tuple.Length} columns");
 

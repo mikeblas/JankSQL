@@ -39,7 +39,7 @@
 
         public override double AsDouble()
         {
-            if (isNull)
+            if (isNull || str == null)
                 throw new InvalidOperationException("can't convert null NVARCHAR to double");
             return double.Parse(str);
         }
@@ -51,14 +51,14 @@
 
         public override string AsString()
         {
-            if (isNull)
+            if (isNull || str == null)
                 throw new InvalidOperationException("can't convert null NVARCHAR to string");
             return str;
         }
 
         public override int AsInteger()
         {
-            if (isNull)
+            if (isNull || str == null)
                 throw new InvalidOperationException("can't convert null NVARCHAR to integer");
             return int.Parse(str);
         }
@@ -179,7 +179,6 @@
 
         public override ExpressionOperand OperatorTimes(ExpressionOperand other)
         {
-
             if (RepresentsNull || other.RepresentsNull)
                 return new ExpressionOperandNVARCHAR(null, true);
 

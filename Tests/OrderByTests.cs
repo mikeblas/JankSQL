@@ -229,7 +229,7 @@
                 int r = random.Next();
                 checksum += r;
                 string statement = $"INSERT INTO TransientTestTable (SomeKey, SomeInteger) VALUES({i}, {r});";
-                var ecInsert = Parser.ParseSQLFileFromString(statement);
+                var ecInsert = Parser.QuietParseSQLFileFromString(statement);
 
                 Assert.IsNotNull(ecInsert);
                 Assert.AreEqual(0, ecInsert.TotalErrors);
@@ -244,7 +244,7 @@
 
             ExecuteResult resultsSelect = ecSelect.ExecuteSingle(engine);
             Assert.IsNotNull(resultsSelect.ResultSet, resultsSelect.ErrorMessage);
-            resultsSelect.ResultSet.Dump();
+            // resultsSelect.ResultSet.Dump();
             Assert.AreEqual(testRowCount, resultsSelect.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(2, resultsSelect.ResultSet.ColumnCount, "column count mismatch");
 

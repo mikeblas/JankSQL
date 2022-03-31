@@ -7,16 +7,16 @@
     {
         private readonly IComponentOutput myInput;
         private readonly Engines.IEngineTable engineTable;
-        private readonly List<Expression> predicateExpressions;
+        private readonly Expression? predicateExpression;
         private readonly List<ExpressionOperandBookmark> bookmarksToDelete = new ();
         private readonly List<Tuple> rowsToInsert = new ();
         private readonly List<SetOperation> setList;
 
-        internal Update(Engines.IEngineTable targetTable, IComponentOutput input, List<Expression> predicateExpressions, List<SetOperation> setList)
+        internal Update(Engines.IEngineTable targetTable, IComponentOutput input, Expression? predicateExpression, List<SetOperation> setList)
         {
             myInput = input;
-            this.engineTable = targetTable;
-            this.predicateExpressions = predicateExpressions;
+            engineTable = targetTable;
+            this.predicateExpression = predicateExpression;
             this.setList = setList;
         }
 
@@ -40,15 +40,10 @@
             for (int i = 0; i < batch.RowCount; i++)
             {
                 bool predicatePassed = true;
-                foreach (var p in predicateExpressions)
+                if (predicateExpression != null)
                 {
-                    ExpressionOperand result = p.Evaluate(new ResultSetValueAccessor(batch, i));
-
-                    if (!result.IsTrue())
-                    {
-                        predicatePassed = false;
-                        break;
-                    }
+                    ExpressionOperand result = predicateExpression.Evaluate(new ResultSetValueAccessor(batch, i));
+                    predicatePassed = result.IsTrue();
                 }
 
                 if (!predicatePassed)
@@ -56,8 +51,10 @@
 
                 // meets the predicate, so delete it
                 int bookmarkIndex = batch.ColumnIndex(FullColumnName.FromColumnName("bookmark_key"));
-                int bookmark = batch.Row(i)[bookmarkIndex].AsInteger();
-                bookmarksToDelete.Add(ExpressionOperandBookmark.FromInteger(bookmark));
+                ExpressionOperandBookmark? bookmark = batch.Row(i)[bookmarkIndex] as ExpressionOperandBookmark;
+                if (bookmark == null)
+                    throw new InternalErrorException("Expected bookmark column at index {bookmarkIndex}");
+                bookmarksToDelete.Add(bookmark);
 
                 // and build a replacement row
                 Tuple modified = Tuple.CreateEmpty(batch.ColumnCount - 1);
