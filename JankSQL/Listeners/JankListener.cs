@@ -6,13 +6,23 @@
 
     using JankSQL.Contexts;
     using JankSQL.Expressions;
-    // using ExecutionContext = JankSQL.Contexts.ExecutionContext;
 
     public partial class JankListener : TSqlParserBaseListener
     {
         private readonly ExecutionContext executionContext = new ();
+        private readonly bool quiet = false;
 
         private int depth = 0;
+
+        internal JankListener()
+        {
+            quiet = false;
+        }
+        
+        internal JankListener(bool quiet)
+        {
+            this.quiet = quiet;
+        }
 
         internal ExecutionContext ExecutionContext
         {
@@ -23,8 +33,11 @@
         {
             base.EnterEveryRule(context);
 
-            var s = new string(' ', depth);
-            Console.WriteLine($"+{s}{context.GetType().Name}, {context.GetText()}");
+            if (!quiet)
+            {
+                var s = new string(' ', depth);
+                Console.WriteLine($"+{s}{context.GetType().Name}, {context.GetText()}");
+            }
             depth++;
         }
 
@@ -32,12 +45,13 @@
         {
             base.ExitEveryRule(context);
 
-            var s = new string(' ', depth);
-            Console.WriteLine($"-{s}{context.GetType().Name}, {context.GetText()}");
+            if (!quiet)
+            {
+                var s = new string(' ', depth);
+                Console.WriteLine($"-{s}{context.GetType().Name}, {context.GetText()}");
+            }
             depth--;
         }
-
-
 
         internal Expression GobbleExpression(TSqlParser.ExpressionContext expr)
         {
@@ -55,7 +69,8 @@
                     if (primitiveContext.constant().FLOAT() != null)
                     {
                         string str = primitiveContext.constant().FLOAT().GetText();
-                        Console.WriteLine($"constant: '{str}'");
+                        if (!quiet)
+                            Console.WriteLine($"constant: '{str}'");
                         bool isNegative = primitiveContext.constant().sign() != null;
                         ExpressionNode n = ExpressionOperand.DecimalFromString(isNegative, str);
                         x.Add(n);
@@ -63,7 +78,8 @@
                     else if (primitiveContext.constant().DECIMAL() != null)
                     {
                         string str = primitiveContext.constant().DECIMAL().GetText();
-                        Console.WriteLine($"constant: '{str}'");
+                        if (!quiet)
+                            Console.WriteLine($"constant: '{str}'");
                         bool isNegative = primitiveContext.constant().sign() != null;
 
                         ExpressionOperandType t = ExpressionOperand.IntegerOrDecimal(str);
@@ -82,13 +98,15 @@
                         string str = primitiveContext.constant().STRING().GetText();
                         if (str[0] == 'N')
                         {
-                            Console.WriteLine($"constant: '{primitiveContext.constant().STRING()}'");
+                            if (!quiet)
+                                Console.WriteLine($"constant: '{primitiveContext.constant().STRING()}'");
                             ExpressionNode n = ExpressionOperand.NVARCHARFromStringContext(str);
                             x.Add(n);
                         }
                         else
                         {
-                            Console.WriteLine($"constant: '{primitiveContext.constant().STRING()}'");
+                            if (!quiet)
+                                Console.WriteLine($"constant: '{primitiveContext.constant().STRING()}'");
                             ExpressionNode n = ExpressionOperand.VARCHARFromStringContext(str);
                             x.Add(n);
                         }

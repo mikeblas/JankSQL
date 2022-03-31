@@ -12,7 +12,6 @@
             base.EnterInsert_statement(context);
 
             insertContext = new InsertContext(context, FullTableName.FromFullTableNameContext(context.ddl_object().full_table_name()));
-            Console.WriteLine($"INTO {insertContext.TableName}");
         }
 
 
@@ -26,10 +25,7 @@
             List<FullColumnName> columns = new ();
 
             foreach (var col in context.insert_column_id())
-            {
-                Console.WriteLine(col.id_()[0].GetText());
                 columns.Add(FullColumnName.FromColumnName(col.id_()[0].GetText()));
-            }
 
             insertContext.TargetColumns = columns;
         }
