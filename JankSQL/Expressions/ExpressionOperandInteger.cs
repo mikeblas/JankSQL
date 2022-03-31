@@ -38,7 +38,7 @@
         public override double AsDouble()
         {
             if (isNull)
-                throw new InvalidOperationException("can't convert null INTEGERto double");
+                throw new InvalidOperationException("can't convert null INTEGER to double");
             return (double)n;
         }
 

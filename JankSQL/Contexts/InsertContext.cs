@@ -35,8 +35,16 @@
                 throw new ExecutionException($"Table {TableName} does not exist");
             else
             {
-                if (engineTarget.ColumnCount != constructors[0].Count)
-                    throw new ExecutionException($"InsertContext expected {engineTarget.ColumnCount} columns, got {constructors[0].Count}");
+                // no target column names list means we implicitly use the list from the target table, in order
+                if (targetColumns == null)
+                {
+                    targetColumns = new List<FullColumnName>();
+                    for (int i = 0; i < engineTarget.ColumnCount; i++)
+                        targetColumns.Add(engineTarget.ColumnName(i));
+                }
+
+                if (targetColumns.Count != constructors[0].Count)
+                    throw new ExecutionException($"InsertContext expected {targetColumns.Count} columns, got {constructors[0].Count}");
 
                 ConstantRowSource source = new (TargetColumns, constructors);
                 Insert inserter = new (engineTarget, TargetColumns, source);

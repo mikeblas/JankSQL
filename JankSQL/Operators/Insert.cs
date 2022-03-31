@@ -11,13 +11,6 @@
             myInput = input;
             engineTable = destTable;
 
-            // no target column names list means we implicitly use the list from the target table, in order
-            if (targetColumns == null)
-            {
-                targetColumns = new List<FullColumnName>();
-                for (int i = 0; i < destTable.ColumnCount; i++)
-                    targetColumns.Add(destTable.ColumnName(i));
-            }
 
             targetIndexToInputIndex = new Dictionary<int, int>();
 
