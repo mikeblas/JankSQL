@@ -8,7 +8,6 @@
         private readonly IComponentOutput myInput;
         private readonly Engines.IEngineTable engineTable;
         private readonly Expression? predicateExpression;
-        private readonly List<Expression> predicateExpressions;
         private readonly List<ExpressionOperandBookmark> bookmarksToDelete = new ();
         private readonly List<Tuple> rowsToInsert = new ();
         private readonly List<SetOperation> setList;
@@ -16,7 +15,7 @@
         internal Update(Engines.IEngineTable targetTable, IComponentOutput input, Expression? predicateExpression, List<SetOperation> setList)
         {
             myInput = input;
-            this.engineTable = targetTable;
+            engineTable = targetTable;
             this.predicateExpression = predicateExpression;
             this.setList = setList;
         }
