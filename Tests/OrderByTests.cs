@@ -3,6 +3,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using JankSQL;
     using Engines = JankSQL.Engines;
+    using System.Diagnostics;
 
     public class OrderByTests
     {
@@ -222,22 +223,33 @@
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsCreate.ExecuteStatus, resultsCreate.ErrorMessage);
             Assert.IsNull(resultsCreate.ResultSet);
 
+            Stopwatch parsing = new ();
+            Stopwatch execution = new ();
+
             // insert some rows
             int checksum = 0;
             for (int i = 1; i <= testRowCount; i++)
             {
                 int r = random.Next();
                 checksum += r;
+                parsing.Start();
                 string statement = $"INSERT INTO TransientTestTable (SomeKey, SomeInteger) VALUES({i}, {r});";
                 var ecInsert = Parser.QuietParseSQLFileFromString(statement);
+                parsing.Stop();
 
                 Assert.IsNotNull(ecInsert);
                 Assert.AreEqual(0, ecInsert.TotalErrors);
 
+                execution.Start();
                 ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
+                execution.Stop();
+
                 Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsInsert.ExecuteStatus, resultsCreate.ErrorMessage);
                 Assert.IsNotNull(resultsInsert.ResultSet);
             }
+
+            Console.WriteLine($"parsing:   {parsing.ElapsedMilliseconds}");
+            Console.WriteLine($"execution: {execution.ElapsedMilliseconds}");
 
             // select it out
             var ecSelect = Parser.ParseSQLFileFromString("SELECT SomeKey, SomeInteger FROM TransientTestTable ORDER BY SomeKey;");
