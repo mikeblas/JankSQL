@@ -93,6 +93,27 @@ namespace Tests
             Assert.IsTrue(moreIntegers.Contains(100));
         }
 
+        [TestMethod, Timeout(2000)]
+        [ExpectedException(typeof(ExecutionException))]
+        public void TestFailInsertThreeNotAllColumns()
+        {
+            // create a table
+            var ecCreate = Parser.ParseSQLFileFromString("CREATE TABLE TransientTestTable (SomeInteger INTEGER, SomeString VARCHAR(100), AnotherOne INTEGER);");
+
+            Assert.IsNotNull(ecCreate);
+            Assert.AreEqual(0, ecCreate.TotalErrors);
+
+            ExecuteResult resultsCreate = ecCreate.ExecuteSingle(engine);
+            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsCreate.ExecuteStatus, resultsCreate.ErrorMessage);
+            Assert.IsNull(resultsCreate.ResultSet);
+
+            // insert some rows, but the last one doesn't have all columns
+            var ecInsert = Parser.ParseSQLFileFromString("INSERT INTO TransientTestTable (SomeInteger, SomeString, AnotherOne) VALUES(1, 'moe', 100), (2, 'larry', 200), (3, 'curly');");
+
+            //TODO: how does listener raise an error?
+            // Assert.IsTrue(ec.TotalErrors > 0, "Expected an error");
+            // Assert.IsNull(ecInsert);
+        }
 
         [TestMethod, Timeout(2000)]
         public void TestInsertOne()
@@ -197,7 +218,6 @@ namespace Tests
             int cityIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("city_name"));
             int stateIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("state_code"));
             int popIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("population"));
-
 
             Assert.AreEqual("West Hartford", resultSelect.ResultSet.Row(0)[cityIndex].AsString());
             Assert.AreEqual("CT", resultSelect.ResultSet.Row(0)[stateIndex].AsString());

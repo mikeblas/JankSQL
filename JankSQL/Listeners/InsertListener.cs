@@ -66,6 +66,8 @@
 
             List<List<Expression>> total = new ();
 
+            int? constructorColumns = null;
+
             foreach (var expressionList in context.expression_list())
             {
                 List<Expression> constructor = new ();
@@ -73,6 +75,14 @@
                 {
                     Expression x = GobbleExpression(expr);
                     constructor.Add(x);
+                }
+
+                if (constructorColumns == null)
+                    constructorColumns = constructor.Count;
+                else
+                {
+                    if (constructorColumns != constructor.Count)
+                        throw new ExecutionException($"constructors should have {constructorColumns} columns, found {constructor.Count}");
                 }
 
                 total.Add(constructor);
