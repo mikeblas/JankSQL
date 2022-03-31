@@ -48,7 +48,7 @@
         private readonly TSqlParser.Update_statementContext context;
         private readonly List<SetOperation> setList = new ();
 
-        private PredicateContext? predicateContext;
+        private Expression? predicateExpression;
 
         internal UpdateContext(TSqlParser.Update_statementContext context, FullTableName tableName)
         {
@@ -56,15 +56,15 @@
             this.tableName = tableName;
         }
 
-        internal PredicateContext? PredicateContext
-        {
-            get { return predicateContext; }
-            set { predicateContext = value; }
-        }
-
         internal FullTableName TableName
         {
             get { return tableName; }
+        }
+
+        internal Expression? PredicateExpression
+        {
+            get { return predicateExpression; }
+            set { predicateExpression = value; }
         }
 
         public void Dump()
@@ -72,17 +72,10 @@
             Console.WriteLine($"UPDATE {tableName}");
 
             Console.WriteLine("   Predicates:");
-            if (PredicateContext == null || PredicateContext.PredicateExpressionListCount == 0)
-            {
+            if (predicateExpression == null)
                 Console.WriteLine("      no predicates");
-            }
             else
-            {
-                for (int i = 0; i < PredicateContext.PredicateExpressionListCount; i++)
-                {
-                    Console.WriteLine($"       {PredicateContext.PredicateExpressions[i]}");
-                }
-            }
+                Console.WriteLine($"       {predicateExpression}");
 
             Console.WriteLine("   Assignments:");
             if (setList == null || setList.Count == 0)
@@ -107,12 +100,9 @@
                 throw new ExecutionException($"Table {tableName} does not exist");
             else
             {
-                if (PredicateContext == null)
-                    throw new InternalErrorException($"Expected predicate on UPDATE statement");
-
                 // found the source table, so build ourselves up
                 TableSource source = new (engineSource);
-                Update update = new (engineSource, source, PredicateContext.PredicateExpressions, setList);
+                Update update = new (engineSource, source, predicateExpression, setList);
 
                 while (true)
                 {
@@ -129,7 +119,7 @@
 
         internal void AddAssignment(FullColumnName fcn, Expression x)
         {
-            SetOperation op = new SetOperation(fcn, SetOperator.ASSIGN, x);
+            SetOperation op = new (fcn, SetOperator.ASSIGN, x);
             setList.Add(op);
         }
 

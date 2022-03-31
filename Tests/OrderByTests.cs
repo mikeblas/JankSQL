@@ -244,7 +244,7 @@
 
             ExecuteResult resultsSelect = ecSelect.ExecuteSingle(engine);
             Assert.IsNotNull(resultsSelect.ResultSet, resultsSelect.ErrorMessage);
-            resultsSelect.ResultSet.Dump();
+            // resultsSelect.ResultSet.Dump();
             Assert.AreEqual(testRowCount, resultsSelect.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(2, resultsSelect.ResultSet.ColumnCount, "column count mismatch");
 
