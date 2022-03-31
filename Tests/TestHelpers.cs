@@ -1,11 +1,11 @@
 ﻿
-using JankSQL;
-using Engines = JankSQL.Engines;
-
-using static JankSQL.ExpressionOperandType;
 
 namespace Tests
 {
+    using JankSQL;
+    using Engines = JankSQL.Engines;
+    using static JankSQL.ExpressionOperandType;
+
     internal class TestHelpers
     {
         static internal void InjectTableMyTable(Engines.IEngine engine)

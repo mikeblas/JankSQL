@@ -692,5 +692,16 @@
             //TODO: how does listener raise an error?
             // Assert.IsTrue(ec.TotalErrors > 0, "Expected an error");
         }
+
+        [TestMethod, Timeout(1000)]
+        [ExpectedException(typeof(ExecutionException))]
+        public void TestFailBogusFunctionName()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT BOGUS(2)");
+
+            //TODO: how does listener raise an error?
+            // Assert.IsTrue(ec.TotalErrors > 0, "Expected an error");
+        }
+
     }
 }

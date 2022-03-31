@@ -165,9 +165,14 @@
 
             for (int i = 0; i < row.Length; i++)
             {
-                string col = row[i].AsString();
+                //TODO: make a good representation of NULL in CSV
+                string col;
+                if (row[i].RepresentsNull)
+                    col = "NULL";
+                else
+                    col = row[i].AsString();
                 if (i > 0)
-                    sb.Append(",");
+                    sb.Append(',');
                 sb.Append(col);
             }
 
