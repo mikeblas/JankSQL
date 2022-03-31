@@ -6,7 +6,7 @@
         private readonly Engines.IEngineTable engineTable;
         private readonly Dictionary<int, int> targetIndexToInputIndex;
 
-        internal Insert(Engines.IEngineTable destTable, List<FullColumnName>? targetColumns, IComponentOutput input)
+        internal Insert(Engines.IEngineTable destTable, List<FullColumnName> targetColumns, IComponentOutput input)
         {
             myInput = input;
             engineTable = destTable;

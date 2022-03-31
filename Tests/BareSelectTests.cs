@@ -565,7 +565,7 @@
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
             Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
-            Assert.AreEqual(3.14159, result.ResultSet.Row(0)[0].AsDouble(), 0.00001);
+            Assert.AreEqual(3.1415926, result.ResultSet.Row(0)[0].AsDouble(), 0.0000001);
         }
 
         [TestMethod, Timeout(1000)]
@@ -653,6 +653,21 @@
             Assert.AreEqual(1.41421356, result.ResultSet.Row(0)[0].AsDouble(), 0.00000001);
         }
 
+        [TestMethod, Timeout(1000)]
+        public void TestNegateFunctionSQRT()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT - SQRT(2);");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
+            Assert.AreEqual(-1.41421356, result.ResultSet.Row(0)[0].AsDouble(), 0.00000001);
+        }
+
 
         [TestMethod, Timeout(1000)]
         public void TestFunctionSQRTNull()
@@ -666,6 +681,51 @@
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
             Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestFunctionPOWERFunction()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT POWER(POWER(3, 2), 3);");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
+            Assert.AreEqual(729, result.ResultSet.Row(0)[0].AsDouble());
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestFunctionFunctionPOWER()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT POWER(10, POWER(2, 3));");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
+            Assert.AreEqual(100000000, result.ResultSet.Row(0)[0].AsDouble());
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestFunctionSqrtPiPOWER()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT POWER(SQRT(PI()), 2);");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
+            Assert.AreEqual(3.1415926, result.ResultSet.Row(0)[0].AsDouble(), 0.0000001);
         }
 
         [TestMethod, Timeout(1000)]
@@ -701,6 +761,82 @@
 
             //TODO: how does listener raise an error?
             // Assert.IsTrue(ec.TotalErrors > 0, "Expected an error");
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestSelectIsNull()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT ISNULL(NULL, 35);");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
+            Assert.AreEqual(35, result.ResultSet.Row(0)[0].AsInteger());
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestSelectIsNullNotNull()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT ISNULL(93, 35);");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
+            Assert.AreEqual(93, result.ResultSet.Row(0)[0].AsInteger());
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestSelectIsNullNull()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT ISNULL(NULL, NULL);");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
+        }
+
+
+        [TestMethod, Timeout(1000)]
+        public void TestSelectIsNullFunction()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT ISNULL(NULL, POWER(10, 3));");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
+            Assert.AreEqual(1000, result.ResultSet.Row(0)[0].AsInteger());
+        }
+
+
+        [TestMethod, Timeout(1000)]
+        public void TestSelectIsNullExpression()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT ISNULL(NULL, 250 + 10 - 3);");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
+            Assert.AreEqual(250 + 10 - 3, result.ResultSet.Row(0)[0].AsInteger());
         }
 
     }

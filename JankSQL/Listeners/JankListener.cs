@@ -172,6 +172,16 @@
                         x.Add(n);
                         x.ContainsAggregate = true;
                     }
+                    else if (childContext is TSqlParser.ISNULLContext bifc)
+                    {
+                        ExpressionFunction f = new Expressions.Functions.FunctionIsNull();
+                        stack.Insert(firstTop, f);
+
+                        stack.Add(bifc.right);
+                        stack.Add(bifc.left);
+
+                        Console.WriteLine($"functionCallContext: it's ISNULL!");
+                    }
                     else
                     {
                         Console.WriteLine($"functionCallContext: skpping {childContext.GetText()}");

@@ -99,6 +99,8 @@ namespace JankSQL
             str = "SELECT 3 + NULL;";
             str = "SELECT SQRT(NULL);";
             str = "SELECT -200, 300, NULL, 5, 0;";
+            str = "SELECT ISNULL(NULL, 35)";
+            str = "SELECT ISNULL(92, 35)";
 
 
             // Engines.DynamicCSVEngine engine = Engines.DynamicCSVEngine.OpenAlways("F:\\JankTests\\Test33");
