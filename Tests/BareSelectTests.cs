@@ -500,7 +500,7 @@
                 {
                     Assert.IsFalse(row[n].RepresentsNull);
                     Assert.AreEqual(ExpressionOperandType.INTEGER, row[n].NodeType);
-                    Assert.AreEqual((int) nums[n], row[n].AsInteger());
+                    Assert.AreEqual(nums[n], row[n].AsInteger());
                 }
             }
         }
@@ -547,7 +547,7 @@
                 {
                     Assert.IsFalse(row[n].RepresentsNull);
                     Assert.AreEqual(ExpressionOperandType.DECIMAL, row[n].NodeType);
-                    Assert.AreEqual((double) nums[n], row[n].AsDouble(), 0.00000001);
+                    Assert.AreEqual((double) nums[n]!, row[n].AsDouble(), 0.00000001);
                 }
             }
         }

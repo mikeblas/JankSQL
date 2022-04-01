@@ -1,26 +1,10 @@
 ﻿namespace JankSQL
 {
-    public class ExpressionUnaryOperator : ExpressionOperator, IEquatable<ExpressionUnaryOperator>
+    public class ExpressionUnaryOperator : ExpressionOperator
     {
         internal ExpressionUnaryOperator(string str)
             : base(str)
         {
-        }
-
-        public bool Equals(ExpressionUnaryOperator? other)
-        {
-            if (other == null)
-                throw new ArgumentNullException(nameof(other));
-
-            if (ReferenceEquals(this, other))
-                return true;
-
-            return Str.Equals(other.Str, StringComparison.OrdinalIgnoreCase);
-        }
-
-        public override bool Equals(object? obj)
-        {
-            return Equals(obj as ExpressionUnaryOperator);
         }
 
         internal static ExpressionUnaryOperator GetUnaryOperator(TSqlParser.Unary_operator_expressionContext context)

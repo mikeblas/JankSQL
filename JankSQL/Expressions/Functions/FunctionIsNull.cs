@@ -1,5 +1,4 @@
-﻿
-namespace JankSQL.Expressions.Functions
+﻿namespace JankSQL.Expressions.Functions
 {
     internal class FunctionIsNull : ExpressionFunction
     {
