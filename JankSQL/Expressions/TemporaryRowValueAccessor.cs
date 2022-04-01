@@ -1,4 +1,4 @@
-﻿namespace JankSQL
+﻿namespace JankSQL.Expressions
 {
     /// <summary>
     /// wraps a discrete row and a list of column names to be used by

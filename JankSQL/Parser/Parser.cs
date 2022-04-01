@@ -38,6 +38,14 @@
             return ParseTreeFromLexer(lexer);
         }
 
+        public static ExecutableBatch QuietParseSQLFileFromString(string str)
+        {
+            ICharStream s = CharStreams.fromString(str);
+            CaseChangingCharStream upper = new CaseChangingCharStream(s, true);
+            var lexer = new TSqlLexer(upper);
+            return QuietParseTreeFromLexer(lexer);
+        }
+
         /// <summary>
         /// Parse a SQL File from a TextReader. (A File is a set of executable batches of
         /// statements, not necessarily a disk file.)
@@ -71,6 +79,16 @@
         /// <returns>an ExecutableBatch.</returns>
         private static ExecutableBatch ParseTreeFromLexer(TSqlLexer lexer)
         {
+            return ParseTreeFromLexer(lexer, false);
+        }
+
+        private static ExecutableBatch QuietParseTreeFromLexer(TSqlLexer lexer)
+        {
+            return ParseTreeFromLexer(lexer, true);
+        }
+
+        private static ExecutableBatch ParseTreeFromLexer(TSqlLexer lexer, bool quiet)
+        {
             var tokenErrorListener = DescriptiveErrorListener.Instance;
             lexer.RemoveErrorListeners();
             lexer.AddErrorListener(tokenErrorListener);
@@ -86,15 +104,14 @@
 
             ExecutionContext? context = null;
 
-            Console.WriteLine($"{parser.NumberOfSyntaxErrors} syntax errors");
             if (parser.NumberOfSyntaxErrors == 0)
             {
-                var ml = new JankListener();
+                var ml = new JankListener(quiet);
                 ParseTreeWalker.Default.Walk(ml, tree);
                 context = ml.ExecutionContext;
             }
 
-            ExecutableBatch batch = new ExecutableBatch(errorListener.ErrorList, tokenErrorListener.ErrorList, context);
+            ExecutableBatch batch = new (errorListener.ErrorList, tokenErrorListener.ErrorList, context);
             return batch;
         }
     }

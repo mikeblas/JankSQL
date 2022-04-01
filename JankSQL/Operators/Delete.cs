@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Operators
 {
+    using JankSQL.Expressions;
+
     internal class Delete : IComponentOutput
     {
         private readonly IComponentOutput myInput;

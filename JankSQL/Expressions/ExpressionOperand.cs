@@ -1,5 +1,7 @@
 ﻿namespace JankSQL
 {
+    using JankSQL.Expressions;
+
     public abstract class ExpressionOperand : ExpressionNode, ICloneable, IComparable<ExpressionOperand>
     {
         private readonly ExpressionOperandType nodeType;
@@ -13,6 +15,8 @@
         {
             get { return nodeType; }
         }
+
+        public abstract bool RepresentsNull { get; }
 
         public abstract bool IsTrue();
 
@@ -62,6 +66,11 @@
             if (isNegative)
                 d *= -1;
             return new ExpressionOperandDecimal(d);
+        }
+
+        internal static ExpressionOperand NullLiteral()
+        {
+            return new ExpressionOperandInteger(0, true);
         }
 
         internal static ExpressionOperand IntegerFromString(bool isNegative, string str)

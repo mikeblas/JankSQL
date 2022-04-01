@@ -22,6 +22,10 @@
 
         public ExpressionOperand FinalValue()
         {
+            // max of nothing is nothing
+            if (max == null)
+                return ExpressionOperand.NullLiteral();
+
             return max;
         }
     }

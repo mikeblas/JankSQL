@@ -13,11 +13,24 @@
             if (sum == null)
                 sum = op;
             else
-                sum.AddToSelf(op);
+            {
+                if (!sum.RepresentsNull)
+                {
+                    if (op.RepresentsNull)
+                        sum = ExpressionOperand.NullLiteral();
+                    else
+                        sum.AddToSelf(op);
+                }
+            }
         }
 
         public ExpressionOperand FinalValue()
         {
+            // a sum of no rows is NULL
+            if (sum == null)
+                return ExpressionOperand.NullLiteral();
+
+            // otherwise, we return our sum
             return sum;
         }
     }

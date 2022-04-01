@@ -3,7 +3,7 @@
 /// such arrayts can be used as keys in hashed containers, like Dictionary<> in
 /// the implementation of the Aggregation operator.
 /// </summary>
-namespace JankSQL
+namespace JankSQL.Expressions
 {
     internal class ExpressionOperandEqualityComparator : IEqualityComparer<Tuple>
     {

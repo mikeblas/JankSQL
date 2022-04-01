@@ -1,11 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using JankSQL;
-using Engines = JankSQL.Engines;
-
-
-namespace Tests
+﻿namespace Tests
 {
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using JankSQL;
+    using Engines = JankSQL.Engines;
+    using System.Diagnostics;
+
     public class OrderByTests
     {
         internal string mode = "base";
@@ -118,7 +117,26 @@ namespace Tests
             }
         }
 
+        [TestMethod]
+        public void TestOrderByOneIntegerFilterAsc()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT number_id FROM ten WHERE is_even = 1 ORDER BY number_id ASC;");
 
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            result.ResultSet.Dump();
+            Assert.AreEqual(5, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            int previous = result.ResultSet.Row(0)[0].AsInteger();
+
+            for (int i = 1; i < result.ResultSet.RowCount; i++)
+            {
+                int current = result.ResultSet.Row(i)[0].AsInteger();
+                Assert.IsTrue(previous.CompareTo(current) <= 0, $"expected {previous} <= {current}");
+                previous = current;
+            }
+        }
 
         [TestMethod]
         public void TestOrderByOneIntegerDesc()
@@ -143,7 +161,54 @@ namespace Tests
 
 
         [TestMethod]
-        public void TestOrderByManynIntegers()
+        public void TestOrderByOneIntegerFilterDesc()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT number_id FROM ten WHERE is_even = 0 ORDER BY number_id DESC;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            result.ResultSet.Dump();
+            Assert.AreEqual(5, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            int previous = result.ResultSet.Row(0)[0].AsInteger();
+
+            for (int i = 1; i < result.ResultSet.RowCount; i++)
+            {
+                int current = result.ResultSet.Row(i)[0].AsInteger();
+                Assert.IsTrue(previous.CompareTo(current) >= 0, $"expected {previous} >= {current}");
+                previous = current;
+            }
+        }
+
+
+        [TestMethod]
+        public void TestOrderByOneIntegerFilteredAllDesc()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT number_id FROM ten WHERE is_even = 35 ORDER BY number_id DESC;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            result.ResultSet.Dump();
+            Assert.AreEqual(0, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+        }
+
+
+        [TestMethod]
+        public void TestOrderByOneIntegerFilteredAll()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT number_id FROM ten WHERE is_even = 35 ORDER BY number_id;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            result.ResultSet.Dump();
+            Assert.AreEqual(0, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+        }
+
+        [TestMethod]
+        public void TestOrderByManyNIntegers()
         {
             Random random = new ();
             int testRowCount = 10000;
@@ -158,29 +223,40 @@ namespace Tests
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsCreate.ExecuteStatus, resultsCreate.ErrorMessage);
             Assert.IsNull(resultsCreate.ResultSet);
 
+            Stopwatch parsing = new ();
+            Stopwatch execution = new ();
+
             // insert some rows
             int checksum = 0;
             for (int i = 1; i <= testRowCount; i++)
             {
                 int r = random.Next();
                 checksum += r;
+                parsing.Start();
                 string statement = $"INSERT INTO TransientTestTable (SomeKey, SomeInteger) VALUES({i}, {r});";
-                var ecInsert = Parser.ParseSQLFileFromString(statement);
+                var ecInsert = Parser.QuietParseSQLFileFromString(statement);
+                parsing.Stop();
 
                 Assert.IsNotNull(ecInsert);
                 Assert.AreEqual(0, ecInsert.TotalErrors);
 
+                execution.Start();
                 ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
+                execution.Stop();
+
                 Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsInsert.ExecuteStatus, resultsCreate.ErrorMessage);
                 Assert.IsNotNull(resultsInsert.ResultSet);
             }
+
+            Console.WriteLine($"parsing:   {parsing.ElapsedMilliseconds}");
+            Console.WriteLine($"execution: {execution.ElapsedMilliseconds}");
 
             // select it out
             var ecSelect = Parser.ParseSQLFileFromString("SELECT SomeKey, SomeInteger FROM TransientTestTable ORDER BY SomeKey;");
 
             ExecuteResult resultsSelect = ecSelect.ExecuteSingle(engine);
             Assert.IsNotNull(resultsSelect.ResultSet, resultsSelect.ErrorMessage);
-            resultsSelect.ResultSet.Dump();
+            // resultsSelect.ResultSet.Dump();
             Assert.AreEqual(testRowCount, resultsSelect.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(2, resultsSelect.ResultSet.ColumnCount, "column count mismatch");
 

@@ -33,3 +33,6 @@ using System.Diagnostics.CodeAnalysis;
 // I freely use single-line comments
 [assembly: SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1512:Single-line comments should not be followed by blank line", Justification = "Not my style")]
 [assembly: SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1515:Single-line comment should be preceded by blank line", Justification = "Not my style")]
+
+// regions seem nice to me
+[assembly: SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1124:Do not use regions", Justification = "You're not the boss of me")]

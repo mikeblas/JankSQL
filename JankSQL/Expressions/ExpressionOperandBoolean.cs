@@ -1,4 +1,4 @@
-﻿namespace JankSQL
+﻿namespace JankSQL.Expressions
 {
     internal class ExpressionOperandBoolean : ExpressionOperand
     {
@@ -8,6 +8,13 @@
             : base(ExpressionOperandType.BOOLEAN)
         {
             this.b = b;
+            // isNull = false;
+        }
+
+
+        public override bool RepresentsNull
+        {
+            get { throw new NotImplementedException(); }
         }
 
         public override object Clone()
@@ -17,6 +24,7 @@
 
         public override string ToString()
         {
+            // return $"Boolean({(isNull ? "NULL" : b)})";
             return $"Boolean({b})";
         }
 
@@ -83,7 +91,7 @@
         public int CompareTo(ExpressionOperandBoolean? other)
         {
             if (other == null)
-                throw new ArgumentNullException("obj");
+                throw new ArgumentNullException(nameof(other));
 
             int result = b.CompareTo(other.b);
             return result;
@@ -92,7 +100,7 @@
         public override int CompareTo(ExpressionOperand? other)
         {
             if (other == null)
-                throw new ArgumentNullException("other");
+                throw new ArgumentNullException(nameof(other));
             ExpressionOperandBoolean o = (ExpressionOperandBoolean)other;
             int result = b.CompareTo(o.b);
             return result;
@@ -100,7 +108,7 @@
 
         public bool Equals(ExpressionOperandDecimal? other)
         {
-            return 0 == CompareTo(other);
+            return CompareTo(other) == 0;
         }
 
         public override bool Equals(object? obj)

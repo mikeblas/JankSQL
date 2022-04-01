@@ -1,5 +1,7 @@
 ﻿namespace JankSQL
 {
+    using JankSQL.Expressions;
+
     internal class Expression : List<ExpressionNode>, IEquatable<Expression>
     {
         internal Expression()
@@ -58,6 +60,11 @@
                     {
                         // it's an operator
                         ExpressionOperand r = expressionOperator.Evaluate(stack);
+                        stack.Push(r);
+                    }
+                    else if (n is ExpressionFunction expressionFunction)
+                    {
+                        ExpressionOperand r = expressionFunction.Evaluate(stack);
                         stack.Push(r);
                     }
                     else if (n is ExpressionOperandFromColumn columnOperand)

@@ -1,10 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using JankSQL;
-using Engines = JankSQL.Engines;
-
+﻿
 namespace Tests
 {
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+    using JankSQL;
+    using Engines = JankSQL.Engines;
+
     public class DDLTests
     {
         internal string mode = "base";
@@ -30,7 +31,7 @@ namespace Tests
             Assert.AreEqual(0, ecInsert.TotalErrors);
 
             ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsInsert.ExecuteStatus, resultsCreate.ErrorMessage);
+            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsInsert.ExecuteStatus, resultsInsert.ErrorMessage);
             Assert.IsNotNull(resultsInsert.ResultSet);
 
             // truncate the table

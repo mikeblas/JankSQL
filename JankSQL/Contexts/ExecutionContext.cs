@@ -40,13 +40,9 @@
         {
             ExecuteResult result;
             if (executeContexts.Count != 1)
-            {
                 result = new ExecuteResult(ExecuteStatus.FAILED, "ExecuteSingle() called on multiple-context batch");
-            }
             else
-            {
                 result = executeContexts[0].Execute(engine);
-            }
 
             return result;
         }

@@ -24,7 +24,7 @@ namespace JankSQL
 {
     internal class Program
     {
-        static void Main()
+        public static void Main()
         {
             string str;
 
@@ -66,7 +66,7 @@ namespace JankSQL
             str = "SELECT * FROM [mytable] WHERE [population] > POWER(2500, 2);";
 
             // -- these need tests --
-            // str = "DROP TABLE mytable";
+            // str = "DROP TABLE emytable";
             // str = "CREATE TABLE [Schema].[NewTable] (keycolumn INTEGER, city_name VARCHAR(30), state_code VARCHAR, population DECIMAL);";
             // str = "DELETE FROM Mytable WHERE keycolumn = 2; SELECT * FROM MyTable;";
             // -- those need tests --
@@ -87,8 +87,19 @@ namespace JankSQL
             // str = "SELECT number_name, MIN(number_name), MAX(number_name) FROM ten GROUP BY is_even";
 
             // str = "SELECT state_code FROM mytable GROUP BY state_code ORDER BY state_code";
-            str = "SELECT number_name FROM ten ORDER BY number_name";
-            str = "SELECT number_name FROM ten ORDER BY number_name DESC";
+            // str = "SELECT number_name FROM ten ORDER BY number_name";
+            // str = "SELECT number_name FROM ten ORDER BY number_name DESC";
+
+            // -- needs tests
+            // str = "CREATE INDEX MyIndex ON MyTable (number_id ASC, something, something_Else DESC)";
+            str = "CREATE UNIQUE INDEX TenUnique ON ten (number_id ASC)";
+
+            str = "CREATE INDEX TenNotUnique ON ten (is_even ASC)";
+
+            str = "SELECT 3 + NULL;";
+            str = "SELECT SQRT(NULL);";
+            str = "SELECT -200, 300, NULL, 5, 0;";
+
 
             // Engines.DynamicCSVEngine engine = Engines.DynamicCSVEngine.OpenAlways("F:\\JankTests\\Test33");
 
@@ -104,12 +115,12 @@ namespace JankSQL
                 .WithColumnTypes(new ExpressionOperandType[] { ExpressionOperandType.INTEGER, ExpressionOperandType.VARCHAR, ExpressionOperandType.INTEGER })
                 .WithRow(new object[] { 1, "one",   0 })
                 .WithRow(new object[] { 2, "two",   1 })
-                .WithRow(new object[] { 3, "three", 0 })
                 .WithRow(new object[] { 4, "four",  1 })
-                .WithRow(new object[] { 5, "five",  0 })
-                .WithRow(new object[] { 6, "six",   1 })
                 .WithRow(new object[] { 7, "seven", 0 })
                 .WithRow(new object[] { 8, "eight", 1 })
+                .WithRow(new object[] { 3, "three", 0 })
+                .WithRow(new object[] { 5, "five",  0 })
+                .WithRow(new object[] { 6, "six",   1 })
                 .WithRow(new object[] { 9, "nine",  0 })
                 .WithRow(new object[] { 0, "zero",  1 })
                 .Build();
@@ -157,6 +168,34 @@ namespace JankSQL
             {
                 Console.WriteLine("Errors!");
             }
+
+            string str2 = "INSERT INTO Ten (numbeR_id, numbeR_name, is_even) VALUES (11, 'Eleven', 0)";
+            ExecutableBatch batch2 = Parser.ParseSQLFileFromString(str2);
+            if (batch2.TotalErrors == 0)
+            {
+                batch2.Dump();
+
+                ExecuteResult[] sets = batch2.Execute(engine);
+                for (int i = 0; i < sets.Length; i++)
+                {
+                    Console.WriteLine($"ExecuteResult #{i} =====");
+                    ResultSet? rs = sets[i].ResultSet;
+                    if (rs != null)
+                    {
+                        rs.Dump();
+                        Console.WriteLine($"{rs.RowCount} total rows");
+                    }
+                    else
+                    {
+                        Console.WriteLine("(no result set)");
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("Errors!");
+            }
+
 
             Engines.DynamicCSVEngine.RemoveDatabase(tempPath);
         }

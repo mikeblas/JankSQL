@@ -12,7 +12,6 @@
             base.EnterInsert_statement(context);
 
             insertContext = new InsertContext(context, FullTableName.FromFullTableNameContext(context.ddl_object().full_table_name()));
-            Console.WriteLine($"INTO {insertContext.TableName}");
         }
 
 
@@ -26,12 +25,18 @@
             List<FullColumnName> columns = new ();
 
             foreach (var col in context.insert_column_id())
-            {
-                Console.WriteLine(col.id_()[0].GetText());
                 columns.Add(FullColumnName.FromColumnName(col.id_()[0].GetText()));
-            }
 
             insertContext.TargetColumns = columns;
+
+            // check for repeated column names in the insert list
+            HashSet<FullColumnName> names = new ();
+            for (int i = 0; i < columns.Count; i++)
+            {
+                if (names.Contains(columns[i]))
+                    throw new ExecutionException($"column {columns[i]} appears in insert list more than once");
+                names.Add(columns[i]);
+            }
         }
 
         public override void ExitInsert_statement([NotNull] TSqlParser.Insert_statementContext context)

@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Engines
 {
+    using JankSQL.Expressions;
+
     public enum OpenPolicy
     {
         ExistingOnly,   // fail if not found
@@ -174,6 +176,11 @@
             }
         }
 
+        public void CreateIndex(FullTableName tableName, string indexName, bool isUnique, List<(string columnName, bool isDescending)> columnInfos)
+        {
+            throw new NotImplementedException();
+        }
+
         public IEngineTable GetSysTables()
         {
             DynamicCSVTable sysTables = new DynamicCSVTable(sysTablesPath, "sys_tables", this);
@@ -186,6 +193,16 @@
             DynamicCSVTable sysColumns = new DynamicCSVTable(sysColumnsPath, "sys_columns", this);
             sysColumns.Load();
             return sysColumns;
+        }
+
+        public IEngineTable GetSysIndexes()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEngineTable GetSysIndexColumns()
+        {
+            throw new NotImplementedException();
         }
 
         public void DropTable(FullTableName tableName)

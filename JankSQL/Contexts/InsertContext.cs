@@ -32,18 +32,14 @@
             Engines.IEngineTable? engineTarget = engine.GetEngineTable(TableName);
 
             if (engineTarget == null)
-            {
                 throw new ExecutionException($"Table {TableName} does not exist");
-            }
             else
             {
                 if (engineTarget.ColumnCount != constructors[0].Count)
-                {
                     throw new ExecutionException($"InsertContext expected {engineTarget.ColumnCount} columns, got {constructors[0].Count}");
-                }
 
-                ConstantRowSource source = new ConstantRowSource(TargetColumns, constructors);
-                Insert inserter = new Insert(engineTarget, source);
+                ConstantRowSource source = new (TargetColumns, constructors);
+                Insert inserter = new (engineTarget, TargetColumns, source);
 
                 ResultSet? resultSet = null;
 
@@ -68,15 +64,11 @@
         {
             Console.WriteLine($"INSERT into {TableName}");
 
-            string str;
-
             if (TargetColumns == null)
-            {
                 Console.WriteLine("   Columns: None found");
-            }
             else
             {
-                str = string.Join(',', TargetColumns);
+                string str = string.Join(',', TargetColumns);
                 Console.WriteLine($"   Columns: {str}");
             }
 
@@ -90,9 +82,7 @@
             */
 
             if (constructors == null || constructors.Count == 0)
-            {
                 Console.WriteLine($"   Expressions: No constructors found");
-            }
             else
             {
                 bool first = true;
@@ -104,13 +94,11 @@
                         first = false;
                     }
                     else
-                    {
                         Console.Write($"                ");
-                    }
 
                     Console.Write($"len={expression.Count} ");
 
-                    Console.WriteLine(string.Join(',', expression.Select(x => "[" + x + "]")));
+                    Console.WriteLine(string.Join(',', expression.Select(x => $"[{x}]")));
                 }
             }
         }

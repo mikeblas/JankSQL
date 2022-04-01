@@ -1,6 +1,7 @@
 ﻿namespace JankSQL.Operators
 {
     using JankSQL.Contexts;
+    using JankSQL.Expressions;
 
     internal class Select
     {
@@ -37,7 +38,7 @@
                         if (fcn.ColumnNameOnly() == "bookmark_key")
                             continue;
                         effectiveColumns.Add(fcn);
-                        ExpressionNode node = new ExpressionOperandFromColumn(rsInput.GetColumnName(i));
+                        var node = new ExpressionOperandFromColumn(rsInput.GetColumnName(i));
                         Expression expression = new () { node };
                         selectList.AddSelectListExpressionList(expression);
                     }
@@ -56,21 +57,13 @@
                 int exprIndex = 0;
                 int rsIndex = 0;
 
-                Tuple thisRow = rsInput.Row(i);
                 Tuple rowResults = Tuple.CreateEmpty(effectiveColumns.Count);
                 foreach (FullColumnName columnName in effectiveColumns)
                 {
                     int idx = rsInput.ColumnIndex(columnName);
-                    if (idx == -1 || true)
-                    {
-                        ExpressionOperand result = selectList.Execute(exprIndex, rsInput, i);
-                        rowResults[rsIndex] = result;
-                        exprIndex++;
-                    }
-                    else
-                    {
-                        rowResults[rsIndex] = thisRow[idx];
-                    }
+                    ExpressionOperand result = selectList.Execute(exprIndex, rsInput, i);
+                    rowResults[rsIndex] = result;
+                    exprIndex++;
 
                     rsIndex++;
                 }

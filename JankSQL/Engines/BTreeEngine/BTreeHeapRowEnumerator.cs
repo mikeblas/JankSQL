@@ -2,12 +2,13 @@
 {
     using System.Collections;
     using CSharpTest.Net.Collections;
+    using JankSQL.Expressions;
 
-    internal class BTreeRowEnumerator : IEnumerator<RowWithBookmark>
+    internal class BTreeHeapRowEnumerator : IEnumerator<RowWithBookmark>
     {
         private readonly IEnumerator<KeyValuePair<Tuple, Tuple>> treeEnumerator;
 
-        internal BTreeRowEnumerator(BPlusTree<Tuple, Tuple> tree)
+        internal BTreeHeapRowEnumerator(BPlusTree<Tuple, Tuple> tree)
         {
             treeEnumerator = tree.GetEnumerator();
         }

@@ -17,15 +17,10 @@
         // for WHERE clauses
         private PredicateContext? predicateContext;
 
-        internal SelectContext(TSqlParser.Select_statementContext context)
+        internal SelectContext(TSqlParser.Select_statementContext context, PredicateContext? predicateContext)
         {
             statementContext = context;
-        }
-
-        internal PredicateContext? PredicateContext
-        {
-            get { return predicateContext; }
-            set { predicateContext = value; }
+            this.predicateContext = predicateContext;
         }
 
         internal OrderByContext? OrderByContext
@@ -94,7 +89,7 @@
             // now the filter, if needed
             if (predicateContext != null && predicateContext.PredicateExpressionListCount > 0)
             {
-                Filter filter = new Filter(lastLeftOutput, predicateContext.PredicateExpressions);
+                Filter filter = new (lastLeftOutput, predicateContext.PredicateExpressions);
                 lastLeftOutput = filter;
             }
 

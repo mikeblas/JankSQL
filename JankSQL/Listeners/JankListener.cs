@@ -5,16 +5,24 @@
     using Antlr4.Runtime.Tree;
 
     using JankSQL.Contexts;
-    using ExecutionContext = JankSQL.Contexts.ExecutionContext;
+    using JankSQL.Expressions;
 
     public partial class JankListener : TSqlParserBaseListener
     {
         private readonly ExecutionContext executionContext = new ();
+        private readonly bool quiet = false;
 
         private int depth = 0;
 
-        private SelectContext? selectContext;
-        private PredicateContext? predicateContext;
+        internal JankListener()
+        {
+            quiet = false;
+        }
+
+        internal JankListener(bool quiet)
+        {
+            this.quiet = quiet;
+        }
 
         internal ExecutionContext ExecutionContext
         {
@@ -25,8 +33,12 @@
         {
             base.EnterEveryRule(context);
 
-            var s = new string(' ', depth);
-            Console.WriteLine($"+{s}{context.GetType().Name}, {context.GetText()}");
+            if (!quiet)
+            {
+                var s = new string(' ', depth);
+                Console.WriteLine($"+{s}{context.GetType().Name}, {context.GetText()}");
+            }
+
             depth++;
         }
 
@@ -34,97 +46,14 @@
         {
             base.ExitEveryRule(context);
 
-            var s = new string(' ', depth);
-            Console.WriteLine($"-{s}{context.GetType().Name}, {context.GetText()}");
+            if (!quiet)
+            {
+                var s = new string(' ', depth);
+                Console.WriteLine($"-{s}{context.GetType().Name}, {context.GetText()}");
+            }
+
             depth--;
         }
-
-        public override void ExitSelect_statement(TSqlParser.Select_statementContext context)
-        {
-            base.ExitEveryRule(context);
-
-            if (selectContext == null)
-                throw new InternalErrorException("Expected a SelectContext");
-            if (predicateContext == null)
-                throw new InternalErrorException("Expected a PredicateContext");
-
-            selectContext.PredicateContext = predicateContext;
-            predicateContext = null;
-
-            executionContext.ExecuteContexts.Add(selectContext);
-        }
-
-        public override void EnterSelect_statement([NotNull] TSqlParser.Select_statementContext context)
-        {
-            base.EnterSelect_statement(context);
-
-            selectContext = new SelectContext(context);
-            predicateContext = new PredicateContext();
-
-        }
-
-        public override void EnterSelect_list([NotNull] TSqlParser.Select_listContext context)
-        {
-            base.EnterSelect_list(context);
-
-            if (selectContext == null)
-                throw new InternalErrorException("Expected a SelectContext");
-
-            selectContext.SelectListContext = new SelectListContext(context);
-        }
-
-        public override void ExitSelect_list([NotNull] TSqlParser.Select_listContext context)
-        {
-            base.ExitSelect_list(context);
-
-            if (selectContext == null)
-                throw new InternalErrorException("Expected a SelectContext");
-            if (selectContext.SelectListContext == null)
-                throw new InternalErrorException("Expected a SelectListContext");
-
-            foreach (var elem in context.select_list_elem())
-            {
-                FullColumnName? fcn = null;
-                Expression? x;
-
-                if (elem.column_elem() != null)
-                {
-                    ExpressionNode n = new ExpressionOperandFromColumn(FullColumnName.FromContext(elem.column_elem().full_column_name()));
-                    x = new ();
-                    x.Add(n);
-
-                    fcn = FullColumnName.FromContext(elem.column_elem().full_column_name());
-                }
-                else if (elem.expression_elem() != null)
-                {
-                    if (elem.expression_elem().as_column_alias() != null)
-                    {
-                        fcn = FullColumnName.FromColumnName(elem.expression_elem().as_column_alias().GetText());
-                    }
-
-                    x = GobbleExpression(elem.expression_elem().expression());
-                }
-                else if (elem.asterisk() != null)
-                {
-                    Console.WriteLine("asterisk!");
-                    continue;
-                }
-                else
-                {
-                    Console.WriteLine("Don't know this type");
-                    continue;
-                }
-
-                if (fcn != null)
-                    selectContext.SelectListContext.AddRowsetColumnName(fcn);
-                else
-                    selectContext.SelectListContext.AddUnknownRowsetColumnName();
-
-                Console.WriteLine($"SelectListElement:   {string.Join(" ", x)}");
-                selectContext.AddSelectListExpressionList(x);
-            }
-        }
-
 
         internal Expression GobbleExpression(TSqlParser.ExpressionContext expr)
         {
@@ -134,15 +63,21 @@
 
             while (stack.Count > 0)
             {
-                // object rule = stack.Pop();
                 object rule = stack[^1];
                 stack.RemoveAt(stack.Count - 1);
                 if (rule is TSqlParser.Primitive_expressionContext primitiveContext)
                 {
-                    if (primitiveContext.constant().FLOAT() != null)
+                    if (primitiveContext.NULL_() != null)
+                    {
+                        Console.WriteLine($"constant: NULL");
+                        ExpressionNode n = ExpressionOperand.NullLiteral();
+                        x.Add(n);
+                    }
+                    else if (primitiveContext.constant().FLOAT() != null)
                     {
                         string str = primitiveContext.constant().FLOAT().GetText();
-                        Console.WriteLine($"constant: '{str}'");
+                        if (!quiet)
+                            Console.WriteLine($"constant: '{str}'");
                         bool isNegative = primitiveContext.constant().sign() != null;
                         ExpressionNode n = ExpressionOperand.DecimalFromString(isNegative, str);
                         x.Add(n);
@@ -150,7 +85,8 @@
                     else if (primitiveContext.constant().DECIMAL() != null)
                     {
                         string str = primitiveContext.constant().DECIMAL().GetText();
-                        Console.WriteLine($"constant: '{str}'");
+                        if (!quiet)
+                            Console.WriteLine($"constant: '{str}'");
                         bool isNegative = primitiveContext.constant().sign() != null;
 
                         ExpressionOperandType t = ExpressionOperand.IntegerOrDecimal(str);
@@ -169,13 +105,15 @@
                         string str = primitiveContext.constant().STRING().GetText();
                         if (str[0] == 'N')
                         {
-                            Console.WriteLine($"constant: '{primitiveContext.constant().STRING()}'");
+                            if (!quiet)
+                                Console.WriteLine($"constant: '{primitiveContext.constant().STRING()}'");
                             ExpressionNode n = ExpressionOperand.NVARCHARFromStringContext(str);
                             x.Add(n);
                         }
                         else
                         {
-                            Console.WriteLine($"constant: '{primitiveContext.constant().STRING()}'");
+                            if (!quiet)
+                                Console.WriteLine($"constant: '{primitiveContext.constant().STRING()}'");
                             ExpressionNode n = ExpressionOperand.VARCHARFromStringContext(str);
                             x.Add(n);
                         }
@@ -184,7 +122,7 @@
                 else if (rule is TSqlParser.Function_callContext functionCallContext)
                 {
                     Console.WriteLine($"Function_callContext with {functionCallContext.ChildCount} children");
-                    string? functionNane;
+                    string? functionName;
                     int firstTop = stack.Count;
 
                     // why doesn't Function_callContext have any useful members?
@@ -194,17 +132,29 @@
                     if (childContext is TSqlParser.Scalar_function_nameContext scalarContext)
                     {
                         // get a function call
-                        functionNane = scalarContext.func_proc_name_server_database_schema().func_proc_name_database_schema().func_proc_name_schema().procedure.GetText();
-                        ExpressionNode n = new ExpressionOperator(functionNane);
+                        functionName = scalarContext.func_proc_name_server_database_schema().func_proc_name_database_schema().func_proc_name_schema().procedure.GetText();
+                        ExpressionFunction? n = ExpressionFunction.FromFunctionName(functionName);
+
+                        //TODO: how are listener errors to be raised?
+                        if (n == null)
+                            throw new ExecutionException($"function {functionName} not implemented");
                         stack.Insert(firstTop, n);
 
                         // and its argument list
                         if (functionCallContext.GetChild(2) is TSqlParser.Expression_listContext exprContext)
                         {
+                            //TODO: how are listener errors to be raised?
+                            if (n.ExpectedParameters != exprContext.expression().Length)
+                                throw new ExecutionException($"function {n} expects {n.ExpectedParameters} parameters, received {exprContext.expression().Length}");
+
                             for (int e = exprContext.expression().Length - 1; e >= 0; e--)
-                            {
                                 stack.Add(exprContext.expression()[e]);
-                            }
+                        }
+                        else
+                        {
+                            //TODO: how are listener errors to be raised?
+                            if (n.ExpectedParameters != 0)
+                                throw new ExecutionException($"function {n} expects {n.ExpectedParameters} parameters, received none");
                         }
                     }
                     else if (childContext is TSqlParser.Aggregate_windowed_functionContext awfc)
@@ -215,7 +165,9 @@
                         AggregateContext agg = GobbleAggregateFunctionContext(awfc);
                         selectContext.AddAggregate(agg);
 
-                        // throw new NotImplementedException("can't yet handle AWFC in expresion");
+                        if (agg.ExpressionName == null)
+                            throw new InternalErrorException("Expected named expression in aggregation");
+
                         ExpressionNode n = new ExpressionOperandFromColumn(FullColumnName.FromColumnName(agg.ExpressionName));
                         x.Add(n);
                         x.ContainsAggregate = true;
@@ -269,70 +221,6 @@
             }
 
             return x;
-        }
-
-        public override void ExitJoin_part([NotNull] TSqlParser.Join_partContext context)
-        {
-            base.ExitJoin_part(context);
-
-            if (selectContext == null)
-                throw new InternalErrorException("Expected a SelectContext");
-            if (predicateContext == null)
-                throw new InternalErrorException("Expected a PredicateContext");
-
-            // figure out which join type
-            if (context.cross_join() != null)
-            {
-                // CROSS Join!
-
-                FullTableName otherTableName = FullTableName.FromTableNameContext(context.cross_join().table_source().table_source_item_joined().table_source_item().table_name_with_hint().table_name());
-                Console.WriteLine($"CROSS JOIN On {otherTableName}");
-
-                JoinContext jc = new (JoinType.CROSS_JOIN, otherTableName);
-                PredicateContext pcon = new ();
-                selectContext.AddJoin(jc, pcon);
-            }
-            else if (context.join_on() != null)
-            {
-                Expression x = GobbleSearchCondition(context.join_on().search_condition());
-                PredicateContext pcon = new ();
-                pcon.EndPredicateExpressionList(x);
-
-                // ON join
-                FullTableName otherTableName = FullTableName.FromTableNameContext(context.join_on().table_source().table_source_item_joined().table_source_item().table_name_with_hint().table_name());
-                Console.WriteLine($"INNER JOIN On {otherTableName}");
-
-                JoinContext jc = new (JoinType.INNER_JOIN, otherTableName);
-                selectContext.AddJoin(jc, pcon);
-            }
-            else
-            {
-                throw new NotImplementedException("unsupported JOIN type enountered");
-            }
-        }
-
-        public override void EnterOrder_by_clause([NotNull] TSqlParser.Order_by_clauseContext context)
-        {
-            base.EnterOrder_by_clause(context);
-
-            if (selectContext == null)
-                throw new InternalErrorException("Expected a SelectContext");
-
-            OrderByContext obc = new ();
-
-            foreach (var expr in context.order_by_expression())
-            {
-                Expression obx = GobbleExpression(expr.expression());
-                Console.Write($"   {string.Join(",", obx.Select(x => "[" + x + "]"))} ");
-                if (expr.DESC() != null)
-                    Console.WriteLine("DESC");
-                else
-                    Console.WriteLine("ASC");
-
-                obc.AddExpression(obx, expr.DESC() == null);
-            }
-
-            selectContext.OrderByContext = obc;
         }
     }
 }

@@ -5,18 +5,12 @@
 
     public partial class JankListener : TSqlParserBaseListener
     {
-        private UpdateContext? updateContext;
-
         public override void EnterUpdate_statement([NotNull] TSqlParser.Update_statementContext context)
         {
             base.EnterUpdate_statement(context);
 
-            updateContext = new UpdateContext(context, FullTableName.FromFullTableNameContext(context.ddl_object().full_table_name()));
+            var updateContext = new UpdateContext(context, FullTableName.FromFullTableNameContext(context.ddl_object().full_table_name()));
             Console.WriteLine($"UPDATE {updateContext.TableName}");
-
-            Expression pred = GobbleSearchCondition(context.search_condition());
-            predicateContext = new ();
-            predicateContext.EndPredicateExpressionList(pred);
 
             foreach (var element in context.update_elem())
             {
@@ -41,24 +35,19 @@
 
                 Console.WriteLine($"{x}");
             }
-        }
-
-
-        public override void ExitUpdate_statement([NotNull] TSqlParser.Update_statementContext context)
-        {
-            base.ExitUpdate_statement(context);
 
             if (updateContext == null)
                 throw new InternalErrorException("Expected an UpdateContext");
-            if (predicateContext == null)
-                throw new InternalErrorException("Expected a PredicateContext");
 
-            updateContext.PredicateContext = predicateContext;
-            predicateContext = null;
+            // see if there's a search condition
+            if (context.search_condition() != null)
+            {
+                Expression pred = GobbleSearchCondition(context.search_condition());
+                updateContext.PredicateExpression = pred;
+            }
 
             executionContext.ExecuteContexts.Add(updateContext);
             updateContext = null;
         }
     }
 }
-

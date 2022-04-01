@@ -1,10 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using JankSQL;
-using Engines = JankSQL.Engines;
-
+﻿
 namespace Tests
 {
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using JankSQL;
+    using Engines = JankSQL.Engines;
+
     public class InsertDeleteTests
     {
         internal string mode = "base";
@@ -62,7 +62,7 @@ namespace Tests
             Assert.AreEqual(0, ecInsert.TotalErrors);
 
             ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsInsert.ExecuteStatus, resultsCreate.ErrorMessage);
+            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsInsert.ExecuteStatus, resultsInsert.ErrorMessage);
             Assert.IsNotNull(resultsInsert.ResultSet);
 
             // select them back
@@ -114,7 +114,7 @@ namespace Tests
             Assert.AreEqual(0, ecInsert.TotalErrors);
 
             ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsInsert.ExecuteStatus, resultsCreate.ErrorMessage);
+            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsInsert.ExecuteStatus, resultsInsert.ErrorMessage);
             Assert.IsNotNull(resultsInsert.ResultSet);
 
             // select them back
@@ -140,6 +140,124 @@ namespace Tests
             Assert.IsTrue(moreIntegers.Contains(100));
         }
 
+        [TestMethod]
+        public void TestInsertExpression()
+        {
+            // insert some rows
+            var ecInsert = Parser.ParseSQLFileFromString("INSERT INTO MyTable (keycolumn, city_name, state_code, population) VALUES(51+2, 'West ' + 'Hartford', 'CT', SQRT(12) * POWER(10, 4));");
+
+            Assert.IsNotNull(ecInsert);
+            Assert.AreEqual(0, ecInsert.TotalErrors);
+
+            ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
+            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsInsert.ExecuteStatus, resultsInsert.ErrorMessage);
+            Assert.IsNotNull(resultsInsert.ResultSet);
+
+            // select it back
+            var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM MyTable WHERE keycolumn = 53;");
+
+            ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
+            Assert.IsNotNull(resultSelect.ResultSet, resultSelect.ErrorMessage);
+            resultSelect.ResultSet.Dump();
+            Assert.AreEqual(1, resultSelect.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(4, resultSelect.ResultSet.ColumnCount, "column count mismatch");
+
+            int cityIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("city_name"));
+            int stateIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("state_code"));
+            int popIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("population"));
+
+
+            Assert.AreEqual("West Hartford", resultSelect.ResultSet.Row(0)[cityIndex].AsString());
+            Assert.AreEqual("CT", resultSelect.ResultSet.Row(0)[stateIndex].AsString());
+            Assert.AreEqual(34641.016, resultSelect.ResultSet.Row(0)[popIndex].AsDouble(), 0.01);
+        }
+
+        [TestMethod]
+        public void TestInsertNoList()
+        {
+            // insert some rows
+            var ecInsert = Parser.ParseSQLFileFromString("INSERT INTO MyTable VALUES (53, 'West Hartford', 'CT', 34641);");
+
+            Assert.IsNotNull(ecInsert);
+            Assert.AreEqual(0, ecInsert.TotalErrors);
+
+            ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
+            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsInsert.ExecuteStatus, resultsInsert.ErrorMessage);
+            Assert.IsNotNull(resultsInsert.ResultSet);
+
+            // select it back
+            var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM MyTable WHERE keycolumn = 53;");
+
+            ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
+            Assert.IsNotNull(resultSelect.ResultSet, resultSelect.ErrorMessage);
+            resultSelect.ResultSet.Dump();
+            Assert.AreEqual(1, resultSelect.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(4, resultSelect.ResultSet.ColumnCount, "column count mismatch");
+
+            int cityIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("city_name"));
+            int stateIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("state_code"));
+            int popIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("population"));
+
+
+            Assert.AreEqual("West Hartford", resultSelect.ResultSet.Row(0)[cityIndex].AsString());
+            Assert.AreEqual("CT", resultSelect.ResultSet.Row(0)[stateIndex].AsString());
+            Assert.AreEqual(34641, resultSelect.ResultSet.Row(0)[popIndex].AsDouble(), 0.01);
+        }
+
+        [TestMethod]
+        public void TestFailInsertBadColumns()
+        {
+            // insert some rows
+            var ecInsert = Parser.ParseSQLFileFromString("INSERT INTO MyTable (keycolumn, wrongcolumnName, state_code, population) VALUES(53, 'West Hartford', 'CT', 325743);");
+
+            Assert.IsNotNull(ecInsert);
+            Assert.AreEqual(0, ecInsert.TotalErrors);
+
+            ExecuteResult resultInsert = ecInsert.ExecuteSingle(engine);
+            Assert.AreEqual(ExecuteStatus.FAILED, resultInsert.ExecuteStatus);
+            Assert.IsNull(resultInsert.ResultSet);
+        }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(ExecutionException))]
+        public void TestFailRepeatedColumns()
+        {
+            // insert some rows
+            var ecInsert = Parser.ParseSQLFileFromString("INSERT INTO MyTable (keycolumn, state_code, state_code, population) VALUES(53, 'West Hartford', 'CT', 325743);");
+
+            //TODO: how does listener raise an error?
+            // Assert.IsTrue(ec.TotalErrors > 0, "Expected an error");
+            // Assert.IsNull(ecInsert);
+        }
+
+        [TestMethod]
+        public void TestFailInsertTooManyValues()
+        {
+            // insert some rows
+            var ecInsert = Parser.ParseSQLFileFromString("INSERT INTO MyTable (keycolumn, city_name, state_code, population) VALUES (53, 'West Hartford', 'CT', 325743, 'Grapefruit');");
+
+            Assert.IsNotNull(ecInsert);
+            Assert.AreEqual(0, ecInsert.TotalErrors);
+
+            ExecuteResult resultInsert = ecInsert.ExecuteSingle(engine);
+            Assert.AreEqual(ExecuteStatus.FAILED, resultInsert.ExecuteStatus);
+            Assert.IsNull(resultInsert.ResultSet);
+        }
+
+        [TestMethod]
+        public void TestFailInsertTooFewValues()
+        {
+            // insert some rows
+            var ecInsert = Parser.ParseSQLFileFromString("INSERT INTO MyTable (keycolumn, city_name, state_code, population) VALUES (53, 'West Hartford');");
+
+            Assert.IsNotNull(ecInsert);
+            Assert.AreEqual(0, ecInsert.TotalErrors);
+
+            ExecuteResult resultInsert = ecInsert.ExecuteSingle(engine);
+            Assert.AreEqual(ExecuteStatus.FAILED, resultInsert.ExecuteStatus);
+            Assert.IsNull(resultInsert.ResultSet);
+        }
     }
 }
 

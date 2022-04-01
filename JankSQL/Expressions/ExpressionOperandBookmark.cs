@@ -1,4 +1,4 @@
-﻿namespace JankSQL
+﻿namespace JankSQL.Expressions
 {
     public class ExpressionOperandBookmark : ExpressionOperand
     {
@@ -9,6 +9,8 @@
         {
             this.tuple = tuple;
         }
+
+        public override bool RepresentsNull => false;
 
         public Tuple Tuple => tuple;
 

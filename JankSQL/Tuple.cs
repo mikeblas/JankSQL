@@ -2,7 +2,7 @@
 {
     using System.Collections;
 
-    public class Tuple : IEnumerable<ExpressionOperand>
+    public class Tuple : IEnumerable<ExpressionOperand>, IEnumerable
     {
         private ExpressionOperand[] values;
 
@@ -50,6 +50,16 @@
             return new Enumerator(this);
         }
 
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return new Enumerator(this);
+        }
+
+        public override string ToString()
+        {
+            return string.Join(",", values.Select(x => $"[{x}]"));
+        }
+
         internal static Tuple CreateEmpty(int count)
         {
             return new Tuple(count);
@@ -69,8 +79,19 @@
         /// <returns>newly created Tuple.</returns>
         internal static Tuple CreatePartialCopy(int count, Tuple source)
         {
+            if (source.Length < count)
+                throw new ArgumentException($"count {count} expected to be lower than length {source.Length}");
             var r = new Tuple(count);
-            Array.Copy(source.values, 0, r.values, 0, source.Count);
+            Array.Copy(source.values, 0, r.values, 0, count);
+            return r;
+        }
+
+        internal static Tuple CreateSuperCopy(int count, Tuple source)
+        {
+            if (source.Length > count)
+                throw new ArgumentException($"count {count} expected to be larger than length {source.Length}");
+            var r = new Tuple(count);
+            Array.Copy(source.values, 0, r.values, 0, source.Length);
             return r;
         }
 
@@ -110,16 +131,6 @@
             for (int i = 0; i < ops.Length; i++)
                 t[i] = ops[i];
             return t;
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return new Enumerator(this);
-        }
-
-        public override string ToString()
-        {
-            return string.Join(",", values.Select(x => "[" + x + "]"));
         }
 
         internal class Enumerator : IEnumerator<ExpressionOperand>, System.Collections.IEnumerator

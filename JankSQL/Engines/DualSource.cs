@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Engines
 {
+    using JankSQL.Expressions;
+
     public class DualSource : IEngineTable
     {
         public int ColumnCount => 0;
@@ -39,6 +41,11 @@
             xl.Add(new RowWithBookmark(x, bm));
 
             return xl.GetEnumerator();
+        }
+
+        public IndexAccessor Index(string indexName)
+        {
+            throw new NotImplementedException();
         }
     }
 }
