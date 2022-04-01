@@ -77,17 +77,5 @@
             results = executionContext.Execute(engine);
             return results[0];
         }
-
-        // remove these
-        [Obsolete("ExecuteSingle() is obsolete; Work towards invoking a specific engine.")]
-        public ExecuteResult ExecuteSingle()
-        {
-            if (executionContext is null)
-                throw new InvalidOperationException("No valid execution context");
-
-            Engines.IEngine engine2 = Engines.DynamicCSVEngine.OpenExistingOnly("F:\\JankTests\\Progress");
-            results = executionContext.Execute(engine2);
-            return results[0];
-        }
     }
 }
