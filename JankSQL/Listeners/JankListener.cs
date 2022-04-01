@@ -191,35 +191,49 @@
                 }
                 else if (rule is TSqlParser.ExpressionContext xContext)
                 {
-                    //REVIEW: make these mutually exclusive per the grammar
                     if (xContext.op != null)
                     {
+                        // binary operator
                         Console.WriteLine($"expressionContext: '{xContext.op.Text}'");
                         ExpressionNode n = new ExpressionOperator(xContext.op.Text);
                         stack.Add(n);
-                    }
-
-                    if (xContext.expression().Length > 1)
                         stack.Add(xContext.expression()[1]);
-                    if (xContext.expression().Length > 0)
                         stack.Add(xContext.expression()[0]);
-
-                    if (xContext.primitive_expression() != null)
-                        stack.Add(xContext.primitive_expression());
-                    if (xContext.bracket_expression() != null)
-                        stack.Add(xContext.bracket_expression().expression());
-
-                    if (xContext.function_call() != null)
-                        stack.Add(xContext.function_call());
-
-                    if (xContext.full_column_name() != null)
-                        stack.Add(xContext.full_column_name());
-
-                    if (xContext.unary_operator_expression() != null)
+                    }
+                    else if (xContext.primitive_expression() != null)
                     {
+                        // primitive exression, like NULL or a constant literal
+                        stack.Add(xContext.primitive_expression());
+                    }
+                    else if (xContext.bracket_expression() != null)
+                    {
+                        // bracket expression, which is just an expression in brackets ...
+                        // but could also be a subquery
+                        if (xContext.bracket_expression().subquery() != null)
+                            throw new NotImplementedException("Subqueries are not yet implemented");
+
+                        stack.Add(xContext.bracket_expression().expression());
+                    }
+                    else if (xContext.function_call() != null)
+                    {
+                        // some type of function call
+                        stack.Add(xContext.function_call());
+                    }
+                    else if (xContext.full_column_name() != null)
+                    {
+                        // reference to a column name
+                        stack.Add(xContext.full_column_name());
+                    }
+                    else if (xContext.unary_operator_expression() != null)
+                    {
+                        // unary operators, like minus in "-SQRT(2)"
                         ExpressionNode n = ExpressionUnaryOperator.GetUnaryOperator(xContext.unary_operator_expression());
                         stack.Add(n);
                         stack.Add(xContext.unary_operator_expression().expression());
+                    }
+                    else
+                    {
+                        throw new InternalErrorException("Some unexpected expression type");
                     }
                 }
                 else if (rule is ExpressionNode xNode)
