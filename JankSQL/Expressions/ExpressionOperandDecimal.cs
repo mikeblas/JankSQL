@@ -212,6 +212,26 @@
             d += other.AsDouble();
         }
 
+        public override ExpressionOperand OperatorUnaryMinus()
+        {
+            if (RepresentsNull)
+                return this;
+            return new ExpressionOperandDecimal(-d, false);
+        }
+
+        public override ExpressionOperand OperatorUnaryPlus()
+        {
+            if (RepresentsNull)
+                return this;
+            return new ExpressionOperandDecimal(-d, false);
+        }
+
+        public override ExpressionOperand OperatorUnaryTilde()
+        {
+            throw new NotImplementedException();
+        }
+
+
         public int CompareTo(ExpressionOperandDecimal? other)
         {
             if (other == null)

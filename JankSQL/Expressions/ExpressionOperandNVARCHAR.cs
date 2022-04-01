@@ -198,6 +198,21 @@
             throw new NotImplementedException();
         }
 
+        public override ExpressionOperand OperatorUnaryMinus()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ExpressionOperand OperatorUnaryPlus()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ExpressionOperand OperatorUnaryTilde()
+        {
+            throw new NotImplementedException();
+        }
+
         public int CompareTo(ExpressionOperandNVARCHAR? other)
         {
             if (other == null)

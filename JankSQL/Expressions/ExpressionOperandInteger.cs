@@ -209,6 +209,27 @@
             n += other.AsInteger();
         }
 
+        public override ExpressionOperand OperatorUnaryMinus()
+        {
+            if (RepresentsNull)
+                return this;
+            return new ExpressionOperandInteger(-n, false);
+        }
+
+        public override ExpressionOperand OperatorUnaryPlus()
+        {
+            if (RepresentsNull)
+                return this;
+            return new ExpressionOperandInteger(n, false);
+        }
+
+        public override ExpressionOperand OperatorUnaryTilde()
+        {
+            if (RepresentsNull)
+                return this;
+            return new ExpressionOperandInteger(~n, false);
+        }
+
         public int CompareTo(ExpressionOperandInteger? other)
         {
             if (other == null)

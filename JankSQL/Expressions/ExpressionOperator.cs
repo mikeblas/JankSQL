@@ -9,6 +9,11 @@
             this.str = str;
         }
 
+        internal string Str
+        {
+            get { return str; }
+        }
+
         public bool Equals(ExpressionOperator? other)
         {
             if (other == null)
@@ -35,7 +40,7 @@
             return str;
         }
 
-        internal ExpressionOperand Evaluate(Stack<ExpressionOperand> stack)
+        internal virtual ExpressionOperand Evaluate(Stack<ExpressionOperand> stack)
         {
             if (str == "/")
             {

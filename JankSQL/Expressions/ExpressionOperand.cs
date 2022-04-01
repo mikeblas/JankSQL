@@ -40,6 +40,12 @@
 
         public abstract ExpressionOperand OperatorSlash(ExpressionOperand other);
 
+        public abstract ExpressionOperand OperatorUnaryPlus();
+
+        public abstract ExpressionOperand OperatorUnaryMinus();
+
+        public abstract ExpressionOperand OperatorUnaryTilde();
+
         public abstract void AddToSelf(ExpressionOperand other);
 
         public abstract object Clone();

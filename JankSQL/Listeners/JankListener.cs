@@ -191,6 +191,7 @@
                 }
                 else if (rule is TSqlParser.ExpressionContext xContext)
                 {
+                    //REVIEW: make these mutually exclusive per the grammar
                     if (xContext.op != null)
                     {
                         Console.WriteLine($"expressionContext: '{xContext.op.Text}'");
@@ -214,6 +215,12 @@
                     if (xContext.full_column_name() != null)
                         stack.Add(xContext.full_column_name());
 
+                    if (xContext.unary_operator_expression() != null)
+                    {
+                        ExpressionNode n = ExpressionUnaryOperator.GetUnaryOperator(xContext.unary_operator_expression());
+                        stack.Add(n);
+                        stack.Add(xContext.unary_operator_expression().expression());
+                    }
                 }
                 else if (rule is ExpressionNode xNode)
                 {
