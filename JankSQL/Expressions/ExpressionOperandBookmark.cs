@@ -79,6 +79,11 @@
             throw new NotImplementedException();
         }
 
+        public override ExpressionOperand OperatorModulo(ExpressionOperand other)
+        {
+            throw new NotImplementedException();
+        }
+
         public override void AddToSelf(ExpressionOperand other)
         {
             throw new NotImplementedException();

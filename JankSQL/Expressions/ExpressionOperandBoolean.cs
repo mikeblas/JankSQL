@@ -8,9 +8,7 @@
             : base(ExpressionOperandType.BOOLEAN)
         {
             this.b = b;
-            // isNull = false;
         }
-
 
         public override bool RepresentsNull
         {
@@ -79,6 +77,11 @@
         }
 
         public override ExpressionOperand OperatorTimes(ExpressionOperand other)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ExpressionOperand OperatorModulo(ExpressionOperand other)
         {
             throw new NotImplementedException();
         }
