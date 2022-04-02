@@ -255,6 +255,36 @@ namespace Tests
             Assert.IsTrue(resultSelect.ResultSet.Row(0)[popIndex].RepresentsNull);
         }
 
+        [TestMethod]
+        public void TestInsertExplicitNULL()
+        {
+            // insert some rows
+            var ecInsert = Parser.ParseSQLFileFromString("INSERT INTO MyTable (keycolumn, city_name, state_code, population) VALUES (51+2, NULL, NULL, NULL);");
+
+            Assert.IsNotNull(ecInsert);
+            Assert.AreEqual(0, ecInsert.TotalErrors);
+
+            ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
+            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsInsert.ExecuteStatus, resultsInsert.ErrorMessage);
+            Assert.IsNotNull(resultsInsert.ResultSet);
+
+            // select it back
+            var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM MyTable WHERE keycolumn = 53;");
+
+            ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
+            Assert.IsNotNull(resultSelect.ResultSet, resultSelect.ErrorMessage);
+            resultSelect.ResultSet.Dump();
+            Assert.AreEqual(1, resultSelect.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(4, resultSelect.ResultSet.ColumnCount, "column count mismatch");
+
+            int cityIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("city_name"));
+            int stateIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("state_code"));
+            int popIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("population"));
+
+            Assert.IsTrue(resultSelect.ResultSet.Row(0)[cityIndex].RepresentsNull);
+            Assert.IsTrue(resultSelect.ResultSet.Row(0)[stateIndex].RepresentsNull);
+            Assert.IsTrue(resultSelect.ResultSet.Row(0)[popIndex].RepresentsNull);
+        }
 
         [TestMethod]
         public void TestInsertNoList()
