@@ -94,7 +94,6 @@ namespace Tests
         }
 
         [TestMethod, Timeout(2000)]
-        [ExpectedException(typeof(ExecutionException))]
         public void TestFailInsertThreeNotAllColumns()
         {
             // create a table
@@ -110,9 +109,8 @@ namespace Tests
             // insert some rows, but the last one doesn't have all columns
             var ecInsert = Parser.ParseSQLFileFromString("INSERT INTO TransientTestTable (SomeInteger, SomeString, AnotherOne) VALUES(1, 'moe', 100), (2, 'larry', 200), (3, 'curly');");
 
-            //TODO: how does listener raise an error?
-            // Assert.IsTrue(ec.TotalErrors > 0, "Expected an error");
-            // Assert.IsNull(ecInsert);
+            // should've had a semantic error
+            Assert.IsTrue(ecInsert.HadSemanticError, "expected semantic error");
         }
 
         [TestMethod, Timeout(2000)]
@@ -305,15 +303,12 @@ namespace Tests
 
 
         [TestMethod]
-        [ExpectedException(typeof(ExecutionException))]
         public void TestFailRepeatedColumns()
         {
             // insert some rows
             var ecInsert = Parser.ParseSQLFileFromString("INSERT INTO MyTable (keycolumn, state_code, state_code, population) VALUES(53, 'West Hartford', 'CT', 325743);");
 
-            //TODO: how does listener raise an error?
-            // Assert.IsTrue(ec.TotalErrors > 0, "Expected an error");
-            // Assert.IsNull(ecInsert);
+            Assert.IsTrue(ecInsert.HadSemanticError, "expected semantic error");
         }
 
         [TestMethod]

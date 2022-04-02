@@ -135,26 +135,23 @@
                         functionName = scalarContext.func_proc_name_server_database_schema().func_proc_name_database_schema().func_proc_name_schema().procedure.GetText();
                         ExpressionFunction? n = ExpressionFunction.FromFunctionName(functionName);
 
-                        //TODO: how are listener errors to be raised?
                         if (n == null)
-                            throw new ExecutionException($"function {functionName} not implemented");
+                            throw new SemanticErrorException($"function {functionName} not implemented");
                         stack.Insert(firstTop, n);
 
                         // and its argument list
                         if (functionCallContext.GetChild(2) is TSqlParser.Expression_listContext exprContext)
                         {
-                            //TODO: how are listener errors to be raised?
                             if (n.ExpectedParameters != exprContext.expression().Length)
-                                throw new ExecutionException($"function {n} expects {n.ExpectedParameters} parameters, received {exprContext.expression().Length}");
+                                throw new SemanticErrorException($"function {n} expects {n.ExpectedParameters} parameters, received {exprContext.expression().Length}");
 
                             for (int e = exprContext.expression().Length - 1; e >= 0; e--)
                                 stack.Add(exprContext.expression()[e]);
                         }
                         else
                         {
-                            //TODO: how are listener errors to be raised?
                             if (n.ExpectedParameters != 0)
-                                throw new ExecutionException($"function {n} expects {n.ExpectedParameters} parameters, received none");
+                                throw new SemanticErrorException($"function {n} expects {n.ExpectedParameters} parameters, received none");
                         }
                     }
                     else if (childContext is TSqlParser.Aggregate_windowed_functionContext awfc)
