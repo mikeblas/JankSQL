@@ -343,6 +343,41 @@ namespace Tests
             Assert.AreEqual(ExecuteStatus.FAILED, resultInsert.ExecuteStatus);
             Assert.IsNull(resultInsert.ResultSet);
         }
+
+
+        [TestMethod]
+        public void TestDeleteNoPredicate()
+        {
+            // delete all rows (no predicate)
+            var ecDelete = Parser.ParseSQLFileFromString("DELETE FROM [mytable];");
+
+            ExecuteResult resultDelete = ecDelete.ExecuteSingle(engine);
+            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultDelete.ExecuteStatus, resultDelete.ErrorMessage);
+            Assert.IsNull(resultDelete.ResultSet, resultDelete.ErrorMessage);
+
+            var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM [mytable];");
+
+            ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
+            Assert.IsNull(resultSelect.ResultSet, resultSelect.ErrorMessage);
+        }
+
+
+        [TestMethod]
+        public void TestDeleteTruePredicate()
+        {
+            // delete all rows (identity predicate)
+            var ecDelete = Parser.ParseSQLFileFromString("DELETE FROM [mytable] WHERE  1=1;");
+
+            ExecuteResult resultDelete = ecDelete.ExecuteSingle(engine);
+            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultDelete.ExecuteStatus, resultDelete.ErrorMessage);
+            Assert.IsNull(resultDelete.ResultSet, resultDelete.ErrorMessage);
+
+            var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM [mytable];");
+
+            ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
+            Assert.IsNull(resultSelect.ResultSet, resultSelect.ErrorMessage);
+        }
+
     }
 }
 

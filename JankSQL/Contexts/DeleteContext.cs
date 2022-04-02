@@ -5,33 +5,26 @@
     internal class DeleteContext : IExecutableContext
     {
         private readonly FullTableName tableName;
-        private PredicateContext? predicateContext;
+        private Expression? predicateExpression;
 
         internal DeleteContext(FullTableName tableName)
         {
             this.tableName = tableName;
         }
 
-        internal PredicateContext PredicateContext
+        internal Expression? PredicateExpression
         {
-            get { return predicateContext!; } set { predicateContext = value; }
+            get { return predicateExpression; } set { predicateExpression = value; }
         }
 
         public void Dump()
         {
             Console.WriteLine($"DELETE FROM {tableName}");
 
-            if (predicateContext == null || predicateContext.PredicateExpressionListCount == 0)
-            {
-                Console.WriteLine("   no predicates");
-            }
+            if (predicateExpression == null)
+                Console.WriteLine("   no predicate");
             else
-            {
-                for (int i = 0; i < predicateContext.PredicateExpressionListCount; i++)
-                {
-                    Console.WriteLine($"    {predicateContext.PredicateExpressions[i]}");
-                }
-            }
+                Console.WriteLine($"       {predicateExpression}");
         }
 
         public ExecuteResult Execute(Engines.IEngine engine)
@@ -48,7 +41,7 @@
             {
                 // found the source table, so load it
                 TableSource source = new (tableSource);
-                Delete delete = new Delete(tableSource, source, PredicateContext.PredicateExpressions);
+                Delete delete = new (tableSource, source, predicateExpression);
 
                 while (true)
                 {

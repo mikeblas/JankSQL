@@ -22,9 +22,14 @@
             if (deleteContext == null)
                 throw new InternalErrorException("Expected a DeleteContext");
 
-            Expression x = GobbleSearchCondition(context.search_condition());
+            // see if there's a search condition
+            if (context.search_condition() != null)
+            {
+                Expression pred = GobbleSearchCondition(context.search_condition());
+                deleteContext.PredicateExpression = pred;
+            }
 
-            deleteContext.PredicateContext = new PredicateContext(x);
+            executionContext.ExecuteContexts.Add(deleteContext);
         }
 
         public override void ExitDelete_statement([NotNull] TSqlParser.Delete_statementContext context)

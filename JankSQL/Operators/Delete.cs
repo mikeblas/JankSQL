@@ -6,14 +6,14 @@
     {
         private readonly IComponentOutput myInput;
         private readonly Engines.IEngineTable engineSource;
-        private readonly List<Expression> predicateExpressions;
         private readonly List<ExpressionOperandBookmark> bookmarksToDelete = new ();
+        private readonly Expression? predicateExpression;
 
-        internal Delete(Engines.IEngineTable targetTable, IComponentOutput input, List<Expression> predicateExpressions)
+        internal Delete(Engines.IEngineTable targetTable, IComponentOutput input, Expression? predicateExpression)
         {
             myInput = input;
             engineSource = targetTable;
-            this.predicateExpressions = predicateExpressions;
+            this.predicateExpression = predicateExpression;
         }
 
         public ResultSet? GetRows(int max)
@@ -31,15 +31,10 @@
             for (int i = 0; i < batch.RowCount; i++)
             {
                 bool predicatePassed = true;
-                foreach (var p in predicateExpressions)
+                if (predicateExpression != null)
                 {
-                    ExpressionOperand result = p.Evaluate(new ResultSetValueAccessor(batch, i));
-
-                    if (!result.IsTrue())
-                    {
-                        predicatePassed = false;
-                        break;
-                    }
+                    ExpressionOperand result = predicateExpression.Evaluate(new ResultSetValueAccessor(batch, i));
+                    predicatePassed = result.IsTrue();
                 }
 
                 if (!predicatePassed)

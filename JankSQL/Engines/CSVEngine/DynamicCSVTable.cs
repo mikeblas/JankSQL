@@ -183,6 +183,9 @@
 
         public int DeleteRows(List<ExpressionOperandBookmark> bookmarksToDelete)
         {
+            if (bookmarksToDelete.Count == 0)
+                return 0;
+
             if (bookmarksToDelete[0].Tuple.Length != 1)
                 throw new ArgumentException("CSV bookmarks have a single field");
             if (bookmarksToDelete[0].Tuple[0].NodeType != ExpressionOperandType.INTEGER)
