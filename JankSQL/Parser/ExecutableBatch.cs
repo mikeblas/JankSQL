@@ -6,14 +6,16 @@
     {
         private readonly List<string> tokenErrors;
         private readonly List<string> syntaxErrors;
+        private string? semanticError;
         private readonly ExecutionContext? executionContext;
         private ExecuteResult[]? results;
 
-        internal ExecutableBatch(List<string> tokenErrors, List<string> syntaxErrors, ExecutionContext? ec)
+        internal ExecutableBatch(List<string> tokenErrors, List<string> syntaxErrors, string? semanticError, ExecutionContext? ec)
         {
             this.tokenErrors = tokenErrors;
             this.syntaxErrors = syntaxErrors;
-            this.executionContext = ec;
+            this.semanticError = semanticError;
+            executionContext = ec;
         }
 
         /// <summary>
@@ -21,7 +23,7 @@
         /// </summary>
         public int TotalErrors
         {
-            get { return NumberOfSyntaxErrors + NumberOfTokenErrors; }
+            get { return NumberOfSyntaxErrors + NumberOfTokenErrors + (semanticError == null ? 0 : 1); }
         }
 
         /// <summary>
@@ -38,6 +40,22 @@
         public int NumberOfTokenErrors
         {
             get { return (tokenErrors == null) ? 0 : tokenErrors.Count; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether there was a semantic error.
+        /// </summary>
+        public bool HadSemanticError
+        {
+            get { return semanticError != null; }
+        }
+
+        /// <summary>
+        /// Gets the semantic error string, if one was encountered.
+        /// </summary>
+        public string? SemanticError
+        {
+            get { return semanticError; }
         }
 
         /// <summary>

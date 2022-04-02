@@ -569,13 +569,10 @@
         }
 
         [TestMethod, Timeout(1000)]
-        [ExpectedException(typeof(ExecutionException))]
         public void TestFailFunctionPIWithArg()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT PI(200);");
-
-            //TODO: how does listener raise an error?
-            // Assert.IsTrue(ec.TotalErrors > 0, "Expected an error");
+            Assert.IsTrue(ec.HadSemanticError, "expected a semantic error");
         }
 
         [TestMethod, Timeout(1000)]
@@ -744,23 +741,17 @@
         }
 
         [TestMethod, Timeout(1000)]
-        [ExpectedException(typeof(ExecutionException))]
         public void TestFailMissingFunctionParameter()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT POWER(2)");
-
-            //TODO: how does listener raise an error?
-            // Assert.IsTrue(ec.TotalErrors > 0, "Expected an error");
+            Assert.IsTrue(ec.HadSemanticError, "expected semantic error");
         }
 
         [TestMethod, Timeout(1000)]
-        [ExpectedException(typeof(ExecutionException))]
         public void TestFailBogusFunctionName()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT BOGUS(2)");
-
-            //TODO: how does listener raise an error?
-            // Assert.IsTrue(ec.TotalErrors > 0, "Expected an error");
+            Assert.IsTrue(ec.HadSemanticError, "expected semantic error");
         }
 
         [TestMethod, Timeout(1000)]

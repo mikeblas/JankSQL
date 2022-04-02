@@ -34,7 +34,7 @@
             for (int i = 0; i < columns.Count; i++)
             {
                 if (names.Contains(columns[i]))
-                    throw new ExecutionException($"column {columns[i]} appears in insert list more than once");
+                    throw new SemanticErrorException($"column {columns[i]} appears in insert list more than once");
                 names.Add(columns[i]);
             }
         }
@@ -82,7 +82,7 @@
                 else
                 {
                     if (constructorColumns != constructor.Count)
-                        throw new ExecutionException($"constructors should have {constructorColumns} columns, found {constructor.Count}");
+                        throw new SemanticErrorException($"constructors should have {constructorColumns} columns, found {constructor.Count}");
                 }
 
                 total.Add(constructor);

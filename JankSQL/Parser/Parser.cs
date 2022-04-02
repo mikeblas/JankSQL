@@ -103,15 +103,23 @@
             var tree = parser.tsql_file();
 
             ExecutionContext? context = null;
+            string? semanticErrorMessage = null;
 
             if (parser.NumberOfSyntaxErrors == 0)
             {
-                var ml = new JankListener(quiet);
-                ParseTreeWalker.Default.Walk(ml, tree);
-                context = ml.ExecutionContext;
+                try
+                {
+                    var ml = new JankListener(quiet);
+                    ParseTreeWalker.Default.Walk(ml, tree);
+                    context = ml.ExecutionContext;
+                }
+                catch (SemanticErrorException e)
+                {
+                   semanticErrorMessage = e.Message;
+                }
             }
 
-            ExecutableBatch batch = new (errorListener.ErrorList, tokenErrorListener.ErrorList, context);
+            ExecutableBatch batch = new (errorListener.ErrorList, tokenErrorListener.ErrorList, semanticErrorMessage, context);
             return batch;
         }
     }
