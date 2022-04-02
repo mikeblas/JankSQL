@@ -61,7 +61,7 @@ namespace Tests
             {
                 Assert.AreEqual(355 / 113, result.ResultSet.Row(i)[0].AsInteger());
                 Assert.AreEqual(867 - 5309, result.ResultSet.Row(i)[1].AsInteger());
-                Assert.AreEqual((123 + 456 - 111) / 3, result.ResultSet.Row(i)[0].AsInteger());
+                Assert.AreEqual((123 + 456 - 111) / 3, result.ResultSet.Row(i)[2].AsInteger());
             }
         }
 
