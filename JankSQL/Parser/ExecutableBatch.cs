@@ -6,8 +6,9 @@
     {
         private readonly List<string> tokenErrors;
         private readonly List<string> syntaxErrors;
-        private string? semanticError;
         private readonly ExecutionContext? executionContext;
+        private readonly string? semanticError;
+
         private ExecuteResult[]? results;
 
         internal ExecutableBatch(List<string> tokenErrors, List<string> syntaxErrors, string? semanticError, ExecutionContext? ec)

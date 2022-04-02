@@ -936,5 +936,43 @@
             Assert.AreEqual(30 / 10, result.ResultSet.Row(0)[0].AsDouble());
         }
 
+        [TestMethod, Timeout(1000)]
+        public void TestDivisionWithNull()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 30/NULL;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestIsNull()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 'Yes' WHERE NULL IS NULL;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+        }
+
+
+        [TestMethod, Timeout(1000)]
+        public void TestIsNotNull()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 'Yes' WHERE NULL IS NOT NULL;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(0, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+        }
     }
 }

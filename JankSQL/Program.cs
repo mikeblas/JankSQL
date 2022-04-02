@@ -102,6 +102,9 @@ namespace JankSQL
             str = "SELECT ISNULL(NULL, 35)";
             str = "SELECT ISNULL(92, 35)";
 
+            str = "SELECT 'Yes' WHERE NULL IS NULL";
+
+
 
             // Engines.DynamicCSVEngine engine = Engines.DynamicCSVEngine.OpenAlways("F:\\JankTests\\Test33");
 

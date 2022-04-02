@@ -57,7 +57,7 @@
 
         public override string ToString()
         {
-            return string.Join(",", values.Select(x => $"[{x}]"));
+            return string.Join(", ", values.Select(x => $"[{x}]"));
         }
 
         internal static Tuple CreateEmpty(int count)

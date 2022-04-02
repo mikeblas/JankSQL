@@ -67,13 +67,12 @@ namespace Tests
             Assert.IsNotNull(ec);
             Assert.AreEqual(0, ec.TotalErrors);
 
-            ExecuteResult[] results = ec.Execute(engine);
-            Assert.AreEqual(1, results.Length, "result count mismatch");
+            ExecuteResult result = ec.ExecuteSingle(engine);
 
-            Assert.AreEqual(ExecuteStatus.FAILED, results[0].ExecuteStatus);
-            Assert.IsNotNull(results[0].ErrorMessage);
+            Assert.AreEqual(ExecuteStatus.FAILED, result.ExecuteStatus);
+            Assert.IsNotNull(result.ErrorMessage);
 
-            Assert.IsNull(results[0].ResultSet);
+            Assert.IsNull(result.ResultSet);
         }
 
 
@@ -85,12 +84,12 @@ namespace Tests
             Assert.IsNotNull(ec);
             Assert.AreEqual(0, ec.TotalErrors);
 
-            ExecuteResult results = ec.ExecuteSingle(engine);
+            ExecuteResult result = ec.ExecuteSingle(engine);
 
-            Assert.AreEqual(ExecuteStatus.FAILED, results.ExecuteStatus);
-            Assert.IsNotNull(results.ErrorMessage);
+            Assert.AreEqual(ExecuteStatus.FAILED, result.ExecuteStatus);
+            Assert.IsNotNull(result.ErrorMessage);
 
-            Assert.IsNull(results.ResultSet);
+            Assert.IsNull(result.ResultSet);
         }
 
 

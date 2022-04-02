@@ -1,7 +1,9 @@
 ﻿namespace JankSQL
 {
+    using System.Diagnostics;
     using JankSQL.Expressions;
 
+    [DebuggerDisplay("Expression = {ToString()}")]
     internal class Expression : List<ExpressionNode>, IEquatable<Expression>
     {
         internal Expression()
@@ -13,7 +15,7 @@
 
         public override string ToString()
         {
-            return string.Join(',', this);
+            return string.Join(", ", this);
         }
 
         public virtual bool Equals(Expression? other)
@@ -64,18 +66,27 @@
                     }
                     else if (n is ExpressionFunction expressionFunction)
                     {
+                        // a function to evaluate
                         ExpressionOperand r = expressionFunction.Evaluate(stack);
                         stack.Push(r);
                     }
                     else if (n is ExpressionOperandFromColumn columnOperand)
                     {
+                        // value from a column
                         if (accessor == null)
                             throw new ExecutionException("Not in a row context to evaluate {this}");
                         stack.Push(accessor.GetValue(columnOperand.ColumnName));
                     }
                     else if (n is ExpressionComparisonOperator comparisonOperator)
                     {
+                        // comparison operator
                         ExpressionOperand r = comparisonOperator.Evaluate(stack);
+                        stack.Push(r);
+                    }
+                    else if (n is ExpressionIsNullOperator nullOperator)
+                    {
+                        // nullness operator
+                        ExpressionOperand r = nullOperator.Evaluate(stack);
                         stack.Push(r);
                     }
                     else if (n is ExpressionBooleanOperator booleanOperator)

@@ -79,17 +79,40 @@
 
         internal Expression GobblePredicate(TSqlParser.PredicateContext context)
         {
-            ExpressionNode comparison = new ExpressionComparisonOperator(context.comparison_operator().GetText());
+            if (context.subquery() != null)
+            {
+                throw new NotImplementedException("subqueries are not yet supported");
+            }
+            else if (context.comparison_operator() != null)
+            {
+                // two expressions with a comparison operator in the middle
+                var comparison = new ExpressionComparisonOperator(context.comparison_operator().GetText());
 
-            Expression left = GobbleExpression(context.expression()[0]);
-            Expression right = GobbleExpression(context.expression()[1]);
+                Expression left = GobbleExpression(context.expression()[0]);
+                Expression right = GobbleExpression(context.expression()[1]);
 
-            Expression x = new ();
-            x.AddRange(left);
-            x.AddRange(right);
-            x.Add(comparison);
+                Expression x = new ();
+                x.AddRange(left);
+                x.AddRange(right);
+                x.Add(comparison);
 
-            return x;
+                return x;
+            }
+            else if (context.null_notnull() != null)
+            {
+                // expression IS [NOT] NULL
+                var comparison = new ExpressionIsNullOperator(context.null_notnull().NOT() != null);
+
+                Expression left = GobbleExpression(context.expression()[0]);
+
+                Expression x = new ();
+                x.AddRange(left);
+                x.Add(comparison);
+
+                return x;
+            }
+
+            throw new InternalErrorException("Don't know how to handle this predicate");
         }
     }
 }
