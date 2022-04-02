@@ -48,7 +48,7 @@
             }
             else
             {
-                throw new NotImplementedException($"ExpressionOperator: no implementation for {str}");
+                throw new NotImplementedException($"ExpressionComparisonOperator: no implementation for {str}");
             }
 
             return new ExpressionOperandBoolean(result);

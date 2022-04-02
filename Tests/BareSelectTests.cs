@@ -26,6 +26,7 @@
             Assert.AreEqual(3+5, result.ResultSet.Row(0)[0].AsDouble());
         }
 
+
         [TestMethod, Timeout(1000)]
         public void TestAdditionWithNull()
         {
@@ -701,6 +702,111 @@
 
             //TODO: how does listener raise an error?
             // Assert.IsTrue(ec.TotalErrors > 0, "Expected an error");
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestModulo()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 17 % 5;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
+            Assert.AreEqual(17 % 5, result.ResultSet.Row(0)[0].AsInteger());
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestModuloDoubles()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 17.5 % 5.1;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
+            Assert.AreEqual(17.5 % 5.1, result.ResultSet.Row(0)[0].AsDouble());
+        }
+
+
+        [TestMethod, Timeout(1000)]
+        public void TestModuloNegativeLeft()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT -17 % 5;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
+            Assert.AreEqual(-17 % 5, result.ResultSet.Row(0)[0].AsInteger());
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestModuloNegativeRight()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 17 % -5;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
+            Assert.AreEqual(17 % -5, result.ResultSet.Row(0)[0].AsInteger());
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestModuloString()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 17 % '-5';");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
+            Assert.AreEqual(17 % -5, result.ResultSet.Row(0)[0].AsInteger());
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestModuloNull()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 17 % NULL;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestDivision()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 30/10;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
+            Assert.AreEqual(30 / 10, result.ResultSet.Row(0)[0].AsDouble());
         }
 
     }

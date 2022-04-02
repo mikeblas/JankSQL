@@ -181,6 +181,7 @@
             }
         }
 
+
         public override ExpressionOperand OperatorTimes(ExpressionOperand other)
         {
             if (RepresentsNull || other.RepresentsNull)
@@ -201,6 +202,33 @@
                 throw new InvalidOperationException("OperatorTimes Integer");
             }
         }
+
+        public override ExpressionOperand OperatorModulo(ExpressionOperand other)
+        {
+            if (RepresentsNull || other.RepresentsNull)
+                return new ExpressionOperandInteger(0, true);
+
+            if (other.NodeType == ExpressionOperandType.INTEGER)
+            {
+                int result = AsInteger() % other.AsInteger();
+                return new ExpressionOperandInteger(result);
+            }
+            else if (other.NodeType == ExpressionOperandType.DECIMAL)
+            {
+                double result = AsDouble() % other.AsDouble();
+                return new ExpressionOperandDecimal(result);
+            }
+            else if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.NVARCHAR)
+            {
+                double result = AsDouble() % other.AsDouble();
+                return new ExpressionOperandDecimal(result);
+            }
+            else
+            {
+                throw new InvalidOperationException("OperatorModulo Integer");
+            }
+        }
+
 
         public override void AddToSelf(ExpressionOperand other)
         {

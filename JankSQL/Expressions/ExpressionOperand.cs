@@ -40,6 +40,8 @@
 
         public abstract ExpressionOperand OperatorSlash(ExpressionOperand other);
 
+        public abstract ExpressionOperand OperatorModulo(ExpressionOperand other);
+
         public abstract void AddToSelf(ExpressionOperand other);
 
         public abstract object Clone();

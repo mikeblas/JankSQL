@@ -69,6 +69,14 @@
                 ExpressionOperand result = op1.OperatorTimes(op2);
                 return result;
             }
+            else if (str == "%")
+            {
+                ExpressionOperand right = stack.Pop();
+                ExpressionOperand left = stack.Pop();
+
+                ExpressionOperand result = left.OperatorModulo(right);
+                return result;
+            }
             else
             {
                 throw new NotImplementedException($"ExpressionOperator: no implementation for {str}");
