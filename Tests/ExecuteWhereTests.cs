@@ -23,6 +23,19 @@ namespace Tests
             Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
+
+        [TestMethod, Timeout(1000)]
+        public void TestSelectWhereGreaterEqual()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM  ten WHERE number_id >= 5;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(5, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(3, result.ResultSet.ColumnCount, "column count mismatch");
+        }
+
         [TestMethod, Timeout(1000)]
         public void TestSelectWhereLess()
         {
@@ -34,6 +47,19 @@ namespace Tests
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
+
+        [TestMethod, Timeout(1000)]
+        public void TestSelectWhereLessEqual()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM ten WHERE number_id <= 5;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(6, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(3, result.ResultSet.ColumnCount, "column count mismatch");
+        }
+
 
         [TestMethod, Timeout(1000)]
         public void TestSelectWhereEqualNone()
@@ -59,6 +85,80 @@ namespace Tests
             Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
+        [TestMethod, Timeout(1000)]
+        public void TestSelectWhereBetween()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM ten WHERE number_id BETWEEN 3 AND 6;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(4, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(3, result.ResultSet.ColumnCount, "column count mismatch");
+        }
+
+
+        [TestMethod, Timeout(1000)]
+        public void TestSelectWhereNotBetween()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM ten WHERE number_id NOT BETWEEN 3 AND 6;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(6, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(3, result.ResultSet.ColumnCount, "column count mismatch");
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestSelectWhereExpressionBetween()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM ten WHERE 10 * number_id BETWEEN 30 AND 60;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(4, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(3, result.ResultSet.ColumnCount, "column count mismatch");
+        }
+
+
+        [TestMethod, Timeout(1000)]
+        public void TestSelectWhereExpressionNotBetween()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM ten WHERE 10 * number_id NOT BETWEEN 30 AND 60;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(6, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(3, result.ResultSet.ColumnCount, "column count mismatch");
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestSelectWhereExpressionBetweenExpressions()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM ten WHERE 10 * number_id BETWEEN 3 * 10 AND 6 * 10;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(4, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(3, result.ResultSet.ColumnCount, "column count mismatch");
+        }
+
+
+        [TestMethod, Timeout(1000)]
+        public void TestSelectWhereExpressionNotBetweenExpressions()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM ten WHERE 10 * number_id NOT BETWEEN 3 * 10 AND 6 * 10;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(6, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(3, result.ResultSet.ColumnCount, "column count mismatch");
+        }
 
         [TestMethod, Timeout(1000)]
         public void TestSelectWhereEqualsMathA()

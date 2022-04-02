@@ -103,7 +103,9 @@ namespace JankSQL
             str = "SELECT ISNULL(92, 35)";
 
             str = "SELECT 'Yes' WHERE NULL IS NULL";
+            str = "SELECT (123 + 456 - 111) / 3";
 
+            str = "SELECT * FROM ten WHERE number_id BETWEEN 3 AND 6;";
 
 
             // Engines.DynamicCSVEngine engine = Engines.DynamicCSVEngine.OpenAlways("F:\\JankTests\\Test33");
@@ -174,6 +176,7 @@ namespace JankSQL
                 Console.WriteLine("Errors!");
             }
 
+            /*
             string str2 = "INSERT INTO Ten (numbeR_id, numbeR_name, is_even) VALUES (11, 'Eleven', 0)";
             ExecutableBatch batch2 = Parser.ParseSQLFileFromString(str2);
             if (batch2.TotalErrors == 0)
@@ -200,7 +203,7 @@ namespace JankSQL
             {
                 Console.WriteLine("Errors!");
             }
-
+            */
 
             Engines.DynamicCSVEngine.RemoveDatabase(tempPath);
         }

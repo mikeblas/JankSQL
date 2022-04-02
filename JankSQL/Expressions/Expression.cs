@@ -94,6 +94,12 @@
                         ExpressionOperand r = booleanOperator.Evaluate(stack);
                         stack.Push(r);
                     }
+                    else if (n is ExpressionBetweenOperator betweenOperator)
+                    {
+                        // a [NOT] BETWEEN b AND c
+                        ExpressionOperand r = betweenOperator.Evaluate(stack);
+                        stack.Push(r);
+                    }
                     else
                     {
                         throw new InvalidOperationException($"Not prepared for ExpressionNode {n}");

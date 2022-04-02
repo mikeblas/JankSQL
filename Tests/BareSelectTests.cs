@@ -297,13 +297,38 @@
             var ec = Parser.ParseSQLFileFromString("SELECT 5 + '300';");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
             result.ResultSet.Dump();
             Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
             Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
             Assert.AreEqual(305, result.ResultSet.Row(0)[0].AsDouble());
+        }
+
+
+        [TestMethod, Timeout(1000)]
+        public void TestGreaterThan()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 'Yes' WHERE 5 > 2;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestLessThan()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 'Yes' WHERE 2 < 5;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
 

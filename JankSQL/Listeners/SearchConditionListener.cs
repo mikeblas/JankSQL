@@ -111,6 +111,29 @@
 
                 return x;
             }
+            else if (context.BETWEEN() != null)
+            {
+                // expression [NOT] BETWEEN expresion AND expression
+
+                Expression value = GobbleExpression(context.expression()[0]);
+                Expression left = GobbleExpression(context.expression()[1]);
+                Expression right = GobbleExpression(context.expression()[2]);
+
+                // there are a variable number of NOT tokens
+                // if that number is odd, then we are NOT BETWEEN
+                // otherwise, BETWEEN
+                bool notBetween = context.NOT().Length % 2 != 0;
+
+                var comparison = new ExpressionBetweenOperator(notBetween);
+
+                Expression x = new ();
+                x.AddRange(value);
+                x.AddRange(left);
+                x.AddRange(right);
+                x.Add(comparison);
+
+                return x;
+            }
 
             throw new InternalErrorException("Don't know how to handle this predicate");
         }

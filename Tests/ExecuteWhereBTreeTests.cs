@@ -1,23 +1,24 @@
-﻿namespace Tests
+﻿
+namespace Tests
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+
     using Engines = JankSQL.Engines;
 
     [TestClass]
-    public class ExecuteWhereCSVTests : ExecuteWhereTests
+    public class ExecuteWhereBTreeTests : ExecuteWhereTests
     {
         [TestInitialize]
         public void ClassInitialize()
         {
-            mode = "CSV";
+            mode = "BTree";
+            Console.WriteLine($"Test mode is {mode}");
 
-
-            string tempPath = Path.GetTempPath();
-            tempPath = Path.Combine(tempPath, "XYZZY");
-            engine = Engines.DynamicCSVEngine.OpenObliterate(tempPath);
-
+            engine = Engines.BTreeEngine.CreateInMemory();
             TestHelpers.InjectTableMyTable(engine);
             TestHelpers.InjectTableTen(engine);
         }
+
     }
 }
+
