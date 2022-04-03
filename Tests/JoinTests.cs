@@ -4,6 +4,8 @@
     using JankSQL;
     using Engines = JankSQL.Engines;
 
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+
     public class JoinTests
     {
         internal string mode = "base";
@@ -15,10 +17,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] CROSS JOIN [states];");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 6, 24);
             result.ResultSet.Dump();
-            Assert.AreEqual(24, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(6, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -27,10 +27,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] CROSS JOIN [states] ORDER BY state_name;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 6, 24);
             result.ResultSet.Dump();
-            Assert.AreEqual(24, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(6, result.ResultSet.ColumnCount, "column count mismatch");
 
             int nameIndex = result.ResultSet.ColumnIndex(FullColumnName.FromColumnName("state_name"));
             string previous = result.ResultSet.Row(0)[nameIndex].AsString();
@@ -50,10 +48,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [three] CROSS JOIN [ten] CROSS JOIN [mytable];");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 9, 90);
             result.ResultSet.Dump();
-            Assert.AreEqual(90, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(9, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -64,10 +60,8 @@
                 " WHERE [three].[number_id] + 10 * [ten].[number_id] > 30;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 9, 63);
             result.ResultSet.Dump();
-            Assert.AreEqual(63, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(9, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
 
@@ -83,10 +77,9 @@
                 "  ORDER BY number_name DESC");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 9, 63);
             Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
             result.ResultSet.Dump();
-            Assert.AreEqual(63, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(9, result.ResultSet.ColumnCount, "column count mismatch");
 
             int nameIndex = result.ResultSet.ColumnIndex(FullColumnName.FromColumnName("number_name"));
             string previous = result.ResultSet.Row(0)[nameIndex].AsString();
@@ -124,10 +117,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] JOIN [states] ON [mytable].[state_code] = [states].[state_code]");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 6, 3);
             result.ResultSet.Dump();
-            Assert.AreEqual(3, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(6, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -153,10 +144,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] INNER JOIN [states] ON [mytable].[state_code] = [states].[state_code]");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 6, 3);
             result.ResultSet.Dump();
-            Assert.AreEqual(3, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(6, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]

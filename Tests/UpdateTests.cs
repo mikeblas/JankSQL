@@ -5,6 +5,8 @@
     using JankSQL;
     using Engines = JankSQL.Engines;
 
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+
     public class UpdateTests
     {
         internal string mode = "base";
@@ -25,10 +27,8 @@
             var ecSelect = Parser.ParseSQLFileFromString("SELECT population FROM MyTable;");
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
-            Assert.IsNotNull(resultSelect.ResultSet, resultSelect.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(resultSelect, 1, 3);
             resultSelect.ResultSet.Dump();
-            Assert.AreEqual(3, resultSelect.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(1, resultSelect.ResultSet.ColumnCount, "column count mismatch");
 
             HashSet<int> expected = new ()
             {
@@ -63,10 +63,8 @@
             var ecSelect = Parser.ParseSQLFileFromString("SELECT is_even, number_id FROM ten;");
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
-            Assert.IsNotNull(resultSelect.ResultSet, resultSelect.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(resultSelect, 2, 10);
             resultSelect.ResultSet.Dump();
-            Assert.AreEqual(10, resultSelect.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(2, resultSelect.ResultSet.ColumnCount, "column count mismatch");
 
             int evenIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("is_even"));
             int numberIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("number_id"));
@@ -96,10 +94,8 @@
             var ecSelect = Parser.ParseSQLFileFromString("SELECT is_even, number_id FROM ten;");
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
-            Assert.IsNotNull(resultSelect.ResultSet, resultSelect.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(resultSelect, 2, 10);
             resultSelect.ResultSet.Dump();
-            Assert.AreEqual(10, resultSelect.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(2, resultSelect.ResultSet.ColumnCount, "column count mismatch");
 
             int evenIndex= resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("is_even"));
             int numberIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("number_id"));
@@ -129,10 +125,8 @@
             var ecSelect = Parser.ParseSQLFileFromString("SELECT number_name, is_even, number_id FROM ten;");
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
-            Assert.IsNotNull(resultSelect.ResultSet, resultSelect.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(resultSelect, 3, 10);
             resultSelect.ResultSet.Dump();
-            Assert.AreEqual(10, resultSelect.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(3, resultSelect.ResultSet.ColumnCount, "column count mismatch");
 
             int evenIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("is_even"));
             int numberIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("number_id"));
@@ -170,10 +164,8 @@
             var ecSelect = Parser.ParseSQLFileFromString("SELECT is_even, number_id FROM ten;");
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
-            Assert.IsNotNull(resultSelect.ResultSet, resultSelect.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(resultSelect, 2, 10);
             resultSelect.ResultSet.Dump();
-            Assert.AreEqual(10, resultSelect.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(2, resultSelect.ResultSet.ColumnCount, "column count mismatch");
 
             int evenIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("is_even"));
             int numberIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("number_id"));

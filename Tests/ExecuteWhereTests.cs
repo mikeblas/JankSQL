@@ -5,6 +5,8 @@ namespace Tests
     using JankSQL;
     using Engines = JankSQL.Engines;
 
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+
     public class ExecuteWhereTests
     {
         internal string mode = "base";
@@ -17,10 +19,8 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] > 30000;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 4, 2);
             result.ResultSet.Dump();
-            Assert.AreEqual(2, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
 
@@ -30,10 +30,8 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM  ten WHERE number_id >= 5;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 3, 5 );
             result.ResultSet.Dump();
-            Assert.AreEqual(5, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(3, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -42,10 +40,8 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] < 30000;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 4, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -54,10 +50,8 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM ten WHERE number_id <= 5;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 3, 6);
             result.ResultSet.Dump();
-            Assert.AreEqual(6, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(3, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
 
@@ -67,10 +61,8 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] = 30000;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 4, 0);
             result.ResultSet.Dump();
-            Assert.AreEqual(0, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -79,10 +71,8 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] = 25000;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 4, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -91,10 +81,8 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM ten WHERE number_id BETWEEN 3 AND 6;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 3, 4);
             result.ResultSet.Dump();
-            Assert.AreEqual(4, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(3, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
 
@@ -104,10 +92,8 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM ten WHERE number_id NOT BETWEEN 3 AND 6;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 3, 6);
             result.ResultSet.Dump();
-            Assert.AreEqual(6, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(3, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -116,10 +102,8 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM ten WHERE 10 * number_id BETWEEN 30 AND 60;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 3, 4);
             result.ResultSet.Dump();
-            Assert.AreEqual(4, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(3, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
 
@@ -129,10 +113,8 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM ten WHERE 10 * number_id NOT BETWEEN 30 AND 60;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 3, 6);
             result.ResultSet.Dump();
-            Assert.AreEqual(6, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(3, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -141,10 +123,8 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM ten WHERE 10 * number_id BETWEEN 3 * 10 AND 6 * 10;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 3, 4);
             result.ResultSet.Dump();
-            Assert.AreEqual(4, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(3, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
 
@@ -154,10 +134,8 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM ten WHERE 10 * number_id NOT BETWEEN 3 * 10 AND 6 * 10;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 3, 6);
             result.ResultSet.Dump();
-            Assert.AreEqual(6, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(3, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -166,10 +144,8 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] = 12500 * 2;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 4, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -178,10 +154,8 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] * 2 = 50000;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 4, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -190,10 +164,8 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] != 37000;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 4, 2);
             result.ResultSet.Dump();
-            Assert.AreEqual(2, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -202,10 +174,8 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] <> 37000;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 4, 2);
             result.ResultSet.Dump();
-            Assert.AreEqual(2, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -214,10 +184,8 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] = 37000 OR [keycolumn] = 1;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 4, 2);
             result.ResultSet.Dump();
-            Assert.AreEqual(2, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
 
@@ -229,10 +197,8 @@ namespace Tests
             ec.Dump();
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 4, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
 
@@ -242,10 +208,8 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] = 25000 AND [keycolumn] = 5-4;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 4, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         // 
@@ -255,10 +219,8 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE NOT ([population] = 37000);");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 4, 2);
             result.ResultSet.Dump();
-            Assert.AreEqual(2, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -267,11 +229,8 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE NOT ([population] = 37000 OR [keycolumn] = 1);");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 4, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
-
         }
 
 
@@ -281,10 +240,8 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE NOT(NOT(NOT ([population] = 37000)));");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 4, 2);
             result.ResultSet.Dump();
-            Assert.AreEqual(2, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -293,10 +250,8 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE NOT [population] = 37000;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 4, 2);
             result.ResultSet.Dump();
-            Assert.AreEqual(2, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -305,10 +260,8 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE NOT NOT NOT NOT NOT [population] = 37000;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 4, 2);
             result.ResultSet.Dump();
-            Assert.AreEqual(2, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -317,10 +270,8 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE NOT [population] = 37000 OR [keycolumn] = 1;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 4, 2);
             result.ResultSet.Dump();
-            Assert.AreEqual(2, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [TestMethod, Timeout(1000)]
@@ -329,10 +280,8 @@ namespace Tests
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE NOT [population] = 37000 OR [keycolumn] = 2;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 4, 3);
             result.ResultSet.Dump();
-            Assert.AreEqual(3, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
     }
