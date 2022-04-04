@@ -1,22 +1,10 @@
 ﻿namespace JankSQL
 {
-    using Antlr4.Runtime.Misc;
     using JankSQL.Contexts;
     using JankSQL.Operators;
 
     public partial class JankListener : TSqlParserBaseListener
     {
-        public override void EnterGroup_by_item([NotNull] TSqlParser.Group_by_itemContext context)
-        {
-            base.EnterGroup_by_item(context);
-
-            if (selectContext == null)
-                throw new InternalErrorException("Expected a SelectContext");
-
-            Expression gbe = GobbleExpression(context.expression());
-            selectContext.AddGroupByExpression(gbe);
-        }
-
         internal AggregateContext GobbleAggregateFunctionContext(TSqlParser.Aggregate_windowed_functionContext context)
         {
             AggregateContext ac;

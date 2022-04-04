@@ -50,6 +50,9 @@
             if (rows == null)
                 throw new InvalidOperationException();
 
+            if (other.RowCount == 0)
+                return;
+
             if (rows.Count > 0 && rows[0].Length != other.rows[0].Length)
                 throw new InvalidOperationException();
 

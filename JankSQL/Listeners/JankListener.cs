@@ -55,7 +55,18 @@
             depth--;
         }
 
+        internal Expression GobbleSelectExpression(TSqlParser.ExpressionContext expr, SelectContext selectContext)
+        {
+            return GobbleExpressionImpl(expr, selectContext);
+        }
+
         internal Expression GobbleExpression(TSqlParser.ExpressionContext expr)
+        {
+            return GobbleExpressionImpl(expr, null);
+        }
+
+
+        internal Expression GobbleExpressionImpl(TSqlParser.ExpressionContext expr, SelectContext selectContext)
         {
             Expression x = new ();
             List<object> stack = new ();

@@ -13,11 +13,16 @@ namespace Tests
             if (executeResult.ResultSet == null)
                 throw new AssertFailedException($"expected a non-null result set. Error message was {executeResult.ErrorMessage}");
 
+            List<string> messages = new ();
+
             if (executeResult.ResultSet.ColumnCount != expectedColumns)
-                throw new AssertFailedException($"expected {expectedColumns}, found {executeResult.ResultSet.ColumnCount}");
+                messages.Add($"expected {expectedColumns} columns, found {executeResult.ResultSet.ColumnCount}");
 
             if (executeResult.ResultSet.RowCount != expectedRows)
-                throw new AssertFailedException($"expected {expectedRows}, found {executeResult.ResultSet.RowCount}");
+                messages.Add($"expected {expectedRows} rows, found {executeResult.ResultSet.RowCount}");
+
+            if (messages.Count > 0)
+                throw new AssertFailedException(string.Join(';', messages));
         }
     }
 }

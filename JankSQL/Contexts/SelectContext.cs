@@ -9,10 +9,11 @@
         private readonly List<JoinContext> joinContexts = new ();
         private readonly List<AggregateContext> aggregateContexts = new ();
         private readonly List<Expression> groupByExpressions = new ();
+        private readonly SelectListContext selectListContext;
+
+        private FullTableName? sourceTableName;
 
         private OrderByContext? orderByContext;
-
-        private SelectListContext? selectListContext;
 
         // for WHERE clauses
         private PredicateContext? predicateContext;
@@ -21,6 +22,7 @@
         {
             statementContext = context;
             this.predicateContext = predicateContext;
+            selectListContext = new SelectListContext(context.query_expression().query_specification().select_list());
         }
 
         internal OrderByContext? OrderByContext
@@ -32,7 +34,12 @@
         internal SelectListContext SelectListContext
         {
             get { return selectListContext!; }
-            set { selectListContext = value; }
+        }
+
+        internal FullTableName? SourceTableName
+        {
+            get { return sourceTableName; }
+            set { sourceTableName = value; }
         }
 
         public ExecuteResult Execute(Engines.IEngine engine)
@@ -49,7 +56,7 @@
             TableSource tableSource;
             IComponentOutput lastLeftOutput;
 
-            if (querySpecs.table_sources() == null)
+            if (SourceTableName == null)
             {
                 // no source table!
                 tableSource = new TableSource(new Engines.DualSource());
@@ -57,12 +64,11 @@
             }
             else
             {
-                FullTableName sourceTableName = FullTableName.FromTableNameContext(querySpecs.table_sources().table_source().First().table_source_item_joined().table_source_item().table_name_with_hint().table_name());
-                Console.WriteLine($"ExitSelect_Statement: {sourceTableName}");
+                Console.WriteLine($"ExitSelect_Statement: {SourceTableName}");
 
-                Engines.IEngineTable? engineSource = engine.GetEngineTable(sourceTableName);
+                Engines.IEngineTable? engineSource = engine.GetEngineTable(SourceTableName);
                 if (engineSource == null)
-                    throw new ExecutionException($"Table {sourceTableName} does not exist");
+                    throw new ExecutionException($"Table {SourceTableName} does not exist");
                 else
                 {
                     // found the source table, so hook it up

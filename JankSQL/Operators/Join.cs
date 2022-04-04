@@ -43,6 +43,7 @@
         public void Rewind()
         {
             outputIndex = 0;
+            Console.WriteLine("REWIND!");
         }
 
         public ResultSet? GetRows(int max)
@@ -91,7 +92,7 @@
 
         protected ResultSet ProduceOutputSet()
         {
-            const int max = 25;
+            const int max = 7;
 
             if (leftRows == null)
             {
@@ -113,14 +114,9 @@
 
                 int outColumnCount = 0;
                 for (int i = 0; i < leftRows.ColumnCount; i++)
-                {
                     totalRow[outColumnCount++] = leftRows.Row(leftIndex)[i];
-                }
-
                 for (int i = 0; i < rightRows.ColumnCount; i++)
-                {
                     totalRow[outColumnCount++] = rightRows.Row(rightIndex)[i];
-                }
 
                 // see if we need to compute predicates ...
                 bool matched;
@@ -132,7 +128,7 @@
                     matched = op.IsTrue();
                 }
 
-                Console.WriteLine($"{leftIndex}, {rightIndex}, {matched}");
+                Console.WriteLine($"Join: {leftIndex + 1}/{leftRows.RowCount}, {rightIndex + 1}/{rightRows.RowCount}, {matched}");
 
                 // depending on the join type, do the right thing.
                 if (joinType == JoinType.INNER_JOIN)
@@ -149,7 +145,7 @@
                 else
                 {
                     // NYI just now
-                    throw new NotImplementedException();
+                    throw new NotImplementedException($"don't know join type {joinType}");
                 }
 
                 rightIndex += 1;
@@ -159,13 +155,21 @@
                     {
                         rightInput.Rewind();
                         FillRightRows(max);
+
                         leftIndex += 1;
+                        if (leftIndex == leftRows.RowCount)
+                        {
+                            if (!FillLeftRows(max))
+                                break;
+                            leftIndex = 0;
+                        }
                     }
 
                     rightIndex = 0;
                 }
             }
 
+            Console.WriteLine($"Output set has {output.RowCount} rows");
             return output;
         }
     }

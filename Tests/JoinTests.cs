@@ -45,7 +45,11 @@
         [TestMethod, Timeout(1000)]
         public void TestDoubleCrossJoin()
         {
-            var ec = Parser.ParseSQLFileFromString("SELECT * FROM [three] CROSS JOIN [ten] CROSS JOIN [mytable];");
+            var ec = Parser.ParseSQLFileFromString(
+                "    SELECT * " +
+                "      FROM [three] " +
+                "CROSS JOIN [ten] " + 
+                "CROSS JOIN [mytable];");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 9, 90);
@@ -56,8 +60,11 @@
         public void TestFilterDoubleCrossJoin()
         {
             var ec = Parser.ParseSQLFileFromString(
-                "SELECT * FROM [Three] CROSS JOIN [Ten] CROSS JOIN [MyTable]" +
-                " WHERE [three].[number_id] + 10 * [ten].[number_id] > 30;");
+                "    SELECT * " +
+                "      FROM [three] " +
+                "CROSS JOIN [ten] " +
+                "CROSS JOIN [mytable] " +
+                "     WHERE [three].[number_id] + 10 * [ten].[number_id] > 30;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 9, 63);
@@ -70,7 +77,7 @@
         {
             var ec = Parser.ParseSQLFileFromString(
                 "    SELECT * " +
-                "      FROM [Three]" +
+                "      FROM [Three] " +
                 "CROSS JOIN [Ten] " +
                 "CROSS JOIN [MyTable] " +
                 "     WHERE [three].[number_id] + 10 * [ten].[number_id] > 30 " +
@@ -97,8 +104,11 @@
         public void TestFilterDoubleCrossJoinBadName()
         {
             var ec = Parser.ParseSQLFileFromString(
-                "SELECT * FROM [Three] CROSS JOIN [Ten] CROSS JOIN [MyTable]" +
-                " WHERE [three].[BADcolumnName] + 10 * [ten].[number_id] > 30;");
+                "    SELECT * " +
+                "      FROM [Three] " +
+                "CROSS JOIN [Ten] " +
+                "CROSS JOIN [MyTable] " +
+                "     WHERE [three].[BADcolumnName] + 10 * [ten].[number_id] > 30;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
 
@@ -114,7 +124,10 @@
         [TestMethod, Timeout(1000)]
         public void TestEquiJoin()
         {
-            var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] JOIN [states] ON [mytable].[state_code] = [states].[state_code]");
+            var ec = Parser.ParseSQLFileFromString(
+                "SELECT * " +
+                "  FROM [mytable] " +
+                "  JOIN [states] ON [mytable].[state_code] = [states].[state_code]");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 6, 3);
@@ -124,7 +137,10 @@
         [TestMethod, Timeout(1000)]
         public void TestFailEquiJoinBadName()
         {
-            var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytableBADNAME] JOIN [states] ON [mytable].[state_code] = [states].[state_code]");
+            var ec = Parser.ParseSQLFileFromString(
+                "SELECT * " +
+                "  FROM [mytableBADNAME] " +
+                "  JOIN [states] ON [mytable].[state_code] = [states].[state_code]");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
 
