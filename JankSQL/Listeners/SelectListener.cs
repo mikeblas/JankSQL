@@ -115,20 +115,20 @@
             {
                 // find the source table, along with all the joins
 
-                var talbeSourceItem = context.query_expression().query_specification().table_sources().table_source().First().table_source_item_joined();
-                while (talbeSourceItem != null)
+                var tableSourceItem = context.query_expression().query_specification().table_sources().table_source().First().table_source_item_joined();
+                while (tableSourceItem != null)
                 {
-                    FullTableName ftn = FullTableName.FromTableNameContext(talbeSourceItem.table_source_item().table_name_with_hint().table_name());
+                    FullTableName ftn = FullTableName.FromTableNameContext(tableSourceItem.table_source_item().table_name_with_hint().table_name());
                     Console.WriteLine($"iterative: {ftn}");
 
                     if (selectContext.SourceTableName == null)
                         selectContext.SourceTableName = ftn;
 
-                    if (talbeSourceItem.join_part().Length > 0)
+                    if (tableSourceItem.join_part().Length > 0)
                     {
-                        var joinContext = talbeSourceItem.join_part()[0];
+                        var joinContext = tableSourceItem.join_part()[0];
                         if (joinContext == null)
-                            talbeSourceItem = null;
+                            tableSourceItem = null;
                         else
                         {
                             // x2 = j.cross_join().table_source().table_source_item_joined();
@@ -144,7 +144,7 @@
                                 PredicateContext pcon = new ();
                                 selectContext.AddJoin(jc, pcon);
 
-                                talbeSourceItem = joinContext.cross_join().table_source().table_source_item_joined();
+                                tableSourceItem = joinContext.cross_join().table_source().table_source_item_joined();
                             }
                             else if (joinContext.join_on() != null)
                             {
@@ -158,7 +158,7 @@
                                 JoinContext jc = new (JoinType.INNER_JOIN, otherTableName);
                                 selectContext.AddJoin(jc, pcon);
 
-                                talbeSourceItem = joinContext.join_on().table_source().table_source_item_joined();
+                                tableSourceItem = joinContext.join_on().table_source().table_source_item_joined();
                             }
                             else
                             {
@@ -168,7 +168,7 @@
                         }
                     }
                     else
-                        talbeSourceItem = null;
+                        tableSourceItem = null;
                 }
             }
 

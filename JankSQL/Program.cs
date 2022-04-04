@@ -107,6 +107,9 @@ namespace JankSQL
 
             str = "SELECT * FROM ten WHERE number_id BETWEEN 3 AND 6;";
 
+            str = "SELECT * FROM (SELECT * FROM myTable)";
+
+
 
             // Engines.DynamicCSVEngine engine = Engines.DynamicCSVEngine.OpenAlways("F:\\JankTests\\Test33");
 

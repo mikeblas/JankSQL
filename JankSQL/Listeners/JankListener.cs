@@ -66,7 +66,7 @@
         }
 
 
-        internal Expression GobbleExpressionImpl(TSqlParser.ExpressionContext expr, SelectContext selectContext)
+        internal Expression GobbleExpressionImpl(TSqlParser.ExpressionContext expr, SelectContext? selectContext)
         {
             Expression x = new ();
             List<object> stack = new ();
