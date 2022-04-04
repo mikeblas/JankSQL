@@ -36,7 +36,7 @@
             if (!quiet)
             {
                 var s = new string(' ', depth);
-                Console.WriteLine($"+{s}{context.GetType().Name}, {context.GetText()}");
+                Console.WriteLine($"+{depth,2}|{s}{context.GetType().Name}, {context.GetText()}");
             }
 
             depth++;
@@ -49,7 +49,7 @@
             if (!quiet)
             {
                 var s = new string(' ', depth);
-                Console.WriteLine($"-{s}{context.GetType().Name}, {context.GetText()}");
+                Console.WriteLine($"+{depth,2}|{s}{context.GetType().Name}, {context.GetText()}");
             }
 
             depth--;
