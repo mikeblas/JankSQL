@@ -120,17 +120,22 @@
                 var tableSourceItem = context.query_expression().query_specification().from.table_source()[0].table_source_item_joined();
                 while (tableSourceItem != null)
                 {
+                    string leftSource;
                     if (tableSourceItem.table_source_item().derived_table() != null)
                     {
                         SelectContext inner = GobbleSelectStatement(tableSourceItem.table_source_item().derived_table().subquery()[0].select_statement());
                         Console.WriteLine("Look out!");
+                        leftSource = "Subselect";
                     }
+                    else
+                    {
+                        FullTableName ftn = FullTableName.FromTableNameContext(tableSourceItem.table_source_item().table_name_with_hint().table_name());
+                        Console.WriteLine($"iterative: {ftn}");
+                        leftSource = ftn.ToString();
 
-                    FullTableName ftn = FullTableName.FromTableNameContext(tableSourceItem.table_source_item().table_name_with_hint().table_name());
-                    Console.WriteLine($"iterative: {ftn}");
-
-                    if (selectContext.SourceTableName == null)
-                        selectContext.SourceTableName = ftn;
+                        if (selectContext.SourceTableName == null)
+                            selectContext.SourceTableName = ftn;
+                    }
 
                     if (tableSourceItem.join_part().Length > 0)
                     {
@@ -145,7 +150,7 @@
                                 // CROSS Join!
 
                                 FullTableName otherTableName = FullTableName.FromTableNameContext(joinContext.cross_join().table_source().table_source_item_joined().table_source_item().table_name_with_hint().table_name());
-                                Console.WriteLine($"{ftn} CROSS JOIN On {otherTableName}");
+                                Console.WriteLine($"{leftSource} CROSS JOIN On {otherTableName}");
 
                                 JoinContext jc = new (JoinType.CROSS_JOIN, otherTableName);
                                 PredicateContext pcon = new ();
@@ -160,7 +165,7 @@
 
                                 // ON join
                                 FullTableName otherTableName = FullTableName.FromTableNameContext(joinContext.join_on().table_source().table_source_item_joined().table_source_item().table_name_with_hint().table_name());
-                                Console.WriteLine($"INNER JOIN On {otherTableName}");
+                                Console.WriteLine($"{leftSource} INNER JOIN On {otherTableName}");
 
                                 JoinContext jc = new (JoinType.INNER_JOIN, otherTableName);
                                 selectContext.AddJoin(jc, pcon);
