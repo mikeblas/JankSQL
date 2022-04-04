@@ -6,15 +6,17 @@
 
     public partial class JankListener : TSqlParserBaseListener
     {
-        public override void ExitSelect_statement(TSqlParser.Select_statementContext context)
+        public override void EnterSelect_statement_standalone([NotNull] TSqlParser.Select_statement_standaloneContext context)
         {
-            base.ExitEveryRule(context);
+            base.EnterSelect_statement_standalone(context);
+
+            SelectContext selectContext = GobbleSelectStatement(context.select_statement());
+
+            executionContext.ExecuteContexts.Add(selectContext);
         }
 
-        public override void EnterSelect_statement([NotNull] TSqlParser.Select_statementContext context)
+        internal SelectContext GobbleSelectStatement(TSqlParser.Select_statementContext context)
         {
-            base.EnterSelect_statement(context);
-
             PredicateContext? pc = null;
 
             // consume the WHERE predicate
@@ -115,9 +117,15 @@
             {
                 // find the source table, along with all the joins
 
-                var tableSourceItem = context.query_expression().query_specification().table_sources().table_source().First().table_source_item_joined();
+                var tableSourceItem = context.query_expression().query_specification().from.table_source()[0].table_source_item_joined();
                 while (tableSourceItem != null)
                 {
+                    if (tableSourceItem.table_source_item().derived_table() != null)
+                    {
+                        SelectContext inner = GobbleSelectStatement(tableSourceItem.table_source_item().derived_table().subquery()[0].select_statement());
+                        Console.WriteLine("Look out!");
+                    }
+
                     FullTableName ftn = FullTableName.FromTableNameContext(tableSourceItem.table_source_item().table_name_with_hint().table_name());
                     Console.WriteLine($"iterative: {ftn}");
 
@@ -131,7 +139,6 @@
                             tableSourceItem = null;
                         else
                         {
-                            // x2 = j.cross_join().table_source().table_source_item_joined();
                             // figure out which join type
                             if (joinContext.cross_join() != null)
                             {
@@ -172,9 +179,7 @@
                 }
             }
 
-
-            executionContext.ExecuteContexts.Add(selectContext);
-
+            return selectContext;
         }
 
         public override void EnterSelect_list([NotNull] TSqlParser.Select_listContext context)
