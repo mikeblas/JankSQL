@@ -20,22 +20,28 @@
         private ResultSet? leftRows = null;
         private ResultSet? rightRows = null;
 
-        internal Join(JoinType joinType, IComponentOutput leftInput, IComponentOutput rightInput, List<Expression> predicateExpressions)
+        //REVIEW: added to the right side only? Is that right?
+        private string? derivedTableAlias;
+
+        internal Join(JoinType joinType, IComponentOutput leftInput, IComponentOutput rightInput, List<Expression> predicateExpressions, string? derivedTableAlias)
         {
             this.joinType = joinType;
             this.leftInput = leftInput;
             this.rightInput = rightInput;
             this.PredicateExpressions = predicateExpressions;
+            this.derivedTableAlias = derivedTableAlias;
         }
 
         internal IComponentOutput LeftInput
         {
-            get { return leftInput; } set { leftInput = value; }
+            get { return leftInput; }
+            set { leftInput = value; }
         }
 
         internal IComponentOutput RightInput
         {
-            get { return rightInput; } set { rightInput = value; }
+            get { return rightInput; }
+            set { rightInput = value; }
         }
 
         internal List<Expression> PredicateExpressions { get; set; }
@@ -70,9 +76,25 @@
         {
             if (allColumnNames == null)
             {
+                if (leftRows == null || rightRows == null)
+                    throw new InternalErrorException("an expected rowset was null");
+
                 allColumnNames = new List<FullColumnName>();
-                allColumnNames.AddRange(leftRows!.GetColumnNames());
-                allColumnNames.AddRange(rightRows!.GetColumnNames());
+                foreach (var fcn in leftRows.GetColumnNames())
+                {
+                    // if (derivedTableAlias != null)
+                    //  fcn.SetTableName(derivedTableAlias);
+                    allColumnNames.Add(fcn);
+                    Console.WriteLine($"Left: {fcn}");
+                }
+
+                foreach (var fcn in rightRows.GetColumnNames())
+                {
+                    if (derivedTableAlias != null)
+                        fcn.SetTableName(derivedTableAlias);
+                    allColumnNames.Add(fcn);
+                    Console.WriteLine($"Right: {fcn}");
+                }
             }
 
             return allColumnNames;

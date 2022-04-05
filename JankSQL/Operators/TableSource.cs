@@ -9,13 +9,26 @@
 
         List<FullColumnName>? columnNames;
 
+        private string? alias;
+
         internal TableSource(Engines.IEngineTable source)
         {
             this.source = source;
             columnNames = null;
             rowEnumerator = this.source.GetEnumerator();
             enumeratorExhausted = false;
+            this.alias = null;
         }
+
+        internal TableSource(Engines.IEngineTable source, string? alias)
+        {
+            this.source = source;
+            columnNames = null;
+            rowEnumerator = this.source.GetEnumerator();
+            enumeratorExhausted = false;
+            this.alias = alias;
+        }
+
 
         public void Rewind()
         {
@@ -27,7 +40,13 @@
         {
             columnNames = new ();
             for (int n = 0; n < source.ColumnCount; n++)
-                columnNames.Add(source.ColumnName(n));
+            {
+                FullColumnName fcn = source.ColumnName(n);
+                if (alias != null)
+                    fcn.SetTableName(alias);
+                columnNames.Add(fcn);
+            }
+
             columnNames.Add(FullColumnName.FromColumnName("bookmark_key"));
         }
 

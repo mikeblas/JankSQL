@@ -202,6 +202,18 @@ namespace Tests
         }
 
 
+        [TestMethod]
+        public void TestSelectWhereAliasAND()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] AS Gangster WHERE gangster.population = 25000 AND [keycolumn] = 1;");
+
+            ec.Dump();
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 4, 1);
+            result.ResultSet.Dump();
+        }
+
         [TestMethod, Timeout(1000)]
         public void TestSelectWhereComplexAND()
         {

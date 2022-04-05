@@ -16,6 +16,8 @@
         private readonly JoinType joinType;
         private List<Expression>? predicateExpressions;
 
+        private string? derivedTableAlias;
+
         internal JoinContext(JoinType joinType, FullTableName tableName)
         {
             this.tableName = tableName;
@@ -26,6 +28,12 @@
         {
             this.selectSource = selectSource;
             this.joinType = joinType;
+        }
+
+        internal string? DerivedTableAlias
+        {
+            get { return derivedTableAlias; }
+            set { derivedTableAlias = value; }
         }
 
         internal FullTableName? OtherTableName

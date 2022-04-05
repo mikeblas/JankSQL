@@ -118,31 +118,41 @@
                 // find the source table, along with all the joins
 
                 var currentTSIJ = context.query_expression().query_specification().from.table_source()[0].table_source_item_joined();
+                string leftSource = "unassigned";
+                if (currentTSIJ.table_source_item().derived_table() != null)
+                {
+                    SelectContext inner = GobbleSelectStatement(currentTSIJ.table_source_item().derived_table().subquery()[0].select_statement());
+
+                    if (currentTSIJ.table_source_item().as_table_alias() != null)
+                        inner.DerivedTableAlias = currentTSIJ.table_source_item().as_table_alias().table_alias().id_().GetText();
+                    leftSource = "Subselect";
+                    selectContext.InputContext = inner;
+
+                    if (currentTSIJ.table_source_item().as_table_alias() != null)
+                    {
+                        string alias = currentTSIJ.table_source_item().as_table_alias().table_alias().id_().GetText();
+                        selectContext.DerivedTableAlias = alias;
+                    }
+                }
+                else
+                {
+                    FullTableName ftn = FullTableName.FromTableNameContext(currentTSIJ.table_source_item().table_name_with_hint().table_name());
+                    Console.WriteLine($"iterative: {ftn}");
+                    leftSource = ftn.ToString();
+
+                    if (selectContext.SourceTableName == null)
+                        selectContext.SourceTableName = ftn;
+
+                    if (currentTSIJ.table_source_item().as_table_alias() != null)
+                    {
+                        string alias = currentTSIJ.table_source_item().as_table_alias().table_alias().id_().GetText();
+                        selectContext.DerivedTableAlias = alias;
+                    }
+                }
+
+
                 while (currentTSIJ != null)
                 {
-                    string leftSource = "unassigned";
-                    if (selectContext.SourceTableName == null && selectContext.InputContext == null)
-                    {
-                        if (currentTSIJ.table_source_item().derived_table() != null)
-                        {
-                            SelectContext inner = GobbleSelectStatement(currentTSIJ.table_source_item().derived_table().subquery()[0].select_statement());
-
-                            if (currentTSIJ.table_source_item().as_table_alias() != null)
-                                inner.DerivedTableAlias = currentTSIJ.table_source_item().as_table_alias().table_alias().id_().GetText();
-                            leftSource = "Subselect";
-                            selectContext.InputContext = inner;
-                        }
-                        else
-                        {
-                            FullTableName ftn = FullTableName.FromTableNameContext(currentTSIJ.table_source_item().table_name_with_hint().table_name());
-                            Console.WriteLine($"iterative: {ftn}");
-                            leftSource = ftn.ToString();
-
-                            if (selectContext.SourceTableName == null)
-                                selectContext.SourceTableName = ftn;
-                        }
-                    }
-
                     if (currentTSIJ.join_part().Length > 0)
                     {
                         var joinContext = currentTSIJ.join_part()[0];
@@ -160,14 +170,17 @@
                                     SelectContext inner = GobbleSelectStatement(joinContext.cross_join().table_source().table_source_item_joined().table_source_item().derived_table().subquery()[0].select_statement());
                                     Console.WriteLine($"{leftSource} CROSS JOIN On subselect");
 
-                                    if (joinContext.cross_join().table_source().table_source_item_joined().table_source_item().as_table_alias() != null)
-                                    {
-                                        string alias = joinContext.cross_join().table_source().table_source_item_joined().table_source_item().as_table_alias().table_alias().id_().GetText();
-                                        Console.WriteLine($"alias is {alias}");
-                                    }
 
                                     JoinContext jc = new (JoinType.CROSS_JOIN, inner);
                                     PredicateContext pcon = new ();
+
+                                    if (joinContext.cross_join().table_source().table_source_item_joined().table_source_item().as_table_alias() != null)
+                                    {
+                                        string alias = joinContext.cross_join().table_source().table_source_item_joined().table_source_item().as_table_alias().table_alias().id_().GetText();
+                                        jc.DerivedTableAlias = alias;
+                                        Console.WriteLine($"alias is {alias}");
+                                    }
+
                                     selectContext.AddJoin(jc, pcon);
                                 }
                                 else

@@ -81,7 +81,7 @@
             result.ResultSet.Dump();
         }
 
-        [TestMethod, Timeout(1000)]
+        [TestMethod]
         public void TestFilterDoubleDerivedCrossJoin()
         {
             var ec = Parser.ParseSQLFileFromString(

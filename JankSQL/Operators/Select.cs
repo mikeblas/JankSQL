@@ -55,7 +55,8 @@
                 }
                 else
                 {
-                    effectiveColumns.Add(selectList.RowsetColumnName(resultSetColumnIndex++));
+                    var fcn = selectList.RowsetColumnName(resultSetColumnIndex++);
+                    effectiveColumns.Add(fcn);
                 }
             }
 

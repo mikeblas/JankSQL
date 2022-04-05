@@ -96,7 +96,7 @@
                         throw new ExecutionException($"Table {SourceTableName} does not exist");
 
                     // found the source table, so hook it up
-                    lastLeftOutput = new TableSource(engineSource);
+                    lastLeftOutput = new TableSource(engineSource, DerivedTableAlias);
                 }
 
                 // any joins?
@@ -122,7 +122,7 @@
                     }
 
                     // build a join operator with it
-                    Join oper = new Join(j.JoinType, lastLeftOutput, joinSource, j.PredicateExpressions);
+                    Join oper = new (j.JoinType, lastLeftOutput, joinSource, j.PredicateExpressions, j.DerivedTableAlias);
 
                     lastLeftOutput = oper;
                 }
