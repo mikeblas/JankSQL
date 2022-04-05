@@ -21,6 +21,16 @@
             result.ResultSet.Dump();
         }
 
+        [TestMethod]
+        public void TestCrossJoinDerived()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM (SELECT * FROM [mytable] CROSS JOIN [states]);");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 6, 24);
+            result.ResultSet.Dump();
+        }
+
         [TestMethod, Timeout(1000)]
         public void TestCrossJoinOrdered()
         {
@@ -65,6 +75,22 @@
                 "CROSS JOIN [ten] " +
                 "CROSS JOIN [mytable] " +
                 "     WHERE [three].[number_id] + 10 * [ten].[number_id] > 30;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 9, 63);
+            result.ResultSet.Dump();
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestFilterDoubleDerivedCrossJoin()
+        {
+            var ec = Parser.ParseSQLFileFromString(
+                "    SELECT * " +
+                "      FROM [three] " +
+                "CROSS JOIN " +
+                "     (    SELECT * FROM [ten] " +
+                "      CROSS JOIN [mytable]) AS X " +
+                "     WHERE [three].[number_id] + 10 * [x].[number_id] > 30;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 9, 63);
@@ -178,6 +204,46 @@
 
             Assert.AreEqual(ExecuteStatus.FAILED, result.ExecuteStatus);
             Assert.IsNotNull(result.ErrorMessage);
+        }
+
+        [TestMethod]
+        public void TestDerivedJoinDerivedOn()
+        {
+            var ec = Parser.ParseSQLFileFromString(
+              "SELECT * " +
+              "  FROM (SELECT * FROM MyTable) AS SomeAlias " +
+              "  JOIN (SELECT * FROM Ten) AS OtherAlias " +
+              "    ON OtherAlias.number_id = SomeAlias.keycolumn;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 7, 3);
+            result.ResultSet.Dump();
+        }
+
+        [TestMethod]
+        public void TestDerivedCrossJoinTable()
+        {
+            var ec = Parser.ParseSQLFileFromString(
+                "    SELECT * " +
+                "      FROM (SELECT * FROM myTable) " +
+                "CROSS JOIN ten");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 7, 30);
+            result.ResultSet.Dump();
+        }
+
+        [TestMethod]
+        public void TestTableCrossJoinDerived()
+        {
+            var ec = Parser.ParseSQLFileFromString(
+                "    SELECT * " +
+                "      FROM ten " +
+                "CROSS JOIN (SELECT * FROM myTable)");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 7, 30);
+            result.ResultSet.Dump();
         }
     }
 }

@@ -126,6 +126,9 @@
                         if (currentTSIJ.table_source_item().derived_table() != null)
                         {
                             SelectContext inner = GobbleSelectStatement(currentTSIJ.table_source_item().derived_table().subquery()[0].select_statement());
+
+                            if (currentTSIJ.table_source_item().as_table_alias() != null)
+                                inner.DerivedTableAlias = currentTSIJ.table_source_item().as_table_alias().table_alias().id_().GetText();
                             leftSource = "Subselect";
                             selectContext.InputContext = inner;
                         }
@@ -157,6 +160,12 @@
                                     SelectContext inner = GobbleSelectStatement(joinContext.cross_join().table_source().table_source_item_joined().table_source_item().derived_table().subquery()[0].select_statement());
                                     Console.WriteLine($"{leftSource} CROSS JOIN On subselect");
 
+                                    if (joinContext.cross_join().table_source().table_source_item_joined().table_source_item().as_table_alias() != null)
+                                    {
+                                        string alias = joinContext.cross_join().table_source().table_source_item_joined().table_source_item().as_table_alias().table_alias().id_().GetText();
+                                        Console.WriteLine($"alias is {alias}");
+                                    }
+
                                     JoinContext jc = new (JoinType.CROSS_JOIN, inner);
                                     PredicateContext pcon = new ();
                                     selectContext.AddJoin(jc, pcon);
@@ -165,6 +174,8 @@
                                 {
                                     FullTableName otherTableName = FullTableName.FromTableNameContext(joinContext.cross_join().table_source().table_source_item_joined().table_source_item().table_name_with_hint().table_name());
                                     Console.WriteLine($"{leftSource} CROSS JOIN On {otherTableName}");
+
+                                    // string str = joinContext.cross_join().table_source().table_source_item_joined().table_source_item().as_table_alias().table_alias().id_().GetText();
 
                                     JoinContext jc = new (JoinType.CROSS_JOIN, otherTableName);
                                     PredicateContext pcon = new ();
@@ -186,6 +197,9 @@
                                     SelectContext inner = GobbleSelectStatement(joinContext.join_on().table_source().table_source_item_joined().table_source_item().derived_table().subquery()[0].select_statement());
                                     Console.WriteLine($"{leftSource} INNER JOIN On subselect");
 
+                                    string str = joinContext.join_on().table_source().table_source_item_joined().table_source_item().as_table_alias().table_alias().id_().GetText();
+                                    inner.DerivedTableAlias = str;
+
                                     JoinContext jc = new (JoinType.INNER_JOIN, inner);
                                     selectContext.AddJoin(jc, pcon);
                                 }
@@ -193,6 +207,12 @@
                                 {
                                     FullTableName otherTableName = FullTableName.FromTableNameContext(joinContext.join_on().table_source().table_source_item_joined().table_source_item().table_name_with_hint().table_name());
                                     Console.WriteLine($"{leftSource} INNER JOIN On {otherTableName}");
+
+                                    if (joinContext.join_on().table_source().table_source_item_joined().table_source_item().as_table_alias() != null)
+                                    {
+                                        string alias = joinContext.join_on().table_source().table_source_item_joined().table_source_item().as_table_alias().table_alias().id_().GetText();
+                                        Console.WriteLine($"alias is {alias}");
+                                    }
 
                                     JoinContext jc = new (JoinType.INNER_JOIN, otherTableName);
                                     selectContext.AddJoin(jc, pcon);

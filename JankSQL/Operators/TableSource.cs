@@ -7,9 +7,12 @@
         private readonly IEnumerator<Engines.RowWithBookmark> rowEnumerator;
         private bool enumeratorExhausted;
 
+        List<FullColumnName>? columnNames;
+
         internal TableSource(Engines.IEngineTable source)
         {
             this.source = source;
+            columnNames = null;
             rowEnumerator = this.source.GetEnumerator();
             enumeratorExhausted = false;
         }
@@ -20,13 +23,18 @@
             rowEnumerator.Reset();
         }
 
-        public ResultSet? GetRows(int max)
+        protected void BuildColumnNames()
         {
-            //REVIEW: only do this once
-            List<FullColumnName> columnNames = new ();
+            columnNames = new ();
             for (int n = 0; n < source.ColumnCount; n++)
                 columnNames.Add(source.ColumnName(n));
             columnNames.Add(FullColumnName.FromColumnName("bookmark_key"));
+        }
+
+        public ResultSet? GetRows(int max)
+        {
+            if (columnNames == null)
+                BuildColumnNames();
 
             ResultSet rs = new (columnNames);
 

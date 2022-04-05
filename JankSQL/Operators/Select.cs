@@ -9,13 +9,16 @@
         private readonly SelectListContext selectList;
         private readonly TSqlParser.Select_list_elemContext[] selectListContexts;
 
+        private string? derivedTableAlias;
+
         // internal IComponentOutput Input { get { return myInput; } set { myInput = value; } }
 
-        internal Select(IComponentOutput input, TSqlParser.Select_list_elemContext[] selectListContexts, SelectListContext selectList)
+        internal Select(IComponentOutput input, TSqlParser.Select_list_elemContext[] selectListContexts, SelectListContext selectList, string? derivedTableAlias)
         {
             myInput = input;
             this.selectListContexts = selectListContexts;
             this.selectList = selectList;
+            this.derivedTableAlias = derivedTableAlias;
         }
 
         public void Rewind()
@@ -40,6 +43,8 @@
                     for (int i = 0; i < rsInput.ColumnCount; i++)
                     {
                         FullColumnName fcn = rsInput.GetColumnName(i);
+                        if (derivedTableAlias != null)
+                            fcn.SetTableName(derivedTableAlias);
                         if (fcn.ColumnNameOnly() == "bookmark_key")
                             continue;
                         effectiveColumns.Add(fcn);

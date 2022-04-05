@@ -100,6 +100,11 @@
             return ret;
         }
 
+        internal void SetTableName(string tableName)
+        {
+            this.tableName = tableName;
+        }
+
         private static string GetEffectiveName(string objectName)
         {
             // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/proposals/csharp-8.0/ranges

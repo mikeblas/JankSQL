@@ -11,14 +11,16 @@
         private readonly List<Expression> groupByExpressions = new ();
         private readonly SelectListContext selectListContext;
 
+        // for WHERE clauses
+        private readonly PredicateContext? predicateContext;
+
         private FullTableName? sourceTableName;
 
         private SelectContext? inputContext;
 
         private OrderByContext? orderByContext;
 
-        // for WHERE clauses
-        private PredicateContext? predicateContext;
+        private string? derivedTableAlias;
 
         internal SelectContext(TSqlParser.Select_statementContext context, PredicateContext? predicateContext)
         {
@@ -48,6 +50,12 @@
             set { sourceTableName = value; }
         }
 
+        internal string? DerivedTableAlias
+        {
+            get { return derivedTableAlias; }
+            set { derivedTableAlias = value; }
+        }
+
         internal SelectContext? InputContext
         {
             get { return inputContext; }
@@ -68,8 +76,7 @@
             if (SourceTableName == null && inputContext == null)
             {
                 // no inputs -- it's just the "dual" source
-                TableSource tableSource = new TableSource(new Engines.DualSource());
-                lastLeftOutput = tableSource;
+                lastLeftOutput = new TableSource(new Engines.DualSource());
             }
             else
             {
@@ -77,8 +84,7 @@
 
                 if (inputContext != null)
                 {
-                    Select inputSelect = inputContext.BuildSelectObject(engine);
-                    lastLeftOutput = inputSelect;
+                    lastLeftOutput = inputContext.BuildSelectObject(engine);
                 }
                 else
                 {
@@ -90,8 +96,7 @@
                         throw new ExecutionException($"Table {SourceTableName} does not exist");
 
                     // found the source table, so hook it up
-                    TableSource tableSource = new TableSource(engineSource);
-                    lastLeftOutput = tableSource;
+                    lastLeftOutput = new TableSource(engineSource);
                 }
 
                 // any joins?
@@ -177,7 +182,7 @@
             }
 
             // then the select
-            Select select = new Select(lastLeftOutput, querySpecs.select_list().select_list_elem(), selectListContext);
+            Select select = new Select(lastLeftOutput, querySpecs.select_list().select_list_elem(), selectListContext, derivedTableAlias);
             return select;
         }
 

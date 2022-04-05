@@ -105,13 +105,11 @@ namespace JankSQL
             str = "SELECT 'Yes' WHERE NULL IS NULL";
             str = "SELECT (123 + 456 - 111) / 3";
 
-            str = "SELECT * FROM ten WHERE number_id BETWEEN 3 AND 6;";
-
             str = "SELECT * FROM (SELECT * FROM myTable) CROSS JOIN ten";
 
             // str = "SELECT * FROM ten CROSS JOIN (SELECT * FROM myTable)";
 
-            str = " SELECT * " +
+            str = "SELECT * " +
                   "  FROM (SELECT * FROM MyTable) AS SomeAlias " +
                   "  JOIN (SELECT * FROM Ten) AS OtherAlias " +
                   "    ON OtherAlias.number_id = SomeAlias.keycolumn;";
