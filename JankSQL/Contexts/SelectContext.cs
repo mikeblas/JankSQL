@@ -13,6 +13,8 @@
 
         private FullTableName? sourceTableName;
 
+        private IComponentOutput? myInput;
+
         private OrderByContext? orderByContext;
 
         // for WHERE clauses
@@ -42,12 +44,10 @@
             set { sourceTableName = value; }
         }
 
-        public ExecuteResult Execute(Engines.IEngine engine)
+        internal Select BuildSelectObject(Engines.IEngine engine)
         {
             if (selectListContext == null)
                 throw new InternalErrorException("Expected a SelectList");
-
-            ExecuteResult results = new ExecuteResult();
 
             var expressions = statementContext.query_expression();
             var querySpecs = expressions.query_specification();
@@ -78,13 +78,26 @@
                     // any joins?
                     foreach (var j in joinContexts)
                     {
-                        // find the other table
-                        Engines.IEngineTable? otherTableSource = engine.GetEngineTable(j.OtherTableName);
-                        if (otherTableSource == null)
-                            throw new ExecutionException($"Joined table {j.OtherTableName} does not exist");
+                        IComponentOutput joinSource;
+                        if (j.SelectSource != null)
+                        {
+                            joinSource = j.SelectSource.BuildSelectObject(engine);
+                        }
+                        else if (j.OtherTableName != null)
+                        {
+                            // find the other table
+                            Engines.IEngineTable? otherTableSource = engine.GetEngineTable(j.OtherTableName);
+                            if (otherTableSource == null)
+                                throw new ExecutionException($"Joined table {j.OtherTableName} does not exist");
+
+                            joinSource = new TableSource(otherTableSource);
+                        }
+                        else
+                        {
+                            throw new InternalErrorException("incorrectly prepared Joincontext");
+                        }
 
                         // build a join operator with it
-                        TableSource joinSource = new TableSource(otherTableSource);
                         Join oper = new Join(j.JoinType, lastLeftOutput, joinSource, j.PredicateExpressions);
 
                         lastLeftOutput = oper;
@@ -103,7 +116,7 @@
             if (aggregateContexts.Count > 0)
             {
                 // get names for all the expressions
-                List<string> groupByExpressionBindNames = new ();
+                List<string> groupByExpressionBindNames = new();
                 foreach (var gbe in groupByExpressions)
                 {
                     string? bindName = selectListContext.BindNameForExpression(gbe);
@@ -147,6 +160,12 @@
 
             // then the select
             Select select = new Select(lastLeftOutput, querySpecs.select_list().select_list_elem(), selectListContext);
+            return select;
+        }
+
+        public ExecuteResult Execute(Engines.IEngine engine)
+        {
+            Select select = BuildSelectObject(engine);
             ResultSet? resultSet = null;
 
             while (true)
@@ -159,6 +178,7 @@
                 resultSet.Append(batch);
             }
 
+            ExecuteResult results = new ExecuteResult();
             results.ResultSet = resultSet;
             return results;
         }

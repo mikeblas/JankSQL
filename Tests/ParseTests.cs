@@ -182,12 +182,14 @@ namespace Tests
 
 
         [TestMethod]
-        public void TestSelectFromSelectAliasJoinSelectAlais()
+        public void TestSelectFromSelectAliasJoinSelectAlias()
         {
-            var ec = Parser.ParseSQLFileFromString("SELECT * FROM (SELECT * FROM MyTable) AS SomeAlais JOIN (SELECT * FROM OtherTable) AS OtherAlias ON OtherAlias.key = SomeAlias.Key;");
+            // var ec = Parser.ParseSQLFileFromString("SELECT * FROM (SELECT * FROM MyTable) AS SomeAlias");
+            // var ec = Parser.ParseSQLFileFromString("SELECT * FROM (SELECT * FROM MyTable) AS SomeAlias JOIN (SELECT * FROM Ten) ON OtherAlias.number_id = SomeAlias.keycolumn;");
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM (SELECT * FROM MyTable) AS SomeAlias JOIN (SELECT * FROM Ten) AS OtherAlias ON OtherAlias.number_id = SomeAlias.keycolumn;");
 
             Assert.IsNotNull(ec);
-            Assert.AreNotEqual(0, ec.TotalErrors, "expected an error");
+            Assert.AreEqual(0, ec.TotalErrors, "expected no errors");
         }
 
         [TestMethod]

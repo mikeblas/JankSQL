@@ -109,6 +109,8 @@ namespace JankSQL
 
             str = "SELECT * FROM (SELECT * FROM myTable)";
 
+            str = "SELECT * FROM ten CROSS JOIN (SELECT * FROM myTable)";
+
 
 
             // Engines.DynamicCSVEngine engine = Engines.DynamicCSVEngine.OpenAlways("F:\\JankTests\\Test33");

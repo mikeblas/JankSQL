@@ -3,7 +3,7 @@
     using JankSQL.Contexts;
     using JankSQL.Expressions;
 
-    internal class Select
+    internal class Select : IComponentOutput
     {
         private readonly IComponentOutput myInput;
         private readonly SelectListContext selectList;
@@ -13,12 +13,17 @@
 
         internal Select(IComponentOutput input, TSqlParser.Select_list_elemContext[] selectListContexts, SelectListContext selectList)
         {
-            this.myInput = input;
+            myInput = input;
             this.selectListContexts = selectListContexts;
             this.selectList = selectList;
         }
 
-        internal ResultSet? GetRows(int max)
+        public void Rewind()
+        {
+            myInput.Rewind();
+        }
+
+        public ResultSet? GetRows(int max)
         {
             ResultSet? rsInput = myInput.GetRows(max);
             if (rsInput == null)

@@ -11,7 +11,8 @@
 
     internal class JoinContext
     {
-        private readonly FullTableName tableName;
+        private readonly FullTableName? tableName;
+        private readonly SelectContext? selectSource;
         private readonly JoinType joinType;
         private List<Expression>? predicateExpressions;
 
@@ -21,10 +22,22 @@
             this.joinType = joinType;
         }
 
-        internal FullTableName OtherTableName
+        internal JoinContext(JoinType joinType, SelectContext selectSource)
+        {
+            this.selectSource = selectSource;
+            this.joinType = joinType;
+        }
+
+        internal FullTableName? OtherTableName
         {
             get { return tableName; }
         }
+
+        internal SelectContext? SelectSource
+        {
+            get { return selectSource; }
+        }
+
 
         internal List<Expression> PredicateExpressions
         {

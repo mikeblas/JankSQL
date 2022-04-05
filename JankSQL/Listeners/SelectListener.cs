@@ -59,7 +59,7 @@
                     if (elem.expression_elem().as_column_alias() != null)
                         fcn = FullColumnName.FromColumnName(elem.expression_elem().as_column_alias().GetText());
 
-                    x = GobbleExpression(elem.expression_elem().expression());
+                    x = GobbleSelectExpression(elem.expression_elem().expression(), selectContext);
                 }
                 else if (elem.asterisk() != null)
                 {
@@ -117,31 +117,34 @@
             {
                 // find the source table, along with all the joins
 
-                var tableSourceItem = context.query_expression().query_specification().from.table_source()[0].table_source_item_joined();
-                while (tableSourceItem != null)
+                var currentTSIJ = context.query_expression().query_specification().from.table_source()[0].table_source_item_joined();
+                while (currentTSIJ != null)
                 {
-                    string leftSource;
-                    if (tableSourceItem.table_source_item().derived_table() != null)
+                    string leftSource = "unassigned";
+                    if (selectContext.SourceTableName == null)
                     {
-                        SelectContext inner = GobbleSelectStatement(tableSourceItem.table_source_item().derived_table().subquery()[0].select_statement());
-                        Console.WriteLine("Look out!");
-                        leftSource = "Subselect";
-                    }
-                    else
-                    {
-                        FullTableName ftn = FullTableName.FromTableNameContext(tableSourceItem.table_source_item().table_name_with_hint().table_name());
-                        Console.WriteLine($"iterative: {ftn}");
-                        leftSource = ftn.ToString();
+                        if (currentTSIJ.table_source_item().derived_table() != null)
+                        {
+                            SelectContext inner = GobbleSelectStatement(currentTSIJ.table_source_item().derived_table().subquery()[0].select_statement());
+                            Console.WriteLine("Look out!");
+                            leftSource = "Subselect";
+                        }
+                        else
+                        {
+                            FullTableName ftn = FullTableName.FromTableNameContext(currentTSIJ.table_source_item().table_name_with_hint().table_name());
+                            Console.WriteLine($"iterative: {ftn}");
+                            leftSource = ftn.ToString();
 
-                        if (selectContext.SourceTableName == null)
-                            selectContext.SourceTableName = ftn;
+                            if (selectContext.SourceTableName == null)
+                                selectContext.SourceTableName = ftn;
+                        }
                     }
 
-                    if (tableSourceItem.join_part().Length > 0)
+                    if (currentTSIJ.join_part().Length > 0)
                     {
-                        var joinContext = tableSourceItem.join_part()[0];
+                        var joinContext = currentTSIJ.join_part()[0];
                         if (joinContext == null)
-                            tableSourceItem = null;
+                            currentTSIJ = null;
                         else
                         {
                             // figure out which join type
@@ -149,28 +152,54 @@
                             {
                                 // CROSS Join!
 
-                                FullTableName otherTableName = FullTableName.FromTableNameContext(joinContext.cross_join().table_source().table_source_item_joined().table_source_item().table_name_with_hint().table_name());
-                                Console.WriteLine($"{leftSource} CROSS JOIN On {otherTableName}");
+                                if (joinContext.cross_join().table_source().table_source_item_joined().table_source_item().derived_table() != null)
+                                {
+                                    SelectContext inner = GobbleSelectStatement(joinContext.cross_join().table_source().table_source_item_joined().table_source_item().derived_table().subquery()[0].select_statement());
+                                    Console.WriteLine($"{leftSource} CROSS JOIN On subselect");
 
-                                JoinContext jc = new (JoinType.CROSS_JOIN, otherTableName);
-                                PredicateContext pcon = new ();
-                                selectContext.AddJoin(jc, pcon);
+                                    JoinContext jc = new (JoinType.CROSS_JOIN, inner);
+                                    PredicateContext pcon = new ();
+                                    selectContext.AddJoin(jc, pcon);
+                                }
+                                else
+                                {
+                                    FullTableName otherTableName = FullTableName.FromTableNameContext(joinContext.cross_join().table_source().table_source_item_joined().table_source_item().table_name_with_hint().table_name());
+                                    Console.WriteLine($"{leftSource} CROSS JOIN On {otherTableName}");
 
-                                tableSourceItem = joinContext.cross_join().table_source().table_source_item_joined();
+                                    JoinContext jc = new (JoinType.CROSS_JOIN, otherTableName);
+                                    PredicateContext pcon = new ();
+                                    selectContext.AddJoin(jc, pcon);
+
+                                }
+
+                                currentTSIJ = joinContext.cross_join().table_source().table_source_item_joined();
                             }
                             else if (joinContext.join_on() != null)
                             {
+                                // ON join
+
                                 Expression x = GobbleSearchCondition(joinContext.join_on().search_condition());
                                 PredicateContext pcon = new (x);
 
-                                // ON join
-                                FullTableName otherTableName = FullTableName.FromTableNameContext(joinContext.join_on().table_source().table_source_item_joined().table_source_item().table_name_with_hint().table_name());
-                                Console.WriteLine($"{leftSource} INNER JOIN On {otherTableName}");
+                                if (joinContext.join_on().table_source().table_source_item_joined().table_source_item().derived_table() != null)
+                                {
+                                    SelectContext inner = GobbleSelectStatement(joinContext.join_on().table_source().table_source_item_joined().table_source_item().derived_table().subquery()[0].select_statement());
+                                    Console.WriteLine($"{leftSource} INNER JOIN On subselect");
 
-                                JoinContext jc = new (JoinType.INNER_JOIN, otherTableName);
-                                selectContext.AddJoin(jc, pcon);
+                                    JoinContext jc = new (JoinType.CROSS_JOIN, inner);
+                                    selectContext.AddJoin(jc, pcon);
+                                }
+                                else
+                                {
+                                    FullTableName otherTableName = FullTableName.FromTableNameContext(joinContext.join_on().table_source().table_source_item_joined().table_source_item().table_name_with_hint().table_name());
+                                    Console.WriteLine($"{leftSource} INNER JOIN On {otherTableName}");
 
-                                tableSourceItem = joinContext.join_on().table_source().table_source_item_joined();
+                                    JoinContext jc = new (JoinType.INNER_JOIN, otherTableName);
+                                    selectContext.AddJoin(jc, pcon);
+                                }
+
+
+                                currentTSIJ = joinContext.join_on().table_source().table_source_item_joined();
                             }
                             else
                             {
@@ -180,22 +209,12 @@
                         }
                     }
                     else
-                        tableSourceItem = null;
+                        currentTSIJ = null;
                 }
+
             }
 
             return selectContext;
         }
-
-        public override void EnterSelect_list([NotNull] TSqlParser.Select_listContext context)
-        {
-            base.EnterSelect_list(context);
-        }
-
-        public override void ExitSelect_list([NotNull] TSqlParser.Select_listContext context)
-        {
-            base.ExitSelect_list(context);
-        }
-
     }
 }
