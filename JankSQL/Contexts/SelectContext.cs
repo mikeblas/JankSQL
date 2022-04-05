@@ -13,7 +13,7 @@
 
         private FullTableName? sourceTableName;
 
-        private IComponentOutput? myInput;
+        private SelectContext? inputContext;
 
         private OrderByContext? orderByContext;
 
@@ -25,6 +25,10 @@
             statementContext = context;
             this.predicateContext = predicateContext;
             selectListContext = new SelectListContext(context.query_expression().query_specification().select_list());
+
+            sourceTableName = null;
+            orderByContext = null;
+            inputContext = null;
         }
 
         internal OrderByContext? OrderByContext
@@ -44,6 +48,12 @@
             set { sourceTableName = value; }
         }
 
+        internal SelectContext? InputContext
+        {
+            get { return inputContext; }
+            set { inputContext = value; }
+        }
+
         internal Select BuildSelectObject(Engines.IEngine engine)
         {
             if (selectListContext == null)
@@ -53,55 +63,63 @@
             var querySpecs = expressions.query_specification();
 
             // the table itself
-            TableSource tableSource;
             IComponentOutput lastLeftOutput;
 
-            if (SourceTableName == null)
+            if (SourceTableName == null && inputContext == null)
             {
-                // no source table!
-                tableSource = new TableSource(new Engines.DualSource());
+                // no inputs -- it's just the "dual" source
+                TableSource tableSource = new TableSource(new Engines.DualSource());
                 lastLeftOutput = tableSource;
             }
             else
             {
                 Console.WriteLine($"ExitSelect_Statement: {SourceTableName}");
 
-                Engines.IEngineTable? engineSource = engine.GetEngineTable(SourceTableName);
-                if (engineSource == null)
-                    throw new ExecutionException($"Table {SourceTableName} does not exist");
+                if (inputContext != null)
+                {
+                    Select inputSelect = inputContext.BuildSelectObject(engine);
+                    lastLeftOutput = inputSelect;
+                }
                 else
                 {
+                    if (SourceTableName == null)
+                        throw new InternalErrorException("Expected valid SourceTableName");
+
+                    Engines.IEngineTable? engineSource = engine.GetEngineTable(SourceTableName);
+                    if (engineSource == null)
+                        throw new ExecutionException($"Table {SourceTableName} does not exist");
+
                     // found the source table, so hook it up
-                    tableSource = new TableSource(engineSource);
+                    TableSource tableSource = new TableSource(engineSource);
                     lastLeftOutput = tableSource;
+                }
 
-                    // any joins?
-                    foreach (var j in joinContexts)
+                // any joins?
+                foreach (var j in joinContexts)
+                {
+                    IComponentOutput joinSource;
+                    if (j.SelectSource != null)
                     {
-                        IComponentOutput joinSource;
-                        if (j.SelectSource != null)
-                        {
-                            joinSource = j.SelectSource.BuildSelectObject(engine);
-                        }
-                        else if (j.OtherTableName != null)
-                        {
-                            // find the other table
-                            Engines.IEngineTable? otherTableSource = engine.GetEngineTable(j.OtherTableName);
-                            if (otherTableSource == null)
-                                throw new ExecutionException($"Joined table {j.OtherTableName} does not exist");
-
-                            joinSource = new TableSource(otherTableSource);
-                        }
-                        else
-                        {
-                            throw new InternalErrorException("incorrectly prepared Joincontext");
-                        }
-
-                        // build a join operator with it
-                        Join oper = new Join(j.JoinType, lastLeftOutput, joinSource, j.PredicateExpressions);
-
-                        lastLeftOutput = oper;
+                        joinSource = j.SelectSource.BuildSelectObject(engine);
                     }
+                    else if (j.OtherTableName != null)
+                    {
+                        // find the other table
+                        Engines.IEngineTable? otherTableSource = engine.GetEngineTable(j.OtherTableName);
+                        if (otherTableSource == null)
+                            throw new ExecutionException($"Joined table {j.OtherTableName} does not exist");
+
+                        joinSource = new TableSource(otherTableSource);
+                    }
+                    else
+                    {
+                        throw new InternalErrorException("incorrectly prepared Joincontext");
+                    }
+
+                    // build a join operator with it
+                    Join oper = new Join(j.JoinType, lastLeftOutput, joinSource, j.PredicateExpressions);
+
+                    lastLeftOutput = oper;
                 }
             }
 

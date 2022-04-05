@@ -107,9 +107,14 @@ namespace JankSQL
 
             str = "SELECT * FROM ten WHERE number_id BETWEEN 3 AND 6;";
 
-            str = "SELECT * FROM (SELECT * FROM myTable)";
+            str = "SELECT * FROM (SELECT * FROM myTable) CROSS JOIN ten";
 
-            str = "SELECT * FROM ten CROSS JOIN (SELECT * FROM myTable)";
+            // str = "SELECT * FROM ten CROSS JOIN (SELECT * FROM myTable)";
+
+            str = " SELECT * " +
+                  "  FROM (SELECT * FROM MyTable) AS SomeAlias " +
+                  "  JOIN (SELECT * FROM Ten) AS OtherAlias " +
+                  "    ON OtherAlias.number_id = SomeAlias.keycolumn;";
 
 
 

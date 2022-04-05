@@ -121,13 +121,13 @@
                 while (currentTSIJ != null)
                 {
                     string leftSource = "unassigned";
-                    if (selectContext.SourceTableName == null)
+                    if (selectContext.SourceTableName == null && selectContext.InputContext == null)
                     {
                         if (currentTSIJ.table_source_item().derived_table() != null)
                         {
                             SelectContext inner = GobbleSelectStatement(currentTSIJ.table_source_item().derived_table().subquery()[0].select_statement());
-                            Console.WriteLine("Look out!");
                             leftSource = "Subselect";
+                            selectContext.InputContext = inner;
                         }
                         else
                         {
@@ -186,7 +186,7 @@
                                     SelectContext inner = GobbleSelectStatement(joinContext.join_on().table_source().table_source_item_joined().table_source_item().derived_table().subquery()[0].select_statement());
                                     Console.WriteLine($"{leftSource} INNER JOIN On subselect");
 
-                                    JoinContext jc = new (JoinType.CROSS_JOIN, inner);
+                                    JoinContext jc = new (JoinType.INNER_JOIN, inner);
                                     selectContext.AddJoin(jc, pcon);
                                 }
                                 else
