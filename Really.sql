@@ -38,3 +38,16 @@ INSERT INTO KeyOrdering (K1, K2, K3, Description) VALUES
 (1,1,1,'eighth');
 
 
+DROP TABLE states;
+CREATE TABLE states(state_code VARCHAR(20), state_name VARCHAR(20));
+
+INSERT INTO states (state_code, state_name) VALUES
+('PA', 'Pennsylvania'),
+('AK', 'Arkansas'),
+('HI', 'Hawaii'),
+('WA', 'Washington'),
+('MA', 'Massachusetts'),
+('CT', 'Connecticut'),
+('NY', 'New York'),
+('VT', 'Vermont');
+
