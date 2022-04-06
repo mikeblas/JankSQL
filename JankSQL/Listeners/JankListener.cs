@@ -239,6 +239,11 @@
                         stack.Add(n);
                         stack.Add(xContext.unary_operator_expression().expression());
                     }
+                    else if (xContext.case_expression() != null)
+                    {
+                        ExpressionNode n = GobbleCaseExpression(xContext.case_expression());
+                        stack.Add(n);
+                    }
                     else
                     {
                         throw new InternalErrorException("Some unexpected expression type");
@@ -261,6 +266,7 @@
 
             return x;
         }
+
     }
 }
 

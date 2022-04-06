@@ -260,6 +260,21 @@
             result.ResultSet.Dump();
         }
 
+
+        [TestMethod]
+        public void TestDerivedJoinDerivedWhereOn()
+        {
+            var ec = Parser.ParseSQLFileFromString(
+              "SELECT * " +
+              "  FROM (SELECT * FROM MyTable) AS SomeAlias " +
+              "  JOIN (SELECT * FROM Ten WHERE number_id >= 3) AS OtherAlias " +
+              "    ON OtherAlias.number_id = SomeAlias.keycolumn;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 7, 1);
+            result.ResultSet.Dump();
+        }
+
         [TestMethod]
         public void TestDerivedCrossJoinTable()
         {

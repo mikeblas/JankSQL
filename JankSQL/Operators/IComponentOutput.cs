@@ -13,8 +13,8 @@
         /// object can't produce any further output and has exhausted itself.
         ///
         /// </summary>
-        /// <param name="max">integer indicating the maximum number of rows to produce</param>
-        /// <returns>ResultSet with those rows, or null if no more data is available</returns>
+        /// <param name="max">integer indicating the maximum number of rows to produce.</param>
+        /// <returns>ResultSet with those rows, or null if no more data is available.</returns>
         ResultSet? GetRows(int max);
 
         /// <summary>

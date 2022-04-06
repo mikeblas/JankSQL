@@ -59,8 +59,8 @@
 
         internal void Dump()
         {
-            bool hasPredicates = predicateExpressions != null && predicateExpressions.Any();
             string source = OtherTableName != null ? OtherTableName.ToString() : "DerivedSelect";
+            bool hasPredicates = predicateExpressions != null && predicateExpressions.Any();
 
             Console.WriteLine($"{joinType} join {source} {(hasPredicates ? "on:" : "with no predicate")}");
             if (hasPredicates)

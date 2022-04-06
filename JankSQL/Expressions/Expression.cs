@@ -91,6 +91,7 @@
                     }
                     else if (n is ExpressionBooleanOperator booleanOperator)
                     {
+                        // AND, OR, ...
                         ExpressionOperand r = booleanOperator.Evaluate(stack);
                         stack.Push(r);
                     }
@@ -98,6 +99,16 @@
                     {
                         // a [NOT] BETWEEN b AND c
                         ExpressionOperand r = betweenOperator.Evaluate(stack);
+                        stack.Push(r);
+                    }
+                    else if (n is ExpressionCaseOperator caseOperator)
+                    {
+                        // CASE (input) WHEN (expr) THEN (expr) ... [ELSE (expr)]
+                        // or
+                        // CASE WHEN (predicate) THEN (expr) ... [ELSE (expr)]
+                        if (accessor == null)
+                            throw new ExecutionException("Not in a row context to evaluate {this}");
+                        ExpressionOperand r = caseOperator.Evaluate(accessor, stack);
                         stack.Push(r);
                     }
                     else

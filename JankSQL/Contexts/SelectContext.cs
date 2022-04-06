@@ -285,7 +285,7 @@
 
         internal void AccumulateTableNames(FullTableName ftn, string? aliasName)
         {
-            string effectiveName = (aliasName == null) ? ftn.TableName : aliasName;
+            string effectiveName = aliasName ?? ftn.TableName;
 
             AccumulateTableName(effectiveName);
         }

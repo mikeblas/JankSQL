@@ -1,6 +1,4 @@
-﻿
-
-namespace Tests
+﻿namespace Tests
 {
     using JankSQL;
     using Engines = JankSQL.Engines;
@@ -14,9 +12,9 @@ namespace Tests
                 .WithTableName("mytable")
                 .WithColumnNames(new string[] { "keycolumn", "city_name", "state_code", "population" })
                 .WithColumnTypes(new ExpressionOperandType[] { INTEGER, VARCHAR, VARCHAR, DECIMAL })
-                .WithRow(new object[] { 1, "Monroeville", "PA", 25000 })
-                .WithRow(new object[] { 2, "Sammamish", "WA", 37000 })
-                .WithRow(new object[] { 3, "New York", "NY", 11500000 })
+                .WithRow(new object[] { 1, "Monroeville", "PA",     25_000 })
+                .WithRow(new object[] { 2, "Sammamish",   "WA",     37_000 })
+                .WithRow(new object[] { 3, "New York",    "NY", 11_500_000 })
                 .Build();
 
             engine.InjectTestTable(tt);
@@ -71,8 +69,8 @@ namespace Tests
                 .WithTableName("three")
                 .WithColumnNames(new string[] { "number_id", "number_name" })
                 .WithColumnTypes(new ExpressionOperandType[] { DECIMAL, VARCHAR })
-                .WithRow(new object[] { 1, "one" })
-                .WithRow(new object[] { 2, "two" })
+                .WithRow(new object[] { 1, "one"   })
+                .WithRow(new object[] { 2, "two"   })
                 .WithRow(new object[] { 3, "three" })
                 .Build();
 
@@ -88,14 +86,14 @@ namespace Tests
                 .WithTableName("three")
                 .WithColumnNames(new string[] { "K1", "K2", "K3", "Description" })
                 .WithColumnTypes(new ExpressionOperandType[] { INTEGER, INTEGER, INTEGER, VARCHAR })
-                .WithRow(new object[] { 0, 0, 0, "first" })
-                .WithRow(new object[] { 1, 0, 0, "second" })
-                .WithRow(new object[] { 0, 0, 1, "third" })
-                .WithRow(new object[] { 1, 0, 1, "fourth" })
-                .WithRow(new object[] { 0, 1, 0, "fifth" })
-                .WithRow(new object[] { 1, 1, 0, "sixth" })
+                .WithRow(new object[] { 0, 0, 0, "first"   })
+                .WithRow(new object[] { 1, 0, 0, "second"  })
+                .WithRow(new object[] { 0, 0, 1, "third"   })
+                .WithRow(new object[] { 1, 0, 1, "fourth"  })
+                .WithRow(new object[] { 0, 1, 0, "fifth"   })
+                .WithRow(new object[] { 1, 1, 0, "sixth"   })
                 .WithRow(new object[] { 0, 1, 1, "seventh" })
-                .WithRow(new object[] { 1, 1, 1, "eighth" })
+                .WithRow(new object[] { 1, 1, 1, "eighth"  })
                 .Build();
 
             engine.InjectTestTable(tt);

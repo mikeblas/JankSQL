@@ -96,15 +96,6 @@ namespace JankSQL
 
             str = "CREATE INDEX TenNotUnique ON ten (is_even ASC)";
 
-            str = "SELECT 3 + NULL;";
-            str = "SELECT SQRT(NULL);";
-            str = "SELECT -200, 300, NULL, 5, 0;";
-            str = "SELECT ISNULL(NULL, 35)";
-            str = "SELECT ISNULL(92, 35)";
-
-            str = "SELECT 'Yes' WHERE NULL IS NULL";
-            str = "SELECT (123 + 456 - 111) / 3";
-
             str = "SELECT * FROM (SELECT * FROM myTable) CROSS JOIN ten";
 
             // str = "SELECT * FROM ten CROSS JOIN (SELECT * FROM myTable)";
@@ -115,6 +106,9 @@ namespace JankSQL
                   "    ON OtherAlias.number_id = SomeAlias.keycolumn;";
 
 
+            str = "select number_id, CASE WHEN is_even = 0 THEN 'Odd' ELSE 'Even' END from ten; ";
+            str = "SELECT number_id, CASE WHEN number_id = 1 THEN 'ichi' WHEN number_id = 2 THEN 'ni' ELSE 'unknown' END from ten;";
+            // str = "SELECT number_id, CASE number_id WHEN 1 THEN 'ichi' WHEN 2 then 'ni' ELSE 'unknown' END FROM ten;";
 
             // Engines.DynamicCSVEngine engine = Engines.DynamicCSVEngine.OpenAlways("F:\\JankTests\\Test33");
 
@@ -147,9 +141,9 @@ namespace JankSQL
                 .WithTableName("mytable")
                 .WithColumnNames(new string[] { "keycolumn", "city_name", "state_code", "population" })
                 .WithColumnTypes(new ExpressionOperandType[] { ExpressionOperandType.INTEGER, ExpressionOperandType.VARCHAR, ExpressionOperandType.VARCHAR, ExpressionOperandType.INTEGER })
-                .WithRow(new object[] { 1, "Monroeville", "PA", 25000 })
-                .WithRow(new object[] { 2, "Sammamish", "WA", 37000 })
-                .WithRow(new object[] { 3, "New York", "NY", 11500000 })
+                .WithRow(new object[] { 1, "Monroeville", "PA",     25_000 })
+                .WithRow(new object[] { 2, "Sammamish",   "WA",     37_000 })
+                .WithRow(new object[] { 3, "New York",    "NY", 11_500_000 })
                 .Build();
 
             csvEngine.InjectTestTable(tt);
