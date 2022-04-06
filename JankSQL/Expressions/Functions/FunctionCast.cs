@@ -17,26 +17,33 @@
             ExpressionOperand op = stack.Pop();
             ExpressionOperand result;
 
-            switch (targetType)
+            try
             {
-                case ExpressionOperandType.INTEGER:
-                    result = ExpressionOperand.IntegerFromInt(op.AsInteger());
-                    break;
+                switch (targetType)
+                {
+                    case ExpressionOperandType.INTEGER:
+                        result = ExpressionOperand.IntegerFromInt(op.AsInteger());
+                        break;
 
-                case ExpressionOperandType.VARCHAR:
-                    result = ExpressionOperand.VARCHARFromString(op.AsString());
-                    break;
+                    case ExpressionOperandType.VARCHAR:
+                        result = ExpressionOperand.VARCHARFromString(op.AsString());
+                        break;
 
-                case ExpressionOperandType.NVARCHAR:
-                    result = ExpressionOperand.NVARCHARFromString(op.AsString());
-                    break;
+                    case ExpressionOperandType.NVARCHAR:
+                        result = ExpressionOperand.NVARCHARFromString(op.AsString());
+                        break;
 
-                case ExpressionOperandType.DECIMAL:
-                    result = ExpressionOperand.DecimalFromDouble(op.AsDouble());
-                    break;
+                    case ExpressionOperandType.DECIMAL:
+                        result = ExpressionOperand.DecimalFromDouble(op.AsDouble());
+                        break;
 
-                default:
-                    throw new NotImplementedException($"type {targetType} not supported by CAST");
+                    default:
+                        throw new NotImplementedException($"type {targetType} not supported by CAST");
+                }
+            }
+            catch (FormatException)
+            {
+                throw new ExecutionException($"failed to convert {op} to {targetType}");
             }
 
             return result;

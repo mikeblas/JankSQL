@@ -92,6 +92,16 @@ namespace Tests
             Assert.AreEqual("33", result.ResultSet.Row(0)[0].AsString());
             Assert.AreEqual(ExpressionOperandType.VARCHAR, result.ResultSet.Row(0)[0].NodeType);
         }
+
+        [TestMethod]
+        public void TestFailCastStringtoInteger()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT CAST('33.3' AS INTEGER)");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNull(result.ResultSet);
+            Assert.IsNotNull(result.ErrorMessage);
+        }
     }
 }
 
