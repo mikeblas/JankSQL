@@ -6,7 +6,6 @@
     /// </summary>
     internal class ResultSetValueAccessor : IRowValueAccessor
     {
-        //TODO: refactor this into Operators namespace
         private readonly ResultSet resultSet;
         private readonly int rowIndex;
 

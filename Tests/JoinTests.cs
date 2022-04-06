@@ -93,6 +93,7 @@
                 "     WHERE [three].[number_id] + 10 * [x].[number_id] > 30;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
+            ec.Dump();
             JankAssert.RowsetExistsWithShape(result, 9, 63);
             result.ResultSet.Dump();
         }

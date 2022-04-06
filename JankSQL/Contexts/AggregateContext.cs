@@ -35,5 +35,11 @@
         {
             get { return aggregationOperatorType; }
         }
+
+        internal void Dump()
+        {
+            Console.WriteLine("=====");
+            Console.WriteLine($"{aggregationOperatorType} aggregation on {expression}");
+        }
     }
 }

@@ -5,11 +5,11 @@
         private readonly Engines.IEngineTable source;
 
         private readonly IEnumerator<Engines.RowWithBookmark> rowEnumerator;
+        private readonly string? alias;
+
         private bool enumeratorExhausted;
 
-        List<FullColumnName>? columnNames;
-
-        private string? alias;
+        private List<FullColumnName>? columnNames;
 
         internal TableSource(Engines.IEngineTable source)
         {
@@ -36,26 +36,9 @@
             rowEnumerator.Reset();
         }
 
-        protected void BuildColumnNames()
-        {
-            columnNames = new ();
-            for (int n = 0; n < source.ColumnCount; n++)
-            {
-                FullColumnName fcn = source.ColumnName(n);
-                if (alias != null)
-                    fcn.SetTableName(alias);
-                columnNames.Add(fcn);
-            }
-
-            columnNames.Add(FullColumnName.FromColumnName("bookmark_key"));
-        }
-
         public ResultSet? GetRows(int max)
         {
-            if (columnNames == null)
-                BuildColumnNames();
-
-            ResultSet rs = new (columnNames);
+            ResultSet rs = new (GetAllColumnNames());
 
             if (enumeratorExhausted)
                 return null;
@@ -78,6 +61,21 @@
                 return null;
 
             return rs;
+        }
+
+        protected List<FullColumnName> GetAllColumnNames()
+        {
+            columnNames = new ();
+            for (int n = 0; n < source.ColumnCount; n++)
+            {
+                FullColumnName fcn = source.ColumnName(n);
+                if (alias != null)
+                    fcn.SetTableName(alias);
+                columnNames.Add(fcn);
+            }
+
+            columnNames.Add(FullColumnName.FromColumnName("bookmark_key"));
+            return columnNames;
         }
     }
 }

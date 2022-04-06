@@ -62,6 +62,72 @@
             set { inputContext = value; }
         }
 
+        public ExecuteResult Execute(Engines.IEngine engine)
+        {
+            Select select = BuildSelectObject(engine);
+            ResultSet? resultSet = null;
+
+            while (true)
+            {
+                ResultSet? batch = select.GetRows(5);
+                if (batch == null)
+                    break;
+                if (resultSet == null)
+                    resultSet = ResultSet.NewWithShape(batch);
+                resultSet.Append(batch);
+            }
+
+            ExecuteResult results = new ExecuteResult();
+            results.ResultSet = resultSet;
+            return results;
+        }
+
+        public void Dump()
+        {
+            Console.WriteLine("=====");
+            Console.WriteLine("SELECT");
+            if (selectListContext == null)
+                Console.WriteLine("No select list found");
+            else
+                selectListContext.Dump();
+
+            Console.WriteLine("PredicateExpressions:");
+            if (predicateContext == null)
+                Console.WriteLine("  No predicate context");
+            else
+            {
+                for (int i = 0; i < predicateContext.PredicateExpressionListCount; i++)
+                {
+                    Console.Write($"  #{i}: ");
+                    Console.Write($"{predicateContext.PredicateExpressions[i]}");
+                    /*
+                    foreach (var x in predicateContext.PredicateExpressions[i])
+                        Console.Write($"{x} ");
+                    */
+
+                    Console.WriteLine();
+                }
+            }
+
+            Console.WriteLine("Joins:");
+            if (joinContexts.Count == 0)
+                Console.WriteLine("  No join contexts");
+            else
+            {
+                foreach (var join in joinContexts)
+                    join.Dump();
+            }
+
+            Console.WriteLine("Aggregations:");
+            if (aggregateContexts.Count == 0)
+                Console.WriteLine("  No aggregations");
+            else
+            {
+                foreach (var aggregate in aggregateContexts)
+                    aggregate.Dump();
+            }
+        }
+
         internal Select BuildSelectObject(Engines.IEngine engine)
         {
             if (selectListContext == null)
@@ -139,7 +205,7 @@
             if (aggregateContexts.Count > 0)
             {
                 // get names for all the expressions
-                List<string> groupByExpressionBindNames = new();
+                List<string> groupByExpressionBindNames = new ();
                 foreach (var gbe in groupByExpressions)
                 {
                     string? bindName = selectListContext.BindNameForExpression(gbe);
@@ -186,55 +252,11 @@
             return select;
         }
 
-        public ExecuteResult Execute(Engines.IEngine engine)
-        {
-            Select select = BuildSelectObject(engine);
-            ResultSet? resultSet = null;
-
-            while (true)
-            {
-                ResultSet? batch = select.GetRows(5);
-                if (batch == null)
-                    break;
-                if (resultSet == null)
-                    resultSet = ResultSet.NewWithShape(batch);
-                resultSet.Append(batch);
-            }
-
-            ExecuteResult results = new ExecuteResult();
-            results.ResultSet = resultSet;
-            return results;
-        }
-
-        public void Dump()
-        {
-            if (selectListContext == null)
-                Console.WriteLine("No select list found");
-            else
-                selectListContext.Dump();
-
-            Console.WriteLine("PredicateExpressions:");
-            if (predicateContext == null)
-                Console.WriteLine("  No predicate context");
-            else
-            {
-                for (int i = 0; i < predicateContext.PredicateExpressionListCount; i++)
-                {
-                    Console.Write($"  #{i}: ");
-                    foreach (var x in predicateContext.PredicateExpressions[i])
-                        Console.Write($"{x} ");
-
-                    Console.WriteLine();
-                }
-            }
-        }
-
         internal void AddJoin(JoinContext jc, PredicateContext predicateContext)
         {
             joinContexts.Add(jc);
             if (predicateContext != null)
                 jc.PredicateExpressions = predicateContext.PredicateExpressions;
-            predicateContext = new PredicateContext();
         }
 
         internal void AddAggregate(AggregateContext ac)

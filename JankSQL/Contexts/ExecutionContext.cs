@@ -27,7 +27,7 @@
                 }
                 catch (ExecutionException ex)
                 {
-                    ExecuteResult result = new ExecuteResult(ExecuteStatus.FAILED, ex.Message);
+                    ExecuteResult result = new (ExecuteStatus.FAILED, ex.Message);
                     Console.WriteLine($"Execute exception: {ex.Message}");
                     results.Add(result);
                 }

@@ -1,5 +1,4 @@
-﻿
-namespace Tests
+﻿namespace Tests
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 

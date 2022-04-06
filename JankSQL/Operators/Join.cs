@@ -7,6 +7,9 @@
     {
         private readonly JoinType joinType;
 
+        //REVIEW: added to the right side only? Is that right?
+        private readonly string? derivedTableAlias;
+
         private IComponentOutput leftInput;
         private IComponentOutput rightInput;
         private ResultSet? outputSet = null;
@@ -20,8 +23,6 @@
         private ResultSet? leftRows = null;
         private ResultSet? rightRows = null;
 
-        //REVIEW: added to the right side only? Is that right?
-        private string? derivedTableAlias;
 
         internal Join(JoinType joinType, IComponentOutput leftInput, IComponentOutput rightInput, List<Expression> predicateExpressions, string? derivedTableAlias)
         {
@@ -49,7 +50,7 @@
         public void Rewind()
         {
             outputIndex = 0;
-            Console.WriteLine("REWIND!");
+            // Console.WriteLine("REWIND!");
         }
 
         public ResultSet? GetRows(int max)
@@ -82,10 +83,11 @@
                 allColumnNames = new List<FullColumnName>();
                 foreach (var fcn in leftRows.GetColumnNames())
                 {
+                    //REVIEW: only the right side; is that correct?
                     // if (derivedTableAlias != null)
                     //  fcn.SetTableName(derivedTableAlias);
                     allColumnNames.Add(fcn);
-                    Console.WriteLine($"Left: {fcn}");
+                    // Console.WriteLine($"Left: {fcn}");
                 }
 
                 foreach (var fcn in rightRows.GetColumnNames())
@@ -93,7 +95,7 @@
                     if (derivedTableAlias != null)
                         fcn.SetTableName(derivedTableAlias);
                     allColumnNames.Add(fcn);
-                    Console.WriteLine($"Right: {fcn}");
+                    // Console.WriteLine($"Right: {fcn}");
                 }
             }
 
@@ -150,7 +152,7 @@
                     matched = op.IsTrue();
                 }
 
-                Console.WriteLine($"Join: {leftIndex + 1}/{leftRows.RowCount}, {rightIndex + 1}/{rightRows.RowCount}, {matched}");
+                // Console.WriteLine($"Join: {leftIndex + 1}/{leftRows.RowCount}, {rightIndex + 1}/{rightRows.RowCount}, {matched}");
 
                 // depending on the join type, do the right thing.
                 if (joinType == JoinType.INNER_JOIN)
@@ -191,7 +193,7 @@
                 }
             }
 
-            Console.WriteLine($"Output set has {output.RowCount} rows");
+            // Console.WriteLine($"Output set has {output.RowCount} rows");
             return output;
         }
     }

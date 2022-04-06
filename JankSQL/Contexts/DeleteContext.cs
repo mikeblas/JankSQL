@@ -14,7 +14,8 @@
 
         internal Expression? PredicateExpression
         {
-            get { return predicateExpression; } set { predicateExpression = value; }
+            get { return predicateExpression; }
+            set { predicateExpression = value; }
         }
 
         public void Dump()

@@ -103,8 +103,7 @@
         {
             FullColumnName probe = FullColumnName.FromColumnName(columnName);
 
-            int index;
-            if (columnNameIndexes.TryGetValue(probe.ColumnNameOnly(), out index))
+            if (columnNameIndexes.TryGetValue(probe.ColumnNameOnly(), out int index))
                 return index;
             else
                 return -1;

@@ -17,7 +17,8 @@
 
         public ResultSet? ResultSet
         {
-            get { return resultSet; } set { resultSet = value; }
+            get { return resultSet; }
+            set { resultSet = value; }
         }
 
         public ExecuteStatus ExecuteStatus { get; set; }

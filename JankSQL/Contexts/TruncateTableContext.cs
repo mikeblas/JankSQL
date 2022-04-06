@@ -13,7 +13,6 @@
         {
             ExecuteResult result = new ExecuteResult();
 
-
             Engines.IEngineTable? engineSource = engine.GetEngineTable(tableName);
             if (engineSource == null)
             {
