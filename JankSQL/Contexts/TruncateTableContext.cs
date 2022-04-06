@@ -11,7 +11,7 @@
 
         public ExecuteResult Execute(Engines.IEngine engine)
         {
-            ExecuteResult result = new ExecuteResult();
+            ExecuteResult result = new ();
 
             Engines.IEngineTable? engineSource = engine.GetEngineTable(tableName);
             if (engineSource == null)

@@ -151,7 +151,7 @@
             inMemoryTables.Remove(tableName.TableName);
 
             // delete from sys_tables
-            ExpressionOperandBookmark tableBookmark = new ExpressionOperandBookmark(Tuple.FromSingleValue(tableName.TableName, ExpressionOperandType.NVARCHAR));
+            ExpressionOperandBookmark tableBookmark = new (Tuple.FromSingleValue(tableName.TableName, ExpressionOperandType.NVARCHAR));
             List<ExpressionOperandBookmark> tableMark = new () { tableBookmark };
             sysTables.DeleteRows(tableMark);
 

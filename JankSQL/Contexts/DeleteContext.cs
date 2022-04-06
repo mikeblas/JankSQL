@@ -30,7 +30,7 @@
 
         public ExecuteResult Execute(Engines.IEngine engine)
         {
-            ExecuteResult results = new ExecuteResult();
+            ExecuteResult results = new ();
 
             Engines.IEngineTable? tableSource = engine.GetEngineTable(tableName);
 

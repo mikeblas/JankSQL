@@ -50,7 +50,7 @@
 
         internal ExpressionOperand Evaluate(IRowValueAccessor? accessor)
         {
-            Stack<ExpressionOperand> stack = new Stack<ExpressionOperand>();
+            Stack<ExpressionOperand> stack = new ();
 
             do
             {

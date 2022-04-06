@@ -6,11 +6,11 @@
     {
         private readonly TSqlParser.Select_statementContext statementContext;
 
-        private readonly List<JoinContext> joinContexts = new();
-        private readonly List<AggregateContext> aggregateContexts = new();
-        private readonly List<Expression> groupByExpressions = new();
+        private readonly List<JoinContext> joinContexts = new ();
+        private readonly List<AggregateContext> aggregateContexts = new ();
+        private readonly List<Expression> groupByExpressions = new ();
         private readonly SelectListContext selectListContext;
-        private readonly HashSet<string> tableNames = new(StringComparer.OrdinalIgnoreCase);
+        private readonly HashSet<string> tableNames = new (StringComparer.OrdinalIgnoreCase);
 
         // for WHERE clauses
         private readonly PredicateContext? predicateContext;
@@ -78,7 +78,7 @@
                 resultSet.Append(batch);
             }
 
-            ExecuteResult results = new ExecuteResult();
+            ExecuteResult results = new ();
             results.ResultSet = resultSet;
             return results;
         }
@@ -193,7 +193,7 @@
                     }
 
                     // build a join operator with it
-                    Join oper = new(j.JoinType, lastLeftOutput, joinSource, j.PredicateExpressions, j.DerivedTableAlias);
+                    Join oper = new (j.JoinType, lastLeftOutput, joinSource, j.PredicateExpressions, j.DerivedTableAlias);
 
                     lastLeftOutput = oper;
                 }
@@ -202,7 +202,7 @@
             // now the filter, if needed
             if (predicateContext != null && predicateContext.PredicateExpressionListCount > 0)
             {
-                Filter filter = new(lastLeftOutput, predicateContext.PredicateExpressions);
+                Filter filter = new (lastLeftOutput, predicateContext.PredicateExpressions);
                 lastLeftOutput = filter;
             }
 
@@ -240,14 +240,14 @@
                         throw new ExecutionException($"non-aggregate {expr} in select list is not covered in GROUP BY");
                 }
 
-                Aggregation agger = new Aggregation(lastLeftOutput, aggregateContexts, groupByExpressions, groupByExpressionBindNames);
+                Aggregation agger = new (lastLeftOutput, aggregateContexts, groupByExpressions, groupByExpressionBindNames);
                 lastLeftOutput = agger;
             }
 
             // and check for an order by
             if (orderByContext != null)
             {
-                Sort sort = new Sort(lastLeftOutput, orderByContext.ExpressionList, orderByContext.IsAscendingList);
+                Sort sort = new (lastLeftOutput, orderByContext.ExpressionList, orderByContext.IsAscendingList);
 
                 lastLeftOutput = sort;
             }
