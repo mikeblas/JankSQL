@@ -126,6 +126,45 @@
             }
         }
 
+        [TestMethod]
+        public void TestFailDoubleCrossJoinSameName()
+        {
+            var ec = Parser.ParseSQLFileFromString(
+                "    SELECT * " +
+                "      FROM [three] " +
+                "CROSS JOIN " +
+                "     (    SELECT * FROM [ten] " +
+                "      CROSS JOIN [mytable]) AS three ");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+
+            Assert.IsNotNull(ec);
+            Assert.IsNull(result.ResultSet);
+
+            Assert.AreEqual(0, ec.TotalErrors);
+
+            Assert.AreEqual(ExecuteStatus.FAILED, result.ExecuteStatus);
+            Assert.IsNotNull(result.ErrorMessage);
+        }
+
+        [TestMethod]
+        public void TestFailCrossJoinSameName()
+        {
+            var ec = Parser.ParseSQLFileFromString(
+                "    SELECT * " +
+                "      FROM [THREE] " +
+                "CROSS JOIN [three] ");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+
+            Assert.IsNotNull(ec);
+            Assert.IsNull(result.ResultSet);
+
+            Assert.AreEqual(0, ec.TotalErrors);
+
+            Assert.AreEqual(ExecuteStatus.FAILED, result.ExecuteStatus);
+            Assert.IsNotNull(result.ErrorMessage);
+        }
 
         [TestMethod, Timeout(1000)]
         public void TestFilterDoubleCrossJoinBadName()
