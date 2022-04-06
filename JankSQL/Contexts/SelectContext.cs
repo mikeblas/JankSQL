@@ -6,10 +6,11 @@
     {
         private readonly TSqlParser.Select_statementContext statementContext;
 
-        private readonly List<JoinContext> joinContexts = new ();
-        private readonly List<AggregateContext> aggregateContexts = new ();
-        private readonly List<Expression> groupByExpressions = new ();
+        private readonly List<JoinContext> joinContexts = new();
+        private readonly List<AggregateContext> aggregateContexts = new();
+        private readonly List<Expression> groupByExpressions = new();
         private readonly SelectListContext selectListContext;
+        private readonly HashSet<string> tableNames = new(StringComparer.OrdinalIgnoreCase);
 
         // for WHERE clauses
         private readonly PredicateContext? predicateContext;
@@ -70,7 +71,7 @@
             var expressions = statementContext.query_expression();
             var querySpecs = expressions.query_specification();
 
-            // the table itself
+            // the top most output in this tree of objects
             IComponentOutput lastLeftOutput;
 
             if (SourceTableName == null && inputContext == null)
@@ -80,8 +81,6 @@
             }
             else
             {
-                Console.WriteLine($"ExitSelect_Statement: {SourceTableName}");
-
                 if (inputContext != null)
                 {
                     lastLeftOutput = inputContext.BuildSelectObject(engine);
@@ -97,6 +96,8 @@
 
                     // found the source table, so hook it up
                     lastLeftOutput = new TableSource(engineSource, DerivedTableAlias);
+
+                    AccumulateTableNames(SourceTableName, DerivedTableAlias);
                 }
 
                 // any joins?
@@ -106,6 +107,8 @@
                     if (j.SelectSource != null)
                     {
                         joinSource = j.SelectSource.BuildSelectObject(engine);
+
+                        AccumulateTableNames(j.SelectSource.tableNames, j.DerivedTableAlias);
                     }
                     else if (j.OtherTableName != null)
                     {
@@ -115,6 +118,8 @@
                             throw new ExecutionException($"Joined table {j.OtherTableName} does not exist");
 
                         joinSource = new TableSource(otherTableSource);
+
+                        AccumulateTableNames(j.OtherTableName, j.DerivedTableAlias);
                     }
                     else
                     {
@@ -122,7 +127,7 @@
                     }
 
                     // build a join operator with it
-                    Join oper = new (j.JoinType, lastLeftOutput, joinSource, j.PredicateExpressions, j.DerivedTableAlias);
+                    Join oper = new(j.JoinType, lastLeftOutput, joinSource, j.PredicateExpressions, j.DerivedTableAlias);
 
                     lastLeftOutput = oper;
                 }
@@ -131,7 +136,7 @@
             // now the filter, if needed
             if (predicateContext != null && predicateContext.PredicateExpressionListCount > 0)
             {
-                Filter filter = new (lastLeftOutput, predicateContext.PredicateExpressions);
+                Filter filter = new(lastLeftOutput, predicateContext.PredicateExpressions);
                 lastLeftOutput = filter;
             }
 
@@ -256,5 +261,31 @@
             selectListContext.AddSelectListExpressionList(expression);
         }
 
+        internal void AccumulateTableNames(FullTableName ftn, string? aliasName)
+        {
+            string effectiveName = (aliasName == null) ? ftn.TableName : aliasName;
+
+            AccumulateTableName(effectiveName);
+        }
+
+        internal void AccumulateTableNames(IEnumerable<string> others, string? aliasName)
+        {
+            if (aliasName != null)
+                AccumulateTableName(aliasName);
+            else
+            {
+                foreach (var other in others)
+                    AccumulateTableName(other);
+            }
+        }
+
+        internal void AccumulateTableName(string name)
+        {
+            if (tableNames.Contains(name))
+                throw new ExecutionException($"object name {name} is ambiguous");
+            tableNames.Add(name);
+        }
     }
 }
+
+
