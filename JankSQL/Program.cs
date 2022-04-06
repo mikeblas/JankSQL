@@ -110,6 +110,8 @@ namespace JankSQL
             str = "SELECT number_id, CASE WHEN number_id = 1 THEN 'ichi' WHEN number_id = 2 THEN 'ni' ELSE 'unknown' END from ten;";
             // str = "SELECT number_id, CASE number_id WHEN 1 THEN 'ichi' WHEN 2 then 'ni' ELSE 'unknown' END FROM ten;";
 
+            str = "SELECT CAST('33.3' AS DECIMAL)";
+
             // Engines.DynamicCSVEngine engine = Engines.DynamicCSVEngine.OpenAlways("F:\\JankTests\\Test33");
 
             var btreeEngine = Engines.BTreeEngine.CreateInMemory();

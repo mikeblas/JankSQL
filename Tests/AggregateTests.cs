@@ -427,11 +427,10 @@
             Assert.AreEqual(0, result.ResultSet.Row(0)[0].AsInteger());
         }
 
-        [Ignore]
         [TestMethod]
         public void TestIntegerCastAverage()
         {
-            var ec = Parser.ParseSQLFileFromString("SELECT AVG(CAST(number_id AS FLOAT)) FROM ten");
+            var ec = Parser.ParseSQLFileFromString("SELECT AVG(CAST(number_id AS DECIMAL)) FROM ten");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
@@ -445,11 +444,10 @@
         }
 
 
-        [Ignore]
         [TestMethod]
         public void TestIntegerCastAverageNoRows()
         {
-            var ec = Parser.ParseSQLFileFromString("SELECT AVG(CAST(number_id AS FLOAT)) FROM ten WHERE 1 = 0");
+            var ec = Parser.ParseSQLFileFromString("SELECT AVG(CAST(number_id AS DECIMAL)) FROM ten WHERE 1 = 0");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             Assert.IsNotNull(result.ResultSet, result.ErrorMessage);

@@ -180,15 +180,26 @@
                         x.Add(n);
                         x.ContainsAggregate = true;
                     }
-                    else if (childContext is TSqlParser.ISNULLContext bifc)
+                    else if (childContext is TSqlParser.ISNULLContext isnullContext)
                     {
                         ExpressionFunction f = new Expressions.Functions.FunctionIsNull();
                         stack.Insert(firstTop, f);
 
-                        stack.Add(bifc.right);
-                        stack.Add(bifc.left);
+                        stack.Add(isnullContext.right);
+                        stack.Add(isnullContext.left);
 
                         Console.WriteLine($"functionCallContext: it's ISNULL!");
+                    }
+                    else if (childContext is TSqlParser.CASTContext castContext)
+                    {
+                        ExpressionOperandType opType = GobbleDataType(castContext.data_type());
+
+                        ExpressionFunction f = new Expressions.Functions.FunctionCast(opType);
+                        stack.Insert(firstTop, f);
+
+                        stack.Add(castContext.expression());
+
+                        Console.WriteLine($"functionCallContext: it's a CAST!");
                     }
                     else
                     {
@@ -267,6 +278,44 @@
             return x;
         }
 
+        internal ExpressionOperandType GobbleDataType(TSqlParser.Data_typeContext context)
+        {
+            ExpressionOperandType ot;
+
+            if (context.unscaled_type is not null)
+            {
+                string typeName = (context.unscaled_type.ID() != null) ? context.unscaled_type.ID().GetText() : context.unscaled_type.keyword().GetText();
+
+                if (typeName == null)
+                    throw new ExecutionException($"No typename found");
+
+                Console.Write($"{typeName} ");
+                if (!ExpressionNode.TypeFromString(typeName, out ot))
+                    throw new ExecutionException($"Unknown column type {typeName}");
+            }
+            else
+            {
+                string typeName = context.ext_type.keyword().GetText();
+                Console.Write($"{typeName} ");
+
+                ExpressionOperandType columnType;
+                if (!ExpressionNode.TypeFromString(context.ext_type.keyword().GetText(), out columnType))
+                    throw new ExecutionException($"Unknown column type {typeName}");
+
+                // null or not, if it's VARCHAR or not.
+                var dktvc = context.ext_type.keyword().VARCHAR();
+                var dktnvc = context.ext_type.keyword().NVARCHAR();
+
+                if (dktvc is not null)
+                    ot = ExpressionOperandType.VARCHAR;
+                else if (dktnvc is not null)
+                    ot = ExpressionOperandType.NVARCHAR;
+                else
+                    throw new ExecutionException($"Unknown scaled column type {typeName}");
+            }
+
+            return ot;
+        }
     }
 }
 
