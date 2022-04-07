@@ -68,13 +68,16 @@
 
         internal Expression GobbleExpressionImpl(TSqlParser.ExpressionContext expr, SelectContext? selectContext)
         {
+            // the expression we're building
             Expression x = new ();
-            List<object> stack = new ();
+
+            // stack of TSqlParser objects we're considering as we build out the expression
+            List<ParserRuleContext> stack = new ();
             stack.Add(expr);
 
             while (stack.Count > 0)
             {
-                object rule = stack[^1];
+                ParserRuleContext rule = stack[^1];
                 stack.RemoveAt(stack.Count - 1);
                 if (rule is TSqlParser.Primitive_expressionContext primitiveContext)
                 {
@@ -82,7 +85,7 @@
                     {
                         Console.WriteLine($"constant: NULL");
                         ExpressionNode n = ExpressionOperand.NullLiteral();
-                        x.Add(n);
+                        x.Insert(0, n);
                     }
                     else if (primitiveContext.constant().FLOAT() != null)
                     {
@@ -91,7 +94,7 @@
                             Console.WriteLine($"constant: '{str}'");
                         bool isNegative = primitiveContext.constant().sign() != null;
                         ExpressionNode n = ExpressionOperand.DecimalFromString(isNegative, str);
-                        x.Add(n);
+                        x.Insert(0, n);
                     }
                     else if (primitiveContext.constant().DECIMAL() != null)
                     {
@@ -108,7 +111,7 @@
                         else
                             n = ExpressionOperand.DecimalFromString(isNegative, str);
 
-                        x.Add(n);
+                        x.Insert(0, n);
                     }
                     else if (primitiveContext.constant().STRING() != null)
                     {
@@ -119,14 +122,14 @@
                             if (!quiet)
                                 Console.WriteLine($"constant: '{primitiveContext.constant().STRING()}'");
                             ExpressionNode n = ExpressionOperand.NVARCHARFromStringContext(str);
-                            x.Add(n);
+                            x.Insert(0, n);
                         }
                         else
                         {
                             if (!quiet)
                                 Console.WriteLine($"constant: '{primitiveContext.constant().STRING()}'");
                             ExpressionNode n = ExpressionOperand.VARCHARFromStringContext(str);
-                            x.Add(n);
+                            x.Insert(0, n);
                         }
                     }
                 }
@@ -139,7 +142,7 @@
 
                     if (functionCallContext is TSqlParser.BUILT_IN_FUNCContext bifContext)
                     {
-                        HandleBuiltInFunction(stack, bifContext.built_in_functions());
+                        HandleBuiltInFunction(x, stack, bifContext.built_in_functions());
                     }
                     else if (functionCallContext is TSqlParser.SCALAR_FUNCTIONContext scalarFunctionContext)
                     {
@@ -149,7 +152,7 @@
 
                         if (n == null)
                             throw new SemanticErrorException($"function {functionName} not implemented");
-                        stack.Add(n);
+                        x.Insert(0, n);
 
                         // and its argument list
                         if (functionCallContext.GetChild(2) is TSqlParser.Expression_listContext exprContext)
@@ -157,8 +160,8 @@
                             if (n.ExpectedParameters != exprContext.expression().Length)
                                 throw new SemanticErrorException($"function {n} expects {n.ExpectedParameters} parameters, received {exprContext.expression().Length}");
 
-                            for (int e = exprContext.expression().Length - 1; e >= 0; e--)
-                                stack.Add(exprContext.expression()[e]);
+                            for (int i = 0; i < exprContext.expression().Length; i++)
+                                stack.Add(exprContext.expression()[i]);
                         }
                         else
                         {
@@ -178,7 +181,7 @@
                             throw new InternalErrorException("Expected named expression in aggregation");
 
                         ExpressionNode n = new ExpressionOperandFromColumn(FullColumnName.FromColumnName(agg.ExpressionName));
-                        x.Add(n);
+                        x.Insert(0, n);
                         x.ContainsAggregate = true;
                     }
                     else if (functionCallContext is TSqlParser.FREE_TEXTContext)
@@ -209,9 +212,9 @@
                         // binary operator
                         Console.WriteLine($"expressionContext: '{xContext.op.Text}'");
                         ExpressionNode n = new ExpressionOperator(xContext.op.Text);
-                        stack.Add(n);
-                        stack.Add(xContext.expression()[1]);
+                        x.Insert(0, n);
                         stack.Add(xContext.expression()[0]);
+                        stack.Add(xContext.expression()[1]);
                     }
                     else if (xContext.primitive_expression() != null)
                     {
@@ -241,27 +244,23 @@
                     {
                         // unary operators, like minus in "-SQRT(2)"
                         ExpressionNode n = ExpressionUnaryOperator.GetUnaryOperator(xContext.unary_operator_expression());
-                        stack.Add(n);
+                        x.Insert(0, n);
                         stack.Add(xContext.unary_operator_expression().expression());
                     }
                     else if (xContext.case_expression() != null)
                     {
                         ExpressionNode n = GobbleCaseExpression(xContext.case_expression());
-                        x.Add(n);
+                        x.Insert(0, n);
                     }
                     else
                     {
                         throw new InternalErrorException("Some unexpected expression type");
                     }
                 }
-                else if (rule is ExpressionNode xNode)
-                {
-                    x.Add(xNode);
-                }
                 else if (rule is TSqlParser.Full_column_nameContext fullColumn)
                 {
                     ExpressionNode n = new ExpressionOperandFromColumn(FullColumnName.FromContext(fullColumn));
-                    x.Add(n);
+                    x.Insert(0, n);
                 }
                 else
                 {
@@ -311,17 +310,16 @@
             return ot;
         }
 
-        internal void HandleBuiltInFunction(List<object> stack, TSqlParser.Built_in_functionsContext bifContext)
+        internal void HandleBuiltInFunction(Expression x, List<ParserRuleContext> stack, TSqlParser.Built_in_functionsContext bifContext)
         {
-            int firstTop = stack.Count;
             if (bifContext is TSqlParser.ISNULLContext isnullContext)
             {
                 // ISNULL
                 ExpressionFunction f = new Expressions.Functions.FunctionIsNull();
-                stack.Insert(firstTop, f);
+                x.Insert(0, f);
 
-                stack.Add(isnullContext.right);
                 stack.Add(isnullContext.left);
+                stack.Add(isnullContext.right);
 
                 Console.WriteLine($"functionCallContext: it's ISNULL!");
             }
@@ -331,7 +329,7 @@
                 ExpressionOperandType opType = GobbleDataType(castContext.data_type());
 
                 ExpressionFunction f = new Expressions.Functions.FunctionCast(opType);
-                stack.Insert(firstTop, f);
+                x.Insert(0, f);
 
                 stack.Add(castContext.expression());
 
