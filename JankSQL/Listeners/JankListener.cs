@@ -149,8 +149,7 @@
 
                         if (n == null)
                             throw new SemanticErrorException($"function {functionName} not implemented");
-                        int firstTop = stack.Count;
-                        stack.Insert(firstTop, n);
+                        stack.Add(n);
 
                         // and its argument list
                         if (functionCallContext.GetChild(2) is TSqlParser.Expression_listContext exprContext)
@@ -248,7 +247,7 @@
                     else if (xContext.case_expression() != null)
                     {
                         ExpressionNode n = GobbleCaseExpression(xContext.case_expression());
-                        stack.Add(n);
+                        x.Add(n);
                     }
                     else
                     {
