@@ -17,8 +17,8 @@
         {
             var searchExpression = context.switch_search_condition_section();
 
-            List<Expression> whens = new();
-            List<Expression> thens = new();
+            List<Expression> whens = new ();
+            List<Expression> thens = new ();
 
             for (int i = 0; i < searchExpression.Length; i++)
             {
@@ -44,8 +44,8 @@
             // the input expression
             Expression inputExpression = GobbleExpression(context.expression()[0]);
 
-            List<Expression> whens = new();
-            List<Expression> thens = new();
+            List<Expression> whens = new ();
+            List<Expression> thens = new ();
 
             for (int i = 0; i < switchSection.Length; i++)
             {

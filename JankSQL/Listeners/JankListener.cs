@@ -132,22 +132,24 @@
                 }
                 else if (rule is TSqlParser.Function_callContext functionCallContext)
                 {
-                    Console.WriteLine($"Function_callContext with {functionCallContext.ChildCount} children");
-                    string? functionName;
-                    int firstTop = stack.Count;
+                    // function_call uses labels for any of about seven alternatives.
+                    // ANTLR doesn't emit any features for the Function_callContext class, and instead
+                    // uses derived classes for each of the alternatives. The only way to find the
+                    // satisfying rule appears to be test for object type.
 
-                    // why doesn't Function_callContext have any useful members?
-                    // we must go after child nodes with GetChild() directly
-
-                    IParseTree childContext = functionCallContext.GetChild(0);
-                    if (childContext is TSqlParser.Scalar_function_nameContext scalarContext)
+                    if (functionCallContext is TSqlParser.BUILT_IN_FUNCContext bifContext)
+                    {
+                        HandleBuiltInFunction(stack, bifContext.built_in_functions());
+                    }
+                    else if (functionCallContext is TSqlParser.SCALAR_FUNCTIONContext scalarFunctionContext)
                     {
                         // get a function call
-                        functionName = scalarContext.func_proc_name_server_database_schema().func_proc_name_database_schema().func_proc_name_schema().procedure.GetText();
+                        string functionName = scalarFunctionContext.scalar_function_name().func_proc_name_server_database_schema().func_proc_name_database_schema().func_proc_name_schema().procedure.GetText();
                         ExpressionFunction? n = ExpressionFunction.FromFunctionName(functionName);
 
                         if (n == null)
                             throw new SemanticErrorException($"function {functionName} not implemented");
+                        int firstTop = stack.Count;
                         stack.Insert(firstTop, n);
 
                         // and its argument list
@@ -165,12 +167,12 @@
                                 throw new SemanticErrorException($"function {n} expects {n.ExpectedParameters} parameters, received none");
                         }
                     }
-                    else if (childContext is TSqlParser.Aggregate_windowed_functionContext awfc)
+                    else if (functionCallContext is TSqlParser.AGGREGATE_WINDOWED_FUNCContext awfs)
                     {
                         if (selectContext == null)
                             throw new InternalErrorException("Expected a SelectContext");
 
-                        AggregateContext agg = GobbleAggregateFunctionContext(awfc);
+                        AggregateContext agg = GobbleAggregateFunctionContext(awfs.aggregate_windowed_function());
                         selectContext.AddAggregate(agg);
 
                         if (agg.ExpressionName == null)
@@ -180,32 +182,25 @@
                         x.Add(n);
                         x.ContainsAggregate = true;
                     }
-                    else if (childContext is TSqlParser.ISNULLContext isnullContext)
+                    else if (functionCallContext is TSqlParser.FREE_TEXTContext)
                     {
-                        ExpressionFunction f = new Expressions.Functions.FunctionIsNull();
-                        stack.Insert(firstTop, f);
-
-                        stack.Add(isnullContext.right);
-                        stack.Add(isnullContext.left);
-
-                        Console.WriteLine($"functionCallContext: it's ISNULL!");
+                        throw new NotImplementedException("Free-Text search functions are not supported");
                     }
-                    else if (childContext is TSqlParser.CASTContext castContext)
+                    else if (functionCallContext is TSqlParser.RANKING_WINDOWED_FUNCContext)
                     {
-                        ExpressionOperandType opType = GobbleDataType(castContext.data_type());
-
-                        ExpressionFunction f = new Expressions.Functions.FunctionCast(opType);
-                        stack.Insert(firstTop, f);
-
-                        stack.Add(castContext.expression());
-
-                        Console.WriteLine($"functionCallContext: it's a CAST!");
+                        throw new NotImplementedException("Ranking Windowed functions are not supported");
+                    }
+                    else if (functionCallContext is TSqlParser.PARTITION_FUNCContext)
+                    {
+                        throw new NotImplementedException("Partition functions are not supported");
+                    }
+                    else if (functionCallContext is TSqlParser.ANALYTIC_WINDOWED_FUNCContext)
+                    {
+                        throw new NotImplementedException("Analytic windowed functions are not supported");
                     }
                     else
                     {
-                        Console.WriteLine($"functionCallContext: skpping {childContext.GetText()}");
-
-                        // throw new NotImplementedException("Unknown function_call type");
+                        Console.WriteLine($"functionCallContext: skpping {functionCallContext}");
                     }
                 }
                 else if (rule is TSqlParser.ExpressionContext xContext)
@@ -315,6 +310,38 @@
             }
 
             return ot;
+        }
+
+        internal void HandleBuiltInFunction(List<object> stack, TSqlParser.Built_in_functionsContext bifContext)
+        {
+            int firstTop = stack.Count;
+            if (bifContext is TSqlParser.ISNULLContext isnullContext)
+            {
+                // ISNULL
+                ExpressionFunction f = new Expressions.Functions.FunctionIsNull();
+                stack.Insert(firstTop, f);
+
+                stack.Add(isnullContext.right);
+                stack.Add(isnullContext.left);
+
+                Console.WriteLine($"functionCallContext: it's ISNULL!");
+            }
+            else if (bifContext is TSqlParser.CASTContext castContext)
+            {
+                // CAST
+                ExpressionOperandType opType = GobbleDataType(castContext.data_type());
+
+                ExpressionFunction f = new Expressions.Functions.FunctionCast(opType);
+                stack.Insert(firstTop, f);
+
+                stack.Add(castContext.expression());
+
+                Console.WriteLine($"functionCallContext: it's a CAST!");
+            }
+            else
+            {
+                throw new NotImplementedException($"Unknown built-in function");
+            }
         }
     }
 }
