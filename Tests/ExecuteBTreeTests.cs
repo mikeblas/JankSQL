@@ -14,6 +14,7 @@
 
             engine = Engines.BTreeEngine.CreateInMemory();
             TestHelpers.InjectTableMyTable(engine);
+            TestHelpers.InjectTableTen(engine);
         }
 
     }

@@ -999,5 +999,63 @@
             Assert.AreEqual(0, result.ResultSet.RowCount, "row count mismatch");
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
         }
+
+        [TestMethod, Timeout(1000)]
+        public void TestIIFTrue()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT IIF(3 = 3, 'Yes', 'No');");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.AreEqual("Yes", result.ResultSet.Row(0)[0].AsString());
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestIIFTrueExpression()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT IIF(POWER(10, 2) = 100, 'Yes', 'No');");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.AreEqual("Yes", result.ResultSet.Row(0)[0].AsString());
+        }
+
+
+        [TestMethod, Timeout(1000)]
+        public void TestIIFFalse ()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT IIF(3 = 5, 'Yes', 'No');");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.AreEqual("No", result.ResultSet.Row(0)[0].AsString());
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void TestIIFFalseExpression()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT IIF(POWER(10, 2) = 333, 'Yes', 'No');");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            Assert.IsNotNull(result.ResultSet);
+            result.ResultSet.Dump();
+            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
+            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
+
+            Assert.AreEqual("No", result.ResultSet.Row(0)[0].AsString());
+        }
+
     }
 }

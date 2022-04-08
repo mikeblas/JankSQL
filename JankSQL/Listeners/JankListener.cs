@@ -262,6 +262,11 @@
                     ExpressionNode n = new ExpressionOperandFromColumn(FullColumnName.FromContext(fullColumn));
                     x.Insert(0, n);
                 }
+                else if (rule is TSqlParser.Search_conditionContext searchCondition)
+                {
+                    Expression n = GobbleSearchCondition(searchCondition);
+                    x.InsertRange(0, n);
+                }
                 else
                 {
                     Console.WriteLine($"don't know {rule}");
@@ -334,6 +339,16 @@
                 stack.Add(castContext.expression());
 
                 Console.WriteLine($"functionCallContext: it's a CAST!");
+            }
+            else if (bifContext is TSqlParser.IIFContext iifContext)
+            {
+                ExpressionFunction f = new Expressions.Functions.FunctionIIF();
+                x.Insert(0, f);
+
+                // Expression searchCondition = GobbleSearchCondition(iifContext.cond);
+                stack.Add(iifContext.cond);
+                stack.Add(iifContext.left);
+                stack.Add(iifContext.right);
             }
             else
             {

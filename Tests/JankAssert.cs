@@ -8,6 +8,7 @@ namespace Tests
     internal class JankAssert
     {
 
+        // [DoesNotReturnIf(executeResult.ResultSet == null)]
         public static void RowsetExistsWithShape(ExecuteResult executeResult, int expectedColumns, int expectedRows)
         {
             if (executeResult.ResultSet == null)

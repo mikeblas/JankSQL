@@ -17,6 +17,7 @@ namespace Tests
             engine = Engines.DynamicCSVEngine.OpenObliterate(tempPath);
 
             TestHelpers.InjectTableMyTable(engine);
+            TestHelpers.InjectTableTen(engine);
         }
     }
 }

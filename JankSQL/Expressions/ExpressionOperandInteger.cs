@@ -2,8 +2,8 @@
 {
     internal class ExpressionOperandInteger : ExpressionOperand, IComparable<ExpressionOperandInteger>, IEquatable<ExpressionOperandInteger>
     {
+        private readonly bool isNull;
         private int n;
-        private bool isNull;
 
         internal ExpressionOperandInteger(int n)
             : base(ExpressionOperandType.INTEGER)
@@ -290,8 +290,7 @@
 
         public override bool Equals(object? o)
         {
-            ExpressionOperandInteger? other = o as ExpressionOperandInteger;
-            if (other == null)
+            if (o is not ExpressionOperandInteger other)
                 return false;
             return this.Equals(other);
         }

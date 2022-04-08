@@ -114,6 +114,8 @@ namespace JankSQL
 
             // Engines.DynamicCSVEngine engine = Engines.DynamicCSVEngine.OpenAlways("F:\\JankTests\\Test33");
 
+            str = "SELECT IIF(power(10, 3) = 100, 'Yes', 'No');";
+
             var btreeEngine = Engines.BTreeEngine.CreateInMemory();
 
             string tempPath = System.IO.Path.GetTempPath();

@@ -294,12 +294,47 @@
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] > POWER(2500, 2);");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 4, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
+        }
+
+
+        [TestMethod, Timeout(1000)]
+        public void TestIIF()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT number_id, IIF(Is_even = 0, 'Odd', 'Even') FROM [ten];");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 2, 10);
+            result.ResultSet.Dump();
+
+            for (int i = 0; i < result.ResultSet.RowCount; i++)
+            {
+                int num = result.ResultSet.Row(i)[0].AsInteger();
+                string second = result.ResultSet.Row(i)[1].AsString();
+
+                if (num % 2 == 0)
+                    Assert.AreEqual("Even", second);
+                else
+                    Assert.AreEqual("Odd", second);
+            }
+        }
+
+
+        [TestMethod, Timeout(1000)]
+        public void TestIIFPredicate()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT number_id FROM [ten] WHERE IIF(Is_even = 0, 'Odd', 'Even') = 'Even';");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 1, 5);
+            result.ResultSet!.Dump();
+
+            for (int i = 0; i < result.ResultSet.RowCount; i++)
+            {
+                int num = result.ResultSet.Row(i)[0].AsInteger();
+                Assert.IsTrue(num % 2 == 0, "exepcted only even numbers");
+            }
         }
     }
 }
-
-
