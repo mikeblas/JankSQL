@@ -44,7 +44,6 @@
                 }
                 else
                     Assert.Fail($"Bogus value for is_even: {is_even}");
-
             }
         }
 

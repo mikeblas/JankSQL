@@ -2,17 +2,15 @@
 namespace Tests
 {
     using JankSQL;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using System.Diagnostics.CodeAnalysis;
+
+    using NUnit.Framework;
 
     internal class JankAssert
     {
-
-        // [DoesNotReturnIf(executeResult.ResultSet == null)]
         public static void RowsetExistsWithShape(ExecuteResult executeResult, int expectedColumns, int expectedRows)
         {
             if (executeResult.ResultSet == null)
-                throw new AssertFailedException($"expected a non-null result set. Error message was {executeResult.ErrorMessage}");
+                throw new AssertionException($"expected a non-null result set. Error message was {executeResult.ErrorMessage}");
 
             List<string> messages = new ();
 
@@ -23,7 +21,7 @@ namespace Tests
                 messages.Add($"expected {expectedRows} rows, found {executeResult.ResultSet.RowCount}");
 
             if (messages.Count > 0)
-                throw new AssertFailedException(string.Join(';', messages));
+                throw new AssertionException(string.Join(';', messages));
         }
     }
 }
