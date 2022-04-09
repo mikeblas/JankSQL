@@ -1,17 +1,14 @@
-﻿
-namespace Tests
+﻿namespace Tests
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using JankSQL;
     using Engines = JankSQL.Engines;
 
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-
     public class CastTests
     {
         internal string mode = "base";
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         internal Engines.IEngine engine;
-
 
         [TestMethod]
         public void TestCastStringtoDecimal()
@@ -94,13 +91,16 @@ namespace Tests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void TestFailCastStringtoInteger()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT CAST('33.3' AS INTEGER)");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNull(result.ResultSet);
             Assert.IsNotNull(result.ErrorMessage);
+
+            // throws exception since no ResultSet is available
+            Assert.IsNull(result.ResultSet);
         }
     }
 }

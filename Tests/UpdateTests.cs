@@ -5,11 +5,10 @@
     using JankSQL;
     using Engines = JankSQL.Engines;
 
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-
     public class UpdateTests
     {
         internal string mode = "base";
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         internal Engines.IEngine engine;
 
         [TestMethod]
@@ -22,7 +21,7 @@
 
             ExecuteResult resultsUpdate = ecUpdate.ExecuteSingle(engine);
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsUpdate.ExecuteStatus, resultsUpdate.ErrorMessage);
-            Assert.IsNull(resultsUpdate.ResultSet);
+            Assert.IsNull(resultsUpdate.ErrorMessage);
 
             var ecSelect = Parser.ParseSQLFileFromString("SELECT population FROM MyTable;");
 
@@ -58,7 +57,7 @@
 
             ExecuteResult resultsUpdate = ecUpdate.ExecuteSingle(engine);
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsUpdate.ExecuteStatus, resultsUpdate.ErrorMessage);
-            Assert.IsNull(resultsUpdate.ResultSet);
+            Assert.IsNull(resultsUpdate.ErrorMessage);
 
             var ecSelect = Parser.ParseSQLFileFromString("SELECT is_even, number_id FROM ten;");
 
@@ -89,7 +88,7 @@
 
             ExecuteResult resultsUpdate = ecUpdate.ExecuteSingle(engine);
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsUpdate.ExecuteStatus, resultsUpdate.ErrorMessage);
-            Assert.IsNull(resultsUpdate.ResultSet);
+            Assert.IsNull(resultsUpdate.ErrorMessage);
 
             var ecSelect = Parser.ParseSQLFileFromString("SELECT is_even, number_id FROM ten;");
 
@@ -120,7 +119,7 @@
 
             ExecuteResult resultsUpdate = ecUpdate.ExecuteSingle(engine);
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsUpdate.ExecuteStatus, resultsUpdate.ErrorMessage);
-            Assert.IsNull(resultsUpdate.ResultSet);
+            Assert.IsNull(resultsUpdate.ErrorMessage);
 
             var ecSelect = Parser.ParseSQLFileFromString("SELECT number_name, is_even, number_id FROM ten;");
 
@@ -159,7 +158,7 @@
 
             ExecuteResult resultsUpdate = ecUpdate.ExecuteSingle(engine);
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsUpdate.ExecuteStatus, resultsUpdate.ErrorMessage);
-            Assert.IsNull(resultsUpdate.ResultSet);
+            Assert.IsNull(resultsUpdate.ErrorMessage);
 
             var ecSelect = Parser.ParseSQLFileFromString("SELECT is_even, number_id FROM ten;");
 

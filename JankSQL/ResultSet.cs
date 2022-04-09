@@ -39,6 +39,11 @@
                 Console.WriteLine($"{row}");
         }
 
+        public List<FullColumnName> GetColumnNames()
+        {
+            return columnNames;
+        }
+
         internal static ResultSet NewWithShape(ResultSet other)
         {
             ResultSet ret = new (other.columnNames);
@@ -60,11 +65,6 @@
                 throw new InvalidOperationException();
 
             rows.AddRange(other.rows);
-        }
-
-        public List<FullColumnName> GetColumnNames()
-        {
-            return columnNames;
         }
 
         internal FullColumnName GetColumnName(int index)

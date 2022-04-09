@@ -7,34 +7,28 @@
     public class InsertDeleteTests
     {
         internal string mode = "base";
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         internal Engines.IEngine engine;
 
         [TestMethod, Timeout(2000)]
         public void TestDelete()
         {
             // delete one row
-            var ecDelete = Parser.ParseSQLFileFromString("DELETE FROM [mytable] where  keycolumn = 2;");
+            var ecDelete = Parser.ParseSQLFileFromString("DELETE FROM [mytable] WHERE keycolumn = 2;");
 
             ExecuteResult resultDelete = ecDelete.ExecuteSingle(engine);
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultDelete.ExecuteStatus, resultDelete.ErrorMessage);
-            Assert.IsNull(resultDelete.ResultSet, resultDelete.ErrorMessage);
-
 
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM [mytable];");
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
-            Assert.IsNotNull(resultSelect.ResultSet, resultSelect.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(resultSelect, 4, 2);
             resultSelect.ResultSet.Dump();
-            Assert.AreEqual(2, resultSelect.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(4, resultSelect.ResultSet.ColumnCount, "column count mismatch");
-
 
             int keyColIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("keycolumn"));
             List<int> keys = new ();
             for (int i = 0; i < resultSelect.ResultSet.RowCount; i++)
-            {
                 keys.Add(resultSelect.ResultSet.Row(i)[keyColIndex].AsInteger());
-            }
 
             Assert.IsTrue(keys.Contains(1), "Wrong row deleted");
             Assert.IsTrue(keys.Contains(3), "Wrong row deleted");
@@ -52,7 +46,6 @@
 
             ExecuteResult resultsCreate = ecCreate.ExecuteSingle(engine);
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsCreate.ExecuteStatus, resultsCreate.ErrorMessage);
-            Assert.IsNull(resultsCreate.ResultSet);
 
             // insert some rows
             var ecInsert = Parser.ParseSQLFileFromString("INSERT INTO TransientTestTable (SomeInteger, SomeString, AnotherOne) VALUES(1, 'moe', 100), (2, 'larry', 200), (3, 'curly', 300);");
@@ -103,7 +96,6 @@
 
             ExecuteResult resultsCreate = ecCreate.ExecuteSingle(engine);
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsCreate.ExecuteStatus, resultsCreate.ErrorMessage);
-            Assert.IsNull(resultsCreate.ResultSet);
 
             // insert some rows, but the last one doesn't have all columns
             var ecInsert = Parser.ParseSQLFileFromString("INSERT INTO TransientTestTable (SomeInteger, SomeString, AnotherOne) VALUES(1, 'moe', 100), (2, 'larry', 200), (3, 'curly');");
@@ -123,7 +115,6 @@
 
             ExecuteResult resultsCreate = ecCreate.ExecuteSingle(engine);
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsCreate.ExecuteStatus, resultsCreate.ErrorMessage);
-            Assert.IsNull(resultsCreate.ResultSet);
 
             // insert some rows
             var ecInsert = Parser.ParseSQLFileFromString("INSERT INTO TransientTestTable (SomeInteger, SomeString, AnotherOne) VALUES(1, 'moe', 100);");
@@ -139,10 +130,9 @@
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM TransientTestTable;");
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(resultSelect, 3, 1);
             Assert.IsNotNull(resultSelect.ResultSet, resultSelect.ErrorMessage);
             resultSelect.ResultSet.Dump();
-            Assert.AreEqual(1, resultSelect.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(3, resultSelect.ResultSet.ColumnCount, "column count mismatch");
 
             int someIntegerIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("someinteger"));
             int anotherIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("anotherone"));
@@ -350,7 +340,6 @@
 
             ExecuteResult resultInsert = ecInsert.ExecuteSingle(engine);
             Assert.AreEqual(ExecuteStatus.FAILED, resultInsert.ExecuteStatus);
-            Assert.IsNull(resultInsert.ResultSet);
         }
 
 
@@ -374,7 +363,6 @@
 
             ExecuteResult resultInsert = ecInsert.ExecuteSingle(engine);
             Assert.AreEqual(ExecuteStatus.FAILED, resultInsert.ExecuteStatus);
-            Assert.IsNull(resultInsert.ResultSet);
         }
 
         [TestMethod]
@@ -388,7 +376,6 @@
 
             ExecuteResult resultInsert = ecInsert.ExecuteSingle(engine);
             Assert.AreEqual(ExecuteStatus.FAILED, resultInsert.ExecuteStatus);
-            Assert.IsNull(resultInsert.ResultSet);
         }
 
 
@@ -400,14 +387,11 @@
 
             ExecuteResult resultDelete = ecDelete.ExecuteSingle(engine);
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultDelete.ExecuteStatus, resultDelete.ErrorMessage);
-            Assert.IsNull(resultDelete.ResultSet, resultDelete.ErrorMessage);
 
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM [mytable];");
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
-            Assert.IsNull(resultSelect.ResultSet, resultSelect.ErrorMessage);
         }
-
 
         [TestMethod]
         public void TestDeleteTruePredicate()
@@ -417,14 +401,11 @@
 
             ExecuteResult resultDelete = ecDelete.ExecuteSingle(engine);
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultDelete.ExecuteStatus, resultDelete.ErrorMessage);
-            Assert.IsNull(resultDelete.ResultSet, resultDelete.ErrorMessage);
 
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM [mytable];");
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
-            Assert.IsNull(resultSelect.ResultSet, resultSelect.ErrorMessage);
         }
-
     }
 }
 

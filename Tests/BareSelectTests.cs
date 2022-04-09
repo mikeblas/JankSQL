@@ -9,6 +9,7 @@
     public class BareSelectTests
     {
         internal string mode = "base";
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         internal Engines.IEngine engine;
 
         [TestMethod, Timeout(1000)]

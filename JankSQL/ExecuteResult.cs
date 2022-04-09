@@ -15,10 +15,19 @@
             this.ExecuteStatus = ExecuteStatus.NOT_EXECUTED;
         }
 
-        public ResultSet? ResultSet
+        public ResultSet ResultSet
         {
-            get { return resultSet; }
-            set { resultSet = value; }
+            get
+            {
+                if (resultSet == null)
+                    throw new InvalidOperationException("no rowset is available");
+                return resultSet;
+            }
+
+            set
+            {
+                resultSet = value;
+            }
         }
 
         public ExecuteStatus ExecuteStatus { get; set; }

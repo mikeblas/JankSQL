@@ -8,6 +8,7 @@
     public class DDLTests
     {
         internal string mode = "base";
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         internal Engines.IEngine engine;
 
         [TestMethod]
@@ -21,7 +22,7 @@
 
             ExecuteResult resultsCreate = ecCreate.ExecuteSingle(engine);
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsCreate.ExecuteStatus, resultsCreate.ErrorMessage);
-            Assert.IsNull(resultsCreate.ResultSet);
+            Assert.IsNull(resultsCreate.ErrorMessage);
 
             // insert some rows
             var ecInsert = Parser.ParseSQLFileFromString("INSERT INTO TransientTestTable (SomeInteger, SomeString, AnotherOne) VALUES(1, 'moe', 100), (2, 'larry', 200), (3, 'curly', 300);");
@@ -42,8 +43,7 @@
             ExecuteResult results = ecTruncate.ExecuteSingle(engine);
 
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL, results.ExecuteStatus, results.ErrorMessage);
-            Assert.IsNull(results.ResultSet);
-
+            Assert.IsNull(resultsCreate.ErrorMessage);
 
             // drop the table
             var ecDrop = Parser.ParseSQLFileFromString("DROP TABLE TransientTestTable;");
@@ -54,7 +54,7 @@
             ExecuteResult resultsDrop = ecDrop.ExecuteSingle(engine);
 
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsDrop.ExecuteStatus, resultsDrop.ErrorMessage);
-            Assert.IsNull(resultsDrop.ResultSet);
+            Assert.IsNull(resultsDrop.ErrorMessage);
         }
 
 
@@ -70,13 +70,11 @@
 
             Assert.AreEqual(ExecuteStatus.FAILED, result.ExecuteStatus);
             Assert.IsNotNull(result.ErrorMessage);
-
-            Assert.IsNull(result.ResultSet);
         }
 
 
         [TestMethod, Timeout(1000)]
-        public void TestDropTableBadName()
+        public void TestFailDropTableBadName()
         {
             var ec = Parser.ParseSQLFileFromString("DROP TABLE [BadTableName];");
 
@@ -87,8 +85,6 @@
 
             Assert.AreEqual(ExecuteStatus.FAILED, result.ExecuteStatus);
             Assert.IsNotNull(result.ErrorMessage);
-
-            Assert.IsNull(result.ResultSet);
         }
 
 
@@ -102,7 +98,7 @@
 
             ExecuteResult resultsCreate = ecCreate.ExecuteSingle(engine);
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsCreate.ExecuteStatus);
-            Assert.IsNull(resultsCreate.ResultSet);
+            Assert.IsNull(resultsCreate.ErrorMessage);
 
             var ecDrop = Parser.ParseSQLFileFromString("DROP TABLE TransientTestTable;");
 
@@ -112,7 +108,7 @@
             ExecuteResult resultsDrop = ecDrop.ExecuteSingle(engine);
 
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsDrop.ExecuteStatus);
-            Assert.IsNull(resultsDrop.ResultSet);
+            Assert.IsNull(resultsCreate.ErrorMessage);
         }
     }
 }

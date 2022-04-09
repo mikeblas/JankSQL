@@ -8,8 +8,8 @@
     public class AggregateTests
     {
         internal string mode = "base";
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         internal Engines.IEngine engine;
-
 
         [TestMethod, Timeout(1000)]
         public void TestMinMaxGroupByOutput()
@@ -459,14 +459,17 @@
         }
 
         [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void TestNotCoveredGroupingSelect()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT number_name, MIN(number_name), MAX(number_name) FROM ten GROUP BY is_even");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNull(result.ResultSet, "Expected error not caught");
             Assert.IsNotNull(result.ErrorMessage);
-       }
+
+            // this will throw, since no result set is available
+            Assert.IsNull(result.ResultSet, "Expected error not caught");
+        }
     }
 }
 

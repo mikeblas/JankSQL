@@ -4,11 +4,11 @@
     using JankSQL;
     using Engines = JankSQL.Engines;
 
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
 
     public class JoinTests
     {
         internal string mode = "base";
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         internal Engines.IEngine engine;
 
         [TestMethod, Timeout(1000)]
@@ -139,7 +139,7 @@
             ExecuteResult result = ec.ExecuteSingle(engine);
 
             Assert.IsNotNull(ec);
-            Assert.IsNull(result.ResultSet);
+            Assert.IsNotNull(result.ErrorMessage);
 
             Assert.AreEqual(0, ec.TotalErrors);
 
@@ -158,7 +158,6 @@
             ExecuteResult result = ec.ExecuteSingle(engine);
 
             Assert.IsNotNull(ec);
-            Assert.IsNull(result.ResultSet);
 
             Assert.AreEqual(0, ec.TotalErrors);
 
@@ -179,7 +178,7 @@
             ExecuteResult result = ec.ExecuteSingle(engine);
 
             Assert.IsNotNull(ec);
-            Assert.IsNull(result.ResultSet);
+            Assert.IsNotNull(result.ErrorMessage);
 
             Assert.AreEqual(0, ec.TotalErrors);
 
@@ -211,7 +210,7 @@
             ExecuteResult result = ec.ExecuteSingle(engine);
 
             Assert.IsNotNull(ec);
-            Assert.IsNull(result.ResultSet);
+            Assert.IsNotNull(result.ErrorMessage);
 
             Assert.AreEqual(0, ec.TotalErrors);
 
@@ -238,7 +237,7 @@
             ExecuteResult result = ec.ExecuteSingle(engine);
 
             Assert.IsNotNull(ec);
-            Assert.IsNull(result.ResultSet);
+            Assert.IsNotNull(result.ErrorMessage);
 
             Assert.AreEqual(0, ec.TotalErrors);
 

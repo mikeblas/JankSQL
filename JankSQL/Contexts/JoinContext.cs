@@ -49,7 +49,8 @@
 
         internal List<Expression> PredicateExpressions
         {
-            get { return predicateExpressions!; } set { predicateExpressions = value; }
+            get { return predicateExpressions!; }
+            set { predicateExpressions = value; }
         }
 
         internal JoinType JoinType
@@ -65,7 +66,7 @@
             Console.WriteLine($"{joinType} join {source} {(hasPredicates ? "on:" : "with no predicate")}");
             if (hasPredicates)
             {
-                for (int i = 0; i < predicateExpressions.Count; i++)
+                for (int i = 0; i < predicateExpressions!.Count; i++)
                     Console.WriteLine($"   #{i}: {predicateExpressions}");
             }
 

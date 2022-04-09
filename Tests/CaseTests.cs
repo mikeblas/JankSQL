@@ -1,17 +1,14 @@
-﻿
-namespace Tests
+﻿namespace Tests
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using JankSQL;
     using Engines = JankSQL.Engines;
 
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-
     public class CaseTests
     {
         internal string mode = "base";
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         internal Engines.IEngine engine;
-
 
         [TestMethod]
         public void TestSearchedCase2()
