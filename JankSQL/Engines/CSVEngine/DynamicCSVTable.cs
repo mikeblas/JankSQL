@@ -5,6 +5,12 @@
 
     /// <summary>
     /// represents a table in a CSV engine.
+    ///
+    /// Handling of data types here is a bit weak:
+    ///
+    /// 1) Strings aren't escaped, so a string containing a comma will break the format.
+    /// 2) Null values are stored as an empty field (,,) for any data type. This is indescernable from an empty string.
+    ///
     /// </summary>
     public class DynamicCSVTable : IEngineTable
     {
@@ -72,26 +78,31 @@
 
                     for (int i = 0; i < fileFields.Length; i++)
                     {
-                        switch (columnTypes[i])
+                        if (fileFields[i].Length == 0)
+                            newRow[i] = ExpressionOperand.NullLiteral();
+                        else
                         {
-                            case ExpressionOperandType.DECIMAL:
-                                newRow[i] = new ExpressionOperandDecimal(double.Parse(fileFields[i]));
-                                break;
+                            switch (columnTypes[i])
+                            {
+                                case ExpressionOperandType.DECIMAL:
+                                    newRow[i] = new ExpressionOperandDecimal(double.Parse(fileFields[i]));
+                                    break;
 
-                            case ExpressionOperandType.VARCHAR:
-                                newRow[i] = new ExpressionOperandVARCHAR(fileFields[i]);
-                                break;
+                                case ExpressionOperandType.VARCHAR:
+                                    newRow[i] = new ExpressionOperandVARCHAR(fileFields[i]);
+                                    break;
 
-                            case ExpressionOperandType.NVARCHAR:
-                                newRow[i] = new ExpressionOperandNVARCHAR(fileFields[i]);
-                                break;
+                                case ExpressionOperandType.NVARCHAR:
+                                    newRow[i] = new ExpressionOperandNVARCHAR(fileFields[i]);
+                                    break;
 
-                            case ExpressionOperandType.INTEGER:
-                                newRow[i] = new ExpressionOperandInteger(int.Parse(fileFields[i]));
-                                break;
+                                case ExpressionOperandType.INTEGER:
+                                    newRow[i] = new ExpressionOperandInteger(int.Parse(fileFields[i]));
+                                    break;
 
-                            default:
-                                throw new NotImplementedException();
+                                default:
+                                    throw new NotImplementedException();
+                            }
                         }
                     }
 
@@ -168,7 +179,7 @@
                 //TODO: make a good representation of NULL in CSV
                 string col;
                 if (row[i].RepresentsNull)
-                    col = "NULL";
+                    col = string.Empty;
                 else
                     col = row[i].AsString();
                 if (i > 0)
