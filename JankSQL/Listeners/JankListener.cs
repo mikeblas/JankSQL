@@ -121,7 +121,7 @@
                         {
                             if (!quiet)
                                 Console.WriteLine($"constant: '{primitiveContext.constant().STRING()}'");
-                            ExpressionNode n = ExpressionOperand.NVARCHARFromStringContext(str);
+                            ExpressionNode n = ExpressionOperand.VARCHARFromStringContext(str);
                             x.Insert(0, n);
                         }
                         else
@@ -304,10 +304,8 @@
                 var dktvc = context.ext_type.keyword().VARCHAR();
                 var dktnvc = context.ext_type.keyword().NVARCHAR();
 
-                if (dktvc is not null)
+                if (dktvc != null || dktnvc != null)
                     ot = ExpressionOperandType.VARCHAR;
-                else if (dktnvc is not null)
-                    ot = ExpressionOperandType.NVARCHAR;
                 else
                     throw new ExecutionException($"Unknown scaled column type {typeName}");
             }

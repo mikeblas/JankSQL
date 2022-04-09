@@ -112,8 +112,6 @@
             {
                 if (opType == ExpressionOperandType.VARCHAR)
                     return VARCHARFromString((string)o);
-                else if (opType == ExpressionOperandType.NVARCHAR)
-                    return NVARCHARFromString((string)o);
             }
             else if (o.GetType() == typeof(double))
             {
@@ -132,16 +130,6 @@
                 return ExpressionOperandType.DECIMAL;
             else
                 return ExpressionOperandType.INTEGER;
-        }
-
-        internal static ExpressionOperand NVARCHARFromString(string str)
-        {
-            return new ExpressionOperandNVARCHAR(str);
-        }
-
-        internal static ExpressionOperand NVARCHARFromStringContext(string str)
-        {
-            return new ExpressionOperandNVARCHAR(NormalizeString(str));
         }
 
         internal static ExpressionOperand VARCHARFromString(string str)

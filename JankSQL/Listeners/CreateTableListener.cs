@@ -52,15 +52,10 @@
                     var dktvc = dt.ext_type.keyword().VARCHAR();
                     var dktnvc = dt.ext_type.keyword().NVARCHAR();
 
-                    if (dktvc is not null)
+                    if (dktvc != null || dktnvc != null)
                     {
                         columnNames.Add(FullColumnName.FromColumnName(id0.ID().GetText()));
                         columnTypes.Add(ExpressionOperandType.VARCHAR);
-                    }
-                    else if (dktnvc is not null)
-                    {
-                        columnNames.Add(FullColumnName.FromColumnName(id0.ID().GetText()));
-                        columnTypes.Add(ExpressionOperandType.NVARCHAR);
                     }
                     else
                         throw new ExecutionException($"Unknown scaled column type {typeName} on column {id0.ID()}");

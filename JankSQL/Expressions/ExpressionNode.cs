@@ -4,7 +4,6 @@
     {
         BOOKMARK,
         VARCHAR,
-        NVARCHAR,
         INTEGER,
         DECIMAL,
         BOOLEAN,
@@ -18,13 +17,9 @@
             {
                 operandType = ExpressionOperandType.INTEGER;
             }
-            else if (str.Equals("VARCHAR", StringComparison.OrdinalIgnoreCase))
+            else if (str.Equals("VARCHAR", StringComparison.OrdinalIgnoreCase) || str.Equals("NVARCHAR", StringComparison.OrdinalIgnoreCase))
             {
                 operandType = ExpressionOperandType.VARCHAR;
-            }
-            else if (str.Equals("NVARCHAR", StringComparison.OrdinalIgnoreCase))
-            {
-                operandType = ExpressionOperandType.NVARCHAR;
             }
             else if (str.Equals("DECIMAL", StringComparison.OrdinalIgnoreCase))
             {

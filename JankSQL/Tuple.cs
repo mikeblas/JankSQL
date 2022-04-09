@@ -115,12 +115,10 @@
         {
             var tuple = new Tuple(1);
 
-            if (t == ExpressionOperandType.NVARCHAR)
-                tuple[0] = ExpressionOperand.NVARCHARFromString(str);
-            else if (t == ExpressionOperandType.VARCHAR)
+            if (t == ExpressionOperandType.VARCHAR)
                 tuple[0] = ExpressionOperand.VARCHARFromString(str);
             else
-                throw new ArgumentException($"{nameof(t)} must by NVARCHAR or VARCHAR");
+                throw new ArgumentException($"{nameof(t)} must be VARCHAR");
 
             return tuple;
         }

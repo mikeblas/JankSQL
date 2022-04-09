@@ -41,7 +41,7 @@
         public override double AsDouble()
         {
             if (isNull || str == null)
-                throw new InvalidOperationException("can't convert null NVARCHAR to double");
+                throw new InvalidOperationException("can't convert null VARCHAR to double");
             return double.Parse(str);
         }
 
@@ -53,14 +53,14 @@
         public override string AsString()
         {
             if (isNull || str == null)
-                throw new InvalidOperationException("can't convert null NVARCHAR to string");
+                throw new InvalidOperationException("can't convert null VARCHAR to string");
             return str;
         }
 
         public override int AsInteger()
         {
             if (isNull || str == null)
-                throw new InvalidOperationException("can't convert null NVARCHAR to integer");
+                throw new InvalidOperationException("can't convert null VARCHAR to integer");
             return int.Parse(str);
         }
 
@@ -69,7 +69,7 @@
             if (RepresentsNull || other.RepresentsNull)
                 return false;
 
-            if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.NVARCHAR)
+            if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
                 return other.AsString() == AsString();
             }
@@ -82,7 +82,7 @@
             if (RepresentsNull || other.RepresentsNull)
                 return false;
 
-            if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.NVARCHAR)
+            if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
                 return AsString().CompareTo(other.AsString()) > 0;
             }
@@ -101,7 +101,7 @@
             if (RepresentsNull || other.RepresentsNull)
                 return false;
 
-            if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.NVARCHAR)
+            if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
                 return AsString().CompareTo(other.AsString()) < 0;
             }
@@ -121,10 +121,10 @@
                 return new ExpressionOperandVARCHAR(null, true);
 
             ExpressionOperand result;
-            if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.NVARCHAR)
+            if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
                 string str = AsString() + other.AsString();
-                result = new ExpressionOperandNVARCHAR(str);
+                result = new ExpressionOperandVARCHAR(str);
             }
             else if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
             {

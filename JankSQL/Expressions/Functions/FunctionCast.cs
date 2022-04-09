@@ -29,10 +29,6 @@
                         result = ExpressionOperand.VARCHARFromString(op.AsString());
                         break;
 
-                    case ExpressionOperandType.NVARCHAR:
-                        result = ExpressionOperand.NVARCHARFromString(op.AsString());
-                        break;
-
                     case ExpressionOperandType.DECIMAL:
                         result = ExpressionOperand.DecimalFromDouble(op.AsDouble());
                         break;

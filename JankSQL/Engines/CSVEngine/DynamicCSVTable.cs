@@ -92,10 +92,6 @@
                                     newRow[i] = new ExpressionOperandVARCHAR(fileFields[i]);
                                     break;
 
-                                case ExpressionOperandType.NVARCHAR:
-                                    newRow[i] = new ExpressionOperandNVARCHAR(fileFields[i]);
-                                    break;
-
                                 case ExpressionOperandType.INTEGER:
                                     newRow[i] = new ExpressionOperandInteger(int.Parse(fileFields[i]));
                                     break;

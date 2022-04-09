@@ -150,8 +150,8 @@
 
             // add row to sys_tables
             Tuple newRow = Tuple.CreateEmpty(sysTables.ColumnCount);
-            newRow[idxFile] = ExpressionOperand.NVARCHARFromString(fullPath);
-            newRow[idxName] = ExpressionOperand.NVARCHARFromString(tableName.TableName);
+            newRow[idxFile] = ExpressionOperand.VARCHARFromString(fullPath);
+            newRow[idxName] = ExpressionOperand.VARCHARFromString(tableName.TableName);
 
             sysTables.InsertRow(newRow);
 
@@ -168,8 +168,8 @@
                 Tuple columnRow = Tuple.CreateEmpty(sysColumns.ColumnCount);
 
                 columnRow[idxIdx] = ExpressionOperand.IntegerFromInt(i);
-                columnRow[idxTableName] = ExpressionOperand.NVARCHARFromString(tableName.TableName);
-                columnRow[idxColumnName] = ExpressionOperand.NVARCHARFromString(columnNames[i].ColumnNameOnly());
+                columnRow[idxTableName] = ExpressionOperand.VARCHARFromString(tableName.TableName);
+                columnRow[idxColumnName] = ExpressionOperand.VARCHARFromString(columnNames[i].ColumnNameOnly());
                 columnRow[idxType] = ExpressionOperand.VARCHARFromString(columnTypes[i].ToString());
 
                 sysColumns.InsertRow(columnRow);
@@ -318,11 +318,11 @@
             string[] sysColsStrings = new string[]
             {
                 "table_name,column_name,column_type,index",
-                "sys_tables, table_name,NVARCHAR,0",
-                "sys_tables,file_name,NVARCHAR,1",
-                "sys_columns,table_name,NVARCHAR,0",
-                "sys_columns,column_name,NVARCHAR,1",
-                "sys_columns,column_type,NVARCHAR,2",
+                "sys_tables, table_name,VARCHAR,0",
+                "sys_tables,file_name,VARCHAR,1",
+                "sys_columns,table_name,VARCHAR,0",
+                "sys_columns,column_name,VARCHAR,1",
+                "sys_columns,column_type,VARCHAR,2",
                 "sys_columns,index,INTEGER,3",
             };
 

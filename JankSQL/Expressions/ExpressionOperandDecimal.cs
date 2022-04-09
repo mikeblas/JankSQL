@@ -71,7 +71,7 @@
             {
                 return other.AsDouble() == AsDouble();
             }
-            else if (other.NodeType == ExpressionOperandType.NVARCHAR || other.NodeType == ExpressionOperandType.VARCHAR)
+            else if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
                 return other.AsDouble() == AsDouble();
             }
@@ -87,17 +87,11 @@
                 return false;
 
             if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
-            {
                 return AsDouble() > other.AsDouble();
-            }
-            else if (other.NodeType == ExpressionOperandType.NVARCHAR || other.NodeType == ExpressionOperandType.VARCHAR)
-            {
+            else if (other.NodeType == ExpressionOperandType.VARCHAR)
                 return AsDouble() > other.AsDouble();
-            }
             else
-            {
                 throw new NotImplementedException("DECIMAL GreaterThan");
-            }
         }
 
         public override bool OperatorLessThan(ExpressionOperand other)
@@ -106,17 +100,11 @@
                 return false;
 
             if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
-            {
                 return AsDouble() < other.AsDouble();
-            }
-            else if (other.NodeType == ExpressionOperandType.NVARCHAR || other.NodeType == ExpressionOperandType.VARCHAR)
-            {
+            else if (other.NodeType == ExpressionOperandType.VARCHAR)
                 return AsDouble() < other.AsDouble();
-            }
             else
-            {
                 throw new NotImplementedException("DECIMAL LessThan");
-            }
         }
 
         public override ExpressionOperand OperatorPlus(ExpressionOperand other)
@@ -129,7 +117,7 @@
                 double result = AsDouble() + other.AsDouble();
                 return new ExpressionOperandDecimal(result);
             }
-            else if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.NVARCHAR)
+            else if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
                 double result = AsDouble() + other.AsDouble();
                 return new ExpressionOperandDecimal(result);
@@ -150,7 +138,7 @@
                 double result = AsDouble() - other.AsDouble();
                 return new ExpressionOperandDecimal(result);
             }
-            else if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.NVARCHAR)
+            else if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
                 double result = AsDouble() - other.AsDouble();
                 return new ExpressionOperandDecimal(result);
@@ -172,7 +160,7 @@
                 double result = AsDouble() / other.AsDouble();
                 return new ExpressionOperandDecimal(result);
             }
-            else if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.NVARCHAR)
+            else if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
                 double result = AsDouble() / other.AsDouble();
                 return new ExpressionOperandDecimal(result);
@@ -193,7 +181,7 @@
                 double result = AsDouble() * other.AsDouble();
                 return new ExpressionOperandDecimal(result);
             }
-            else if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.NVARCHAR)
+            else if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
                 double result = AsDouble() * other.AsDouble();
                 return new ExpressionOperandDecimal(result);
@@ -214,7 +202,7 @@
                 double result = AsDouble() % other.AsDouble();
                 return new ExpressionOperandDecimal(result);
             }
-            else if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.NVARCHAR)
+            else if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
                 double result = AsDouble() % other.AsDouble();
                 return new ExpressionOperandDecimal(result);

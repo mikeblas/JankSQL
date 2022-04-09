@@ -5,7 +5,7 @@
         private readonly Tuple tuple;
 
         internal ExpressionOperandBookmark(Tuple tuple)
-            : base(ExpressionOperandType.NVARCHAR)
+            : base(ExpressionOperandType.BOOKMARK)
         {
             this.tuple = tuple;
         }

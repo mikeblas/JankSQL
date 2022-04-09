@@ -70,7 +70,7 @@
             {
                 return other.AsDouble() == AsDouble();
             }
-            else if (other.NodeType == ExpressionOperandType.NVARCHAR || other.NodeType == ExpressionOperandType.VARCHAR)
+            else if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
                 return other.AsDouble() == AsDouble();
             }
@@ -127,7 +127,7 @@
                 double result = AsDouble() + other.AsDouble();
                 return new ExpressionOperandDecimal(result);
             }
-            else if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.NVARCHAR)
+            else if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
                 double result = AsDouble() + other.AsDouble();
                 return new ExpressionOperandDecimal(result);
@@ -148,7 +148,7 @@
                 double result = AsDouble() - other.AsDouble();
                 return new ExpressionOperandDecimal(result);
             }
-            else if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.NVARCHAR)
+            else if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
                 double result = AsDouble() - other.AsDouble();
                 return new ExpressionOperandDecimal(result);
@@ -170,7 +170,7 @@
                 double result = AsDouble() / other.AsDouble();
                 return new ExpressionOperandDecimal(result);
             }
-            else if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.NVARCHAR)
+            else if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
                 double result = AsDouble() / other.AsDouble();
                 return new ExpressionOperandDecimal(result);
@@ -192,7 +192,7 @@
                 double result = AsDouble() * other.AsDouble();
                 return new ExpressionOperandDecimal(result);
             }
-            else if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.NVARCHAR)
+            else if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
                 double result = AsDouble() * other.AsDouble();
                 return new ExpressionOperandDecimal(result);
@@ -218,7 +218,7 @@
                 double result = AsDouble() % other.AsDouble();
                 return new ExpressionOperandDecimal(result);
             }
-            else if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.NVARCHAR)
+            else if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
                 double result = AsDouble() % other.AsDouble();
                 return new ExpressionOperandDecimal(result);

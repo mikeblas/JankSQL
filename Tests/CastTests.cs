@@ -61,7 +61,7 @@
             result.ResultSet.Dump();
 
             Assert.AreEqual("33.3", result.ResultSet.Row(0)[0].AsString());
-            Assert.AreEqual(ExpressionOperandType.NVARCHAR, result.ResultSet.Row(0)[0].NodeType);
+            Assert.AreEqual(ExpressionOperandType.VARCHAR, result.ResultSet.Row(0)[0].NodeType);
         }
 
         [Test]
@@ -74,7 +74,7 @@
             result.ResultSet.Dump();
 
             Assert.AreEqual("33", result.ResultSet.Row(0)[0].AsString());
-            Assert.AreEqual(ExpressionOperandType.NVARCHAR, result.ResultSet.Row(0)[0].NodeType);
+            Assert.AreEqual(ExpressionOperandType.VARCHAR, result.ResultSet.Row(0)[0].NodeType);
         }
 
 
