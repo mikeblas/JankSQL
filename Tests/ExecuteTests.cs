@@ -168,10 +168,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT 3+5 FROM [mytable];");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 1, 3);
             result.ResultSet.Dump();
-            Assert.AreEqual(3, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
             for (int i = 0; i < result.ResultSet.RowCount; i++)
                 Assert.AreEqual(8, result.ResultSet.Row(i)[0].AsInteger());

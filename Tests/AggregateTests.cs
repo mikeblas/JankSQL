@@ -17,10 +17,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT is_even, MIN(number_name), MAX(number_name) FROM ten GROUP BY is_even");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 3, 2);
             result.ResultSet.Dump();
-            Assert.AreEqual(2, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(3, result.ResultSet.ColumnCount, "column count mismatch");
 
             for (int i = 0; i < result.ResultSet.RowCount; i++)
             {
@@ -53,10 +51,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT is_even, MIN(number_name), MAX(number_name) FROM ten WHERE 1 = 0 GROUP BY is_even");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 3, 0);
             result.ResultSet.Dump();
-            Assert.AreEqual(0, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(3, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [Test]
@@ -65,10 +61,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT MIN(number_name), MAX(number_name) FROM ten GROUP BY is_even");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 2, 2);
             result.ResultSet.Dump();
-            Assert.AreEqual(2, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(2, result.ResultSet.ColumnCount, "column count mismatch");
 
             bool matchedEven = false;
             bool matchedOdd = false;
@@ -97,10 +91,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT MIN(number_name), MAX(number_name) FROM ten WHERE 1 = 0 GROUP BY is_even");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 2, 0);
             result.ResultSet.Dump();
-            Assert.AreEqual(0, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(2, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
 
@@ -110,10 +102,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT SUM(number_id) FROM ten");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
             Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
             Assert.AreEqual(45, result.ResultSet.Row(0)[0].AsInteger());
@@ -125,10 +115,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT SUM(number_id) FROM ten WHERE 1 = 0;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
             Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
         }
@@ -139,10 +127,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT SUM(number_id), COUNT(number_id) FROM ten");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 2, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(2, result.ResultSet.ColumnCount, "column count mismatch");
 
             Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
             Assert.IsFalse(result.ResultSet.Row(0)[1].RepresentsNull);
@@ -156,10 +142,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT SUM(number_id), COUNT(number_id) FROM ten WHERE 1 = 0");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 2, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(2, result.ResultSet.ColumnCount, "column count mismatch");
 
             Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
             Assert.AreEqual(0, result.ResultSet.Row(0)[1].AsInteger());
@@ -172,10 +156,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT MIN(number_id), MAX(number_id) FROM ten ");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 2, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(2, result.ResultSet.ColumnCount, "column count mismatch");
 
             Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
             Assert.IsFalse(result.ResultSet.Row(0)[1].RepresentsNull);
@@ -190,10 +172,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT MIN(number_id), MAX(number_id) FROM ten WHERE is_even = 1");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 2, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(2, result.ResultSet.ColumnCount, "column count mismatch");
 
             Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
             Assert.IsFalse(result.ResultSet.Row(0)[1].RepresentsNull);
@@ -207,10 +187,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT MIN(number_id), MAX(number_id) FROM ten WHERE 1 = 0");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 2, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(2, result.ResultSet.ColumnCount, "column count mismatch");
 
             Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
             Assert.IsTrue(result.ResultSet.Row(0)[1].RepresentsNull);
@@ -222,10 +200,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT 23 * SUM(number_id), COUNT(number_id) FROM ten");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 2, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(2, result.ResultSet.ColumnCount, "column count mismatch");
 
             Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
             Assert.IsFalse(result.ResultSet.Row(0)[1].RepresentsNull);
@@ -239,10 +215,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT 23 * SUM(number_id), COUNT(number_id) FROM ten WHERE 1 = 0");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 2, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(2, result.ResultSet.ColumnCount, "column count mismatch");
 
             Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
             Assert.IsFalse(result.ResultSet.Row(0)[1].RepresentsNull);
@@ -255,10 +229,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT 10* SUM(number_id), COUNT(number_id) * 100 FROM ten");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 2, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(2, result.ResultSet.ColumnCount, "column count mismatch");
 
             Assert.AreEqual(450, result.ResultSet.Row(0)[0].AsInteger());
             Assert.AreEqual(1000, result.ResultSet.Row(0)[1].AsInteger());
@@ -271,10 +243,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT SUM(number_id * 10), COUNT(number_id * 100) FROM ten");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 2, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(2, result.ResultSet.ColumnCount, "column count mismatch");
 
             Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
             Assert.IsFalse(result.ResultSet.Row(0)[1].RepresentsNull);
@@ -282,18 +252,14 @@
             Assert.AreEqual(10, result.ResultSet.Row(0)[1].AsInteger());
         }
 
-
-
         [Test]
         public void TestTwoSumGroupByOutputGrouped()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT is_even, SUM(number_id * 10), COUNT(number_id * 100) FROM ten GROUP BY is_even");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 3, 2);
             result.ResultSet.Dump();
-            Assert.AreEqual(2, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(3, result.ResultSet.ColumnCount, "column count mismatch");
 
             for (int i = 0; i < result.ResultSet.RowCount; i++)
             {
@@ -327,10 +293,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT AVG(number_id) FROM ten");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
             // it's really 4.5, but all integers, so ...
             Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
@@ -344,10 +308,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT AVG(number_id) FROM ten WHERE 1 = 0");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
             Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
         }
@@ -358,10 +320,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT AVG(population) FROM myTable;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
             Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
             Assert.AreEqual(3854000, result.ResultSet.Row(0)[0].AsDouble(), 0.0001);
@@ -373,10 +333,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT AVG(population) FROM myTable WHERE 1=0;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
             Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
         }
@@ -388,10 +346,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT AVG(population + NULL) FROM myTable;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
             Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
         }
@@ -403,10 +359,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT SUM(population + NULL) FROM myTable;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
             Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
         }
@@ -417,10 +371,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT COUNT(population + NULL) FROM myTable;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
             Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
             Assert.AreEqual(0, result.ResultSet.Row(0)[0].AsInteger());
@@ -432,10 +384,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT AVG(CAST(number_id AS DECIMAL)) FROM ten");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
             // it's really 4.5, but all integers, so ...
             Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
@@ -449,10 +399,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT AVG(CAST(number_id AS DECIMAL)) FROM ten WHERE 1 = 0");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet, result.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
 
             Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
         }
