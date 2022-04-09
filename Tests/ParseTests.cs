@@ -1,13 +1,14 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using JankSQL;
 
 namespace Tests
 {
-    [TestClass]
+    using NUnit.Framework;
+
+    using JankSQL;
+
+    [TestFixture]
     public class ParseTests
     {
-        [TestMethod]
+        [Test]
         public void TestSelectStarSysTables()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [sys_tables];");
@@ -15,7 +16,7 @@ namespace Tests
             Assert.IsNotNull(ec);
         }
 
-        [TestMethod]
+        [Test]
         public void TestSelectStarMyTyable()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable];");
@@ -24,7 +25,7 @@ namespace Tests
             Assert.AreEqual(0, ec.TotalErrors, "expected no errors");
         }
 
-        [TestMethod]
+        [Test]
         public void TestSelectExpressionAddition()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 3+5 FROM [mytable];");
@@ -33,7 +34,7 @@ namespace Tests
             Assert.AreEqual(0, ec.TotalErrors, "expected no errors");
         }
 
-        [TestMethod]
+        [Test]
         public void TestSelectExpressionParenthesis()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 2*(6+4) FROM [mytable];");
@@ -42,7 +43,7 @@ namespace Tests
             Assert.AreEqual(0, ec.TotalErrors, "expected no errors");
         }
 
-        [TestMethod]
+        [Test]
         public void TestSelectExpressionSquareRoot()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT SQRT(2) FROM [mytable];");
@@ -51,7 +52,7 @@ namespace Tests
             Assert.AreEqual(0, ec.TotalErrors, "expected no errors");
         }
 
-        [TestMethod]
+        [Test]
         public void TestSelectExpressionPower()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT POWER(5, 3) FROM [mytable];");
@@ -60,7 +61,7 @@ namespace Tests
             Assert.AreEqual(0, ec.TotalErrors, "expected no errors");
         }
 
-        [TestMethod]
+        [Test]
         public void TestSelectExpressionPowerExpressionParams()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT POWER((10/2), 15/5) FROM [mytable];");
@@ -69,7 +70,7 @@ namespace Tests
             Assert.AreEqual(0, ec.TotalErrors, "expected no errors");
         }
 
-        [TestMethod]
+        [Test]
         public void TestSelectExpressionPowerExpressionParamsCasedSpaced()
         {
             var ec = Parser.ParseSQLFileFromString("select power((10/2), 15/5) \n\n\n FROM mytable\n\n\n;");
@@ -78,7 +79,7 @@ namespace Tests
             Assert.AreEqual(0, ec.TotalErrors, "expected no errors");
         }
 
-        [TestMethod]
+        [Test]
         public void TestSelectList()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT [city_name], [population] FROM [mytable];");
@@ -88,7 +89,7 @@ namespace Tests
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestSelectListExpressionDivide()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT [city_name] / [population] FROM [mytable];");
@@ -97,7 +98,7 @@ namespace Tests
             Assert.AreEqual(0, ec.TotalErrors, "expected no errors");
         }
 
-        [TestMethod]
+        [Test]
         public void TestSelectListExpressionDivideCased()
         {
             var ec = Parser.ParseSQLFileFromString("select city_name / POPulation from MyTable;");
@@ -107,7 +108,7 @@ namespace Tests
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestSelectExpressionTwoExpressions()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 3+5, 92 * 6 FROM [mytable];");
@@ -116,7 +117,7 @@ namespace Tests
             Assert.AreEqual(0, ec.TotalErrors, "expected no errors");
         }
 
-        [TestMethod]
+        [Test]
         public void TestSelectExpressionTwoExpressionsCased()
         {
             var ec = Parser.ParseSQLFileFromString("seLEct 3+5, 92 * 6 from mytable;");
@@ -125,7 +126,7 @@ namespace Tests
             Assert.AreEqual(0, ec.TotalErrors, "expected no errors");
         }
 
-        [TestMethod]
+        [Test]
         public void TestSelectExpressionThreeExpressions()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 355/113, 867-5309, (123 + 456 - 111) / 3 FROM [mytable];");
@@ -134,7 +135,7 @@ namespace Tests
             Assert.AreEqual(0, ec.TotalErrors, "expected no errors");
         }
 
-        [TestMethod]
+        [Test]
         public void TestSelectSyntaxError()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT FROM WHERE;");
@@ -143,7 +144,7 @@ namespace Tests
             Assert.AreNotEqual(0, ec.TotalErrors, "expected an error");
         }
 
-        [TestMethod]
+        [Test]
         public void TestSelectExpressionSyntaxError()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 35 * / 4;");
@@ -152,7 +153,7 @@ namespace Tests
             Assert.AreNotEqual(0, ec.TotalErrors, "expected an error");
         }
 
-        [TestMethod]
+        [Test]
         public void TestSelectFromSelect()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM (SELECT * FROM MyTable);");
@@ -161,7 +162,7 @@ namespace Tests
             Assert.AreEqual(0, ec.TotalErrors, "expected no errors");
         }
 
-        [TestMethod]
+        [Test]
         public void TestSelectFromSelectAlias()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM (SELECT * FROM MyTable) AS SomeAlais;");
@@ -171,7 +172,7 @@ namespace Tests
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestSelectFromSelectAliasJoinTable()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM (SELECT * FROM MyTable) AS SomeAlais JOIN Ten ON Ten.key = SomeAlias.Key;");
@@ -181,7 +182,7 @@ namespace Tests
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestSelectFromSelectAliasJoinSelectAlias()
         {
             // var ec = Parser.ParseSQLFileFromString("SELECT * FROM (SELECT * FROM MyTable) AS SomeAlias");
@@ -192,7 +193,7 @@ namespace Tests
             Assert.AreEqual(0, ec.TotalErrors, "expected no errors");
         }
 
-        [TestMethod]
+        [Test]
         public void TestTruncateTableSyntaxError()
         {
             var ec = Parser.ParseSQLFileFromString("TRUNCATE TABLE;");

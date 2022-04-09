@@ -1,17 +1,17 @@
 ﻿namespace Tests
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using JankSQL;
     using Engines = JankSQL.Engines;
 
-    public class DDLTests
+    abstract public class DDLTests
     {
         internal string mode = "base";
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         internal Engines.IEngine engine;
 
-        [TestMethod]
+        [Test]
         public void TestCreateInsertTruncateDropTable()
         {
             // create a table
@@ -58,7 +58,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestTruncateTableBadName()
         {
             var ec = Parser.ParseSQLFileFromString("TRUNCATE TABLE [BadTableName];");
@@ -73,7 +73,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestFailDropTableBadName()
         {
             var ec = Parser.ParseSQLFileFromString("DROP TABLE [BadTableName];");
@@ -88,7 +88,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestCreateDropTable()
         {
             var ecCreate = Parser.ParseSQLFileFromString("CREATE TABLE TransientTestTable (SomeInteger INTEGER, SomeString VARCHAR(100));");

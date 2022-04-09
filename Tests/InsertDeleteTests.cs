@@ -1,16 +1,17 @@
 ﻿namespace Tests
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
+
     using JankSQL;
     using Engines = JankSQL.Engines;
 
-    public class InsertDeleteTests
+    abstract public class InsertDeleteTests
     {
         internal string mode = "base";
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         internal Engines.IEngine engine;
 
-        [TestMethod, Timeout(2000)]
+        [Test]
         public void TestDelete()
         {
             // delete one row
@@ -35,7 +36,7 @@
             Assert.IsFalse(keys.Contains(2), "expected row not deleted");
         }
 
-        [TestMethod, Timeout(2000)]
+        [Test]
         public void TestInsertThree()
         {
             // create a table
@@ -85,7 +86,7 @@
             Assert.IsTrue(moreIntegers.Contains(100));
         }
 
-        [TestMethod, Timeout(2000)]
+        [Test]
         public void TestFailInsertThreeNotAllColumns()
         {
             // create a table
@@ -104,7 +105,7 @@
             Assert.IsTrue(ecInsert.HadSemanticError, "expected semantic error");
         }
 
-        [TestMethod, Timeout(2000)]
+        [Test]
         public void TestInsertOne()
         {
             // create a table
@@ -148,7 +149,7 @@
             Assert.IsTrue(moreIntegers.Contains(100));
         }
 
-        [TestMethod]
+        [Test]
         public void TestInsertExpression()
         {
             // insert some rows
@@ -180,7 +181,7 @@
             Assert.AreEqual(34641.016, resultSelect.ResultSet.Row(0)[popIndex].AsDouble(), 0.01);
         }
 
-        [TestMethod]
+        [Test]
         public void TestInsertExpressionNull()
         {
             // insert some rows
@@ -212,7 +213,7 @@
             Assert.IsTrue(resultSelect.ResultSet.Row(0)[popIndex].RepresentsNull);
         }
 
-        [TestMethod]
+        [Test]
         public void TestInsertExpressionAssumedNull()
         {
             // insert some rows
@@ -244,7 +245,7 @@
             Assert.IsTrue(resultSelect.ResultSet.Row(0)[popIndex].RepresentsNull);
         }
 
-        [TestMethod]
+        [Test]
         public void TestInsertExpressionAllAssumedNull()
         {
             // insert some rows
@@ -267,7 +268,7 @@
             Assert.AreEqual(4, resultSelect.ResultSet.ColumnCount, "column count mismatch");
         }
 
-        [TestMethod]
+        [Test]
         public void TestInsertExplicitNULL()
         {
             // insert some rows
@@ -298,7 +299,7 @@
             Assert.IsTrue(resultSelect.ResultSet.Row(0)[popIndex].RepresentsNull);
         }
 
-        [TestMethod]
+        [Test]
         public void TestInsertNoList()
         {
             // insert some rows
@@ -329,7 +330,7 @@
             Assert.AreEqual(34641, resultSelect.ResultSet.Row(0)[popIndex].AsDouble(), 0.01);
         }
 
-        [TestMethod]
+        [Test]
         public void TestFailInsertBadColumns()
         {
             // insert some rows
@@ -343,7 +344,7 @@
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestFailRepeatedColumns()
         {
             // insert some rows
@@ -352,7 +353,7 @@
             Assert.IsTrue(ecInsert.HadSemanticError, "expected semantic error");
         }
 
-        [TestMethod]
+        [Test]
         public void TestFailInsertTooManyValues()
         {
             // insert some rows
@@ -365,7 +366,7 @@
             Assert.AreEqual(ExecuteStatus.FAILED, resultInsert.ExecuteStatus);
         }
 
-        [TestMethod]
+        [Test]
         public void TestFailInsertTooFewValues()
         {
             // insert some rows
@@ -379,7 +380,7 @@
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestDeleteNoPredicate()
         {
             // delete all rows (no predicate)
@@ -393,7 +394,7 @@
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
         }
 
-        [TestMethod]
+        [Test]
         public void TestDeleteTruePredicate()
         {
             // delete all rows (identity predicate)

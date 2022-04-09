@@ -1,18 +1,18 @@
 ﻿namespace Tests
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using JankSQL;
     using Engines = JankSQL.Engines;
     using Tuple = JankSQL.Tuple;
 
-    public class BareSelectTests
+    abstract public class BareSelectTests
     {
         internal string mode = "base";
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         internal Engines.IEngine engine;
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestAddition()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 3+5;");
@@ -28,7 +28,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestAdditionWithNull()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 3 + NULL;");
@@ -43,7 +43,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestNegativeNumber()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT -32;");
@@ -59,7 +59,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestNegativeNumberMultiply()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT -32 * -133;");
@@ -74,7 +74,7 @@
             Assert.AreEqual(-32 * -133, result.ResultSet.Row(0)[0].AsDouble());
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestNegativeNumberMultiplyWithNull()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT -32 * NULL;");
@@ -88,7 +88,7 @@
             Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestAdditionWhere()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 3+5 WHERE 1=1;");
@@ -104,7 +104,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestAdditionWhereNot()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 3+5 WHERE 1=0;");
@@ -117,7 +117,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestAdditionWithNullWhereNot()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 3 + NULL WHERE 1=0;");
@@ -129,7 +129,7 @@
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestThreeStrings()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT N'hello', 'goodbye', 'Bob''s Burgers';");
@@ -150,7 +150,7 @@
             Assert.AreEqual("Bob's Burgers", result.ResultSet.Row(0)[2].AsString());
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestThreeStringsAndNull()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT N'hello', 'goodbye', NULL, 'Bob''s Burgers';");
@@ -173,7 +173,7 @@
             Assert.AreEqual("Bob's Burgers", result.ResultSet.Row(0)[3].AsString());
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestConcatenateTwoStrings()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 'Hello' + ', world';");
@@ -188,7 +188,7 @@
             Assert.AreEqual("Hello, world", result.ResultSet.Row(0)[0].AsString());
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestConcatenateTwoStringsWithNull()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 'Hello' + ', world' + NULL;");
@@ -202,7 +202,7 @@
             Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestConcatenateNullWithStrings()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT NULL + 'Hello' + ', world';");
@@ -216,7 +216,7 @@
             Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestAddNullWithNull()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT NULL + NULL;");
@@ -230,7 +230,7 @@
             Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestConcatenateThreeStrings()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 'Hello' + ', world' + ', good day!';");
@@ -246,7 +246,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestStringMinusNumber()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT '300' - 5;");
@@ -261,7 +261,7 @@
             Assert.AreEqual(295, result.ResultSet.Row(0)[0].AsDouble());
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestStringPlusNumber()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT '300' + 5;");
@@ -277,7 +277,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestNumberMinusString()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 5 - '300';");
@@ -292,7 +292,7 @@
             Assert.AreEqual(-295, result.ResultSet.Row(0)[0].AsDouble());
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestNumberPlusString()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 5 + '300';");
@@ -308,7 +308,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestGreaterThan()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 'Yes' WHERE 5 > 2;");
@@ -320,7 +320,7 @@
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestLessThan()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 'Yes' WHERE 2 < 5;");
@@ -333,7 +333,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestNumberGreaterString()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 'Yes' WHERE 300 > '5';");
@@ -346,7 +346,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestStringLessNumber()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 'Yes' WHERE '300' < 5;");
@@ -359,7 +359,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestStringGreaterNumber()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 'Yes' WHERE '300' > 5;");
@@ -372,7 +372,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestNumberLessString()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 'Yes' WHERE 5 < '300';");
@@ -385,7 +385,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestFunctionWhereTrue()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 'Yes' WHERE SQRT(2) < SQRT(3);");
@@ -398,7 +398,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestFunctionWhereFalse()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 'Yes' WHERE SQRT(2) > SQRT(3);");
@@ -411,7 +411,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestFunctionWherePowerFalse()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 'Yes' WHERE POWER(10, 2) > POWER(10, 3);");
@@ -423,7 +423,7 @@
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestFunctionWherePowerTrue()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 'Yes' WHERE POWER(10, 2) < POWER(10, 3);");
@@ -436,7 +436,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestFunctionWherePowerConstantTrue()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 'Yes' WHERE POWER(10, 2) = 100;");
@@ -448,7 +448,7 @@
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestFunctionWherePowerExpressionTrue()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 'Yes' WHERE POWER(10, 2) = 10 * 10;");
@@ -460,7 +460,7 @@
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestFunctionWherePowerExpressionFalse()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 'Yes' WHERE POWER(10, 2) = 327 * 5525;");
@@ -473,7 +473,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestFunctionWherePowerConstantFalse()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 'Yes' WHERE 8675309 = POWER(10, 2);");
@@ -485,7 +485,7 @@
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestNumberIntegers()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT -200, 300, 5, 0;");
@@ -506,7 +506,7 @@
             }
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestNumberIntegersWithNull()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT -200, 300, NULL, 5, 0;");
@@ -532,7 +532,7 @@
             }
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestNumberDecimals()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 200., 300.1, 5.182837, .0;");
@@ -553,7 +553,7 @@
             }
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestNumberDecimalsWithNull()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 200., 300.1, NULL, 5.182837, .0;");
@@ -580,7 +580,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestFunctionPI()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT PI();");
@@ -595,14 +595,14 @@
             Assert.AreEqual(3.1415926, result.ResultSet.Row(0)[0].AsDouble(), 0.0000001);
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestFailFunctionPIWithArg()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT PI(200);");
             Assert.IsTrue(ec.HadSemanticError, "expected a semantic error");
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestFunctionPOWER()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT POWER(9, 3);");
@@ -618,7 +618,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestFunctionPOWERTimes()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT POWER(9, 3) * 2;");
@@ -634,7 +634,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestFunctionPOWERNullTimes()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT POWER(NULL, 3) * 2;");
@@ -648,7 +648,7 @@
             Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestFunctionPOWERTimesNull()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT POWER(9, 3) * NULL;");
@@ -662,7 +662,7 @@
             Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestFunctionSQRT()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT SQRT(2);");
@@ -677,7 +677,7 @@
             Assert.AreEqual(1.41421356, result.ResultSet.Row(0)[0].AsDouble(), 0.00000001);
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestNegateFunctionSQRT()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT - SQRT(2);");
@@ -693,7 +693,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestFunctionSQRTNull()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT SQRT(NULL);");
@@ -707,7 +707,7 @@
             Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestFunctionPOWERFunction()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT POWER(POWER(3, 2), 3);");
@@ -722,7 +722,7 @@
             Assert.AreEqual(729, result.ResultSet.Row(0)[0].AsDouble());
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestFunctionFunctionPOWER()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT POWER(10, POWER(2, 3));");
@@ -737,7 +737,7 @@
             Assert.AreEqual(100000000, result.ResultSet.Row(0)[0].AsDouble());
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestFunctionSqrtPiPOWER()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT POWER(SQRT(PI()), 2);");
@@ -752,7 +752,7 @@
             Assert.AreEqual(3.1415926, result.ResultSet.Row(0)[0].AsDouble(), 0.0000001);
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestFailMissingOperator()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 3 5;");
@@ -760,28 +760,28 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestFailMissingOperand()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 3+;");
             Assert.IsTrue(ec.TotalErrors > 0, "Expected an error");
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestFailMissingFunctionParameter()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT POWER(2)");
             Assert.IsTrue(ec.HadSemanticError, "expected semantic error");
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestFailBogusFunctionName()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT BOGUS(2)");
             Assert.IsTrue(ec.HadSemanticError, "expected semantic error");
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestSelectIsNull()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT ISNULL(NULL, 35);");
@@ -796,7 +796,7 @@
             Assert.AreEqual(35, result.ResultSet.Row(0)[0].AsInteger());
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestSelectIsNullNotNull()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT ISNULL(93, 35);");
@@ -811,7 +811,7 @@
             Assert.AreEqual(93, result.ResultSet.Row(0)[0].AsInteger());
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestSelectIsNullNull()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT ISNULL(NULL, NULL);");
@@ -826,7 +826,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestSelectIsNullFunction()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT ISNULL(NULL, POWER(10, 3));");
@@ -842,7 +842,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestSelectIsNullExpression()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT ISNULL(NULL, 250 + 10 - 3);");
@@ -857,7 +857,7 @@
             Assert.AreEqual(250 + 10 - 3, result.ResultSet.Row(0)[0].AsInteger());
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestModulo()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 17 % 5;");
@@ -872,7 +872,7 @@
             Assert.AreEqual(17 % 5, result.ResultSet.Row(0)[0].AsInteger());
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestModuloDoubles()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 17.5 % 5.1;");
@@ -888,7 +888,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestModuloNegativeLeft()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT -17 % 5;");
@@ -903,7 +903,7 @@
             Assert.AreEqual(-17 % 5, result.ResultSet.Row(0)[0].AsInteger());
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestModuloNegativeRight()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 17 % -5;");
@@ -918,7 +918,7 @@
             Assert.AreEqual(17 % -5, result.ResultSet.Row(0)[0].AsInteger());
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestModuloString()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 17 % '-5';");
@@ -933,7 +933,7 @@
             Assert.AreEqual(17 % -5, result.ResultSet.Row(0)[0].AsInteger());
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestModuloNull()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 17 % NULL;");
@@ -947,7 +947,7 @@
             Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestDivision()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 30/10;");
@@ -962,7 +962,7 @@
             Assert.AreEqual(30 / 10, result.ResultSet.Row(0)[0].AsDouble());
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestDivisionWithNull()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 30/NULL;");
@@ -976,7 +976,7 @@
             Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestIsNull()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 'Yes' WHERE NULL IS NULL;");
@@ -989,7 +989,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestIsNotNull()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 'Yes' WHERE NULL IS NOT NULL;");
@@ -1001,7 +1001,7 @@
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestIIFTrue()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT IIF(3 = 3, 'Yes', 'No');");
@@ -1015,7 +1015,7 @@
             Assert.AreEqual("Yes", result.ResultSet.Row(0)[0].AsString());
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestIIFTrueExpression()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT IIF(POWER(10, 2) = 100, 'Yes', 'No');");
@@ -1030,7 +1030,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestIIFFalse ()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT IIF(3 = 5, 'Yes', 'No');");
@@ -1044,7 +1044,7 @@
             Assert.AreEqual("No", result.ResultSet.Row(0)[0].AsString());
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestIIFFalseExpression()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT IIF(POWER(10, 2) = 333, 'Yes', 'No');");

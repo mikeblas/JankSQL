@@ -1,17 +1,17 @@
 ﻿namespace Tests
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using JankSQL;
     using Engines = JankSQL.Engines;
 
-    public class AggregateTests
+    abstract public class AggregateTests
     {
         internal string mode = "base";
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         internal Engines.IEngine engine;
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestMinMaxGroupByOutput()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT is_even, MIN(number_name), MAX(number_name) FROM ten GROUP BY is_even");
@@ -48,7 +48,7 @@
             }
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestMinMaxGroupByOutputNoRows()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT is_even, MIN(number_name), MAX(number_name) FROM ten WHERE 1 = 0 GROUP BY is_even");
@@ -60,7 +60,7 @@
             Assert.AreEqual(3, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestMinMaxGroupByNoOutput()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT MIN(number_name), MAX(number_name) FROM ten GROUP BY is_even");
@@ -92,7 +92,7 @@
             Assert.IsTrue(matchedEven && matchedOdd);
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestMinMaxGroupByNoOutputNoRows()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT MIN(number_name), MAX(number_name) FROM ten WHERE 1 = 0 GROUP BY is_even");
@@ -105,7 +105,7 @@
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestSimpleSum()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT SUM(number_id) FROM ten");
@@ -120,7 +120,7 @@
             Assert.AreEqual(45, result.ResultSet.Row(0)[0].AsInteger());
         }
 
-        [TestMethod]
+        [Test]
         public void TestSimpleSumNoRows()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT SUM(number_id) FROM ten WHERE 1 = 0;");
@@ -134,7 +134,7 @@
             Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
         }
 
-        [TestMethod]
+        [Test]
         public void TestSimpleSumCount()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT SUM(number_id), COUNT(number_id) FROM ten");
@@ -151,7 +151,7 @@
             Assert.AreEqual(10, result.ResultSet.Row(0)[1].AsInteger());
         }
 
-        [TestMethod]
+        [Test]
         public void TestSumCountNoRows()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT SUM(number_id), COUNT(number_id) FROM ten WHERE 1 = 0");
@@ -167,7 +167,7 @@
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestMinMax()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT MIN(number_id), MAX(number_id) FROM ten ");
@@ -185,7 +185,7 @@
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestMinMaxFiltered()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT MIN(number_id), MAX(number_id) FROM ten WHERE is_even = 1");
@@ -202,7 +202,7 @@
             Assert.AreEqual(8, result.ResultSet.Row(0)[1].AsInteger());
         }
 
-        [TestMethod]
+        [Test]
         public void TestMinMaxNoRows()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT MIN(number_id), MAX(number_id) FROM ten WHERE 1 = 0");
@@ -217,7 +217,7 @@
             Assert.IsTrue(result.ResultSet.Row(0)[1].RepresentsNull);
         }
 
-        [TestMethod]
+        [Test]
         public void TestOneExpressionSumCount()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 23 * SUM(number_id), COUNT(number_id) FROM ten");
@@ -234,7 +234,7 @@
             Assert.AreEqual(10, result.ResultSet.Row(0)[1].AsInteger());
         }
 
-        [TestMethod]
+        [Test]
         public void TestOneExpressionSumCountNoRows()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 23 * SUM(number_id), COUNT(number_id) FROM ten WHERE 1 = 0");
@@ -250,7 +250,7 @@
             Assert.AreEqual(0, result.ResultSet.Row(0)[1].AsInteger());
         }
 
-        [TestMethod]
+        [Test]
         public void TestTwoExpressionSumCount()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 10* SUM(number_id), COUNT(number_id) * 100 FROM ten");
@@ -266,7 +266,7 @@
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestTwoSumExpressionCountExpression()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT SUM(number_id * 10), COUNT(number_id * 100) FROM ten");
@@ -285,7 +285,7 @@
 
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestTwoSumGroupByOutputGrouped()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT is_even, SUM(number_id * 10), COUNT(number_id * 100) FROM ten GROUP BY is_even");
@@ -322,7 +322,7 @@
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestIntegerSimpleAverage()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT AVG(number_id) FROM ten");
@@ -339,7 +339,7 @@
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestIntegerSimpleAverageNoRows()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT AVG(number_id) FROM ten WHERE 1 = 0");
@@ -353,7 +353,7 @@
             Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
         }
 
-        [TestMethod]
+        [Test]
         public void TestDecimalSimpleAverage()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT AVG(population) FROM myTable;");
@@ -368,7 +368,7 @@
             Assert.AreEqual(3854000, result.ResultSet.Row(0)[0].AsDouble(), 0.0001);
         }
 
-        [TestMethod]
+        [Test]
         public void TestDecimalSimpleAverageNoRows()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT AVG(population) FROM myTable WHERE 1=0;");
@@ -383,7 +383,7 @@
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestDecimalSimpleAverageNull()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT AVG(population + NULL) FROM myTable;");
@@ -398,7 +398,7 @@
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestDecimalSimpleSumNull()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT SUM(population + NULL) FROM myTable;");
@@ -412,7 +412,7 @@
             Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
         }
 
-        [TestMethod]
+        [Test]
         public void TestDecimalSimpleCountNull()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT COUNT(population + NULL) FROM myTable;");
@@ -427,7 +427,7 @@
             Assert.AreEqual(0, result.ResultSet.Row(0)[0].AsInteger());
         }
 
-        [TestMethod]
+        [Test]
         public void TestIntegerCastAverage()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT AVG(CAST(number_id AS DECIMAL)) FROM ten");
@@ -444,7 +444,7 @@
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestIntegerCastAverageNoRows()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT AVG(CAST(number_id AS DECIMAL)) FROM ten WHERE 1 = 0");
@@ -458,8 +458,7 @@
             Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
+        [Test]
         public void TestNotCoveredGroupingSelect()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT number_name, MIN(number_name), MAX(number_name) FROM ten GROUP BY is_even");
@@ -468,7 +467,7 @@
             Assert.IsNotNull(result.ErrorMessage);
 
             // this will throw, since no result set is available
-            Assert.IsNull(result.ResultSet, "Expected error not caught");
+            Assert.Throws<InvalidOperationException>(() => { var x = result.ResultSet; });
         }
     }
 }

@@ -1,16 +1,17 @@
 ﻿namespace Tests
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
+
     using JankSQL;
     using Engines = JankSQL.Engines;
 
-    public class CaseTests
+    abstract public class CaseTests
     {
         internal string mode = "base";
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         internal Engines.IEngine engine;
 
-        [TestMethod]
+        [Test]
         public void TestSearchedCase2()
         {
             var ec = Parser.ParseSQLFileFromString(
@@ -35,7 +36,7 @@
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestSearchedCase()
         {
             var ec = Parser.ParseSQLFileFromString(
@@ -66,7 +67,7 @@
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestSimpleCase()
         {
             var ec = Parser.ParseSQLFileFromString(
@@ -95,7 +96,7 @@
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestSimpleCaseExpression()
         {
             var ec = Parser.ParseSQLFileFromString(
@@ -123,7 +124,7 @@
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestExpressionSimpleCaseExpression()
         {
             var ec = Parser.ParseSQLFileFromString(

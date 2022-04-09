@@ -1,14 +1,13 @@
-﻿
-namespace Tests
+﻿namespace Tests
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-
     using Engines = JankSQL.Engines;
 
-    [TestClass]
+    using NUnit.Framework;
+
+    [TestFixture]
     public class CastBTreeTests : CastTests
     {
-        [TestInitialize]
+        [SetUp]
         public void ClassInitialize()
         {
             mode = "BTree";

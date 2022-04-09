@@ -1,17 +1,17 @@
 ﻿namespace Tests
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using JankSQL;
     using Engines = JankSQL.Engines;
 
-    public class ExecuteTests
+    abstract public class ExecuteTests
     {
         internal string mode = "base";
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         internal Engines.IEngine engine;
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestSelectExpressionPowerExpressionParams()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT POWER((10/2), 15/5) FROM [mytable];");
@@ -24,7 +24,7 @@
                 Assert.AreEqual(125, result.ResultSet.Row(i)[0].AsDouble());
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestSelectExpressionTwoExpressions()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 3+5, 92 * 6 FROM [mytable];");
@@ -40,7 +40,7 @@
             }
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestSelectExpressionThreeExpressions()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 355/113, 867-5309, (123 + 456 - 111) / 3 FROM [mytable];");
@@ -57,7 +57,7 @@
             }
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestSelectStar()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable];");
@@ -67,7 +67,7 @@
             result.ResultSet.Dump();
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestSelectStarIsNotNull()
         {
             // insert a row with NULL in population
@@ -89,7 +89,7 @@
             result.ResultSet.Dump();
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestSelectStarIsNull()
         {
             // insert a row with NULL in population
@@ -110,7 +110,7 @@
             result.ResultSet.Dump();
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestSelectList()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT [city_name], [population] FROM [mytable];");
@@ -120,7 +120,7 @@
             result.ResultSet.Dump();
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestCompoundSelectList()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT [city_name], [population]*2, [population] FROM [mytable];");
@@ -131,7 +131,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestCompoundSelectListQualified()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT [mytable].[city_name], [mytable].[population], [population]*2 FROM [mytable];");
@@ -142,7 +142,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestSelectListExpressionDivide()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT [population] / [keycolumn] FROM [mytable];");
@@ -152,7 +152,7 @@
             result.ResultSet.Dump();
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestSelectListExpressionDivideQualifiedAliased()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT [population] / [mytable].[keycolumn] AS [TheRatio] FROM [mytable];");
@@ -162,7 +162,7 @@
             result.ResultSet.Dump();
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestSelectExpressionAddition()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 3+5 FROM [mytable];");
@@ -178,7 +178,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestSelectExpressionAdditionAliased()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 3+5 AS [MySum] FROM [mytable];");
@@ -192,7 +192,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestSelectExpressionParenthesis()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 2*(6+4) FROM [mytable];");
@@ -206,7 +206,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestSelectExpressionSquareRoot()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT SQRT(2) FROM [mytable];");
@@ -219,7 +219,7 @@
                 Assert.AreEqual(1.41421356, result.ResultSet.Row(i)[0].AsDouble(), 0.00000001);
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestSelectExpressionPower()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT POWER(5, 3) FROM [mytable];");
@@ -232,7 +232,7 @@
                 Assert.AreEqual(125, result.ResultSet.Row(i)[0].AsInteger());
         }
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestTwoResults()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 'This'; SELECT 'That';");
@@ -254,7 +254,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestPredicateFunction()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE [population] > POWER(2500, 2);");
@@ -265,7 +265,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestIIF()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT number_id, IIF(Is_even = 0, 'Odd', 'Even') FROM [ten];");
@@ -287,7 +287,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestIIFPredicate()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT number_id FROM [ten] WHERE IIF(Is_even = 0, 'Odd', 'Even') = 'Even';");
@@ -304,7 +304,7 @@
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestEmptyResultSet()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT number_id FROM [ten] WHERE 0 = 1;");

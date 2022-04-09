@@ -1,13 +1,13 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using Engines = JankSQL.Engines;
-
-namespace Tests
+﻿namespace Tests
 {
-    [TestClass]
+    using Engines = JankSQL.Engines;
+
+    using NUnit.Framework;
+
+    [TestFixture]
     public class CastCSVTests : CastTests
     {
-        [TestInitialize]
+        [SetUp]
         public void ClassInitialize()
         {
             mode = "CSV";

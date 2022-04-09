@@ -1,16 +1,17 @@
 ﻿namespace Tests
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
+
     using JankSQL;
     using Engines = JankSQL.Engines;
 
-    public class CastTests
+    abstract public class CastTests
     {
         internal string mode = "base";
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         internal Engines.IEngine engine;
 
-        [TestMethod]
+        [Test]
         public void TestCastStringtoDecimal()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT CAST('33.3' AS DECIMAL)");
@@ -23,7 +24,7 @@
             Assert.AreEqual(ExpressionOperandType.DECIMAL, result.ResultSet.Row(0)[0].NodeType);
         }
 
-        [TestMethod]
+        [Test]
         public void TestCastStringtoInteger()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT CAST('33' AS INTEGER)");
@@ -37,7 +38,7 @@
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestCastDecimalToVARCHAR()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT CAST(33.3 AS VARCHAR(30))");
@@ -50,7 +51,7 @@
             Assert.AreEqual(ExpressionOperandType.VARCHAR, result.ResultSet.Row(0)[0].NodeType);
         }
 
-        [TestMethod]
+        [Test]
         public void TestCastDecimalToNVARCHAR()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT CAST(33.3 AS NVARCHAR(30))");
@@ -63,7 +64,7 @@
             Assert.AreEqual(ExpressionOperandType.NVARCHAR, result.ResultSet.Row(0)[0].NodeType);
         }
 
-        [TestMethod]
+        [Test]
         public void TestCastIntegerToNVARCHAR()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT CAST(33 AS NVARCHAR(30))");
@@ -77,7 +78,7 @@
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestCastIntegerExpressionToVARCHAR()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT CAST(3 * 11 AS VARCHAR(30))");
@@ -90,8 +91,7 @@
             Assert.AreEqual(ExpressionOperandType.VARCHAR, result.ResultSet.Row(0)[0].NodeType);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
+        [Test]
         public void TestFailCastStringtoInteger()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT CAST('33.3' AS INTEGER)");
@@ -100,7 +100,7 @@
             Assert.IsNotNull(result.ErrorMessage);
 
             // throws exception since no ResultSet is available
-            Assert.IsNull(result.ResultSet);
+            Assert.Throws<InvalidOperationException>(() => { var x = result.ResultSet; });
         }
     }
 }

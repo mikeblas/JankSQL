@@ -1,17 +1,17 @@
 ﻿namespace Tests
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using JankSQL;
     using Engines = JankSQL.Engines;
 
-    public class UpdateTests
+    abstract public class UpdateTests
     {
         internal string mode = "base";
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         internal Engines.IEngine engine;
 
-        [TestMethod]
+        [Test]
         public void TestUpdateExpression()
         {
             var ecUpdate = Parser.ParseSQLFileFromString("UPDATE MyTable SET Population = Population * 1.2;");
@@ -47,7 +47,7 @@
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestUpdateSameExpressionNoMatches()
         {
             var ecUpdate = Parser.ParseSQLFileFromString("UPDATE ten SET is_even = 9 WHERE is_even = 1 AND SQRT(10) > 10;");
@@ -78,7 +78,7 @@
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestUpdateSameExpression()
         {
             var ecUpdate = Parser.ParseSQLFileFromString("UPDATE ten SET is_even = 9 WHERE is_even = 1;");
@@ -109,7 +109,7 @@
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestUpdateSameExpressionCompound()
         {
             var ecUpdate = Parser.ParseSQLFileFromString("UPDATE ten SET is_even = 9 WHERE is_even = 1 AND (number_name = 'four' OR number_name = 'six');");
@@ -148,7 +148,7 @@
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestUpdateSameNOTExpression()
         {
             var ecUpdate = Parser.ParseSQLFileFromString("UPDATE ten SET is_even = 9 WHERE NOT is_even = 1;");

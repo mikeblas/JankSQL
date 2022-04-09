@@ -1,17 +1,18 @@
 ﻿namespace Tests
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
+
     using JankSQL;
     using Engines = JankSQL.Engines;
     using System.Diagnostics;
 
-    public class OrderByTests
+    abstract public class OrderByTests
     {
         internal string mode = "base";
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         internal Engines.IEngine engine;
 
-        [TestMethod]
+        [Test]
         public void TestOrderByOneStringDefault()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT number_name FROM ten ORDER BY number_name;");
@@ -32,7 +33,7 @@
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestOrderByOneStringAsc()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT number_name FROM ten ORDER BY number_name ASC;");
@@ -53,7 +54,7 @@
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestOrderByOneStringDesc()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT number_name FROM ten ORDER BY number_name desc;");
@@ -75,7 +76,7 @@
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestOrderByOneIntegerDefault()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT number_id FROM ten ORDER BY number_id;");
@@ -97,7 +98,7 @@
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestOrderByOneIntegerAsc()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT number_id FROM ten ORDER BY number_id ASC;");
@@ -118,7 +119,7 @@
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestOrderByOneIntegerFilterAsc()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT number_id FROM ten WHERE is_even = 1 ORDER BY number_id ASC;");
@@ -139,7 +140,7 @@
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestOrderByOneIntegerDesc()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT number_id FROM ten ORDER BY number_id DESC;");
@@ -161,7 +162,7 @@
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestOrderByOneIntegerFilterDesc()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT number_id FROM ten WHERE is_even = 0 ORDER BY number_id DESC;");
@@ -183,7 +184,7 @@
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestOrderByOneIntegerFilteredAllDesc()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT number_id FROM ten WHERE is_even = 35 ORDER BY number_id DESC;");
@@ -196,7 +197,7 @@
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestOrderByOneIntegerFilteredAll()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT number_id FROM ten WHERE is_even = 35 ORDER BY number_id;");
@@ -208,7 +209,7 @@
             Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
-        [TestMethod]
+        [Test]
         public void TestOrderByManyNIntegers()
         {
             Random random = new ();
