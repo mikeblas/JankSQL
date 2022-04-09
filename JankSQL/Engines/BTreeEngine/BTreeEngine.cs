@@ -18,6 +18,11 @@
             sysIndexes = CreateSysIndexes();
             sysIndexColumns = CreateSysIndexColumns();
 
+            inMemoryTables["sys_tables"] = sysTables;
+            inMemoryTables["sys_indexes"] = sysIndexes;
+            inMemoryTables["sys_indexcolumns"] = sysIndexColumns;
+            inMemoryTables["sys_columns"] = sysColumns;
+
             sysIndexes.Dump();
             sysIndexColumns.Dump();
         }
@@ -210,14 +215,10 @@
             // get the file name for our table
             IEngineTable? table = GetEngineTable(testTable.TableName);
             if (table == null)
-            {
                 throw new InvalidOperationException();
-            }
 
             foreach (var row in testTable.Rows)
-            {
                 table.InsertRow(row);
-            }
         }
 
         internal BTreeTable? GetEngineBTreeTable(FullTableName tableName)

@@ -62,7 +62,7 @@
             rows.AddRange(other.rows);
         }
 
-        internal List<FullColumnName> GetColumnNames()
+        public List<FullColumnName> GetColumnNames()
         {
             return columnNames;
         }
