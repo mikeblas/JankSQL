@@ -232,13 +232,8 @@
             ExpressionOperandType[] keyTypes = new[] { ExpressionOperandType.VARCHAR, ExpressionOperandType.VARCHAR };
             ExpressionOperandType[] valueTypes = new[] { ExpressionOperandType.VARCHAR, ExpressionOperandType.INTEGER };
 
-            List<FullColumnName> keyNames = new ();
-            List<FullColumnName> valueNames = new ();
-
-            keyNames.Add(FullColumnName.FromColumnName("table_name"));
-            keyNames.Add(FullColumnName.FromColumnName("column_name"));
-            valueNames.Add(FullColumnName.FromColumnName("column_type"));
-            valueNames.Add(FullColumnName.FromColumnName("index"));
+            FullColumnName[] keyNames = new[] { FullColumnName.FromColumnName("table_name"), FullColumnName.FromColumnName("column_name") };
+            FullColumnName[] valueNames = new[] { FullColumnName.FromColumnName("column_type"), FullColumnName.FromColumnName("index") };
 
             BTreeTable table = new ("sys_columns", keyTypes, keyNames, valueTypes, valueNames);
             Tuple row;
@@ -307,11 +302,8 @@
             ExpressionOperandType[] keyTypes = new[] { ExpressionOperandType.VARCHAR };
             ExpressionOperandType[] valueTypes = new[] { ExpressionOperandType.VARCHAR };
 
-            List<FullColumnName> keyNames = new ();
-            List<FullColumnName> valueNames = new ();
-
-            keyNames.Add(FullColumnName.FromColumnName("table_name"));
-            valueNames.Add(FullColumnName.FromColumnName("file_name"));
+            FullColumnName[] keyNames = new[] { FullColumnName.FromColumnName("table_name") };
+            FullColumnName[] valueNames = new[] { FullColumnName.FromColumnName("file_name") };
 
             BTreeTable table = new ("sys_tables", keyTypes, keyNames, valueTypes, valueNames);
 
@@ -342,12 +334,12 @@
             // values are: index_type
             ExpressionOperandType[] valueTypes = new[] { ExpressionOperandType.VARCHAR };
 
-            List<FullColumnName> keyNames = new ()
+            FullColumnName[] keyNames = new[]
             {
                 FullColumnName.FromColumnName("table_name"),
                 FullColumnName.FromColumnName("index_name"),
             };
-            List<FullColumnName> valueNames = new ()
+            FullColumnName[] valueNames = new[]
             {
                 FullColumnName.FromColumnName("index_type"),
             };
@@ -403,13 +395,13 @@
             // values are: column_name
             ExpressionOperandType[] valueTypes = new[] { ExpressionOperandType.VARCHAR };
 
-            List<FullColumnName> keyNames = new ()
+            FullColumnName[] keyNames = new[]
             {
                 FullColumnName.FromColumnName("table_name"),
                 FullColumnName.FromColumnName("index_name"),
                 FullColumnName.FromColumnName("index"),
             };
-            List<FullColumnName> valueNames = new ()
+            FullColumnName[] valueNames = new[]
             {
                 FullColumnName.FromColumnName("column_name"),
             };

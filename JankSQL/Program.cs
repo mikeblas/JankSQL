@@ -29,7 +29,7 @@ namespace JankSQL
             string str;
 
 
-            str = "SELECT IIF(power(10, 3) = 100, 'Yes', 'No');";
+            str = "SELECT number_id WHERE number_id < (SELECT MAX(keycolumn) FROM mytable);";
 
             var btreeEngine = Engines.BTreeEngine.CreateInMemory();
 

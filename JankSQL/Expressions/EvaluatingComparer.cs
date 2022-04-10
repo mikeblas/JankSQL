@@ -4,16 +4,16 @@
     {
         private readonly Expression[] keyExpressions;
         private readonly bool[] isAscending;
-        private readonly List<FullColumnName> columnNames;
+        private readonly FullColumnName[] columnNames;
 
         private int keyComparisons = 0;
         private int rowComparisons = 0;
 
-        internal EvaluatingComparer(Expression[] keyExpressions, bool[] isAscending, List<FullColumnName> columnNames)
+        internal EvaluatingComparer(Expression[] keyExpressions, bool[] isAscending, IEnumerable<FullColumnName> columnNames)
         {
             this.keyExpressions = keyExpressions;
             this.isAscending = isAscending;
-            this.columnNames = columnNames;
+            this.columnNames = columnNames.ToArray();
         }
 
         internal int KeyComparisons

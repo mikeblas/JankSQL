@@ -7,8 +7,8 @@
 
     internal class BTreeTable : IEngineTable, IEnumerable, IEnumerable<RowWithBookmark>
     {
-        private readonly List<FullColumnName> keyColumnNames;
-        private readonly List<FullColumnName> valueColumnNames;
+        private readonly FullColumnName[] keyColumnNames;
+        private readonly FullColumnName[] valueColumnNames;
         private readonly Dictionary<string, int> columnNameIndexes;
         private readonly string tableName;
         private readonly bool hasUniqueKey;
@@ -22,7 +22,7 @@
 
         private int nextBookmark = 1337;
 
-        internal BTreeTable(string tableName, ExpressionOperandType[] keyTypes, List<FullColumnName> keyNames, ExpressionOperandType[] valueTypes, List<FullColumnName> valueNames)
+        internal BTreeTable(string tableName, ExpressionOperandType[] keyTypes, IEnumerable<FullColumnName> keyNames, ExpressionOperandType[] valueTypes, IEnumerable<FullColumnName> valueNames)
         {
             myTree = new BPlusTree<Tuple, Tuple>(new IExpressionOperandComparer());
             hasUniqueKey = true;
@@ -31,22 +31,20 @@
             this.valueTypes = valueTypes;
             this.tableName = tableName;
 
-            keyColumnNames = new ();
-            valueColumnNames = new ();
+            keyColumnNames = keyNames.ToArray();
+            valueColumnNames = valueNames.ToArray();
 
             columnNameIndexes = new Dictionary<string, int>();
             int n = 0;
-            for (int i = 0; i < valueNames.Count; i++)
+            foreach (var valueName in valueNames)
             {
-                FullColumnName fcn = FullColumnName.FromTableColumnName(tableName, valueNames[i].ColumnNameOnly());
-                valueColumnNames.Add(fcn);
+                FullColumnName fcn = FullColumnName.FromTableColumnName(tableName, valueName.ColumnNameOnly());
                 columnNameIndexes.Add(fcn.ColumnNameOnly(), n++);
             }
 
-            for (int i = 0; i < keyNames.Count; i++)
+            foreach (var keyName in keyNames)
             {
-                FullColumnName fcn = FullColumnName.FromTableColumnName(tableName, keyNames[i].ColumnNameOnly());
-                keyColumnNames.Add(fcn);
+                FullColumnName fcn = FullColumnName.FromTableColumnName(tableName, keyName.ColumnNameOnly());
                 columnNameIndexes.Add(fcn.ColumnNameOnly(), n++);
             }
         }
@@ -60,7 +58,7 @@
         /// <param name="tableName">string with the name of our table.</param>
         /// <param name="valueTypes">array containing the value types for each of our columns.</param>
         /// <param name="valueNames">array containing the names of each of the values in our columns.</param>
-        internal BTreeTable(string tableName, ExpressionOperandType[] valueTypes, List<FullColumnName> valueNames)
+        internal BTreeTable(string tableName, ExpressionOperandType[] valueTypes, IEnumerable<FullColumnName> valueNames)
         {
             myTree = new BPlusTree<Tuple, Tuple>(new IExpressionOperandComparer());
             hasUniqueKey = false;
@@ -69,21 +67,19 @@
             this.valueTypes = valueTypes;
             this.tableName = tableName;
 
-            keyColumnNames = new ();
-            valueColumnNames = new ();
+            valueColumnNames = valueNames.ToArray();
 
             columnNameIndexes = new Dictionary<string, int>();
             int n = 0;
-            for (int i = 0; i < valueNames.Count; i++)
+            foreach (var valueName in valueNames)
             {
-                FullColumnName fcn = FullColumnName.FromTableColumnName(tableName, valueNames[i].ColumnNameOnly());
-                valueColumnNames.Add(fcn);
+                FullColumnName fcn = FullColumnName.FromTableColumnName(tableName, valueName.ColumnNameOnly());
                 columnNameIndexes.Add(fcn.ColumnNameOnly(), n++);
             }
 
             // just the bookmark key
             FullColumnName fcnBookmark = FullColumnName.FromTableColumnName(tableName, "bookmark_key");
-            keyColumnNames.Add(fcnBookmark);
+            keyColumnNames = new FullColumnName[] { fcnBookmark };
             columnNameIndexes.Add(fcnBookmark.ColumnNameOnly(), n++);
         }
 
@@ -93,9 +89,9 @@
             get
             {
                 if (hasUniqueKey)
-                    return keyColumnNames.Count + valueColumnNames.Count;
+                    return keyColumnNames.Length + valueColumnNames.Length;
                 else
-                    return valueColumnNames.Count;
+                    return valueColumnNames.Length;
             }
         }
 
@@ -111,10 +107,10 @@
 
         public FullColumnName ColumnName(int n)
         {
-            if (n < valueColumnNames.Count)
+            if (n < valueColumnNames.Length)
                 return valueColumnNames[n];
 
-            int m = n - valueColumnNames.Count;
+            int m = n - valueColumnNames.Length;
             return keyColumnNames[m];
         }
 
@@ -137,8 +133,8 @@
             if (bookmarksToDelete.Count == 0)
                 return 0;
 
-            if (bookmarksToDelete[0].Tuple.Length != keyColumnNames.Count)
-                throw new ArgumentException($"bookmark key should be {keyColumnNames.Count} columns, received {bookmarksToDelete[0].Tuple.Length} columns");
+            if (bookmarksToDelete[0].Tuple.Length != keyColumnNames.Length)
+                throw new ArgumentException($"bookmark key should be {keyColumnNames.Length} columns, received {bookmarksToDelete[0].Tuple.Length} columns");
 
             int deletedCount = 0;
             foreach (var bookmark in bookmarksToDelete)
@@ -197,8 +193,8 @@
             }
             else
             {
-                heapKey = Tuple.CreateFromRange(row, 0, keyColumnNames.Count);
-                Tuple value = Tuple.CreateFromRange(row, keyColumnNames.Count, valueColumnNames.Count);
+                heapKey = Tuple.CreateFromRange(row, 0, keyColumnNames.Length);
+                Tuple value = Tuple.CreateFromRange(row, keyColumnNames.Length, valueColumnNames.Length);
 
                 myTree.Add(heapKey, value);
             }
@@ -223,8 +219,8 @@
         {
             Console.WriteLine("===========");
             Console.WriteLine($"BTree Table {tableName}, hasUniqueKey == {hasUniqueKey}");
-            Console.WriteLine($" Keys  : {string.Join(",", keyColumnNames)}");
-            Console.WriteLine($" Values: {string.Join(",", valueColumnNames)}");
+            Console.WriteLine($" Keys  : {string.Join(",", (object[])keyColumnNames)}");
+            Console.WriteLine($" Values: {string.Join(",", (object[])valueColumnNames)}");
             foreach (var row in myTree)
                 Console.WriteLine($"    {row.Key} ==> {row.Value}");
 

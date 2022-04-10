@@ -1,14 +1,16 @@
 ﻿namespace JankSQL
 {
+    using System.Collections.Immutable;
+
     public class ResultSet
     {
         private readonly List<Tuple> rows;
-        private readonly List<FullColumnName> columnNames;
+        private readonly FullColumnName[] columnNames;
 
-        internal ResultSet(List<FullColumnName> columnNames)
+        internal ResultSet(IEnumerable<FullColumnName> columnNames)
         {
             rows = new List<Tuple>();
-            this.columnNames = columnNames;
+            this.columnNames = columnNames.ToArray();
         }
 
         public int RowCount
@@ -18,12 +20,12 @@
 
         public int ColumnCount
         {
-            get { return columnNames.Count; }
+            get { return columnNames.Length; }
         }
 
         public int ColumnIndex(FullColumnName name)
         {
-            return columnNames.IndexOf(name);
+            return Array.IndexOf(columnNames, name);
         }
 
         public Tuple Row(int index)
@@ -33,15 +35,15 @@
 
         public void Dump()
         {
-            Console.WriteLine($"{string.Join(",", columnNames)}");
+            Console.WriteLine($"{string.Join(",", (object[])columnNames)}");
 
             foreach (var row in rows)
                 Console.WriteLine($"{row}");
         }
 
-        public List<FullColumnName> GetColumnNames()
+        public ImmutableList<FullColumnName> GetColumnNames()
         {
-            return columnNames;
+            return columnNames.ToImmutableList();
         }
 
         internal static ResultSet NewWithShape(ResultSet other)
@@ -61,7 +63,7 @@
             if (rows.Count > 0 && rows[0].Length != other.rows[0].Length)
                 throw new InvalidOperationException();
 
-            if (columnNames != null && other.columnNames != null && other.columnNames.Count != columnNames.Count)
+            if (columnNames != null && other.columnNames != null && other.columnNames.Length != columnNames.Length)
                 throw new InvalidOperationException();
 
             rows.AddRange(other.rows);
@@ -82,9 +84,9 @@
                 }
             }
 
-            if (columnNames != null && columnNames.Count != row.Length)
+            if (columnNames != null && columnNames.Length != row.Length)
             {
-                throw new InvalidOperationException($"Can't add row: expected {columnNames.Count} columns, got {row.Length} columns");
+                throw new InvalidOperationException($"Can't add row: expected {columnNames.Length} columns, got {row.Length} columns");
             }
 
             rows.Add(row);

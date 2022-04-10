@@ -6,18 +6,18 @@
     /// </summary>
     internal class TemporaryRowValueAccessor : IRowValueAccessor
     {
-        private readonly List<FullColumnName> names;
+        private readonly FullColumnName[] names;
         private readonly Tuple rowData;
 
-        internal TemporaryRowValueAccessor(Tuple rowData, List<FullColumnName> names)
+        internal TemporaryRowValueAccessor(Tuple rowData, IEnumerable<FullColumnName> names)
         {
-            this.names = names;
+            this.names = names.ToArray();
             this.rowData = rowData;
         }
 
         ExpressionOperand IRowValueAccessor.GetValue(FullColumnName fcn)
         {
-            for (int i = 0; i < names.Count; i++)
+            for (int i = 0; i < names.Length; i++)
             {
                 if (names[i].Equals(fcn))
                     return rowData[i];
@@ -28,7 +28,7 @@
 
         void IRowValueAccessor.SetValue(FullColumnName fcn, ExpressionOperand op)
         {
-            for (int i = 0; i < names.Count; i++)
+            for (int i = 0; i < names.Length; i++)
             {
                 if (names[i].Equals(fcn))
                 {
