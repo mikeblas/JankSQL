@@ -202,8 +202,8 @@
             Assert.AreEqual(0, ecCreate.TotalErrors);
 
             ExecuteResult resultsCreate = ecCreate.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsCreate.ExecuteStatus, resultsCreate.ErrorMessage);
-            Assert.IsNull(resultsCreate.ErrorMessage);
+            Assert.AreEqual(ExecuteStatus.SUCCESSFUL_WITH_MESSAGE, resultsCreate.ExecuteStatus, resultsCreate.ErrorMessage);
+            Assert.NotNull(resultsCreate.ErrorMessage);
 
             Stopwatch parsing = new ();
             Stopwatch execution = new ();

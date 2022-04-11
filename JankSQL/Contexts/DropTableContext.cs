@@ -18,10 +18,7 @@
         {
             engine.DropTable(tableName);
 
-            ExecuteResult ret = new ()
-            {
-                ExecuteStatus = ExecuteStatus.SUCCESSFUL,
-            };
+            ExecuteResult ret = ExecuteResult.SuccessWithMessage($"table {tableName} dropped");
             return ret;
         }
     }

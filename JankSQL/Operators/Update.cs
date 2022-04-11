@@ -12,6 +12,8 @@
         private readonly List<Tuple> rowsToInsert = new ();
         private readonly List<SetOperation> setList;
 
+        private int rowsAffected;
+
         internal Update(Engines.IEngineTable targetTable, IComponentOutput input, Expression? predicateExpression, List<SetOperation> setList)
         {
             myInput = input;
@@ -19,6 +21,8 @@
             this.predicateExpression = predicateExpression;
             this.setList = setList;
         }
+
+        internal int RowsAffected { get { return rowsAffected; } }
 
         public void Rewind()
         {
@@ -37,7 +41,6 @@
                 rsOutput.MarkEOF();
                 return rsOutput;
             }
-
 
             for (int i = 0; i < batch.RowCount; i++)
             {
@@ -90,9 +93,9 @@
 
             // then, insert the modified rows
             foreach (var row in rowsToInsert)
-            {
                 engineTable.InsertRow(row);
-            }
+
+            rowsAffected = bookmarksToDelete.Count;
         }
     }
 }

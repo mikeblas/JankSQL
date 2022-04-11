@@ -6,6 +6,8 @@
         private readonly Engines.IEngineTable engineTable;
         private readonly Dictionary<int, int> targetIndexToInputIndex;
 
+        private int rowsAffected;
+
         internal Insert(Engines.IEngineTable destTable, IList<FullColumnName> targetColumns, IComponentOutput input)
         {
             myInput = input;
@@ -21,6 +23,8 @@
                 targetIndexToInputIndex[targetIndex] = i;
             }
         }
+
+        internal int RowsAffected { get { return rowsAffected; } }
 
         public ResultSet GetRows(int max)
         {
@@ -46,6 +50,7 @@
                 }
 
                 engineTable.InsertRow(targetRow);
+                rowsAffected += 1;
             }
 
             return rsInput;

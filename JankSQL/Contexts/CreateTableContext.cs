@@ -28,8 +28,7 @@
         {
             engine.CreateTable(tableName, columnNames.ToImmutableList(), columnTypes.ToImmutableList());
 
-            ExecuteResult ret = new ();
-            ret.ExecuteStatus = ExecuteStatus.SUCCESSFUL;
+            ExecuteResult ret = ExecuteResult.SuccessWithMessage($"table {tableName} created");
             return ret;
         }
     }

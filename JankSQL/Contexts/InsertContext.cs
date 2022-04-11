@@ -27,8 +27,6 @@
             if (constructors == null)
                 throw new InternalErrorException("Expected a list of constructors");
 
-            ExecuteResult results = new ExecuteResult();
-
             Engines.IEngineTable? engineTarget = engine.GetEngineTable(TableName);
 
             if (engineTarget == null)
@@ -56,11 +54,9 @@
                         break;
                 }
 
-                results.ResultSet = null;
-                results.ExecuteStatus = ExecuteStatus.SUCCESSFUL;
+                ExecuteResult result = ExecuteResult.SuccessWithRowsAffected(inserter.RowsAffected);
+                return result;
             }
-
-            return results;
         }
 
         public void Dump()

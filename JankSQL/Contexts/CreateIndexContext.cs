@@ -36,10 +36,8 @@
         {
             engine.CreateIndex(tableName, indexName, isUnique, columnInfo);
 
-            ExecuteResult ret = new ()
-            {
-                ExecuteStatus = ExecuteStatus.SUCCESSFUL,
-            };
+            //TODO: can we get rowcount here?
+            ExecuteResult ret = ExecuteResult.SuccessWithRowsAffected(0);
             return ret;
         }
 

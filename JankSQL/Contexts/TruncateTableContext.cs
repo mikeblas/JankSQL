@@ -11,18 +11,13 @@
 
         public ExecuteResult Execute(Engines.IEngine engine)
         {
-            ExecuteResult result = new ();
-
             Engines.IEngineTable? engineSource = engine.GetEngineTable(tableName);
             if (engineSource == null)
-            {
-                result.ExecuteStatus = ExecuteStatus.FAILED;
                 throw new ExecutionException($"Table {tableName} does not exist");
-            }
 
             engineSource.TruncateTable();
 
-            result.ExecuteStatus = ExecuteStatus.SUCCESSFUL;
+            ExecuteResult result = ExecuteResult.SuccessWithMessage($"table {tableName} truncated");
             return result;
         }
 

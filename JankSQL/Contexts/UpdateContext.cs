@@ -93,7 +93,6 @@
 
         public ExecuteResult Execute(Engines.IEngine engine)
         {
-            ExecuteResult results = new ();
 
             Engines.IEngineTable? engineSource = engine.GetEngineTable(tableName);
             if (engineSource == null)
@@ -111,10 +110,10 @@
                         break;
                 }
 
-                results.ExecuteStatus = ExecuteStatus.SUCCESSFUL;
+                ExecuteResult results = ExecuteResult.SuccessWithRowsAffected(update.RowsAffected);
+                return results;
             }
 
-            return results;
         }
 
         internal void AddAssignment(FullColumnName fcn, Expression x)

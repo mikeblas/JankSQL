@@ -27,7 +27,7 @@
                 }
                 catch (ExecutionException ex)
                 {
-                    ExecuteResult result = new (ExecuteStatus.FAILED, ex.Message);
+                    ExecuteResult result = ExecuteResult.FailureWithError(ex.Message);
                     Console.WriteLine($"Execute exception: {ex.Message}");
                     results.Add(result);
                 }
@@ -40,7 +40,7 @@
         {
             ExecuteResult result;
             if (executeContexts.Count != 1)
-                result = new ExecuteResult(ExecuteStatus.FAILED, "ExecuteSingle() called on multiple-context batch");
+                result = ExecuteResult.FailureWithError("ExecuteSingle() called on multiple-context batch");
             else
                 result = executeContexts[0].Execute(engine);
 

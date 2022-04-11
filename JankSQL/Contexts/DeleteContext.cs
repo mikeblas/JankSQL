@@ -49,11 +49,9 @@
                         break;
                 }
 
+                ExecuteResult results = ExecuteResult.SuccessWithRowsAffected(delete.RowsAffected);
+                return results;
             }
-
-            ExecuteResult results = new();
-            results.ExecuteStatus = ExecuteStatus.SUCCESSFUL;
-            return results;
         }
     }
 }

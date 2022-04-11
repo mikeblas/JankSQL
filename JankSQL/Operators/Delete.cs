@@ -9,12 +9,16 @@
         private readonly List<ExpressionOperandBookmark> bookmarksToDelete = new ();
         private readonly Expression? predicateExpression;
 
+        private int rowsAffected;
+
         internal Delete(Engines.IEngineTable targetTable, IComponentOutput input, Expression? predicateExpression)
         {
             myInput = input;
             engineSource = targetTable;
             this.predicateExpression = predicateExpression;
         }
+
+        internal int RowsAffected { get { return rowsAffected; } }
 
         public ResultSet GetRows(int max)
         {
@@ -24,7 +28,7 @@
             if (batch.IsEOF)
             {
                 // last one was received, so let's delete now
-                engineSource.DeleteRows(bookmarksToDelete);
+                rowsAffected = engineSource.DeleteRows(bookmarksToDelete);
                 rsOutput.MarkEOF();
                 return rsOutput;
             }

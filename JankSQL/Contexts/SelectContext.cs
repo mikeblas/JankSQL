@@ -80,9 +80,7 @@
                 resultSet.Append(batch);
             }
 
-            ExecuteResult results = new ();
-            results.ResultSet = resultSet;
-            results.ExecuteStatus = ExecuteStatus.SUCCESSFUL;
+            ExecuteResult results = ExecuteResult.SuccessWithResultSet(resultSet);
             return results;
         }
 
