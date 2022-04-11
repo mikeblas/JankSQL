@@ -77,9 +77,7 @@
             Assert.AreEqual(0, ecInsert.TotalErrors);
 
             ExecuteResult resultInsert = ecInsert.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultInsert.ExecuteStatus);
-            Assert.IsNotNull(resultInsert.ResultSet);
-            resultInsert.ResultSet.Dump();
+            JankAssert.SuccessfulNoResultSet(resultInsert);
 
             // select back where population isn't null
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM mytable WHERE Population IS NOT NULL;");
@@ -99,8 +97,7 @@
             Assert.AreEqual(0, ecInsert.TotalErrors);
 
             ExecuteResult resultInsert = ecInsert.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultInsert.ExecuteStatus);
-            Assert.IsNotNull(resultInsert.ResultSet);
+            JankAssert.SuccessfulNoResultSet(resultInsert);
 
             // select back where population isn't null
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE Population IS NULL;");

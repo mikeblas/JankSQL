@@ -51,5 +51,11 @@ namespace Tests
 
             Assert.AreEqual(expectedValue, rs.Row(row)[column].AsInteger());
         }
+
+        public static void SuccessfulNoResultSet(ExecuteResult er)
+        {
+            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, er.ExecuteStatus);
+            Assert.Throws<InvalidOperationException>(() => { var _ = er.ResultSet; });
+        }
     }
 }

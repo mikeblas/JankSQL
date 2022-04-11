@@ -1,7 +1,7 @@
 ﻿namespace JankSQL.Engines
 {
-    using System.Collections.Immutable;
     using JankSQL.Expressions;
+
     public enum OpenPolicy
     {
         ExistingOnly,   // fail if not found

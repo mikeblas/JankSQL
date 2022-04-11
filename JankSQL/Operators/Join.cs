@@ -53,20 +53,21 @@
             // Console.WriteLine("REWIND!");
         }
 
-        public ResultSet? GetRows(int max)
+        public ResultSet GetRows(int max)
         {
             if (outputSet is null)
                 outputSet = ProduceOutputSet();
 
-            if (outputIndex >= outputSet.RowCount)
-                return null;
-
             ResultSet resultSlice = ResultSet.NewWithShape(outputSet);
-
-            while (outputIndex < outputSet.RowCount && resultSlice.RowCount < max)
+            if (outputIndex >= outputSet.RowCount)
+                resultSlice.MarkEOF();
+            else
             {
-                resultSlice.AddRowFrom(outputSet, outputIndex);
-                outputIndex++;
+                while (outputIndex < outputSet.RowCount && resultSlice.RowCount < max)
+                {
+                    resultSlice.AddRowFrom(outputSet, outputIndex);
+                    outputIndex++;
+                }
             }
 
             return resultSlice;

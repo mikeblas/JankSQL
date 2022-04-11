@@ -58,10 +58,14 @@
         }
 
         #region IComponentOutput implementation
-        public ResultSet? GetRows(int max)
+        public ResultSet GetRows(int max)
         {
             if (outputExhausted)
-                return null;
+            {
+                ResultSet endSet = new (outputNames);
+                endSet.MarkEOF();
+                return endSet;
+            }
 
             if (!inputExhausted)
             {
@@ -182,8 +186,8 @@
         {
             while (!inputExhausted)
             {
-                ResultSet? rs = myInput.GetRows(5);
-                if (rs == null)
+                ResultSet rs = myInput.GetRows(5);
+                if (rs.IsEOF)
                 {
                     inputExhausted = true;
                     break;

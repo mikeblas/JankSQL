@@ -49,19 +49,14 @@
                 ConstantRowSource source = new (TargetColumns, constructors);
                 Insert inserter = new (engineTarget, TargetColumns, source);
 
-                ResultSet? resultSet = null;
-
                 while (true)
                 {
-                    ResultSet? batch = inserter.GetRows(5);
-                    if (batch == null)
+                    ResultSet batch = inserter.GetRows(5);
+                    if (batch.IsEOF)
                         break;
-                    if (resultSet == null)
-                        resultSet = ResultSet.NewWithShape(batch);
-                    resultSet.Append(batch);
                 }
 
-                results.ResultSet = resultSet;
+                results.ResultSet = null;
                 results.ExecuteStatus = ExecuteStatus.SUCCESSFUL;
             }
 

@@ -55,8 +55,7 @@
             Assert.AreEqual(0, ecInsert.TotalErrors);
 
             ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsInsert.ExecuteStatus, resultsInsert.ErrorMessage);
-            Assert.IsNotNull(resultsInsert.ResultSet);
+            JankAssert.SuccessfulNoResultSet(resultsInsert);
 
             // select them back
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM TransientTestTable;");
@@ -122,8 +121,7 @@
             Assert.AreEqual(0, ecInsert.TotalErrors);
 
             ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsInsert.ExecuteStatus, resultsInsert.ErrorMessage);
-            Assert.IsNotNull(resultsInsert.ResultSet);
+            JankAssert.SuccessfulNoResultSet(resultsInsert);
 
             // select them back
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM TransientTestTable;");
@@ -157,8 +155,7 @@
             Assert.AreEqual(0, ecInsert.TotalErrors);
 
             ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsInsert.ExecuteStatus, resultsInsert.ErrorMessage);
-            Assert.IsNotNull(resultsInsert.ResultSet);
+            JankAssert.SuccessfulNoResultSet(resultsInsert);
 
             // select it back
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM MyTable WHERE keycolumn = 53;");
@@ -186,8 +183,7 @@
             Assert.AreEqual(0, ecInsert.TotalErrors);
 
             ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsInsert.ExecuteStatus, resultsInsert.ErrorMessage);
-            Assert.IsNotNull(resultsInsert.ResultSet);
+            JankAssert.SuccessfulNoResultSet(resultsInsert);
 
             // select it back
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM MyTable WHERE keycolumn = 53;");
@@ -216,8 +212,7 @@
             Assert.AreEqual(0, ecInsert.TotalErrors);
 
             ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsInsert.ExecuteStatus, resultsInsert.ErrorMessage);
-            Assert.IsNotNull(resultsInsert.ResultSet);
+            JankAssert.SuccessfulNoResultSet(resultsInsert);
 
             // select it back
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM MyTable WHERE keycolumn = 53;");
@@ -246,8 +241,7 @@
             Assert.AreEqual(0, ecInsert.TotalErrors);
 
             ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsInsert.ExecuteStatus, resultsInsert.ErrorMessage);
-            Assert.IsNotNull(resultsInsert.ResultSet);
+            JankAssert.SuccessfulNoResultSet(resultsInsert);
 
             // select it back
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM MyTable;");
@@ -267,8 +261,7 @@
             Assert.AreEqual(0, ecInsert.TotalErrors);
 
             ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsInsert.ExecuteStatus, resultsInsert.ErrorMessage);
-            Assert.IsNotNull(resultsInsert.ResultSet);
+            JankAssert.SuccessfulNoResultSet(resultsInsert);
 
             // select it back
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM MyTable WHERE keycolumn = 53;");
@@ -296,8 +289,7 @@
             Assert.AreEqual(0, ecInsert.TotalErrors);
 
             ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsInsert.ExecuteStatus, resultsInsert.ErrorMessage);
-            Assert.IsNotNull(resultsInsert.ResultSet);
+            JankAssert.SuccessfulNoResultSet(resultsInsert);
 
             // select it back
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM MyTable WHERE keycolumn = 53;");

@@ -14,12 +14,15 @@
             this.columnNames = columnNames;
         }
 
-        public ResultSet? GetRows(int max)
+        public ResultSet GetRows(int max)
         {
-            if (currentRow >= columnValues.Count)
-                return null;
-
             ResultSet resultSet = new (columnNames);
+
+            if (currentRow >= columnValues.Count)
+            {
+                resultSet.MarkEOF();
+                return resultSet;
+            }
 
             int t = 0;
             while (t < max && currentRow < columnValues.Count)

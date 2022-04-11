@@ -30,8 +30,6 @@
 
         public ExecuteResult Execute(Engines.IEngine engine)
         {
-            ExecuteResult results = new ();
-
             Engines.IEngineTable? tableSource = engine.GetEngineTable(tableName);
 
             if (tableSource == null)
@@ -46,14 +44,15 @@
 
                 while (true)
                 {
-                    ResultSet? batch = delete.GetRows(5);
-                    if (batch == null)
+                    ResultSet batch = delete.GetRows(5);
+                    if (batch.IsEOF)
                         break;
                 }
 
-                results.ExecuteStatus = ExecuteStatus.SUCCESSFUL;
             }
 
+            ExecuteResult results = new();
+            results.ExecuteStatus = ExecuteStatus.SUCCESSFUL;
             return results;
         }
     }

@@ -106,8 +106,8 @@
 
                 while (true)
                 {
-                    ResultSet? batch = update.GetRows(5);
-                    if (batch == null)
+                    ResultSet batch = update.GetRows(5);
+                    if (batch.IsEOF)
                         break;
                 }
 

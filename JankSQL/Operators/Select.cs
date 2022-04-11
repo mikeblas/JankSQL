@@ -28,11 +28,9 @@
             myInput.Rewind();
         }
 
-        public ResultSet? GetRows(int max)
+        public ResultSet GetRows(int max)
         {
-            ResultSet? rsInput = myInput.GetRows(max);
-            if (rsInput == null)
-                return null;
+            ResultSet rsInput = myInput.GetRows(max);
 
             // get an effective column list ...
             if (effectiveColumns == null)
@@ -66,6 +64,11 @@
             }
 
             ResultSet rsOutput = new (effectiveColumns);
+            if (rsInput.IsEOF)
+            {
+                rsOutput.MarkEOF();
+                return rsOutput;
+            }
 
             for (int i = 0; i < rsInput.RowCount; i++)
             {
@@ -76,7 +79,6 @@
                 Tuple rowResults = Tuple.CreateEmpty(effectiveColumns.Count);
                 foreach (FullColumnName columnName in effectiveColumns)
                 {
-                    // int idx = rsInput.ColumnIndex(columnName);
                     ExpressionOperand result = selectList.Execute(exprIndex, rsInput, i);
                     rowResults[rsIndex] = result;
                     exprIndex++;

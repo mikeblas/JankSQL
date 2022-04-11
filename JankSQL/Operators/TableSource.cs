@@ -36,12 +36,9 @@
             rowEnumerator.Reset();
         }
 
-        public ResultSet? GetRows(int max)
+        public ResultSet GetRows(int max)
         {
             ResultSet rs = new (GetAllColumnNames());
-
-            if (enumeratorExhausted)
-                return null;
 
             while (!enumeratorExhausted && rs.RowCount < max)
             {
@@ -58,7 +55,10 @@
             }
 
             if (enumeratorExhausted && rs.RowCount == 0)
-                return null;
+            {
+                rs.MarkEOF();
+                return rs;
+            }
 
             return rs;
         }

@@ -15,7 +15,7 @@
         /// </summary>
         /// <param name="max">integer indicating the maximum number of rows to produce.</param>
         /// <returns>ResultSet with those rows, or null if no more data is available.</returns>
-        ResultSet? GetRows(int max);
+        ResultSet GetRows(int max);
 
         /// <summary>
         /// Rewind causes the object to rewind to the beginniing of its produced rows.

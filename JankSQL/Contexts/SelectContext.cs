@@ -66,15 +66,17 @@
         public ExecuteResult Execute(Engines.IEngine engine)
         {
             Select select = BuildSelectObject(engine);
-            ResultSet? resultSet = null;
+            ResultSet resultSet = null;
 
             while (true)
             {
-                ResultSet? batch = select.GetRows(5);
-                if (batch == null)
-                    break;
+                ResultSet batch = select.GetRows(5);
                 if (resultSet == null)
                     resultSet = ResultSet.NewWithShape(batch);
+
+                if (batch.IsEOF)
+                    break;
+
                 resultSet.Append(batch);
             }
 

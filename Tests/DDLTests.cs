@@ -32,7 +32,7 @@
 
             ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsInsert.ExecuteStatus, resultsInsert.ErrorMessage);
-            Assert.IsNotNull(resultsInsert.ResultSet);
+            Assert.Throws<InvalidOperationException>(() => { var x = resultsInsert.ResultSet; } );
 
             // truncate the table
             var ecTruncate = Parser.ParseSQLFileFromString("TRUNCATE TABLE [TransientTestTable];");

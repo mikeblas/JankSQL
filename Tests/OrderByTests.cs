@@ -226,8 +226,7 @@
                 ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
                 execution.Stop();
 
-                Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsInsert.ExecuteStatus, resultsCreate.ErrorMessage);
-                Assert.IsNotNull(resultsInsert.ResultSet);
+                JankAssert.SuccessfulNoResultSet(resultsInsert);
             }
 
             Console.WriteLine($"parsing:   {parsing.ElapsedMilliseconds}");

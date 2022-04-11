@@ -91,7 +91,7 @@
                     {
                         string str = primitiveContext.constant().FLOAT().GetText();
                         if (!quiet)
-                            Console.WriteLine($"constant: '{str}'");
+                            Console.WriteLine($"decimal constant: '{str}'");
                         bool isNegative = primitiveContext.constant().sign() != null;
                         ExpressionNode n = ExpressionOperand.DecimalFromString(isNegative, str);
                         x.Insert(0, n);
@@ -100,7 +100,7 @@
                     {
                         string str = primitiveContext.constant().DECIMAL().GetText();
                         if (!quiet)
-                            Console.WriteLine($"constant: '{str}'");
+                            Console.WriteLine($"integer constant: '{str}'");
                         bool isNegative = primitiveContext.constant().sign() != null;
 
                         ExpressionOperandType t = ExpressionOperand.IntegerOrDecimal(str);

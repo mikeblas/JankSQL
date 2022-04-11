@@ -22,11 +22,15 @@
             }
         }
 
-        public ResultSet? GetRows(int max)
+        public ResultSet GetRows(int max)
         {
-            ResultSet? rsInput = myInput.GetRows(max);
-            if (rsInput == null)
-                return null;
+            ResultSet rsInput = myInput.GetRows(max);
+            if (rsInput.IsEOF)
+            {
+                ResultSet eof = new (new List<FullColumnName>());
+                eof.MarkEOF();
+                return eof;
+            }
 
             for (int i = 0; i < rsInput.RowCount; i++)
             {

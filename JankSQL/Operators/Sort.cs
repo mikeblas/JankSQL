@@ -19,15 +19,19 @@
             isAscending = isAscendingList.ToArray();
         }
 
-        public ResultSet? GetRows(int max)
+        public ResultSet GetRows(int max)
         {
             if (outputExhausted)
-                return null;
+            {
+                ResultSet endSet = ResultSet.NewWithShape(totalResults);
+                endSet.MarkEOF();
+                return endSet;
+            }
 
             while (!inputExhausted)
             {
-                ResultSet? rs = myInput.GetRows(5);
-                if (rs == null)
+                ResultSet rs = myInput.GetRows(5);
+                if (rs.IsEOF)
                 {
                     inputExhausted = true;
                     break;

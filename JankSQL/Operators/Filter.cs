@@ -28,12 +28,16 @@
             myInput.Rewind();
         }
 
-        public ResultSet? GetRows(int max)
+        public ResultSet GetRows(int max)
         {
-            ResultSet? rsInput = myInput.GetRows(max);
-            if (rsInput == null)
-                return null;
+            ResultSet rsInput = myInput.GetRows(max);
             ResultSet rsOutput = ResultSet.NewWithShape(rsInput);
+
+            if (rsInput.IsEOF)
+            {
+                rsOutput.MarkEOF();
+                return rsOutput;
+            }
 
             //TODO: ignores max
             for (int i = 0; i < rsInput.RowCount; i++)

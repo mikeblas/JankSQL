@@ -25,17 +25,19 @@
             throw new NotImplementedException();
         }
 
-        public ResultSet? GetRows(int max)
+        public ResultSet GetRows(int max)
         {
-            ResultSet? batch = myInput.GetRows(5);
-            if (batch == null)
+            ResultSet batch = myInput.GetRows(5);
+            ResultSet rsOutput = ResultSet.NewWithShape(batch);
+
+            if (batch.IsEOF)
             {
                 // last one was received, so let's do the updating work now
                 DoUpdateWork();
-                return null;
+                rsOutput.MarkEOF();
+                return rsOutput;
             }
 
-            ResultSet rsOutput = ResultSet.NewWithShape(batch);
 
             for (int i = 0; i < batch.RowCount; i++)
             {
