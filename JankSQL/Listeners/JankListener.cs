@@ -226,7 +226,10 @@
                         // bracket expression, which is just an expression in brackets ...
                         // but could also be a subquery
                         if (xContext.bracket_expression().subquery() != null)
+                        {
+                            SelectContext subSelect = GobbleSelectStatement(xContext.bracket_expression().subquery().select_statement());
                             throw new NotImplementedException("Subqueries are not yet implemented");
+                        }
 
                         stack.Add(xContext.bracket_expression().expression());
                     }

@@ -23,7 +23,7 @@
         {
             if (outputExhausted)
             {
-                ResultSet endSet = ResultSet.NewWithShape(totalResults);
+                ResultSet endSet = ResultSet.NewWithShape(totalResults!);
                 endSet.MarkEOF();
                 return endSet;
             }
@@ -43,15 +43,16 @@
                 totalResults.Append(rs);
             }
 
-            // if totalResults is null at this point, it means we had no input at all.
-            if (totalResults != null)
-            {
-                //TODO: honor max
-                // we've completely built totalResults, so sort it
-                var evaluatingComparer = new EvaluatingComparer(sortExpressions, isAscending, totalResults.GetColumnNames());
-                totalResults.Sort(evaluatingComparer);
-                Console.WriteLine($"Sorted! {evaluatingComparer.KeyComparisons} key comparisons, {evaluatingComparer.RowComparisons} row comparisons");
-            }
+            // if we had no input at all, we still have a totalResults because we had at least one zero-length ResultSet on our input
+            // before seeing the IsEOF ResultSet object.
+            if (totalResults == null)
+                throw new InternalErrorException("didn't exepct null ResultSet");
+
+            //TODO: honor max
+            // we've completely built totalResults, so sort it
+            var evaluatingComparer = new EvaluatingComparer(sortExpressions, isAscending, totalResults.GetColumnNames());
+            totalResults.Sort(evaluatingComparer);
+            Console.WriteLine($"Sorted! {evaluatingComparer.KeyComparisons} key comparisons, {evaluatingComparer.RowComparisons} row comparisons");
 
             // and send it off
             outputExhausted = true;
