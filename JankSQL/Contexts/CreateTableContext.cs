@@ -1,12 +1,14 @@
 ﻿namespace JankSQL.Contexts
 {
+    using System.Collections.Immutable;
+
     internal class CreateTableContext : IExecutableContext
     {
         private readonly FullTableName tableName;
-        private readonly List<FullColumnName> columnNames;
-        private readonly List<ExpressionOperandType> columnTypes;
+        private readonly IList<FullColumnName> columnNames;
+        private readonly IList<ExpressionOperandType> columnTypes;
 
-        internal CreateTableContext(FullTableName tableName, List<FullColumnName> columnNames, List<ExpressionOperandType> columnTypes)
+        internal CreateTableContext(FullTableName tableName, IList<FullColumnName> columnNames, IList<ExpressionOperandType> columnTypes)
         {
             this.tableName = tableName;
             this.columnNames = columnNames;
@@ -24,7 +26,7 @@
 
         public ExecuteResult Execute(Engines.IEngine engine)
         {
-            engine.CreateTable(tableName, columnNames, columnTypes);
+            engine.CreateTable(tableName, columnNames.ToImmutableList(), columnTypes.ToImmutableList());
 
             ExecuteResult ret = new ();
             ret.ExecuteStatus = ExecuteStatus.SUCCESSFUL;

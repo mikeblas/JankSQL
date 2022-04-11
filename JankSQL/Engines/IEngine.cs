@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Engines
 {
+    using System.Collections.Immutable;
+
     /// <summary>
     /// The IEngine interface commjunicates with a modular storage engine. There
     /// are a couple of implementations of the engine, mainly for simplication
@@ -24,7 +26,7 @@
         /// <param name="tableName">FullTableName with the name of this table.</param>
         /// <param name="columnNames">List of FullColumnNames for naming the columns.</param>
         /// <param name="columnTypes">Data type of each column, correlate to the columnNames parameter.</param>
-        public void CreateTable(FullTableName tableName, List<FullColumnName> columnNames, List<ExpressionOperandType> columnTypes);
+        public void CreateTable(FullTableName tableName, IEnumerable<FullColumnName> columnNames, IEnumerable<ExpressionOperandType> columnTypes);
 
 
         /// <summary>
@@ -34,7 +36,7 @@
         /// <param name="indexName">string with a name of this index.</param>
         /// <param name="isUnique">true if this index is meant to be unique, false otherwise.</param>
         /// <param name="columnInfos">list of column infos for this index.</param>
-        public void CreateIndex(FullTableName tableName, string indexName, bool isUnique, List<(string columnName, bool isDescending)> columnInfos);
+        public void CreateIndex(FullTableName tableName, string indexName, bool isUnique, IEnumerable<(string columnName, bool isDescending)> columnInfos);
 
         /// <summary>
         /// Gets an object that implements IEngineTable to talk to a table. The talbe is identified by name.

@@ -1,8 +1,11 @@
 ﻿namespace JankSQL.Engines
 {
     using System.Collections;
+    using System.Collections.Immutable;
+
     using CSharpTest.Net;
     using CSharpTest.Net.Collections;
+
     using JankSQL.Expressions;
 
     internal class BTreeTable : IEngineTable, IEnumerable, IEnumerable<RowWithBookmark>
@@ -24,6 +27,11 @@
 
         internal BTreeTable(string tableName, ExpressionOperandType[] keyTypes, IEnumerable<FullColumnName> keyNames, ExpressionOperandType[] valueTypes, IEnumerable<FullColumnName> valueNames)
         {
+            if (keyTypes.Length != keyNames.Count())
+                throw new ArgumentException("keyTypes length doesn't match keyNames length");
+            if (valueTypes.Length != valueNames.Count())
+                throw new ArgumentException("valueTypes length doesn't match valueNames length");
+
             myTree = new BPlusTree<Tuple, Tuple>(new IExpressionOperandComparer());
             hasUniqueKey = true;
 
@@ -31,21 +39,26 @@
             this.valueTypes = valueTypes;
             this.tableName = tableName;
 
-            keyColumnNames = keyNames.ToArray();
-            valueColumnNames = valueNames.ToArray();
+            keyColumnNames = new FullColumnName[keyNames.Count()];
+            valueColumnNames = new FullColumnName[valueNames.Count()];
 
             columnNameIndexes = new Dictionary<string, int>();
+
             int n = 0;
+            int keyIndex = 0;
+            int valueIndex = 0;
             foreach (var valueName in valueNames)
             {
                 FullColumnName fcn = FullColumnName.FromTableColumnName(tableName, valueName.ColumnNameOnly());
                 columnNameIndexes.Add(fcn.ColumnNameOnly(), n++);
+                valueColumnNames[valueIndex++] = fcn;
             }
 
             foreach (var keyName in keyNames)
             {
                 FullColumnName fcn = FullColumnName.FromTableColumnName(tableName, keyName.ColumnNameOnly());
                 columnNameIndexes.Add(fcn.ColumnNameOnly(), n++);
+                keyColumnNames[keyIndex++] = fcn;
             }
         }
 
@@ -57,9 +70,13 @@
         /// </summary>
         /// <param name="tableName">string with the name of our table.</param>
         /// <param name="valueTypes">array containing the value types for each of our columns.</param>
-        /// <param name="valueNames">array containing the names of each of the values in our columns.</param>
+        /// <param name="valueNames">list containing the names of each of the values in our columns.</param>
         internal BTreeTable(string tableName, ExpressionOperandType[] valueTypes, IEnumerable<FullColumnName> valueNames)
         {
+            int countValueNames = valueNames.Count();
+            if (valueTypes.Length != countValueNames)
+                throw new ArgumentException("valueTypes length doesn't match valueNames length");
+
             myTree = new BPlusTree<Tuple, Tuple>(new IExpressionOperandComparer());
             hasUniqueKey = false;
 
@@ -67,13 +84,14 @@
             this.valueTypes = valueTypes;
             this.tableName = tableName;
 
-            valueColumnNames = valueNames.ToArray();
+            valueColumnNames = new FullColumnName[countValueNames];
 
             columnNameIndexes = new Dictionary<string, int>();
             int n = 0;
             foreach (var valueName in valueNames)
             {
                 FullColumnName fcn = FullColumnName.FromTableColumnName(tableName, valueName.ColumnNameOnly());
+                valueColumnNames[n] = fcn;
                 columnNameIndexes.Add(fcn.ColumnNameOnly(), n++);
             }
 
@@ -239,7 +257,7 @@
         /// <param name="isUnique">boolean that's true if this new index is meant to be unique.</param>
         /// <param name="columnInfos">descriptions of the columns involved in this index.</param>
         /// <exception cref="ExecutionException">Thrown if an error is encountered when building the index.</exception>
-        internal void AddIndex(string indexName, bool isUnique, List<(string columnName, bool isDescending)> columnInfos)
+        internal void AddIndex(string indexName, bool isUnique, IEnumerable<(string columnName, bool isDescending)> columnInfos)
         {
             if (indexes.ContainsKey(indexName))
                 throw new ExecutionException($"Index definition {indexName} already exists");

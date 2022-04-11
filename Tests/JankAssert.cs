@@ -23,5 +23,33 @@ namespace Tests
             if (messages.Count > 0)
                 throw new AssertionException(string.Join(';', messages));
         }
+
+        public static void ValueMatchesString(ResultSet rs, int column, int row, string expectedValue)
+        {
+            if (rs == null)
+                throw new AssertionException($"expected a non-null result set");
+
+            if (rs.Row(row)[column].RepresentsNull)
+                throw new AssertionException($"expected non-null string value at column {column}, row {row}");
+
+            if (rs.Row(row)[column].NodeType != ExpressionOperandType.VARCHAR)
+                throw new AssertionException($"expected string value at column {column}, row {row}, found {rs.Row(row)[column].NodeType}");
+
+            Assert.AreEqual(expectedValue, rs.Row(row)[column].AsString());
+        }
+
+        public static void ValueMatchesInteger(ResultSet rs, int column, int row, int expectedValue)
+        {
+            if (rs == null)
+                throw new AssertionException($"expected a non-null result set");
+
+            if (rs.Row(row)[column].RepresentsNull)
+                throw new AssertionException($"expected non-null integer value at column {column}, row {row}");
+
+            if (rs.Row(row)[column].NodeType != ExpressionOperandType.INTEGER)
+                throw new AssertionException($"expected integer value at column {column}, row {row}, found {rs.Row(row)[column].NodeType}");
+
+            Assert.AreEqual(expectedValue, rs.Row(row)[column].AsInteger());
+        }
     }
 }

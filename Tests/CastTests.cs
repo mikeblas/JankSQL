@@ -47,8 +47,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.AreEqual("33.3", result.ResultSet.Row(0)[0].AsString());
-            Assert.AreEqual(ExpressionOperandType.VARCHAR, result.ResultSet.Row(0)[0].NodeType);
+            JankAssert.ValueMatchesString(result.ResultSet, 0, 0, "33.3");
         }
 
         [Test]
@@ -60,8 +59,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.AreEqual("33.3", result.ResultSet.Row(0)[0].AsString());
-            Assert.AreEqual(ExpressionOperandType.VARCHAR, result.ResultSet.Row(0)[0].NodeType);
+            JankAssert.ValueMatchesString(result.ResultSet, 0, 0, "33.3");
         }
 
         [Test]
@@ -73,8 +71,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.AreEqual("33", result.ResultSet.Row(0)[0].AsString());
-            Assert.AreEqual(ExpressionOperandType.VARCHAR, result.ResultSet.Row(0)[0].NodeType);
+            JankAssert.ValueMatchesString(result.ResultSet, 0, 0, "33");
         }
 
 
@@ -87,8 +84,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.AreEqual("33", result.ResultSet.Row(0)[0].AsString());
-            Assert.AreEqual(ExpressionOperandType.VARCHAR, result.ResultSet.Row(0)[0].NodeType);
+            JankAssert.ValueMatchesString(result.ResultSet, 0, 0, "33");
         }
 
         [Test]

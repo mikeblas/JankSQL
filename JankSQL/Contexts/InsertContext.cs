@@ -14,10 +14,10 @@
             this.TableName = tableName;
         }
 
-        internal List<FullColumnName> TargetColumns
+        internal IList<FullColumnName> TargetColumns
         {
             get { return targetColumns!; }
-            set { targetColumns = value; }
+            set { targetColumns = value.ToList(); }
         }
 
         internal FullTableName TableName { get; set; }

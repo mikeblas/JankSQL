@@ -50,6 +50,7 @@
 
             Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
             Assert.AreEqual(-32, result.ResultSet.Row(0)[0].AsDouble());
+            JankAssert.ValueMatchesInteger(result.ResultSet, 0, 0, -32);
         }
 
 
@@ -119,19 +120,12 @@
             var ec = Parser.ParseSQLFileFromString("SELECT N'hello', 'goodbye', 'Bob''s Burgers';");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 3, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(3, result.ResultSet.ColumnCount, "column count mismatch");
 
-            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
-            Assert.AreEqual("hello", result.ResultSet.Row(0)[0].AsString());
-
-            Assert.IsFalse(result.ResultSet.Row(0)[1].RepresentsNull);
-            Assert.AreEqual("goodbye", result.ResultSet.Row(0)[1].AsString());
-
-            Assert.IsFalse(result.ResultSet.Row(0)[2].RepresentsNull);
-            Assert.AreEqual("Bob's Burgers", result.ResultSet.Row(0)[2].AsString());
+            JankAssert.ValueMatchesString(result.ResultSet, 0, 0, "hello");
+            JankAssert.ValueMatchesString(result.ResultSet, 1, 0, "goodbye");
+            JankAssert.ValueMatchesString(result.ResultSet, 2, 0, "Bob's Burgers");
         }
 
         [Test]
@@ -140,21 +134,14 @@
             var ec = Parser.ParseSQLFileFromString("SELECT N'hello', 'goodbye', NULL, 'Bob''s Burgers';");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 4, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
 
-            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
-            Assert.AreEqual("hello", result.ResultSet.Row(0)[0].AsString());
-
-            Assert.IsFalse(result.ResultSet.Row(0)[1].RepresentsNull);
-            Assert.AreEqual("goodbye", result.ResultSet.Row(0)[1].AsString());
+            JankAssert.ValueMatchesString(result.ResultSet, 0, 0, "hello");
+            JankAssert.ValueMatchesString(result.ResultSet, 1, 0, "goodbye");
+            JankAssert.ValueMatchesString(result.ResultSet, 3, 0, "Bob's Burgers");
 
             Assert.IsTrue(result.ResultSet.Row(0)[2].RepresentsNull);
-
-            Assert.IsFalse(result.ResultSet.Row(0)[3].RepresentsNull);
-            Assert.AreEqual("Bob's Burgers", result.ResultSet.Row(0)[3].AsString());
         }
 
         [Test]
@@ -166,8 +153,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
-            Assert.AreEqual("Hello, world", result.ResultSet.Row(0)[0].AsString());
+            JankAssert.ValueMatchesString(result.ResultSet, 0, 0, "Hello, world");
         }
 
         [Test]
@@ -215,8 +201,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
-            Assert.AreEqual("Hello, world, good day!", result.ResultSet.Row(0)[0].AsString());
+            JankAssert.ValueMatchesString(result.ResultSet, 0, 0, "Hello, world, good day!");
         }
 
 
@@ -283,7 +268,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.AreEqual("Yes", result.ResultSet.Row(0)[0].AsString());
+            JankAssert.ValueMatchesString(result.ResultSet, 0, 0, "Yes");
         }
 
         [Test]
@@ -295,7 +280,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.AreEqual("Yes", result.ResultSet.Row(0)[0].AsString());
+            JankAssert.ValueMatchesString(result.ResultSet, 0, 0, "Yes");
         }
 
 
@@ -308,7 +293,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.AreEqual("Yes", result.ResultSet.Row(0)[0].AsString());
+            JankAssert.ValueMatchesString(result.ResultSet, 0, 0, "Yes");
         }
 
 
@@ -318,10 +303,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT 'Yes' WHERE '300' < 5;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 1, 0);
             result.ResultSet.Dump();
-            Assert.AreEqual(0, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
 
@@ -334,7 +317,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.AreEqual("Yes", result.ResultSet.Row(0)[0].AsString());
+            JankAssert.ValueMatchesString(result.ResultSet, 0, 0, "Yes");
         }
 
 
@@ -347,7 +330,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.AreEqual("Yes", result.ResultSet.Row(0)[0].AsString());
+            JankAssert.ValueMatchesString(result.ResultSet, 0, 0, "Yes");
         }
 
 
@@ -360,7 +343,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.AreEqual("Yes", result.ResultSet.Row(0)[0].AsString());
+            JankAssert.ValueMatchesString(result.ResultSet, 0, 0, "Yes");
         }
 
 
@@ -370,10 +353,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT 'Yes' WHERE SQRT(2) > SQRT(3);");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 1, 0);
             result.ResultSet.Dump();
-            Assert.AreEqual(0, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
 
@@ -383,10 +364,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT 'Yes' WHERE POWER(10, 2) > POWER(10, 3);");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 1, 0);
             result.ResultSet.Dump();
-            Assert.AreEqual(0, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [Test]
@@ -398,7 +377,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.AreEqual("Yes", result.ResultSet.Row(0)[0].AsString());
+            JankAssert.ValueMatchesString(result.ResultSet, 0, 0, "Yes");
         }
 
 
@@ -411,7 +390,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.AreEqual("Yes", result.ResultSet.Row(0)[0].AsString());
+            JankAssert.ValueMatchesString(result.ResultSet, 0, 0, "Yes");
         }
 
         [Test]
@@ -423,7 +402,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.AreEqual("Yes", result.ResultSet.Row(0)[0].AsString());
+            JankAssert.ValueMatchesString(result.ResultSet, 0, 0, "Yes");
         }
 
         [Test]
@@ -432,10 +411,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT 'Yes' WHERE POWER(10, 2) = 327 * 5525;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 1, 0);
             result.ResultSet.Dump();
-            Assert.AreEqual(0, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
 
@@ -445,10 +422,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT 'Yes' WHERE 8675309 = POWER(10, 2);");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 1, 0);
             result.ResultSet.Dump();
-            Assert.AreEqual(0, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(1, result.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [Test]
@@ -457,10 +432,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT -200, 300, 5, 0;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 4, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
 
             Tuple row = result.ResultSet.Row(0);
             int[] nums = { -200, 300, 5, 0 };
@@ -478,10 +451,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT -200, 300, NULL, 5, 0;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 5, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(5, result.ResultSet.ColumnCount, "column count mismatch");
 
             Tuple row = result.ResultSet.Row(0);
             int?[] nums = { -200, 300, null, 5, 0 };
@@ -504,10 +475,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT 200., 300.1, 5.182837, .0;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 4, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(4, result.ResultSet.ColumnCount, "column count mismatch");
 
             Tuple row = result.ResultSet.Row(0);
             double[] nums = { 200, 300.1, 5.182837, 0 };
@@ -525,10 +494,8 @@
             var ec = Parser.ParseSQLFileFromString("SELECT 200., 300.1, NULL, 5.182837, .0;");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ResultSet);
+            JankAssert.RowsetExistsWithShape(result, 5, 1);
             result.ResultSet.Dump();
-            Assert.AreEqual(1, result.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(5, result.ResultSet.ColumnCount, "column count mismatch");
 
             Tuple row = result.ResultSet.Row(0);
             double?[] nums = { 200, 300.1,  null, 5.182837, 0 };
@@ -902,6 +869,8 @@
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
+
+            JankAssert.ValueMatchesString(result.ResultSet, 0, 0, "Yes");
         }
 
 
@@ -924,7 +893,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.AreEqual("Yes", result.ResultSet.Row(0)[0].AsString());
+            JankAssert.ValueMatchesString(result.ResultSet, 0, 0, "Yes");
         }
 
         [Test]
@@ -936,7 +905,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.AreEqual("Yes", result.ResultSet.Row(0)[0].AsString());
+            JankAssert.ValueMatchesString(result.ResultSet, 0, 0, "Yes");
         }
 
 
@@ -949,7 +918,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.AreEqual("No", result.ResultSet.Row(0)[0].AsString());
+            JankAssert.ValueMatchesString(result.ResultSet, 0, 0, "No");
         }
 
         [Test]
@@ -961,8 +930,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.AreEqual("No", result.ResultSet.Row(0)[0].AsString());
+            JankAssert.ValueMatchesString(result.ResultSet, 0, 0, "No");
         }
-
     }
 }

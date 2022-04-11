@@ -236,21 +236,19 @@
             // select it out
             var ecSelect = Parser.ParseSQLFileFromString("SELECT SomeKey, SomeInteger FROM TransientTestTable ORDER BY SomeKey;");
 
-            ExecuteResult resultsSelect = ecSelect.ExecuteSingle(engine);
-            Assert.IsNotNull(resultsSelect.ResultSet, resultsSelect.ErrorMessage);
+            ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(resultSelect, 2, testRowCount);
             // resultsSelect.ResultSet.Dump();
-            Assert.AreEqual(testRowCount, resultsSelect.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(2, resultsSelect.ResultSet.ColumnCount, "column count mismatch");
 
-            int testsum = resultsSelect.ResultSet.Row(0)[1].AsInteger();
-            int previous = resultsSelect.ResultSet.Row(0)[0].AsInteger();
-            for (int i = 1; i < resultsSelect.ResultSet.RowCount; i++)
+            int testsum = resultSelect.ResultSet.Row(0)[1].AsInteger();
+            int previous = resultSelect.ResultSet.Row(0)[0].AsInteger();
+            for (int i = 1; i < resultSelect.ResultSet.RowCount; i++)
             {
-                int current = resultsSelect.ResultSet.Row(i)[0].AsInteger();
+                int current = resultSelect.ResultSet.Row(i)[0].AsInteger();
                 Assert.IsTrue(previous.CompareTo(current) <= 0, $"expected {previous} <= {current}");
                 previous = current;
 
-                int x = resultsSelect.ResultSet.Row(i)[1].AsInteger();
+                int x = resultSelect.ResultSet.Row(i)[1].AsInteger();
                 testsum += x;
             }
 

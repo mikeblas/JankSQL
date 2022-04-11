@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Contexts
 {
+    using System.Collections.Immutable;
+
     using JankSQL.Expressions;
 
     internal class SelectListContext
@@ -17,9 +19,9 @@
             this.context = context;
         }
 
-        internal List<Expression> SelectExpressions
+        internal ImmutableList<Expression> SelectExpressions
         {
-            get { return expressionList; }
+            get { return expressionList.ToImmutableList(); }
         }
 
         internal int ExpressionListCount

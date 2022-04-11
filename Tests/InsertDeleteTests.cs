@@ -62,10 +62,8 @@
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM TransientTestTable;");
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
-            Assert.IsNotNull(resultSelect.ResultSet, resultSelect.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(resultSelect, 3, 3);
             resultSelect.ResultSet.Dump();
-            Assert.AreEqual(3, resultSelect.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(3, resultSelect.ResultSet.ColumnCount, "column count mismatch");
 
             int someIntegerIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("someinteger"));
             int anotherIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("anotherone"));
@@ -166,15 +164,12 @@
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM MyTable WHERE keycolumn = 53;");
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
-            Assert.IsNotNull(resultSelect.ResultSet, resultSelect.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(resultSelect, 4, 1);
             resultSelect.ResultSet.Dump();
-            Assert.AreEqual(1, resultSelect.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(4, resultSelect.ResultSet.ColumnCount, "column count mismatch");
 
             int cityIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("city_name"));
             int stateIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("state_code"));
             int popIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("population"));
-
 
             Assert.AreEqual("West Hartford", resultSelect.ResultSet.Row(0)[cityIndex].AsString());
             Assert.AreEqual("CT", resultSelect.ResultSet.Row(0)[stateIndex].AsString());
@@ -198,10 +193,8 @@
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM MyTable WHERE keycolumn = 53;");
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
-            Assert.IsNotNull(resultSelect.ResultSet, resultSelect.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(resultSelect, 4, 1);
             resultSelect.ResultSet.Dump();
-            Assert.AreEqual(1, resultSelect.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(4, resultSelect.ResultSet.ColumnCount, "column count mismatch");
 
             int cityIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("city_name"));
             int stateIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("state_code"));
@@ -230,10 +223,8 @@
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM MyTable WHERE keycolumn = 53;");
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
-            Assert.IsNotNull(resultSelect.ResultSet, resultSelect.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(resultSelect, 4, 1);
             resultSelect.ResultSet.Dump();
-            Assert.AreEqual(1, resultSelect.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(4, resultSelect.ResultSet.ColumnCount, "column count mismatch");
 
             int cityIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("city_name"));
             int stateIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("state_code"));
@@ -262,10 +253,8 @@
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM MyTable;");
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
-            Assert.IsNotNull(resultSelect.ResultSet, resultSelect.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(resultSelect, 4, 4);
             resultSelect.ResultSet.Dump();
-            Assert.AreEqual(4, resultSelect.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(4, resultSelect.ResultSet.ColumnCount, "column count mismatch");
         }
 
         [Test]
@@ -285,10 +274,8 @@
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM MyTable WHERE keycolumn = 53;");
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
-            Assert.IsNotNull(resultSelect.ResultSet, resultSelect.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(resultSelect, 4, 1);
             resultSelect.ResultSet.Dump();
-            Assert.AreEqual(1, resultSelect.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(4, resultSelect.ResultSet.ColumnCount, "column count mismatch");
 
             int cityIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("city_name"));
             int stateIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("state_code"));
@@ -316,10 +303,8 @@
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM MyTable WHERE keycolumn = 53;");
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
-            Assert.IsNotNull(resultSelect.ResultSet, resultSelect.ErrorMessage);
+            JankAssert.RowsetExistsWithShape(resultSelect, 4, 1);
             resultSelect.ResultSet.Dump();
-            Assert.AreEqual(1, resultSelect.ResultSet.RowCount, "row count mismatch");
-            Assert.AreEqual(4, resultSelect.ResultSet.ColumnCount, "column count mismatch");
 
             int cityIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("city_name"));
             int stateIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("state_code"));
@@ -392,6 +377,7 @@
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM [mytable];");
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(resultSelect, 4, 0);
         }
 
         [Test]
@@ -406,6 +392,7 @@
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM [mytable];");
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(resultSelect, 4, 0);
         }
     }
 }

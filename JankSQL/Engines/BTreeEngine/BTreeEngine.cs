@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Engines
 {
+    using System.Collections.Immutable;
+
     using JankSQL.Expressions;
 
     public class BTreeEngine : IEngine
@@ -32,12 +34,12 @@
             return new BTreeEngine();
         }
 
-        public void CreateTable(FullTableName tableName, List<FullColumnName> columnNames, List<ExpressionOperandType> columnTypes)
+        public void CreateTable(FullTableName tableName, IEnumerable<FullColumnName> columnNames, IEnumerable<ExpressionOperandType> columnTypes)
         {
-            if (columnNames.Count == 0)
+            if (columnNames.Count() == 0)
                 throw new ArgumentException("Must have at least one column name");
-            if (columnNames.Count != columnTypes.Count)
-                throw new ArgumentException($"Must have at types for each column; got {columnNames.Count} names and {columnTypes.Count} types");
+            if (columnNames.Count() != columnTypes.Count())
+                throw new ArgumentException($"Must have at types for each column; got {columnNames.Count()} names and {columnTypes.Count()} types");
 
             // create the table
             BTreeTable table = new (tableName.TableName, columnTypes.ToArray(), columnNames);
@@ -51,24 +53,39 @@
             sysTables.InsertRow(tablesRow);
 
             // add rows for the sys_columns
-            for (int i = 0; i < columnNames.Count; i++)
+            int nameIndex = 0;
+            foreach (var columnName in columnNames)
             {
                 Tuple columnRow = new ()
                 {
                     ExpressionOperand.VARCHARFromString(tableName.TableName),
-                    ExpressionOperand.VARCHARFromString(columnNames[i].ColumnNameOnly()),
-                    ExpressionOperand.VARCHARFromString(columnTypes[i].ToString()), // type
-                    ExpressionOperand.IntegerFromInt(i), // ordinal
+                    ExpressionOperand.VARCHARFromString(columnName.ColumnNameOnly()),
+                    ExpressionOperand.VARCHARFromString(columnTypes.ToString()), // type
+                    ExpressionOperand.IntegerFromInt(nameIndex), // ordinal
                 };
+
                 sysColumns.InsertRow(columnRow);
+
+                nameIndex++;
             }
+
 
             inMemoryTables.Add(tableName.TableName, table);
         }
 
-        public void CreateIndex(FullTableName tableName, string indexName, bool isUnique, List<(string columnName, bool isDescending)> columnInfos)
+        public void CreateIndex(FullTableName tableName, string indexName, bool isUnique, IEnumerable<(string columnName, bool isDescending)> columnInfos)
         {
-            if (columnInfos.Count == 0)
+            // make sure no duplicate columns in the index
+            HashSet<string> columnNames = new ();
+            foreach (var (columnName, isDescending) in columnInfos)
+            {
+                if (columnNames.Contains(columnName))
+                    throw new ArgumentException($"repeated index column {columnName}");
+                columnNames.Add(columnName);
+            }
+
+            // we did get a non-empty list, right?
+            if (columnNames.Count == 0)
                 throw new ArgumentException("Must have at least one column in this index");
 
             // make sure the table exists
@@ -86,15 +103,6 @@
                 {
                     throw new ExecutionException($"index {indexName} already exists on table {tableName}");
                 }
-            }
-
-            // make sure no duplicate columns in the table
-            HashSet<string> columnNames = new ();
-            for (int i = 0; i < columnInfos.Count; i++)
-            {
-                if (columnNames.Contains(columnInfos[i].columnName))
-                    throw new ArgumentException($"repeated index column {columnInfos[i].columnName}");
-                columnNames.Add(columnInfos[i].columnName);
             }
 
             // make sure those columns exist in the table
@@ -401,6 +409,7 @@
                 FullColumnName.FromColumnName("index_name"),
                 FullColumnName.FromColumnName("index"),
             };
+
             FullColumnName[] valueNames = new[]
             {
                 FullColumnName.FromColumnName("column_name"),

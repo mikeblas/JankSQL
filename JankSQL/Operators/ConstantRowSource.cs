@@ -3,11 +3,11 @@
     internal class ConstantRowSource : IComponentOutput
     {
         private readonly List<List<Expression>> columnValues;
-        private readonly List<FullColumnName> columnNames;
+        private readonly IList<FullColumnName> columnNames;
 
         private int currentRow = 0;
 
-        internal ConstantRowSource(List<FullColumnName> columnNames, List<List<Expression>> columnValues)
+        internal ConstantRowSource(IList<FullColumnName> columnNames, List<List<Expression>> columnValues)
         {
             this.currentRow = 0;
             this.columnValues = columnValues;

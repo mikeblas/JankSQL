@@ -7,7 +7,7 @@
         private readonly List<(string columnName, bool isDescending, int heapColumnIndex)> columnInfos;
         private int nextUniquifer = 1;
 
-        internal IndexDefinition(string indexName, bool isUnique, List<(string columnName, bool isDescending)> columnInfos, IEngineTable heap)
+        internal IndexDefinition(string indexName, bool isUnique, IEnumerable<(string columnName, bool isDescending)> columnInfos, IEngineTable heap)
         {
             this.indexName = indexName;
             this.isUnique = isUnique;

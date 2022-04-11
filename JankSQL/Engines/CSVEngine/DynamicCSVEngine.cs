@@ -1,7 +1,7 @@
 ﻿namespace JankSQL.Engines
 {
+    using System.Collections.Immutable;
     using JankSQL.Expressions;
-
     public enum OpenPolicy
     {
         ExistingOnly,   // fail if not found
@@ -114,7 +114,7 @@
             }
         }
 
-        public void CreateTable(FullTableName tableName, List<FullColumnName> columnNames, List<ExpressionOperandType> columnTypes)
+        public void CreateTable(FullTableName tableName, IEnumerable<FullColumnName> columnNames, IEnumerable<ExpressionOperandType> columnTypes)
         {
             // guess file name
             string fileName = tableName.TableName.Replace("[", string.Empty).Replace("]", string.Empty) + ".csv";
@@ -163,20 +163,25 @@
             int idxTableName = sysColumns.ColumnIndex("table_name");
             int idxType = sysColumns.ColumnIndex("column_type");
 
-            for (int i = 0; i < columnNames.Count; i++)
+            int columnNameIndex = 0;
+            IEnumerator<ExpressionOperandType> columnTypeEnumerator = columnTypes.GetEnumerator();
+            foreach (var columnName in columnNames)
             {
+                columnTypeEnumerator.MoveNext();
                 Tuple columnRow = Tuple.CreateEmpty(sysColumns.ColumnCount);
 
-                columnRow[idxIdx] = ExpressionOperand.IntegerFromInt(i);
+                columnRow[idxIdx] = ExpressionOperand.IntegerFromInt(columnNameIndex);
                 columnRow[idxTableName] = ExpressionOperand.VARCHARFromString(tableName.TableName);
-                columnRow[idxColumnName] = ExpressionOperand.VARCHARFromString(columnNames[i].ColumnNameOnly());
-                columnRow[idxType] = ExpressionOperand.VARCHARFromString(columnTypes[i].ToString());
+                columnRow[idxColumnName] = ExpressionOperand.VARCHARFromString(columnName.ColumnNameOnly());
+                columnRow[idxType] = ExpressionOperand.VARCHARFromString(columnTypeEnumerator.Current.ToString());
 
                 sysColumns.InsertRow(columnRow);
+
+                columnNameIndex++;
             }
         }
 
-        public void CreateIndex(FullTableName tableName, string indexName, bool isUnique, List<(string columnName, bool isDescending)> columnInfos)
+        public void CreateIndex(FullTableName tableName, string indexName, bool isUnique, IEnumerable<(string columnName, bool isDescending)> columnInfos)
         {
             throw new NotImplementedException();
         }

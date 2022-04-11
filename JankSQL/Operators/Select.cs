@@ -76,7 +76,7 @@
                 Tuple rowResults = Tuple.CreateEmpty(effectiveColumns.Count);
                 foreach (FullColumnName columnName in effectiveColumns)
                 {
-                    int idx = rsInput.ColumnIndex(columnName);
+                    // int idx = rsInput.ColumnIndex(columnName);
                     ExpressionOperand result = selectList.Execute(exprIndex, rsInput, i);
                     rowResults[rsIndex] = result;
                     exprIndex++;
