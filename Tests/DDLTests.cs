@@ -25,7 +25,11 @@
             Assert.NotNull(resultCreate.ErrorMessage);
 
             // insert some rows
-            var ecInsert = Parser.ParseSQLFileFromString("INSERT INTO TransientTestTable (SomeInteger, SomeString, AnotherOne) VALUES(1, 'moe', 100), (2, 'larry', 200), (3, 'curly', 300);");
+            var ecInsert = Parser.ParseSQLFileFromString(
+                "INSERT INTO TransientTestTable (SomeInteger, SomeString, AnotherOne) VALUES " +
+                "(1, 'moe', 100),   " +
+                "(2, 'larry', 200), " + 
+                "(3, 'curly', 300); ");
 
             Assert.IsNotNull(ecInsert);
             Assert.AreEqual(0, ecInsert.TotalErrors);
