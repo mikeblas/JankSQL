@@ -53,10 +53,10 @@
             // Console.WriteLine("REWIND!");
         }
 
-        public ResultSet GetRows(int max)
+        public ResultSet GetRows(Engines.IEngine engine, int max)
         {
             if (outputSet is null)
-                outputSet = ProduceOutputSet();
+                outputSet = ProduceOutputSet(engine);
 
             ResultSet resultSlice = ResultSet.NewWithShape(outputSet);
             if (outputIndex >= outputSet.RowCount)
@@ -103,31 +103,31 @@
             return allColumnNames;
         }
 
-        protected bool FillLeftRows(int max)
+        protected bool FillLeftRows(Engines.IEngine engine, int max)
         {
-            leftRows = leftInput.GetRows(max);
+            leftRows = leftInput.GetRows(engine, max);
             return leftRows != null && leftRows.RowCount > 0;
         }
 
-        protected bool FillRightRows(int max)
+        protected bool FillRightRows(Engines.IEngine engine, int max)
         {
-            rightRows = rightInput.GetRows(max);
+            rightRows = rightInput.GetRows(engine, max);
             return rightRows != null && rightRows.RowCount > 0;
         }
 
-        protected ResultSet ProduceOutputSet()
+        protected ResultSet ProduceOutputSet(Engines.IEngine engine)
         {
             const int max = 7;
 
             if (leftRows == null)
             {
-                FillLeftRows(max);
+                FillLeftRows(engine, max);
                 leftIndex = 0;
             }
 
             if (rightRows == null)
             {
-                FillRightRows(max);
+                FillRightRows(engine, max);
                 rightIndex = 0;
             }
 
@@ -149,7 +149,7 @@
                     matched = true;
                 else
                 {
-                    ExpressionOperand op = PredicateExpressions[0].Evaluate(new TemporaryRowValueAccessor(totalRow, allColumnNames));
+                    ExpressionOperand op = PredicateExpressions[0].Evaluate(new TemporaryRowValueAccessor(totalRow, allColumnNames), engine);
                     matched = op.IsTrue();
                 }
 
@@ -176,15 +176,15 @@
                 rightIndex += 1;
                 if (rightIndex == rightRows.RowCount)
                 {
-                    if (!FillRightRows(max))
+                    if (!FillRightRows(engine, max))
                     {
                         rightInput.Rewind();
-                        FillRightRows(max);
+                        FillRightRows(engine, max);
 
                         leftIndex += 1;
                         if (leftIndex == leftRows.RowCount)
                         {
-                            if (!FillLeftRows(max))
+                            if (!FillLeftRows(engine, max))
                                 break;
                             leftIndex = 0;
                         }

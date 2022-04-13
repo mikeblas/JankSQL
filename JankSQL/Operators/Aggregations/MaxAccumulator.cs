@@ -28,6 +28,11 @@
 
             return max;
         }
+
+        public override string ToString()
+        {
+            return $"Max accumulator(max = {max})";
+        }
     }
 }
 

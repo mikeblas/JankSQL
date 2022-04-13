@@ -6,7 +6,7 @@
     /// values in a loose ExpressionOperand array. This interface provides a way to
     /// give an adapter to the expression evaluator to acess either data type.
     /// </summary>
-    internal interface IRowValueAccessor
+    public interface IRowValueAccessor
     {
         /// <summary>
         /// Get a value from the given column name in the wrapped source.

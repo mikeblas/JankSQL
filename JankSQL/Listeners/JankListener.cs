@@ -228,10 +228,14 @@
                         if (xContext.bracket_expression().subquery() != null)
                         {
                             SelectContext subSelect = GobbleSelectStatement(xContext.bracket_expression().subquery().select_statement());
-                            throw new NotImplementedException("Subqueries are not yet implemented");
+                            ExpressionNode n = new ExpressionSubselectOperator(subSelect);
+                            x.Insert(0, n);
+                            // throw new NotImplementedException("Subqueries are not yet implemented");
                         }
-
-                        stack.Add(xContext.bracket_expression().expression());
+                        else
+                        {
+                            stack.Add(xContext.bracket_expression().expression());
+                        }
                     }
                     else if (xContext.function_call() != null)
                     {

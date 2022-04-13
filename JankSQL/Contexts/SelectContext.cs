@@ -1,5 +1,6 @@
 ﻿namespace JankSQL.Contexts
 {
+    using JankSQL.Expressions;
     using JankSQL.Operators;
 
     public class SelectContext : IExecutableContext
@@ -63,14 +64,19 @@
             set { inputContext = value; }
         }
 
+        internal void Reset()
+        {
+            tableNames.Clear();
+        }
+
         public ExecuteResult Execute(Engines.IEngine engine)
         {
             Select select = BuildSelectObject(engine);
-            ResultSet resultSet = null;
+            ResultSet? resultSet = null;
 
             while (true)
             {
-                ResultSet batch = select.GetRows(5);
+                ResultSet batch = select.GetRows(engine, 5);
                 if (resultSet == null)
                     resultSet = ResultSet.NewWithShape(batch);
 

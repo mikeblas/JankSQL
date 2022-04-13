@@ -28,9 +28,9 @@
             myInput.Rewind();
         }
 
-        public ResultSet GetRows(int max)
+        public ResultSet GetRows(Engines.IEngine engine, int max)
         {
-            ResultSet rsInput = myInput.GetRows(max);
+            ResultSet rsInput = myInput.GetRows(engine, max);
 
             // get an effective column list ...
             if (effectiveColumns == null)
@@ -79,7 +79,7 @@
                 Tuple rowResults = Tuple.CreateEmpty(effectiveColumns.Count);
                 foreach (FullColumnName columnName in effectiveColumns)
                 {
-                    ExpressionOperand result = selectList.Execute(exprIndex, rsInput, i);
+                    ExpressionOperand result = selectList.Execute(exprIndex, rsInput, i, engine);
                     rowResults[rsIndex] = result;
                     exprIndex++;
 

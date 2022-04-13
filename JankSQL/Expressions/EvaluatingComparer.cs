@@ -5,15 +5,17 @@
         private readonly Expression[] keyExpressions;
         private readonly bool[] isAscending;
         private readonly FullColumnName[] columnNames;
+        private readonly Engines.IEngine engine;
 
         private int keyComparisons = 0;
         private int rowComparisons = 0;
 
-        internal EvaluatingComparer(Expression[] keyExpressions, bool[] isAscending, IEnumerable<FullColumnName> columnNames)
+        internal EvaluatingComparer(Engines.IEngine engine, Expression[] keyExpressions, bool[] isAscending, IEnumerable<FullColumnName> columnNames)
         {
             this.keyExpressions = keyExpressions;
             this.isAscending = isAscending;
             this.columnNames = columnNames.ToArray();
+            this.engine = engine;
         }
 
         internal int KeyComparisons
@@ -42,8 +44,8 @@
             int keyNumber = 0;
             do
             {
-                ExpressionOperand xop = keyExpressions[keyNumber].Evaluate(xAccessor);
-                ExpressionOperand yop = keyExpressions[keyNumber].Evaluate(yAccessor);
+                ExpressionOperand xop = keyExpressions[keyNumber].Evaluate(xAccessor, engine);
+                ExpressionOperand yop = keyExpressions[keyNumber].Evaluate(yAccessor, engine);
                 ret = xop.CompareTo(yop);
                 if (!isAscending[keyNumber])
                     ret = -ret;

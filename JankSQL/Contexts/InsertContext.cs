@@ -49,7 +49,7 @@
 
                 while (true)
                 {
-                    ResultSet batch = inserter.GetRows(5);
+                    ResultSet batch = inserter.GetRows(engine, 5);
                     if (batch.IsEOF)
                         break;
                 }

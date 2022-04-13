@@ -74,9 +74,9 @@
         }
 
         //TODO: refactor this into Select operator
-        internal ExpressionOperand Execute(int index, ResultSet resultSet, int rowIndex)
+        internal ExpressionOperand Execute(int index, ResultSet resultSet, int rowIndex, Engines.IEngine engine)
         {
-            return expressionList[index].Evaluate(new ResultSetValueAccessor(resultSet, rowIndex));
+            return expressionList[index].Evaluate(new ResultSetValueAccessor(resultSet, rowIndex), engine);
         }
 
         internal void Dump()

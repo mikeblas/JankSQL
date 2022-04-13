@@ -24,11 +24,14 @@
             }
         }
 
-        internal int RowsAffected { get { return rowsAffected; } }
-
-        public ResultSet GetRows(int max)
+        internal int RowsAffected
         {
-            ResultSet rsInput = myInput.GetRows(max);
+            get { return rowsAffected; }
+        }
+
+        public ResultSet GetRows(Engines.IEngine engine, int max)
+        {
+            ResultSet rsInput = myInput.GetRows(engine, max);
             if (rsInput.IsEOF)
             {
                 ResultSet eof = new (new List<FullColumnName>());

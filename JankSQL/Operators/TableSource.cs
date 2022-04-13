@@ -36,7 +36,7 @@
             rowEnumerator.Reset();
         }
 
-        public ResultSet GetRows(int max)
+        public ResultSet GetRows(Engines.IEngine engine, int max)
         {
             ResultSet rs = new (GetAllColumnNames());
 

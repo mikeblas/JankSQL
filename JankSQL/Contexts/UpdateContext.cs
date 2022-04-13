@@ -32,12 +32,12 @@
             return $"{fcn} {op} {expression}";
         }
 
-        internal void Execute(IRowValueAccessor outputaccessor, IRowValueAccessor inputAccessor)
+        internal void Execute(Engines.IEngine engine, IRowValueAccessor outputaccessor, IRowValueAccessor inputAccessor)
         {
             if (op != SetOperator.ASSIGN)
                 throw new NotImplementedException();
 
-            ExpressionOperand val = expression.Evaluate(inputAccessor);
+            ExpressionOperand val = expression.Evaluate(inputAccessor, engine);
             outputaccessor.SetValue(fcn, val);
         }
     }
@@ -105,7 +105,7 @@
 
                 while (true)
                 {
-                    ResultSet batch = update.GetRows(5);
+                    ResultSet batch = update.GetRows(engine, 5);
                     if (batch.IsEOF)
                         break;
                 }

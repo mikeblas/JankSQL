@@ -14,7 +14,7 @@
             this.columnNames = columnNames;
         }
 
-        public ResultSet GetRows(int max)
+        public ResultSet GetRows(Engines.IEngine engine, int max)
         {
             ResultSet resultSet = new (columnNames);
 
@@ -30,7 +30,7 @@
                 Tuple generatedValues = Tuple.CreateEmpty(columnValues[0].Count);
 
                 for (int i = 0; i < columnValues[currentRow].Count; i++)
-                    generatedValues[i] = columnValues[currentRow][i].Evaluate(null);
+                    generatedValues[i] = columnValues[currentRow][i].Evaluate(null, engine);
 
                 resultSet.AddRow(generatedValues);
                 currentRow++;

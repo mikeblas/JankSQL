@@ -44,7 +44,7 @@
 
                 while (true)
                 {
-                    ResultSet batch = delete.GetRows(5);
+                    ResultSet batch = delete.GetRows(engine, 5);
                     if (batch.IsEOF)
                         break;
                 }

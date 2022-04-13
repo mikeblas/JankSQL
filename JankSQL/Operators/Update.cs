@@ -22,16 +22,19 @@
             this.setList = setList;
         }
 
-        internal int RowsAffected { get { return rowsAffected; } }
+        internal int RowsAffected
+        {
+            get { return rowsAffected; }
+        }
 
         public void Rewind()
         {
             throw new NotImplementedException();
         }
 
-        public ResultSet GetRows(int max)
+        public ResultSet GetRows(Engines.IEngine engine, int max)
         {
-            ResultSet batch = myInput.GetRows(5);
+            ResultSet batch = myInput.GetRows(engine, 5);
             ResultSet rsOutput = ResultSet.NewWithShape(batch);
 
             if (batch.IsEOF)
@@ -47,7 +50,7 @@
                 bool predicatePassed = true;
                 if (predicateExpression != null)
                 {
-                    ExpressionOperand result = predicateExpression.Evaluate(new ResultSetValueAccessor(batch, i));
+                    ExpressionOperand result = predicateExpression.Evaluate(new ResultSetValueAccessor(batch, i), engine);
                     predicatePassed = result.IsTrue();
                 }
 
@@ -76,7 +79,7 @@
 
                 foreach (var set in setList)
                 {
-                    set.Execute(new TemporaryRowValueAccessor(modified, batch.GetColumnNames()), new ResultSetValueAccessor(batch, i));
+                    set.Execute(engine, new TemporaryRowValueAccessor(modified, batch.GetColumnNames()), new ResultSetValueAccessor(batch, i));
                 }
 
                 rowsToInsert.Add(modified);

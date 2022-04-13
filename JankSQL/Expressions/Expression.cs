@@ -48,7 +48,7 @@
             return base.GetHashCode();
         }
 
-        internal ExpressionOperand Evaluate(IRowValueAccessor? accessor)
+        internal ExpressionOperand Evaluate(IRowValueAccessor? accessor, Engines.IEngine engine)
         {
             Stack<ExpressionOperand> stack = new ();
 
@@ -108,7 +108,14 @@
                         // CASE WHEN (predicate) THEN (expr) ... [ELSE (expr)]
                         if (accessor == null)
                             throw new ExecutionException("Not in a row context to evaluate {this}");
-                        ExpressionOperand r = caseOperator.Evaluate(accessor, stack);
+                        ExpressionOperand r = caseOperator.Evaluate(engine, accessor, stack);
+                        stack.Push(r);
+                    }
+                    else if (n is ExpressionSubselectOperator subselectOperator)
+                    {
+                        if (accessor == null)
+                            throw new ExecutionException("Not in a row context to evaluate {this}");
+                        ExpressionOperand r = subselectOperator.Evaluate(engine, accessor, stack);
                         stack.Push(r);
                     }
                     else

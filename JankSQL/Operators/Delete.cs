@@ -18,11 +18,14 @@
             this.predicateExpression = predicateExpression;
         }
 
-        internal int RowsAffected { get { return rowsAffected; } }
-
-        public ResultSet GetRows(int max)
+        internal int RowsAffected
         {
-            ResultSet batch = myInput.GetRows(5);
+            get { return rowsAffected; }
+        }
+
+        public ResultSet GetRows(Engines.IEngine engine, int max)
+        {
+            ResultSet batch = myInput.GetRows(engine, 5);
             ResultSet rsOutput = ResultSet.NewWithShape(batch);
 
             if (batch.IsEOF)
@@ -38,7 +41,7 @@
                 bool predicatePassed = true;
                 if (predicateExpression != null)
                 {
-                    ExpressionOperand result = predicateExpression.Evaluate(new ResultSetValueAccessor(batch, i));
+                    ExpressionOperand result = predicateExpression.Evaluate(new ResultSetValueAccessor(batch, i), engine);
                     predicatePassed = result.IsTrue();
                 }
 
