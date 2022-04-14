@@ -53,10 +53,10 @@
             // Console.WriteLine("REWIND!");
         }
 
-        public ResultSet GetRows(Engines.IEngine engine, int max)
+        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max)
         {
             if (outputSet is null)
-                outputSet = ProduceOutputSet(engine);
+                outputSet = ProduceOutputSet(engine, outerAccessor);
 
             ResultSet resultSlice = ResultSet.NewWithShape(outputSet);
             if (outputIndex >= outputSet.RowCount)
@@ -103,31 +103,31 @@
             return allColumnNames;
         }
 
-        protected bool FillLeftRows(Engines.IEngine engine, int max)
+        protected bool FillLeftRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max)
         {
-            leftRows = leftInput.GetRows(engine, max);
+            leftRows = leftInput.GetRows(engine, outerAccessor, max);
             return leftRows != null && leftRows.RowCount > 0;
         }
 
-        protected bool FillRightRows(Engines.IEngine engine, int max)
+        protected bool FillRightRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max)
         {
-            rightRows = rightInput.GetRows(engine, max);
+            rightRows = rightInput.GetRows(engine, outerAccessor, max);
             return rightRows != null && rightRows.RowCount > 0;
         }
 
-        protected ResultSet ProduceOutputSet(Engines.IEngine engine)
+        protected ResultSet ProduceOutputSet(Engines.IEngine engine, IRowValueAccessor? outerAccessor)
         {
             const int max = 7;
 
             if (leftRows == null)
             {
-                FillLeftRows(engine, max);
+                FillLeftRows(engine, outerAccessor, max);
                 leftIndex = 0;
             }
 
             if (rightRows == null)
             {
-                FillRightRows(engine, max);
+                FillRightRows(engine, outerAccessor, max);
                 rightIndex = 0;
             }
 
@@ -176,15 +176,15 @@
                 rightIndex += 1;
                 if (rightIndex == rightRows.RowCount)
                 {
-                    if (!FillRightRows(engine, max))
+                    if (!FillRightRows(engine, outerAccessor, max))
                     {
                         rightInput.Rewind();
-                        FillRightRows(engine, max);
+                        FillRightRows(engine, outerAccessor, max);
 
                         leftIndex += 1;
                         if (leftIndex == leftRows.RowCount)
                         {
-                            if (!FillLeftRows(engine, max))
+                            if (!FillLeftRows(engine, outerAccessor, max))
                                 break;
                             leftIndex = 0;
                         }

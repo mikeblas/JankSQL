@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Operators
 {
+    using JankSQL.Expressions;
+
     internal class TableSource : IComponentOutput
     {
         private readonly Engines.IEngineTable source;
@@ -36,7 +38,7 @@
             rowEnumerator.Reset();
         }
 
-        public ResultSet GetRows(Engines.IEngine engine, int max)
+        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max)
         {
             ResultSet rs = new (GetAllColumnNames());
 

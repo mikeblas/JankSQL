@@ -1,5 +1,8 @@
 ﻿namespace JankSQL.Contexts
 {
+    using JankSQL.Engines;
+    using JankSQL.Expressions;
+
     internal class TruncateTableContext : IExecutableContext
     {
         private readonly FullTableName tableName;
@@ -9,7 +12,7 @@
             this.tableName = tableName;
         }
 
-        public ExecuteResult Execute(Engines.IEngine engine)
+        public ExecuteResult Execute(IEngine engine, IRowValueAccessor? accessor)
         {
             Engines.IEngineTable? engineSource = engine.GetEngineTable(tableName);
             if (engineSource == null)

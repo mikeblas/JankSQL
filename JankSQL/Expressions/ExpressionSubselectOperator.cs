@@ -20,7 +20,7 @@
         internal ExpressionOperand Evaluate(Engines.IEngine engine, IRowValueAccessor accessor, Stack<ExpressionOperand> stack)
         {
             selectContext.Reset();
-            ExecuteResult result = selectContext.Execute(engine);
+            ExecuteResult result = selectContext.Execute(engine, accessor);
 
             if (result.ResultSet.ColumnCount != 1)
                 throw new SemanticErrorException($"subselect returned {result.ResultSet.ColumnCount} columns, must only return 1 column");

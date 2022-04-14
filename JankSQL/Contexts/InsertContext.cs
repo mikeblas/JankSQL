@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Contexts
 {
+    using JankSQL.Engines;
+    using JankSQL.Expressions;
     using JankSQL.Operators;
 
     internal class InsertContext : IExecutableContext
@@ -22,7 +24,7 @@
 
         internal FullTableName TableName { get; set; }
 
-        public ExecuteResult Execute(Engines.IEngine engine)
+        public ExecuteResult Execute(Engines.IEngine engine, IRowValueAccessor? accessor)
         {
             if (constructors == null)
                 throw new InternalErrorException("Expected a list of constructors");
@@ -49,7 +51,7 @@
 
                 while (true)
                 {
-                    ResultSet batch = inserter.GetRows(engine, 5);
+                    ResultSet batch = inserter.GetRows(engine, accessor, 5);
                     if (batch.IsEOF)
                         break;
                 }

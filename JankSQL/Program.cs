@@ -34,6 +34,9 @@ namespace JankSQL
 
             str = "SELECT number_id FROM ten WHERE number_id < (SELECT MAX(keycolumn) FROM mytable WHERE ten.is_even = 0)";
 
+            str = "SELECT number_id FROM ten WHERE number_id < (SELECT MAX(keycolumn) FROM mytable WHERE ten.is_even = 0 AND keycolumn = 3)";
+
+
             var btreeEngine = Engines.BTreeEngine.CreateInMemory();
 
             string tempPath = System.IO.Path.GetTempPath();

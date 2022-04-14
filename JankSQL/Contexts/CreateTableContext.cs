@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Contexts
 {
+    using JankSQL.Engines;
+    using JankSQL.Expressions;
     using System.Collections.Immutable;
 
     internal class CreateTableContext : IExecutableContext
@@ -24,7 +26,7 @@
             }
         }
 
-        public ExecuteResult Execute(Engines.IEngine engine)
+        public ExecuteResult Execute(IEngine engine, IRowValueAccessor? accessor)
         {
             engine.CreateTable(tableName, columnNames.ToImmutableList(), columnTypes.ToImmutableList());
 

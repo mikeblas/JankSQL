@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Operators
 {
+    using JankSQL.Expressions;
+
     internal class Insert : IComponentOutput
     {
         private readonly IComponentOutput myInput;
@@ -29,9 +31,9 @@
             get { return rowsAffected; }
         }
 
-        public ResultSet GetRows(Engines.IEngine engine, int max)
+        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max)
         {
-            ResultSet rsInput = myInput.GetRows(engine, max);
+            ResultSet rsInput = myInput.GetRows(engine, outerAccessor, max);
             if (rsInput.IsEOF)
             {
                 ResultSet eof = new (new List<FullColumnName>());

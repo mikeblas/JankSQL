@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Operators
 {
+    using JankSQL.Expressions;
+
     internal class ConstantRowSource : IComponentOutput
     {
         private readonly List<List<Expression>> columnValues;
@@ -14,7 +16,7 @@
             this.columnNames = columnNames;
         }
 
-        public ResultSet GetRows(Engines.IEngine engine, int max)
+        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max)
         {
             ResultSet resultSet = new (columnNames);
 

@@ -1,6 +1,7 @@
 ﻿namespace JankSQL.Contexts
 {
     using JankSQL.Engines;
+    using JankSQL.Expressions;
 
     internal class CreateIndexContext : IExecutableContext
     {
@@ -32,7 +33,7 @@
             get { return isUnique; }
         }
 
-        public ExecuteResult Execute(IEngine engine)
+        public ExecuteResult Execute(IEngine engine, IRowValueAccessor? accessor)
         {
             engine.CreateIndex(tableName, indexName, isUnique, columnInfo);
 

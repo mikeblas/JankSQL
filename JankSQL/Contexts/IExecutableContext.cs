@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Contexts
 {
+    using JankSQL.Expressions;
+
     /// <summary>
     /// IExecutableContext is the interface to an executable context class. Contexts are
     /// built from the wakler, containing the context they need to cause execution of a
@@ -15,8 +17,9 @@
         /// Execute this context using the given engine.
         /// </summary>
         /// <param name="engine">IEngine which provides storage and enumeration capabilities.</param>
+        /// <param name="accessor">an optional IRowValueAccessor that gives a supplemental binding context for evaluations in this execution.</param>
         /// <returns>An ExecuteResult indicating the outcome.</returns>
-        ExecuteResult Execute(Engines.IEngine engine);
+        ExecuteResult Execute(Engines.IEngine engine, IRowValueAccessor? accessor);
 
         /// <summary>
         /// Dump information about this executable context. This call will effectively show

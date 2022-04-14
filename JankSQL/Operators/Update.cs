@@ -32,9 +32,9 @@
             throw new NotImplementedException();
         }
 
-        public ResultSet GetRows(Engines.IEngine engine, int max)
+        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max)
         {
-            ResultSet batch = myInput.GetRows(engine, 5);
+            ResultSet batch = myInput.GetRows(engine, outerAccessor, 5);
             ResultSet rsOutput = ResultSet.NewWithShape(batch);
 
             if (batch.IsEOF)
@@ -50,7 +50,8 @@
                 bool predicatePassed = true;
                 if (predicateExpression != null)
                 {
-                    ExpressionOperand result = predicateExpression.Evaluate(new ResultSetValueAccessor(batch, i), engine);
+                    var accessor = new CombinedValueAccessor(new ResultSetValueAccessor(batch, i), outerAccessor);
+                    ExpressionOperand result = predicateExpression.Evaluate(accessor, engine);
                     predicatePassed = result.IsTrue();
                 }
 
@@ -79,7 +80,8 @@
 
                 foreach (var set in setList)
                 {
-                    set.Execute(engine, new TemporaryRowValueAccessor(modified, batch.GetColumnNames()), new ResultSetValueAccessor(batch, i));
+                    var accessor = new CombinedValueAccessor(new ResultSetValueAccessor(batch, i), outerAccessor);
+                    set.Execute(engine, new TemporaryRowValueAccessor(modified, batch.GetColumnNames()), accessor);
                 }
 
                 rowsToInsert.Add(modified);

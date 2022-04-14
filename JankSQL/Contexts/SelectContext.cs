@@ -69,14 +69,14 @@
             tableNames.Clear();
         }
 
-        public ExecuteResult Execute(Engines.IEngine engine)
+        public ExecuteResult Execute(Engines.IEngine engine, IRowValueAccessor? outerAccessor)
         {
             Select select = BuildSelectObject(engine);
             ResultSet? resultSet = null;
 
             while (true)
             {
-                ResultSet batch = select.GetRows(engine, 5);
+                ResultSet batch = select.GetRows(engine, outerAccessor, 5);
                 if (resultSet == null)
                     resultSet = ResultSet.NewWithShape(batch);
 

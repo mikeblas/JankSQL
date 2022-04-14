@@ -28,9 +28,9 @@
             myInput.Rewind();
         }
 
-        public ResultSet GetRows(Engines.IEngine engine, int max)
+        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max)
         {
-            ResultSet rsInput = myInput.GetRows(engine, max);
+            ResultSet rsInput = myInput.GetRows(engine, outerAccessor, max);
 
             // get an effective column list ...
             if (effectiveColumns == null)

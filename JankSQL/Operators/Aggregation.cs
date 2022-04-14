@@ -58,7 +58,7 @@
         }
 
         #region IComponentOutput implementation
-        public ResultSet GetRows(Engines.IEngine engine, int max)
+        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max)
         {
             if (outputExhausted)
             {
@@ -69,7 +69,7 @@
 
             if (!inputExhausted)
             {
-                ReadInput(engine);
+                ReadInput(engine, outerAccessor);
                 BuildOutputColumnNames();
             }
 
@@ -182,11 +182,11 @@
                 outputNames.Add(FullColumnName.FromColumnName(expressionName));
         }
 
-        protected void ReadInput(Engines.IEngine engine)
+        protected void ReadInput(Engines.IEngine engine, IRowValueAccessor? outerAccessor)
         {
             while (!inputExhausted)
             {
-                ResultSet rs = myInput.GetRows(engine, 5);
+                ResultSet rs = myInput.GetRows(engine, outerAccessor, 5);
                 if (rs.IsEOF)
                 {
                     inputExhausted = true;
@@ -197,7 +197,7 @@
                 for (int i = 0; i < rs.RowCount; i++)
                 {
                     // first, evaluate groupByExpressions
-                    var accessor = new ResultSetValueAccessor(rs, i);
+                    var accessor = new CombinedValueAccessor(new ResultSetValueAccessor(rs, i), outerAccessor);
                     Tuple groupByKey = EvaluateGroupByKey(accessor, engine);
 
                     // get a rack of accumulators for this key
@@ -223,7 +223,7 @@
             }
         }
 
-        protected Tuple EvaluateGroupByKey(ResultSetValueAccessor accessor, Engines.IEngine engine)
+        protected Tuple EvaluateGroupByKey(IRowValueAccessor accessor, Engines.IEngine engine)
         {
             // this key is used as an identity for non-grouped expressions
             if (groupByExpressions == null || groupByExpressions.Count == 0)

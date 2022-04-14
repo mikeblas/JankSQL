@@ -6,7 +6,8 @@
 
         public List<IExecutableContext> ExecuteContexts
         {
-            get { return executeContexts; } set { executeContexts = value; }
+            get { return executeContexts; }
+            set { executeContexts = value; }
         }
 
         public void Dump()
@@ -22,7 +23,7 @@
             {
                 try
                 {
-                    ExecuteResult result = context.Execute(engine);
+                    ExecuteResult result = context.Execute(engine, null);
                     results.Add(result);
                 }
                 catch (ExecutionException ex)
@@ -42,7 +43,7 @@
             if (executeContexts.Count != 1)
                 result = ExecuteResult.FailureWithError("ExecuteSingle() called on multiple-context batch");
             else
-                result = executeContexts[0].Execute(engine);
+                result = executeContexts[0].Execute(engine, null);
 
             return result;
         }

@@ -19,7 +19,7 @@
             isAscending = isAscendingList.ToArray();
         }
 
-        public ResultSet GetRows(Engines.IEngine engine, int max)
+        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max)
         {
             if (outputExhausted)
             {
@@ -30,7 +30,7 @@
 
             while (!inputExhausted)
             {
-                ResultSet rs = myInput.GetRows(engine, 5);
+                ResultSet rs = myInput.GetRows(engine, outerAccessor, 5);
                 if (rs.IsEOF)
                 {
                     inputExhausted = true;

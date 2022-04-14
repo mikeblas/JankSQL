@@ -74,7 +74,7 @@
                     {
                         // value from a column
                         if (accessor == null)
-                            throw new ExecutionException("Not in a row context to evaluate {this}");
+                            throw new ExecutionException($"Not in a row context to evaluate {this}");
                         stack.Push(accessor.GetValue(columnOperand.ColumnName));
                     }
                     else if (n is ExpressionComparisonOperator comparisonOperator)
@@ -107,14 +107,14 @@
                         // or
                         // CASE WHEN (predicate) THEN (expr) ... [ELSE (expr)]
                         if (accessor == null)
-                            throw new ExecutionException("Not in a row context to evaluate {this}");
+                            throw new ExecutionException($"Not in a row context to evaluate {this}");
                         ExpressionOperand r = caseOperator.Evaluate(engine, accessor, stack);
                         stack.Push(r);
                     }
                     else if (n is ExpressionSubselectOperator subselectOperator)
                     {
                         if (accessor == null)
-                            throw new ExecutionException("Not in a row context to evaluate {this}");
+                            throw new ExecutionException($"Not in a row context to evaluate {this}");
                         ExpressionOperand r = subselectOperator.Evaluate(engine, accessor, stack);
                         stack.Push(r);
                     }

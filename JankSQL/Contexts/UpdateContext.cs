@@ -2,6 +2,7 @@
 {
     using JankSQL.Expressions;
     using JankSQL.Operators;
+    using JankSQL.Engines;
 
     internal enum SetOperator
     {
@@ -91,7 +92,7 @@
             }
         }
 
-        public ExecuteResult Execute(Engines.IEngine engine)
+        public ExecuteResult Execute(IEngine engine, IRowValueAccessor? outerAccessor)
         {
 
             Engines.IEngineTable? engineSource = engine.GetEngineTable(tableName);
@@ -105,7 +106,7 @@
 
                 while (true)
                 {
-                    ResultSet batch = update.GetRows(engine, 5);
+                    ResultSet batch = update.GetRows(engine, outerAccessor, 5);
                     if (batch.IsEOF)
                         break;
                 }

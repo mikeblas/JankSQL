@@ -28,9 +28,9 @@
             myInput.Rewind();
         }
 
-        public ResultSet GetRows(Engines.IEngine engine, int max)
+        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max)
         {
-            ResultSet rsInput = myInput.GetRows(engine, max);
+            ResultSet rsInput = myInput.GetRows(engine, outerAccessor, max);
             ResultSet rsOutput = ResultSet.NewWithShape(rsInput);
 
             if (rsInput.IsEOF)
@@ -46,7 +46,10 @@
                 bool predicatePassed = true;
                 foreach (var p in predicateExpressionLists)
                 {
-                    ExpressionOperand result = p.Evaluate(new ResultSetValueAccessor(rsInput, i), engine);
+                    ExpressionOperand result;
+
+                    CombinedValueAccessor cva = new (new ResultSetValueAccessor(rsInput, i), outerAccessor);
+                    result = p.Evaluate(cva, engine);
 
                     if (!result.IsTrue())
                     {

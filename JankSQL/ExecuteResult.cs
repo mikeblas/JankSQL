@@ -33,7 +33,7 @@
 
         internal static ExecuteResult SuccessWithRowsAffected(int rowsaffected)
         {
-            ExecuteResult result = new();
+            ExecuteResult result = new ();
             result.ExecuteStatus = ExecuteStatus.SUCCESSFUL;
             result.rowsAffected = rowsaffected;
 
@@ -42,7 +42,7 @@
 
         internal static ExecuteResult SuccessWithMessage(string message)
         {
-            ExecuteResult result = new();
+            ExecuteResult result = new ();
             result.ExecuteStatus = ExecuteStatus.SUCCESSFUL_WITH_MESSAGE;
             result.ErrorMessage = message;
             return result;
@@ -50,7 +50,7 @@
 
         internal static ExecuteResult SuccessWithResultSet(ResultSet resultSet)
         {
-            ExecuteResult result = new();
+            ExecuteResult result = new ();
             result.ExecuteStatus = ExecuteStatus.SUCCESSFUL;
             result.resultSet = resultSet;
 
@@ -59,7 +59,7 @@
 
         internal static ExecuteResult FailureWithError(string message)
         {
-            ExecuteResult result = new();
+            ExecuteResult result = new ();
             result.ErrorMessage = message;
             result.ExecuteStatus = ExecuteStatus.FAILED;
 
