@@ -61,18 +61,44 @@
 
 
         [Test]
-        public void TestLessThanSubselectWhereCompoundOther()
+        public void TestWhereInList()
         {
             var ec = Parser.ParseSQLFileFromString(
-                "SELECT number_id " +
-                "  FROM ten " +
-                " WHERE number_id < (SELECT MAX(keycolumn) FROM mytable WHERE ten.is_even = 1 AND keycolumn = 3);");
+                "SELECT number_id from ten WHERE number_id IN (3, 5, 7);");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            JankAssert.RowsetExistsWithShape(result, 1, 2);
+            JankAssert.RowsetExistsWithShape(result, 1, 3);
             result.ResultSet.Dump();
 
-            JankAssert.IntegerColumnMatchesSet(result.ResultSet, 0, new HashSet<int>() { 0, 2 });
+            JankAssert.IntegerColumnMatchesSet(result.ResultSet, 0, new HashSet<int>() { 3, 5, 7 });
         }
+
+        [Test]
+        public void TestWhereInListSelfRefColumn()
+        {
+            var ec = Parser.ParseSQLFileFromString(
+                "SELECT number_id from ten WHERE number_id IN (3, 5, 7, 1 + is_even);");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 1, 5);
+            result.ResultSet.Dump();
+
+            JankAssert.IntegerColumnMatchesSet(result.ResultSet, 0, new HashSet<int>() { 3, 5, 7, 1, 2 });
+        }
+
+
+        [Test]
+        public void TestWhereNotInList()
+        {
+            var ec = Parser.ParseSQLFileFromString(
+                "SELECT number_id from ten WHERE number_id NOT IN (3, 5, 7);");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 1, 7);
+            result.ResultSet.Dump();
+
+            JankAssert.IntegerColumnMatchesSet(result.ResultSet, 0, new HashSet<int>() { 0, 1, 2, 4, 6, 8, 9 });
+        }
+
     }
 }

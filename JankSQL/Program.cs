@@ -36,6 +36,10 @@ namespace JankSQL
 
             str = "SELECT number_id FROM ten WHERE number_id < (SELECT MAX(keycolumn) FROM mytable WHERE ten.is_even = 1 AND keycolumn = 3)";
 
+            str = "SELECT keycolumn FROM mytable WHERE keycolumn IN (SELECT number_id FROM ten);";
+
+            str = "SELECT * FROM ten WHERE number_id IN (3, 5, 7, number_id);";
+
 
             // str = "SELECT LEN(city_name) FROM mytable;";
 

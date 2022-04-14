@@ -79,9 +79,45 @@
 
         internal Expression GobblePredicate(TSqlParser.PredicateContext context)
         {
-            if (context.subquery() != null)
+            if (context.IN() != null)
             {
-                throw new NotImplementedException("subqueries are not yet supported");
+                // expression [NOT] IN (subquery | expression_list)
+                // throw new NotImplementedException("subqueries are not yet supported");
+
+                Console.WriteLine("IN clause Predicate Expression!");
+
+                Expression left = GobbleExpression(context.expression()[0]);
+
+                // there are a variable number of NOT tokens
+                // if that number is odd, then we are NOT IN,
+                // otherwise, IN
+                bool notIn = context.NOT().Length % 2 != 0;
+
+                if (context.expression_list() != null)
+                {
+                    Console.WriteLine("got expression list");
+
+                    List<Expression> expressions = new ();
+
+                    foreach (var expression in context.expression_list().expression())
+                    {
+                        Expression expr = GobbleExpression(expression);
+                        expressions.Add(expr);
+                        Console.WriteLine($":  {expr}");
+                    }
+
+                    var oper = new ExpressionInOperator(notIn, expressions);
+
+                    Expression x = new ();
+                    x.AddRange(left);
+                    x.Add(oper);
+
+                    return x;
+                }
+                else
+                {
+                    Console.WriteLine("Don't know");
+                }
             }
             else if (context.comparison_operator() != null)
             {

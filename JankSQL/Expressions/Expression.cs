@@ -118,6 +118,13 @@
                         ExpressionOperand r = subselectOperator.Evaluate(engine, accessor, stack);
                         stack.Push(r);
                     }
+                    else if (n is ExpressionInOperator inOperator)
+                    {
+                        if (accessor == null)
+                            throw new ExecutionException($"Not in a row context to evaluate {this}");
+                        ExpressionOperand r = inOperator.Evaluate(engine, accessor, stack);
+                        stack.Push(r);
+                    }
                     else
                     {
                         throw new InvalidOperationException($"Not prepared for ExpressionNode {n}");
