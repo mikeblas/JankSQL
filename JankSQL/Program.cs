@@ -31,6 +31,8 @@ namespace JankSQL
 
             str = "SELECT number_id WHERE number_id < (SELECT MAX(keycolumn) FROM mytable);";
 
+            str = "SELECT LEN(city_name) FROM mytable;";
+
             var btreeEngine = Engines.BTreeEngine.CreateInMemory();
 
             string tempPath = System.IO.Path.GetTempPath();
@@ -94,7 +96,9 @@ namespace JankSQL
             }
             else
             {
-                Console.WriteLine("Errors!");
+                Console.WriteLine($"{batch.TotalErrors} Errors!");
+                if (batch.HadSemanticError)
+                    Console.WriteLine($"Semantic error: {batch.SemanticError}");
             }
 
             /*

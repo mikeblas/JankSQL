@@ -308,5 +308,39 @@
             JankAssert.RowsetExistsWithShape(result, 1, 0);
             result.ResultSet.Dump();
         }
+
+
+        [Test]
+        public void TestSelectLENColumns()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT keycolumn, LEN(city_name), LEN(state_code) FROM mytable;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 3, 3);
+            result.ResultSet.Dump();
+
+            for (int i = 0; i < result.ResultSet.RowCount; i++)
+            {
+                int key = result.ResultSet.Row(i)[0].AsInteger();
+
+                if (key == 1)
+                {
+                    JankAssert.ValueMatchesInteger(result.ResultSet, 1, i, 11);
+                    JankAssert.ValueMatchesInteger(result.ResultSet, 2, i, 2);
+                }
+                else if (key == 2)
+                {
+                    JankAssert.ValueMatchesInteger(result.ResultSet, 1, i, 9);
+                    JankAssert.ValueMatchesInteger(result.ResultSet, 2, i, 2);
+                }
+                else if (key == 3)
+                {
+                    JankAssert.ValueMatchesInteger(result.ResultSet, 1, i, 8);
+                    JankAssert.ValueMatchesInteger(result.ResultSet, 2, i, 2);
+                }
+                else
+                    Assert.Fail($"didn't expect key {key}");
+            }
+        }
     }
 }

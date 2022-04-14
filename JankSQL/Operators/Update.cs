@@ -22,7 +22,10 @@
             this.setList = setList;
         }
 
-        internal int RowsAffected { get { return rowsAffected; } }
+        internal int RowsAffected
+        {
+            get { return rowsAffected; }
+        }
 
         public void Rewind()
         {

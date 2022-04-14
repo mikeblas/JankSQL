@@ -52,6 +52,15 @@ namespace Tests
             Assert.AreEqual(expectedValue, rs.Row(row)[column].AsInteger());
         }
 
+        public static void ValueIsNull(ResultSet rs, int column, int row)
+        {
+            if (rs == null)
+                throw new AssertionException($"expected a non-null result set");
+
+            if (!rs.Row(row)[column].RepresentsNull)
+                throw new AssertionException($"expected null at column {column}, row {row}");
+        }
+
         public static void SuccessfulNoResultSet(ExecuteResult er)
         {
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL, er.ExecuteStatus);

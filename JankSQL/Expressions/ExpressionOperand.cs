@@ -132,6 +132,17 @@
                 return ExpressionOperandType.INTEGER;
         }
 
+        internal static ExpressionOperandType IntegerOrDecimal(ExpressionOperand op)
+        {
+            if (op.NodeType == ExpressionOperandType.DECIMAL || op.NodeType == ExpressionOperandType.INTEGER)
+                return op.NodeType;
+
+            if (op.AsString().IndexOf('.') != -1)
+                return ExpressionOperandType.DECIMAL;
+            else
+                return ExpressionOperandType.INTEGER;
+        }
+
         internal static ExpressionOperand VARCHARFromString(string str)
         {
             return new ExpressionOperandVARCHAR(str);

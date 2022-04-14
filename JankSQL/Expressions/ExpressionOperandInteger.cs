@@ -122,15 +122,21 @@
             if (RepresentsNull || other.RepresentsNull)
                 return new ExpressionOperandInteger(0, true);
 
-            if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
+            if (other.NodeType == ExpressionOperandType.INTEGER)
+            {
+                int result = AsInteger() + other.AsInteger();
+                return new ExpressionOperandInteger(result);
+            }
+            else if (other.NodeType == ExpressionOperandType.DECIMAL)
             {
                 double result = AsDouble() + other.AsDouble();
                 return new ExpressionOperandDecimal(result);
             }
             else if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
-                double result = AsDouble() + other.AsDouble();
-                return new ExpressionOperandDecimal(result);
+                int oint = other.AsInteger();
+                int result = AsInteger() + oint;
+                return new ExpressionOperandInteger(result);
             }
             else
             {
@@ -143,15 +149,21 @@
             if (RepresentsNull || other.RepresentsNull)
                 return new ExpressionOperandInteger(0, true);
 
-            if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
+            if (other.NodeType == ExpressionOperandType.INTEGER)
+            {
+                int result = AsInteger() - other.AsInteger();
+                return new ExpressionOperandInteger(result);
+            }
+            else if (other.NodeType == ExpressionOperandType.DECIMAL)
             {
                 double result = AsDouble() - other.AsDouble();
                 return new ExpressionOperandDecimal(result);
             }
             else if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
-                double result = AsDouble() - other.AsDouble();
-                return new ExpressionOperandDecimal(result);
+                int oint = other.AsInteger();
+                int result = AsInteger() - oint;
+                return new ExpressionOperandInteger(result);
             }
             else
             {
@@ -165,7 +177,12 @@
             if (RepresentsNull || other.RepresentsNull)
                 return new ExpressionOperandInteger(0, true);
 
-            if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
+            if (other.NodeType == ExpressionOperandType.INTEGER)
+            {
+                int result = AsInteger() / other.AsInteger();
+                return new ExpressionOperandInteger(result);
+            }
+            else if (other.NodeType == ExpressionOperandType.DECIMAL)
             {
                 double result = AsDouble() / other.AsDouble();
                 return new ExpressionOperandDecimal(result);
@@ -187,7 +204,12 @@
             if (RepresentsNull || other.RepresentsNull)
                 return new ExpressionOperandInteger(0, true);
 
-            if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
+            if (other.NodeType == ExpressionOperandType.INTEGER)
+            {
+                int result = AsInteger() * other.AsInteger();
+                return new ExpressionOperandInteger(result);
+            }
+            else if (other.NodeType == ExpressionOperandType.DECIMAL)
             {
                 double result = AsDouble() * other.AsDouble();
                 return new ExpressionOperandDecimal(result);
@@ -220,8 +242,9 @@
             }
             else if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
-                double result = AsDouble() % other.AsDouble();
-                return new ExpressionOperandDecimal(result);
+                int oint = other.AsInteger();
+                int result = AsInteger() % oint;
+                return new ExpressionOperandInteger(result);
             }
             else
             {

@@ -1,4 +1,4 @@
-﻿namespace JankSQL
+﻿namespace JankSQL.Expressions
 {
     internal class ExpressionOperandVARCHAR : ExpressionOperand, IComparable<ExpressionOperandVARCHAR>, IEquatable<ExpressionOperandVARCHAR>
     {
@@ -121,12 +121,18 @@
                 return new ExpressionOperandVARCHAR(null, true);
 
             ExpressionOperand result;
-            if (other.NodeType == ExpressionOperandType.VARCHAR)
+
+            if (other.NodeType == ExpressionOperandType.INTEGER)
+            {
+                int rint = AsInteger() + other.AsInteger();
+                result = new ExpressionOperandInteger(rint);
+            }
+            else if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
                 string str = AsString() + other.AsString();
                 result = new ExpressionOperandVARCHAR(str);
             }
-            else if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
+            else if (other.NodeType == ExpressionOperandType.DECIMAL)
             {
                 double d = AsDouble() + other.AsDouble();
                 result = new ExpressionOperandDecimal(d);
@@ -144,10 +150,15 @@
             if (RepresentsNull || other.RepresentsNull)
                 return new ExpressionOperandVARCHAR(null, true);
 
-            if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
+            if (other.NodeType == ExpressionOperandType.DECIMAL)
             {
                 double result = AsDouble() - other.AsDouble();
                 return new ExpressionOperandDecimal(result);
+            }
+            else if (other.NodeType == ExpressionOperandType.INTEGER)
+            {
+                int result = AsInteger() - other.AsInteger();
+                return ExpressionOperand.IntegerFromInt(result);
             }
             else
             {
@@ -161,7 +172,12 @@
             if (RepresentsNull || other.RepresentsNull)
                 return new ExpressionOperandVARCHAR(null, true);
 
-            if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
+            if (other.NodeType == ExpressionOperandType.INTEGER)
+            {
+                int result = AsInteger() / other.AsInteger();
+                return new ExpressionOperandInteger(result);
+            }
+            else if (other.NodeType == ExpressionOperandType.DECIMAL)
             {
                 double result = AsDouble() / other.AsDouble();
                 return new ExpressionOperandDecimal(result);
@@ -177,7 +193,12 @@
             if (RepresentsNull || other.RepresentsNull)
                 return new ExpressionOperandVARCHAR(null, true);
 
-            if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
+            if (other.NodeType == ExpressionOperandType.INTEGER)
+            {
+                int result = AsInteger() * other.AsInteger();
+                return new ExpressionOperandInteger(result);
+            }
+            else if (other.NodeType == ExpressionOperandType.DECIMAL)
             {
                 double result = AsDouble() * other.AsDouble();
                 return new ExpressionOperandDecimal(result);
