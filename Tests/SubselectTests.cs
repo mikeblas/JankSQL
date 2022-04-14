@@ -86,7 +86,6 @@
             JankAssert.IntegerColumnMatchesSet(result.ResultSet, 0, new HashSet<int>() { 3, 5, 7, 1, 2 });
         }
 
-
         [Test]
         public void TestWhereNotInList()
         {
@@ -99,6 +98,5 @@
 
             JankAssert.IntegerColumnMatchesSet(result.ResultSet, 0, new HashSet<int>() { 0, 1, 2, 4, 6, 8, 9 });
         }
-
     }
 }

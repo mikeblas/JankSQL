@@ -11,7 +11,8 @@ namespace Tests
     {
 
         /// <summary>
-        /// We expect Expression.Equals to compare two expressions, in order, by value
+        /// We expect Expression.Equals to compare two expressions, in order, by value.
+        /// Prove that "SomeColumn+3" is the same as "SomeColumn+3".
         /// </summary>
         [Test]
         public void TestExpressionObjectEqualsMethod()
@@ -31,7 +32,7 @@ namespace Tests
 
 
         /// <summary>
-        /// Some expressions aren't equal
+        /// Some expressions aren't equal; "3+SomeColumn" is not the same as "SomeColumn+3"
         /// </summary>
         [Test]
         public void TestExpressionObjectEqualsNotMethod()
