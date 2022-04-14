@@ -64,11 +64,6 @@
             set { inputContext = value; }
         }
 
-        internal void Reset()
-        {
-            tableNames.Clear();
-        }
-
         public ExecuteResult Execute(Engines.IEngine engine, IRowValueAccessor? outerAccessor)
         {
             Select select = BuildSelectObject(engine);
@@ -134,6 +129,11 @@
                 foreach (var aggregate in aggregateContexts)
                     aggregate.Dump();
             }
+        }
+
+        internal void Reset()
+        {
+            tableNames.Clear();
         }
 
         internal Select BuildSelectObject(Engines.IEngine engine)

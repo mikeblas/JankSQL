@@ -94,7 +94,6 @@
 
         public ExecuteResult Execute(IEngine engine, IRowValueAccessor? outerAccessor)
         {
-
             Engines.IEngineTable? engineSource = engine.GetEngineTable(tableName);
             if (engineSource == null)
                 throw new ExecutionException($"Table {tableName} does not exist");

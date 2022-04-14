@@ -1,5 +1,6 @@
 ﻿namespace JankSQL
 {
+    using JankSQL.Contexts;
     using JankSQL.Expressions;
 
     public partial class JankListener : TSqlParserBaseListener
@@ -57,9 +58,7 @@
             else if (context.LR_BRACKET() != null || context.RR_BRACKET() != null)
             {
                 if (context.search_condition().Length != 1)
-                {
                     throw new InvalidOperationException("Can't cope with search_condition length != 1");
-                }
 
                 x = GobbleSearchCondition(context.search_condition()[0]);
 
@@ -95,8 +94,6 @@
 
                 if (context.expression_list() != null)
                 {
-                    Console.WriteLine("got expression list");
-
                     List<Expression> expressions = new ();
 
                     foreach (var expression in context.expression_list().expression())
@@ -114,9 +111,18 @@
 
                     return x;
                 }
-                else
+                else if (context.subquery() != null)
                 {
-                    Console.WriteLine("Don't know");
+                    // it's a subselect
+                    SelectContext selectContext = GobbleSelectStatement(context.subquery().select_statement());
+
+                    var oper = new ExpressionInOperator(notIn, selectContext);
+
+                    Expression x = new ();
+                    x.AddRange(left);
+                    x.Add(oper);
+
+                    return x;
                 }
             }
             else if (context.comparison_operator() != null)

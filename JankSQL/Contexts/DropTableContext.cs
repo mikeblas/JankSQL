@@ -1,8 +1,8 @@
-﻿using JankSQL.Engines;
-using JankSQL.Expressions;
-
-namespace JankSQL.Contexts
+﻿namespace JankSQL.Contexts
 {
+    using JankSQL.Engines;
+    using JankSQL.Expressions;
+
     internal class DropTableContext : IExecutableContext
     {
         private readonly FullTableName tableName;

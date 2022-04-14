@@ -98,5 +98,32 @@
 
             JankAssert.IntegerColumnMatchesSet(result.ResultSet, 0, new HashSet<int>() { 0, 1, 2, 4, 6, 8, 9 });
         }
+
+        [Test]
+        public void TestWhereInSubselect()
+        {
+            var ec = Parser.ParseSQLFileFromString(
+                "SELECT number_id FROM ten WHERE number_id IN (SELECT keycolumn FROM mytable);");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 1, 3);
+            result.ResultSet.Dump();
+
+            JankAssert.IntegerColumnMatchesSet(result.ResultSet, 0, new HashSet<int>() { 1, 2, 3 });
+        }
+
+        [Test]
+        public void TestWhereNotInSubselect()
+        {
+            var ec = Parser.ParseSQLFileFromString(
+                "SELECT number_id FROM ten WHERE number_id NOT IN (SELECT keycolumn FROM mytable);");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 1, 7);
+            result.ResultSet.Dump();
+
+            JankAssert.IntegerColumnMatchesSet(result.ResultSet, 0, new HashSet<int>() { 0, 4, 5, 6, 7, 8, 9 });
+        }
+
     }
 }
