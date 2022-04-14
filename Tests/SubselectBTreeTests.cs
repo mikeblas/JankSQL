@@ -4,7 +4,7 @@
 
     using Engines = JankSQL.Engines;
     [TestFixture]
-    public class JoinBTreeTests : JoinTests
+    public class SubselectBTreeTests : SubselectTests
     {
         [SetUp]
         public void ClassInitialize()

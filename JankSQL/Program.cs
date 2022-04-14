@@ -34,10 +34,10 @@ namespace JankSQL
 
             str = "SELECT number_id FROM ten WHERE number_id < (SELECT MAX(keycolumn) FROM mytable WHERE ten.is_even = 0)";
 
-            str = "SELECT number_id FROM ten WHERE number_id < (SELECT MAX(keycolumn) FROM mytable WHERE ten.is_even = 0 AND keycolumn = 3)";
+            str = "SELECT number_id FROM ten WHERE number_id < (SELECT MAX(keycolumn) FROM mytable WHERE ten.is_even = 1 AND keycolumn = 3)";
 
 
-            str = "SELECT LEN(city_name) FROM mytable;";
+            // str = "SELECT LEN(city_name) FROM mytable;";
 
             var btreeEngine = Engines.BTreeEngine.CreateInMemory();
 

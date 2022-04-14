@@ -1,0 +1,78 @@
+﻿namespace Tests
+{
+    using NUnit.Framework;
+
+    using JankSQL;
+    using Engines = JankSQL.Engines;
+
+
+    abstract public class SubselectTests
+    {
+        internal string mode = "base";
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        internal Engines.IEngine engine;
+
+        [Test]
+        public void TestLessThanSubselect()
+        {
+            var ec = Parser.ParseSQLFileFromString(
+                "SELECT number_id " +
+                "  FROM ten " +
+                " WHERE number_id < (SELECT MAX(keycolumn) FROM mytable);");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 1, 3);
+            result.ResultSet.Dump();
+
+            JankAssert.IntegerColumnMatchesSet(result.ResultSet, 0, new HashSet<int>() { 0, 1, 2 });
+        }
+
+
+        [Test]
+        public void TestLessThanSubselectWhere()
+        {
+            var ec = Parser.ParseSQLFileFromString(
+                "SELECT number_id " +
+                "  FROM ten " +
+                " WHERE number_id < (SELECT MAX(keycolumn) FROM mytable WHERE ten.is_even = 0);");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
+            result.ResultSet.Dump();
+
+            JankAssert.ValueMatchesInteger(result.ResultSet, 0, 0, 1);
+        }
+
+
+        [Test]
+        public void TestLessThanSubselectWhereCompound()
+        {
+            var ec = Parser.ParseSQLFileFromString(
+                "SELECT number_id " +
+                "  FROM ten " +
+                " WHERE number_id < (SELECT MAX(keycolumn) FROM mytable WHERE ten.is_even = 0 AND keycolumn = 3);");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
+            result.ResultSet.Dump();
+
+            JankAssert.ValueMatchesInteger(result.ResultSet, 0, 0, 1);
+        }
+
+
+        [Test]
+        public void TestLessThanSubselectWhereCompoundOther()
+        {
+            var ec = Parser.ParseSQLFileFromString(
+                "SELECT number_id " +
+                "  FROM ten " +
+                " WHERE number_id < (SELECT MAX(keycolumn) FROM mytable WHERE ten.is_even = 1 AND keycolumn = 3);");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 1, 2);
+            result.ResultSet.Dump();
+
+            JankAssert.IntegerColumnMatchesSet(result.ResultSet, 0, new HashSet<int>() { 0, 2 });
+        }
+    }
+}

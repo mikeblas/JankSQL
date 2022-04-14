@@ -1,7 +1,6 @@
 ﻿namespace JankSQL.Expressions
 {
     using JankSQL.Contexts;
-    using JankSQL.Operators;
 
     internal class ExpressionSubselectOperator : ExpressionNode
     {

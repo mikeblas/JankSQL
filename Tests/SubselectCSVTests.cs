@@ -3,16 +3,20 @@
     using NUnit.Framework;
 
     using Engines = JankSQL.Engines;
+
     [TestFixture]
-    public class JoinBTreeTests : JoinTests
+    public class SubselectCSVTests : SubselectTests
     {
         [SetUp]
         public void ClassInitialize()
         {
-            mode = "BTree";
+            mode = "CSV";
             Console.WriteLine($"Test mode is {mode}");
 
-            engine = Engines.BTreeEngine.CreateInMemory();
+            string tempPath = Path.GetTempPath();
+            tempPath = Path.Combine(tempPath, "XYZZY");
+            engine = Engines.DynamicCSVEngine.OpenObliterate(tempPath);
+
             TestHelpers.InjectTableMyTable(engine);
             TestHelpers.InjectTableTen(engine);
             TestHelpers.InjectTableStates(engine);

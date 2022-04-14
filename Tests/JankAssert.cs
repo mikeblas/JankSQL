@@ -66,5 +66,19 @@ namespace Tests
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL, er.ExecuteStatus);
             Assert.Throws<InvalidOperationException>(() => { var _ = er.ResultSet; });
         }
+
+        public static void IntegerColumnMatchesSet(ResultSet rs, int columnIndex, ISet<int> expectedSet)
+        {
+            for (int i = 0; i < rs.RowCount; i++)
+            {
+                int val = rs.Row(i)[0].AsInteger();
+                if (expectedSet.Contains(val))
+                    expectedSet.Remove(val);
+                else
+                    Assert.Fail($"unexpected value {val} returned");
+            }
+
+            Assert.AreEqual(expectedSet.Count, 0, $"not all values were found in the expected set: {expectedSet} missing");
+        }
     }
 }
