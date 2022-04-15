@@ -300,5 +300,61 @@
             JankAssert.RowsetExistsWithShape(result, 7, 30);
             result.ResultSet.Dump();
         }
+
+
+        [Test]
+        public void TestLeftOuterJoin()
+        {
+            var ec = Parser.ParseSQLFileFromString(
+                  "SELECT number_id, keycolumn " +
+                  "  FROM ten " +
+                  " LEFT OUTER JOIN mytable on numbeR_id = keycolumn;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 2, 10);
+            result.ResultSet.Dump();
+
+            for (int i = 0; i < result.ResultSet.RowCount; i++)
+            {
+                int left = result.ResultSet.Row(i)[0].AsInteger();
+                if (left >= 1 && left <= 3)
+                {
+                    Assert.IsFalse(result.ResultSet.Row(i)[1].RepresentsNull);
+                    int right = result.ResultSet.Row(i)[0].AsInteger();
+                    Assert.AreEqual(left, right);
+                }
+                else if (left == 0 || (left > 3 && left <= 9))
+                    Assert.IsTrue(result.ResultSet.Row(i)[1].RepresentsNull);
+                else
+                    Assert.Fail($"Unexpected left column value {left}");
+            }
+        }
+
+
+        [Test]
+        public void TestRightOuterJoin()
+        {
+            var ec = Parser.ParseSQLFileFromString(
+                  "SELECT number_id, keycolumn " +
+                  "  FROM ten " +
+                  " RIGHT OUTER JOIN mytable on numbeR_id = keycolumn;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 2, 3);
+            result.ResultSet.Dump();
+
+            for (int i = 0; i < result.ResultSet.RowCount; i++)
+            {
+                int left = result.ResultSet.Row(i)[0].AsInteger();
+                if (left >= 1 && left <= 3)
+                {
+                    Assert.IsFalse(result.ResultSet.Row(i)[1].RepresentsNull);
+                    int right = result.ResultSet.Row(i)[0].AsInteger();
+                    Assert.AreEqual(left, right);
+                }
+                else
+                    Assert.Fail($"Unexpected left column value {left}");
+            }
+        }
     }
 }

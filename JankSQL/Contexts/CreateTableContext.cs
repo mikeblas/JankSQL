@@ -1,8 +1,9 @@
 ﻿namespace JankSQL.Contexts
 {
+    using System.Collections.Immutable;
+
     using JankSQL.Engines;
     using JankSQL.Expressions;
-    using System.Collections.Immutable;
 
     internal class CreateTableContext : IExecutableContext
     {

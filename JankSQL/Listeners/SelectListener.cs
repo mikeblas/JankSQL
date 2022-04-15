@@ -221,6 +221,7 @@
                                 // and work out the table sources ...
                                 if (joinContext.join_on().table_source().table_source_item_joined().table_source_item().derived_table() != null)
                                 {
+                                    // derived table
                                     SelectContext inner = GobbleSelectStatement(joinContext.join_on().table_source().table_source_item_joined().table_source_item().derived_table().subquery()[0].select_statement());
                                     Console.WriteLine($"{leftSource} {joinType} On subselect");
 
@@ -230,8 +231,9 @@
                                     JoinContext jc = new (joinType, inner);
                                     selectContext.AddJoin(jc, pcon);
                                 }
-                                else
+                                else if (joinContext.join_on().table_source().table_source_item_joined().table_source_item().table_name_with_hint() != null)
                                 {
+                                    // plain old table_name_with_hint
                                     FullTableName otherTableName = FullTableName.FromTableNameContext(joinContext.join_on().table_source().table_source_item_joined().table_source_item().table_name_with_hint().table_name());
                                     Console.WriteLine($"{leftSource} {joinType} On {otherTableName}");
 
@@ -243,6 +245,10 @@
 
                                     JoinContext jc = new (joinType, otherTableName);
                                     selectContext.AddJoin(jc, pcon);
+                                }
+                                else
+                                {
+                                    throw new NotImplementedException("coulnd't consume this JOIN table source");
                                 }
 
                                 currentTSIJ = joinContext.join_on().table_source().table_source_item_joined();
