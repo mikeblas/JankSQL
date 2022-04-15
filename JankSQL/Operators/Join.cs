@@ -27,9 +27,22 @@
         internal Join(JoinType joinType, IComponentOutput leftInput, IComponentOutput rightInput, List<Expression> predicateExpressions, string? derivedTableAlias)
         {
             this.joinType = joinType;
-            this.leftInput = leftInput;
-            this.rightInput = rightInput;
-            this.PredicateExpressions = predicateExpressions;
+
+            // If we have a RIGHT OUTER JOIN, the inputs are switcharooed and we do the same work as a LEFT OUTER JOIN
+            // This seems oogy, but I'll fix it as soon as it blows up. I promise! (But really, it seems like any other
+            // solution is actually more confusing.)
+            if (joinType == JoinType.RIGHT_OUTER_JOIN)
+            {
+                this.leftInput = rightInput;
+                this.rightInput = leftInput;
+            }
+            else
+            {
+                this.leftInput = leftInput;
+                this.rightInput = rightInput;
+            }
+
+            PredicateExpressions = predicateExpressions;
             this.derivedTableAlias = derivedTableAlias;
         }
 
@@ -133,6 +146,8 @@
 
             ResultSet output = new (GetAllColumnNames());
 
+            bool leftMatched = false;
+
             while (leftIndex < leftRows!.RowCount && rightIndex < rightRows!.RowCount)
             {
                 Tuple totalRow = Tuple.CreateEmpty(allColumnNames!.Count);
@@ -167,9 +182,16 @@
                     // always add
                     output.AddRow(totalRow);
                 }
+                else if (joinType == JoinType.LEFT_OUTER_JOIN || joinType == JoinType.RIGHT_OUTER_JOIN)
+                {
+                    if (matched)
+                    {
+                        output.AddRow(totalRow);
+                        leftMatched = true;
+                    }
+                }
                 else
                 {
-                    // NYI just now
                     throw new NotImplementedException($"don't know join type {joinType}");
                 }
 
@@ -178,8 +200,20 @@
                 {
                     if (!FillRightRows(engine, outerAccessor, max))
                     {
+                        // we exhausted right, so rewind ...
                         rightInput.Rewind();
                         FillRightRows(engine, outerAccessor, max);
+
+                        // was left ever matched? handle LEFT/RIGHT OUTER JOIN accordingly ...
+                        if ((joinType == JoinType.LEFT_OUTER_JOIN || joinType == JoinType.RIGHT_OUTER_JOIN) && !leftMatched)
+                        {
+                            // wipe the right hand rows to NULL, pass the left hand rows out
+                            for (int i = leftRows.ColumnCount; i < leftRows.ColumnCount + rightRows.ColumnCount; i++)
+                                totalRow[i++] = ExpressionOperand.NullLiteral();
+                            output.AddRow(totalRow);
+                        }
+
+                        leftMatched = false;
 
                         leftIndex += 1;
                         if (leftIndex == leftRows.RowCount)

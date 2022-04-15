@@ -200,26 +200,40 @@
                             }
                             else if (joinContext.join_on() != null)
                             {
-                                // ON join
+                                // ON join!  figure out the join type and direction
 
+                                JoinType joinType = JoinType.INNER_JOIN;
+
+                                if (joinContext.join_on().join_type != null)
+                                {
+                                    if (joinContext.join_on().join_type.Type == TSqlLexer.LEFT)
+                                        joinType = JoinType.LEFT_OUTER_JOIN;
+                                    else if (joinContext.join_on().join_type.Type == TSqlLexer.RIGHT)
+                                        joinType = JoinType.RIGHT_OUTER_JOIN;
+                                    else if (joinContext.join_on().join_type.Type == TSqlLexer.FULL)
+                                        joinType = JoinType.FULL_OUTER_JOIN;
+                                }
+
+                                // get the ON predicate
                                 Expression x = GobbleSearchCondition(joinContext.join_on().search_condition());
                                 PredicateContext pcon = new (x);
 
+                                // and work out the table sources ...
                                 if (joinContext.join_on().table_source().table_source_item_joined().table_source_item().derived_table() != null)
                                 {
                                     SelectContext inner = GobbleSelectStatement(joinContext.join_on().table_source().table_source_item_joined().table_source_item().derived_table().subquery()[0].select_statement());
-                                    Console.WriteLine($"{leftSource} INNER JOIN On subselect");
+                                    Console.WriteLine($"{leftSource} {joinType} On subselect");
 
                                     string str = joinContext.join_on().table_source().table_source_item_joined().table_source_item().as_table_alias().table_alias().id_().GetText();
                                     inner.DerivedTableAlias = str;
 
-                                    JoinContext jc = new (JoinType.INNER_JOIN, inner);
+                                    JoinContext jc = new (joinType, inner);
                                     selectContext.AddJoin(jc, pcon);
                                 }
                                 else
                                 {
                                     FullTableName otherTableName = FullTableName.FromTableNameContext(joinContext.join_on().table_source().table_source_item_joined().table_source_item().table_name_with_hint().table_name());
-                                    Console.WriteLine($"{leftSource} INNER JOIN On {otherTableName}");
+                                    Console.WriteLine($"{leftSource} {joinType} On {otherTableName}");
 
                                     if (joinContext.join_on().table_source().table_source_item_joined().table_source_item().as_table_alias() != null)
                                     {
@@ -227,10 +241,9 @@
                                         Console.WriteLine($"alias is {alias}");
                                     }
 
-                                    JoinContext jc = new (JoinType.INNER_JOIN, otherTableName);
+                                    JoinContext jc = new (joinType, otherTableName);
                                     selectContext.AddJoin(jc, pcon);
                                 }
-
 
                                 currentTSIJ = joinContext.join_on().table_source().table_source_item_joined();
                             }

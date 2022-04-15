@@ -40,6 +40,15 @@ namespace JankSQL
 
             str = "SELECT number_id FROM ten WHERE number_id IN (SELECT keycolumn FROM mytable)";
 
+
+            str = "select number_id, keycolumn " +
+                  " from ten " +
+                  " join mytable on numbeR_id = keycolumn; ";
+
+            str = "select number_id, keycolumn " +
+                  " from ten " +
+                  " RIGHT OUTER JOIN mytable on numbeR_id = keycolumn; ";
+
             // str = "SELECT * FROM ten WHERE number_id IN (3, 5, 7, number_id);";
 
 
