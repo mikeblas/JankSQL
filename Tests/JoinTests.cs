@@ -356,5 +356,20 @@
                     Assert.Fail($"Unexpected left column value {left}");
             }
         }
+
+        [Test]
+        public void TestKiloJoinOn()
+        {
+            TestHelpers.InjectTableKiloLeft(engine);
+            TestHelpers.InjectTableKiloRight(engine);
+
+            var ec = Parser.ParseSQLFileFromString("SELECT COUNT(1) FROM KiloLeft JOIN KiloRight ON KiloLeft.Number_ID = KiloRight.Number_ID;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
+            result.ResultSet.Dump();
+
+            JankAssert.ValueMatchesInteger(result.ResultSet, 0, 0, 1000);
+        }
     }
 }

@@ -260,9 +260,7 @@
             string? effectiveTableFileName = FileFromSysTables(sysTables, tableName.TableName);
 
             if (effectiveTableFileName == null)
-            {
                 return null;
-            }
             else
             {
                 // found the source table, so load it
@@ -272,7 +270,7 @@
             }
         }
 
-        public void InjectTestTable(TestTable testTable)
+        public IEngineTable InjectTestTable(TestTable testTable)
         {
             // create the table ...
             CreateTable(testTable.TableName, testTable.ColumnNames, testTable.ColumnTypes);
@@ -282,17 +280,15 @@
             IEngineTable sysTables = GetSysTables();
             string? effectiveTableFileName = FileFromSysTables(sysTables, testTable.TableName.TableName);
             if (effectiveTableFileName == null)
-            {
                 throw new InvalidOperationException();
-            }
 
             DynamicCSVTable table = new DynamicCSVTable(effectiveTableFileName, testTable.TableName.TableName, this);
             table.Load();
 
             foreach (var row in testTable.Rows)
-            {
                 table.InsertRow(row);
-            }
+
+            return table;
         }
 
         protected static void CreateDatabase(string basePath)

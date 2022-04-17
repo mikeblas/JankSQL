@@ -214,7 +214,7 @@
             return sysIndexColumns;
         }
 
-        public void InjectTestTable(TestTable testTable)
+        public IEngineTable InjectTestTable(TestTable testTable)
         {
             // create the table as a heap ...
             CreateTable(testTable.TableName, testTable.ColumnNames, testTable.ColumnTypes);
@@ -227,6 +227,8 @@
 
             foreach (var row in testTable.Rows)
                 table.InsertRow(row);
+
+            return table;
         }
 
         internal BTreeTable? GetEngineBTreeTable(FullTableName tableName)

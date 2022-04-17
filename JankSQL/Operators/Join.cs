@@ -213,11 +213,13 @@
                             output.AddRow(totalRow);
                         }
 
+                        // and now advance the left side
                         leftMatched = false;
 
                         leftIndex += 1;
                         if (leftIndex == leftRows.RowCount)
                         {
+                            // we exhausted the left side, so try to get more
                             if (!FillLeftRows(engine, outerAccessor, max))
                                 break;
                             leftIndex = 0;

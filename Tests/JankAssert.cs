@@ -61,6 +61,21 @@ namespace Tests
                 throw new AssertionException($"expected null at column {column}, row {row}");
         }
 
+        public static void ValueMatchesDecimal(ResultSet rs, int column, int row, double expectedValue, double tolerance)
+        {
+            if (rs == null)
+                throw new AssertionException($"expected a non-null result set");
+
+            if (rs.Row(row)[column].RepresentsNull)
+                throw new AssertionException($"expected non-null integer value at column {column}, row {row}");
+
+            if (rs.Row(row)[column].NodeType != ExpressionOperandType.DECIMAL)
+                throw new AssertionException($"expected decimal value at column {column}, row {row}, found {rs.Row(row)[column].NodeType}");
+
+            Assert.AreEqual(expectedValue, rs.Row(row)[column].AsDouble(), tolerance);
+        }
+
+
         public static void SuccessfulNoResultSet(ExecuteResult er)
         {
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL, er.ExecuteStatus);

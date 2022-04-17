@@ -76,6 +76,7 @@
         /// appear in the system tables. Intended for tests and not applied usage.
         /// </summary>
         /// <param name="testTable">TestTable with the definition of this table.</param>
-        public void InjectTestTable(TestTable testTable);
+        /// <returns>Object implementing IEngineTable for the new table.</returns>
+        public IEngineTable InjectTestTable(TestTable testTable);
     }
 }

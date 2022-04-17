@@ -3,6 +3,7 @@
     using JankSQL;
     using Engines = JankSQL.Engines;
     using static JankSQL.ExpressionOperandType;
+    using System.Diagnostics;
 
     internal class TestHelpers
     {
@@ -97,6 +98,90 @@
                 .Build();
 
             engine.InjectTestTable(tt);
+        }
+
+
+        static internal void InjectTableKiloLeft(Engines.IEngine engine)
+        {
+            Stopwatch sw = Stopwatch.StartNew();
+
+            Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
+                .WithTableName("kiloLeft")
+                .WithColumnNames(new string[] { "number_id", "number_name", "is_even" })
+                .WithColumnTypes(new ExpressionOperandType[] { INTEGER, VARCHAR, INTEGER })
+                .Build();
+
+            Engines.IEngineTable kiloLeft = engine.InjectTestTable(tt);
+
+            for (int n = 1; n <= 1000; n++)
+            {
+                Tuple row = Tuple.CreateEmpty(3);
+                row[0] = ExpressionOperand.IntegerFromInt(n);
+                row[1] = ExpressionOperand.VARCHARFromString(IntToRoman(n));
+                row[2] = ExpressionOperand.IntegerFromInt(n % 2 == 0 ? 1 : 0);
+                kiloLeft.InsertRow(row);
+            }
+
+            sw.Stop();
+            Console.WriteLine($"Injected table kiloLeft in {sw.Elapsed.TotalMilliseconds} ms");
+        }
+
+
+        static internal void InjectTableKiloRight(Engines.IEngine engine)
+        {
+            Stopwatch sw = Stopwatch.StartNew();
+
+            Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
+                .WithTableName("kiloRight")
+                .WithColumnNames(new string[] { "number_id", "number_name", "is_even" })
+                .WithColumnTypes(new ExpressionOperandType[] { INTEGER, VARCHAR, INTEGER })
+                .Build();
+
+            Engines.IEngineTable kiloLeft = engine.InjectTestTable(tt);
+
+            for (int n = 1; n <= 1000; n++)
+            {
+                Tuple row = Tuple.CreateEmpty(3);
+                row[0] = ExpressionOperand.IntegerFromInt(n);
+                row[1] = ExpressionOperand.VARCHARFromString(IntToRoman(n));
+                row[2] = ExpressionOperand.IntegerFromInt(n % 2 == 0 ? 1 : 0);
+                kiloLeft.InsertRow(row);
+            }
+
+            sw.Stop();
+            Console.WriteLine($"Injected table kiloRight in {sw.Elapsed.TotalMilliseconds} ms");
+        }
+
+
+        /// <summary>
+        /// Convert an integer to a roman numeral. 
+        /// Due to StackOverflow: https://stackoverflow.com/questions/71583420/c-sharp-convert-integer-into-roman-numeral-and-number-in-words
+        /// </summary>
+        /// <param name="num">integer to convert</param>
+        /// <returns>string with roman numeral representation</returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        static private string IntToRoman(int num)
+        {
+            if ((num < 0) || (num > 39999)) throw new ArgumentOutOfRangeException();
+            if (num >= 10000) return "m" + IntToRoman(num - 10000);
+            if (num >= 9000) return "Mm" + IntToRoman(num - 9000);
+            if (num >= 5000) return "v" + IntToRoman(num - 5000);
+            if (num >= 4000) return "Mv" + IntToRoman(num - 4000);
+            if (num >= 1000) return "M" + IntToRoman(num - 1000);
+            if (num >= 900) return "CM" + IntToRoman(num - 900);
+            if (num >= 500) return "D" + IntToRoman(num - 500);
+            if (num >= 400) return "CD" + IntToRoman(num - 400);
+            if (num >= 100) return "C" + IntToRoman(num - 100);
+            if (num >= 90) return "XC" + IntToRoman(num - 90);
+            if (num >= 50) return "L" + IntToRoman(num - 50);
+            if (num >= 40) return "XL" + IntToRoman(num - 40);
+            if (num >= 10) return "X" + IntToRoman(num - 10);
+            if (num >= 9) return "IX" + IntToRoman(num - 9);
+            if (num >= 5) return "V" + IntToRoman(num - 5);
+            if (num >= 4) return "IV" + IntToRoman(num - 4);
+            if (num > 1) return "I" + IntToRoman(num - 1);
+            if (num == 1) return "I";
+            return string.Empty;
         }
     }
 }
