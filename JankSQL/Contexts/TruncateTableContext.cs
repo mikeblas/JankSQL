@@ -12,7 +12,7 @@
             this.tableName = tableName;
         }
 
-        public ExecuteResult Execute(IEngine engine, IRowValueAccessor? accessor)
+        public ExecuteResult Execute(IEngine engine, IRowValueAccessor? accessor, Dictionary<string, ExpressionOperand> bindValues)
         {
             Engines.IEngineTable? engineSource = engine.GetEngineTable(tableName);
             if (engineSource == null)
@@ -27,6 +27,12 @@
         public void Dump()
         {
             Console.WriteLine("TRUNCATE TABLE of ${tableName}");
+        }
+
+        public object Clone()
+        {
+            TruncateTableContext clone = new TruncateTableContext(tableName);
+            return clone;
         }
     }
 }

@@ -9,6 +9,8 @@
         private readonly ExecutionContext? executionContext;
         private readonly string? semanticError;
 
+        private readonly Dictionary<string, ExpressionOperand> bindValues = new Dictionary<string, ExpressionOperand>(StringComparer.InvariantCultureIgnoreCase);
+
         private ExecuteResult[]? results;
 
         internal ExecutableBatch(List<string> tokenErrors, List<string> syntaxErrors, string? semanticError, ExecutionContext? ec)
@@ -80,7 +82,7 @@
         {
             if (executionContext is null)
                 throw new InvalidOperationException("No valid execution context");
-            results = executionContext.Execute(engine);
+            results = executionContext.Execute(engine, bindValues);
             return results;
         }
 
@@ -93,8 +95,13 @@
         {
             if (executionContext is null)
                 throw new InvalidOperationException("No valid execution context");
-            results = executionContext.Execute(engine);
+            results = executionContext.Execute(engine, bindValues);
             return results[0];
+        }
+
+        public void SetBindValue(string bindTargetName, ExpressionOperand bindValue)
+        {
+            bindValues[bindTargetName] = bindValue;
         }
     }
 }

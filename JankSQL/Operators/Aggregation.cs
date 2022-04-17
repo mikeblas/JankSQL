@@ -58,7 +58,7 @@
         }
 
         #region IComponentOutput implementation
-        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max)
+        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues)
         {
             if (outputExhausted)
             {
@@ -69,7 +69,7 @@
 
             if (!inputExhausted)
             {
-                ReadInput(engine, outerAccessor);
+                ReadInput(engine, outerAccessor, bindValues);
                 BuildOutputColumnNames();
             }
 
@@ -182,11 +182,11 @@
                 outputNames.Add(FullColumnName.FromColumnName(expressionName));
         }
 
-        protected void ReadInput(Engines.IEngine engine, IRowValueAccessor? outerAccessor)
+        protected void ReadInput(Engines.IEngine engine, IRowValueAccessor? outerAccessor, Dictionary<string, ExpressionOperand> bindValues)
         {
             while (!inputExhausted)
             {
-                ResultSet rs = myInput.GetRows(engine, outerAccessor, 5);
+                ResultSet rs = myInput.GetRows(engine, outerAccessor, 5, bindValues);
                 if (rs.IsEOF)
                 {
                     inputExhausted = true;
@@ -198,7 +198,7 @@
                 {
                     // first, evaluate groupByExpressions
                     var accessor = new CombinedValueAccessor(new ResultSetValueAccessor(rs, i), outerAccessor);
-                    Tuple groupByKey = EvaluateGroupByKey(accessor, engine);
+                    Tuple groupByKey = EvaluateGroupByKey(accessor, engine, bindValues);
 
                     // get a rack of accumulators for this key
                     List<IAggregateAccumulator> aggs;
@@ -216,14 +216,14 @@
                     // evaluate each expression and offer it for them
                     for (int j = 0; j < expressions.Count; j++)
                     {
-                        ExpressionOperand result = expressions[j].Evaluate(accessor, engine);
+                        ExpressionOperand result = expressions[j].Evaluate(accessor, engine, bindValues);
                         aggs[j].Accumulate(result);
                     }
                 }
             }
         }
 
-        protected Tuple EvaluateGroupByKey(IRowValueAccessor accessor, Engines.IEngine engine)
+        protected Tuple EvaluateGroupByKey(IRowValueAccessor accessor, Engines.IEngine engine, Dictionary<string, ExpressionOperand> bindValues)
         {
             // this key is used as an identity for non-grouped expressions
             if (groupByExpressions == null || groupByExpressions.Count == 0)
@@ -231,7 +231,7 @@
 
             Tuple result = Tuple.CreateEmpty(groupByExpressions.Count);
             for (int i = 0; i < groupByExpressions.Count; i++)
-                result[i] = groupByExpressions[i].Evaluate(accessor, engine);
+                result[i] = groupByExpressions[i].Evaluate(accessor, engine, bindValues);
 
             return result;
         }

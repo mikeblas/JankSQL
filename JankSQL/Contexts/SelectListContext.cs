@@ -4,7 +4,7 @@
 
     using JankSQL.Expressions;
 
-    internal class SelectListContext
+    internal class SelectListContext : ICloneable
     {
         private readonly TSqlParser.Select_listContext context;
         private readonly List<Expression> expressionList = new ();
@@ -29,10 +29,28 @@
             get { return expressionList.Count; }
         }
 
+        internal int RowsetColumnNameCount
+        {
+            get { return rowsetColumnNames.Count; }
+        }
+
         internal string? CurrentAlias
         {
             get { return currentAlias; }
             set { currentAlias = value; }
+        }
+
+        public object Clone()
+        {
+            SelectListContext clone = new SelectListContext(this.context);
+            foreach (var expression in this.expressionList)
+                clone.expressionList.Add(expression);
+            foreach (var name in this.rowsetColumnNames)
+                clone.rowsetColumnNames.Add(name);
+            clone.currentAlias = this.currentAlias;
+            clone.unknownColumnID = this.unknownColumnID;
+
+            return clone;
         }
 
         internal FullColumnName RowsetColumnName(int idx)
@@ -73,10 +91,10 @@
             return null;
         }
 
-        //TODO: refactor this into Select operator
-        internal ExpressionOperand Execute(int index, ResultSet resultSet, int rowIndex, Engines.IEngine engine)
+        //TODO: refactor this into Select operator?
+        internal ExpressionOperand Execute(int index, ResultSet resultSet, int rowIndex, Engines.IEngine engine, Dictionary<string, ExpressionOperand> bindValues)
         {
-            return expressionList[index].Evaluate(new ResultSetValueAccessor(resultSet, rowIndex), engine);
+            return expressionList[index].Evaluate(new ResultSetValueAccessor(resultSet, rowIndex), engine, bindValues);
         }
 
         internal void Dump()

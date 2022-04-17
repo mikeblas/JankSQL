@@ -18,13 +18,19 @@
         }
 
 #pragma warning disable IDE0060 // Remove unused parameter
-        public ExecuteResult Execute(IEngine engine, IRowValueAccessor? accessor)
+        public ExecuteResult Execute(IEngine engine, IRowValueAccessor? accessor, Dictionary<string, ExpressionOperand> bindValues)
 #pragma warning restore IDE0060 // Remove unused parameter
         {
             engine.DropTable(tableName);
 
             ExecuteResult ret = ExecuteResult.SuccessWithMessage($"table {tableName} dropped");
             return ret;
+        }
+
+        public object Clone()
+        {
+            DropTableContext clone = new DropTableContext(tableName);
+            return clone;
         }
     }
 }

@@ -1,8 +1,8 @@
 ﻿namespace JankSQL.Contexts
 {
+    using JankSQL.Engines;
     using JankSQL.Expressions;
     using JankSQL.Operators;
-    using JankSQL.Engines;
 
     internal enum SetOperator
     {
@@ -33,12 +33,12 @@
             return $"{fcn} {op} {expression}";
         }
 
-        internal void Execute(Engines.IEngine engine, IRowValueAccessor outputaccessor, IRowValueAccessor inputAccessor)
+        internal void Execute(Engines.IEngine engine, IRowValueAccessor outputaccessor, IRowValueAccessor inputAccessor, Dictionary<string, ExpressionOperand> bindValues)
         {
             if (op != SetOperator.ASSIGN)
                 throw new NotImplementedException();
 
-            ExpressionOperand val = expression.Evaluate(inputAccessor, engine);
+            ExpressionOperand val = expression.Evaluate(inputAccessor, engine, bindValues);
             outputaccessor.SetValue(fcn, val);
         }
     }
@@ -68,6 +68,18 @@
             set { predicateExpression = value; }
         }
 
+        public object Clone()
+        {
+            UpdateContext clone = new (context, tableName);
+
+            clone.predicateExpression = predicateExpression != null ? (Expression)predicateExpression.Clone() : null;
+
+            foreach (SetOperation op in setList)
+                clone.setList.Add(op);
+
+            return clone;
+        }
+
         public void Dump()
         {
             Console.WriteLine($"UPDATE {tableName}");
@@ -92,7 +104,7 @@
             }
         }
 
-        public ExecuteResult Execute(IEngine engine, IRowValueAccessor? outerAccessor)
+        public ExecuteResult Execute(IEngine engine, IRowValueAccessor? outerAccessor, Dictionary<string, ExpressionOperand> bindValues)
         {
             Engines.IEngineTable? engineSource = engine.GetEngineTable(tableName);
             if (engineSource == null)
@@ -105,7 +117,7 @@
 
                 while (true)
                 {
-                    ResultSet batch = update.GetRows(engine, outerAccessor, 5);
+                    ResultSet batch = update.GetRows(engine, outerAccessor, 5, bindValues);
                     if (batch.IsEOF)
                         break;
                 }

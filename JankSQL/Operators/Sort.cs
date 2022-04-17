@@ -19,7 +19,7 @@
             isAscending = isAscendingList.ToArray();
         }
 
-        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max)
+        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues)
         {
             if (outputExhausted)
             {
@@ -30,7 +30,7 @@
 
             while (!inputExhausted)
             {
-                ResultSet rs = myInput.GetRows(engine, outerAccessor, 5);
+                ResultSet rs = myInput.GetRows(engine, outerAccessor, 5, bindValues);
                 if (rs.IsEOF)
                 {
                     inputExhausted = true;
@@ -50,7 +50,7 @@
 
             //TODO: honor max
             // we've completely built totalResults, so sort it
-            var evaluatingComparer = new EvaluatingComparer(engine, sortExpressions, isAscending, totalResults.GetColumnNames());
+            var evaluatingComparer = new EvaluatingComparer(engine, sortExpressions, isAscending, totalResults.GetColumnNames(), bindValues);
             totalResults.Sort(evaluatingComparer);
             Console.WriteLine($"Sorted! {evaluatingComparer.KeyComparisons} key comparisons, {evaluatingComparer.RowComparisons} row comparisons");
 

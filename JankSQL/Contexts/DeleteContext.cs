@@ -1,8 +1,8 @@
 ﻿namespace JankSQL.Contexts
 {
-    using JankSQL.Operators;
     using JankSQL.Engines;
     using JankSQL.Expressions;
+    using JankSQL.Operators;
 
     internal class DeleteContext : IExecutableContext
     {
@@ -20,6 +20,13 @@
             set { predicateExpression = value; }
         }
 
+        public object Clone()
+        {
+            DeleteContext clone = new (tableName);
+            clone.predicateExpression = predicateExpression != null ? (Expression?)predicateExpression.Clone() : null;
+            return Clone();
+        }
+
         public void Dump()
         {
             Console.WriteLine($"DELETE FROM {tableName}");
@@ -30,7 +37,7 @@
                 Console.WriteLine($"       {predicateExpression}");
         }
 
-        public ExecuteResult Execute(IEngine engine, IRowValueAccessor? outerAccessor)
+        public ExecuteResult Execute(IEngine engine, IRowValueAccessor? outerAccessor, Dictionary<string, ExpressionOperand> bindValues)
         {
             Engines.IEngineTable? tableSource = engine.GetEngineTable(tableName);
 
@@ -46,7 +53,7 @@
 
                 while (true)
                 {
-                    ResultSet batch = delete.GetRows(engine, outerAccessor, 5);
+                    ResultSet batch = delete.GetRows(engine, outerAccessor, 5, bindValues);
                     if (batch.IsEOF)
                         break;
                 }

@@ -64,14 +64,38 @@
             set { inputContext = value; }
         }
 
-        public ExecuteResult Execute(Engines.IEngine engine, IRowValueAccessor? outerAccessor)
+        public object Clone()
+        {
+            SelectContext clone = new (statementContext, predicateContext);
+
+            clone.inputContext = inputContext != null ? (SelectContext)inputContext.Clone() : null;
+            clone.orderByContext = orderByContext != null ? (OrderByContext)orderByContext.Clone() : null;
+            clone.sourceTableName = sourceTableName;
+            clone.derivedTableAlias = derivedTableAlias;
+
+            foreach (var groupBy in groupByExpressions)
+                clone.groupByExpressions.Add(groupBy);
+            foreach (var aggregate in aggregateContexts)
+                clone.aggregateContexts.Add((AggregateContext)aggregate.Clone());
+
+            foreach (var expr in selectListContext.SelectExpressions)
+                clone.AddSelectListExpressionList(expr);
+            //            clone.selectListContext = (SelectListContext)selectListContext.Clone();
+
+            for (int i = 0; i < selectListContext.RowsetColumnNameCount; i++)
+                clone.SelectListContext.AddRowsetColumnName(selectListContext.RowsetColumnName(i));
+
+            return clone;
+        }
+
+        public ExecuteResult Execute(Engines.IEngine engine, IRowValueAccessor? outerAccessor, Dictionary<string, ExpressionOperand> bindValues)
         {
             Select select = BuildSelectObject(engine);
             ResultSet? resultSet = null;
 
             while (true)
             {
-                ResultSet batch = select.GetRows(engine, outerAccessor, 5);
+                ResultSet batch = select.GetRows(engine, outerAccessor, 5, bindValues);
                 if (resultSet == null)
                     resultSet = ResultSet.NewWithShape(batch);
 

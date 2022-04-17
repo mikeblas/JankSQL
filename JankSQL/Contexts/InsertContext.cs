@@ -1,6 +1,5 @@
 ﻿namespace JankSQL.Contexts
 {
-    using JankSQL.Engines;
     using JankSQL.Expressions;
     using JankSQL.Operators;
 
@@ -24,7 +23,20 @@
 
         internal FullTableName TableName { get; set; }
 
-        public ExecuteResult Execute(Engines.IEngine engine, IRowValueAccessor? accessor)
+        public object Clone()
+        {
+            InsertContext clone = new (context, TableName);
+
+            if (targetColumns != null)
+                clone.TargetColumns = TargetColumns;
+
+            if (constructors != null)
+                clone.AddExpressionLists(constructors);
+
+            return clone;
+        }
+
+        public ExecuteResult Execute(Engines.IEngine engine, IRowValueAccessor? accessor, Dictionary<string, ExpressionOperand> bindValues)
         {
             if (constructors == null)
                 throw new InternalErrorException("Expected a list of constructors");
@@ -51,7 +63,7 @@
 
                 while (true)
                 {
-                    ResultSet batch = inserter.GetRows(engine, accessor, 5);
+                    ResultSet batch = inserter.GetRows(engine, accessor, 5, bindValues);
                     if (batch.IsEOF)
                         break;
                 }

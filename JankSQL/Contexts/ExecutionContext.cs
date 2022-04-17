@@ -16,14 +16,18 @@
                 context.Dump();
         }
 
-        public ExecuteResult[] Execute(Engines.IEngine engine)
+        public ExecuteResult[] Execute(Engines.IEngine engine, Dictionary<string, ExpressionOperand> bindValues)
         {
+            var clonedContexts = new List<IExecutableContext>();
+            foreach (var item in executeContexts)
+                clonedContexts.Add((IExecutableContext)item.Clone());
+
             List<ExecuteResult> results = new ();
-            foreach (IExecutableContext context in executeContexts)
+            foreach (IExecutableContext context in clonedContexts)
             {
                 try
                 {
-                    ExecuteResult result = context.Execute(engine, null);
+                    ExecuteResult result = context.Execute(engine, null, bindValues);
                     results.Add(result);
                 }
                 catch (ExecutionException ex)
@@ -37,16 +41,19 @@
             return results.ToArray();
         }
 
-        public ExecuteResult ExecuteSingle(Engines.IEngine engine)
+        public ExecuteResult ExecuteSingle(Engines.IEngine engine, Dictionary<string, ExpressionOperand> bindValues)
         {
             ExecuteResult result;
+
             if (executeContexts.Count != 1)
                 result = ExecuteResult.FailureWithError("ExecuteSingle() called on multiple-context batch");
             else
-                result = executeContexts[0].Execute(engine, null);
+            {
+                IExecutableContext clonedContext = (IExecutableContext)executeContexts[0].Clone();
+                result = clonedContext.Execute(engine, null, bindValues);
+            }
 
             return result;
         }
-
     }
 }

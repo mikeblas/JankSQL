@@ -28,9 +28,9 @@
             myInput.Rewind();
         }
 
-        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max)
+        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues)
         {
-            ResultSet rsInput = myInput.GetRows(engine, outerAccessor, max);
+            ResultSet rsInput = myInput.GetRows(engine, outerAccessor, max, bindValues);
             ResultSet rsOutput = ResultSet.NewWithShape(rsInput);
 
             if (rsInput.IsEOF)
@@ -49,7 +49,7 @@
                     ExpressionOperand result;
 
                     CombinedValueAccessor cva = new (new ResultSetValueAccessor(rsInput, i), outerAccessor);
-                    result = p.Evaluate(cva, engine);
+                    result = p.Evaluate(cva, engine, bindValues);
 
                     if (!result.IsTrue())
                     {

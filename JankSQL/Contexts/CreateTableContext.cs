@@ -27,7 +27,13 @@
             }
         }
 
-        public ExecuteResult Execute(IEngine engine, IRowValueAccessor? accessor)
+        public object Clone()
+        {
+            CreateTableContext context = new CreateTableContext(tableName, columnNames, columnTypes);
+            return context;
+        }
+
+        public ExecuteResult Execute(IEngine engine, IRowValueAccessor? accessor, Dictionary<string, ExpressionOperand> bindValues)
         {
             engine.CreateTable(tableName, columnNames.ToImmutableList(), columnTypes.ToImmutableList());
 

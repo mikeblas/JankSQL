@@ -16,7 +16,7 @@
             this.columnNames = columnNames;
         }
 
-        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max)
+        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues)
         {
             ResultSet resultSet = new (columnNames);
 
@@ -32,7 +32,7 @@
                 Tuple generatedValues = Tuple.CreateEmpty(columnValues[0].Count);
 
                 for (int i = 0; i < columnValues[currentRow].Count; i++)
-                    generatedValues[i] = columnValues[currentRow][i].Evaluate(null, engine);
+                    generatedValues[i] = columnValues[currentRow][i].Evaluate(null, engine, bindValues);
 
                 resultSet.AddRow(generatedValues);
                 currentRow++;

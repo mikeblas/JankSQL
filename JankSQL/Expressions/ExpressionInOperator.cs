@@ -25,20 +25,20 @@
             return "IN Operator";
         }
 
-        internal ExpressionOperand Evaluate(Engines.IEngine engine, IRowValueAccessor accessor, Stack<ExpressionOperand> stack)
+        internal ExpressionOperand Evaluate(Engines.IEngine engine, IRowValueAccessor accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
         {
             bool result;
             if (targets != null)
-                result = EvaluateTargets(engine, accessor, stack);
+                result = EvaluateTargets(engine, accessor, stack, bindValues);
             else
-                result = EvaluateSubselect(engine, accessor, stack);
+                result = EvaluateSubselect(engine, accessor, stack, bindValues);
 
             // return what we discovered
             ExpressionOperand r = new ExpressionOperandBoolean(result);
             return r;
         }
 
-        protected bool EvaluateTargets(Engines.IEngine engine, IRowValueAccessor accessor, Stack<ExpressionOperand> stack)
+        protected bool EvaluateTargets(Engines.IEngine engine, IRowValueAccessor accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
         {
             bool result = false;
 
@@ -47,7 +47,7 @@
             // see if we find one that matches
             for (int i = 0; i < targets!.Count; i++)
             {
-                ExpressionOperand target = targets[i].Evaluate(accessor, engine);
+                ExpressionOperand target = targets[i].Evaluate(accessor, engine, bindValues);
                 if (left.OperatorEquals(target))
                 {
                     result = true;
@@ -62,10 +62,10 @@
             return result;
         }
 
-        protected bool EvaluateSubselect(Engines.IEngine engine, IRowValueAccessor accessor, Stack<ExpressionOperand> stack)
+        protected bool EvaluateSubselect(Engines.IEngine engine, IRowValueAccessor accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
         {
             selectContext!.Reset();
-            ExecuteResult queryResult = selectContext.Execute(engine, accessor);
+            ExecuteResult queryResult = selectContext.Execute(engine, accessor, bindValues);
 
             // no rows means we can't match
             if (queryResult.ResultSet.RowCount == 0)

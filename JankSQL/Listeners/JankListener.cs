@@ -87,6 +87,13 @@
                         ExpressionNode n = ExpressionOperand.NullLiteral();
                         x.Insert(0, n);
                     }
+                    else if (primitiveContext.LOCAL_ID() != null)
+                    {
+                        string bindName = primitiveContext.LOCAL_ID().GetText();
+                        Console.WriteLine($"found bind variable named {bindName}");
+                        ExpressionNode n = new ExpressionBindOperator(bindName);
+                        x.Insert(0, n);
+                    }
                     else if (primitiveContext.constant().FLOAT() != null)
                     {
                         string str = primitiveContext.constant().FLOAT().GetText();

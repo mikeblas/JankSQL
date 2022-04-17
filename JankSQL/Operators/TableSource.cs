@@ -38,7 +38,7 @@
             rowEnumerator.Reset();
         }
 
-        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max)
+        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues)
         {
             ResultSet rs = new (GetAllColumnNames());
 

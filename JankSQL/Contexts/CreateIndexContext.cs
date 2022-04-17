@@ -33,7 +33,15 @@
             get { return isUnique; }
         }
 
-        public ExecuteResult Execute(IEngine engine, IRowValueAccessor? accessor)
+        public object Clone()
+        {
+            var clone = new CreateIndexContext(tableName, indexName, isUnique);
+            foreach (var t in columnInfo)
+                clone.columnInfo.Add(t);
+            return clone;
+        }
+
+        public ExecuteResult Execute(IEngine engine, IRowValueAccessor? accessor, Dictionary<string, ExpressionOperand> bindValues)
         {
             engine.CreateIndex(tableName, indexName, isUnique, columnInfo);
 
@@ -54,6 +62,5 @@
         {
             columnInfo.Add((columnName, isDescending));
         }
-
     }
 }

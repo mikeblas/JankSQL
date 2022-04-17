@@ -21,18 +21,18 @@
             return "CASE Operator";
         }
 
-        internal ExpressionOperand Evaluate(Engines.IEngine engine, IRowValueAccessor accessor, Stack<ExpressionOperand> stack)
+        internal ExpressionOperand Evaluate(Engines.IEngine engine, IRowValueAccessor accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
         {
             ExpressionOperand? result = null;
 
             // evaluate each when to find truth ...
             for (int i = 0; i < whens.Count; i++)
             {
-                ExpressionOperand whenResult = whens[i].Evaluate(accessor, engine);
+                ExpressionOperand whenResult = whens[i].Evaluate(accessor, engine, bindValues);
 
                 if (whenResult.IsTrue())
                 {
-                    result = thens[i].Evaluate(accessor, engine);
+                    result = thens[i].Evaluate(accessor, engine, bindValues);
                     break;
                 }
             }
@@ -44,7 +44,7 @@
                 if (elseExpression == null)
                     result = ExpressionOperand.NullLiteral();
                 else
-                    result = elseExpression.Evaluate(accessor, engine);
+                    result = elseExpression.Evaluate(accessor, engine, bindValues);
             }
 
             // return what we discovered

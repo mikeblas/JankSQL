@@ -18,6 +18,16 @@
             return string.Join(", ", this);
         }
 
+        public object Clone()
+        {
+            var clone = new Expression();
+
+            foreach (var node in this)
+                clone.Add(node);
+
+            return clone;
+        }
+
         public virtual bool Equals(Expression? other)
         {
             if (other == null)
@@ -48,7 +58,7 @@
             return base.GetHashCode();
         }
 
-        internal ExpressionOperand Evaluate(IRowValueAccessor? accessor, Engines.IEngine engine)
+        internal ExpressionOperand Evaluate(IRowValueAccessor? accessor, Engines.IEngine engine, Dictionary<string, ExpressionOperand> bindValues)
         {
             Stack<ExpressionOperand> stack = new ();
 
@@ -108,21 +118,26 @@
                         // CASE WHEN (predicate) THEN (expr) ... [ELSE (expr)]
                         if (accessor == null)
                             throw new ExecutionException($"Not in a row context to evaluate {this}");
-                        ExpressionOperand r = caseOperator.Evaluate(engine, accessor, stack);
+                        ExpressionOperand r = caseOperator.Evaluate(engine, accessor, stack, bindValues);
                         stack.Push(r);
                     }
                     else if (n is ExpressionSubselectOperator subselectOperator)
                     {
                         if (accessor == null)
                             throw new ExecutionException($"Not in a row context to evaluate {this}");
-                        ExpressionOperand r = subselectOperator.Evaluate(engine, accessor, stack);
+                        ExpressionOperand r = subselectOperator.Evaluate(engine, accessor, stack, bindValues);
                         stack.Push(r);
                     }
                     else if (n is ExpressionInOperator inOperator)
                     {
                         if (accessor == null)
                             throw new ExecutionException($"Not in a row context to evaluate {this}");
-                        ExpressionOperand r = inOperator.Evaluate(engine, accessor, stack);
+                        ExpressionOperand r = inOperator.Evaluate(engine, accessor, stack, bindValues);
+                        stack.Push(r);
+                    }
+                    else if (n is ExpressionBindOperator bindOperator)
+                    {
+                        ExpressionOperand r = bindOperator.Evaluate(stack, bindValues);
                         stack.Push(r);
                     }
                     else

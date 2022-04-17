@@ -66,10 +66,10 @@
             // Console.WriteLine("REWIND!");
         }
 
-        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max)
+        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues)
         {
             if (outputSet is null)
-                outputSet = ProduceOutputSet(engine, outerAccessor);
+                outputSet = ProduceOutputSet(engine, outerAccessor, bindValues);
 
             ResultSet resultSlice = ResultSet.NewWithShape(outputSet);
             if (outputIndex >= outputSet.RowCount)
@@ -116,31 +116,31 @@
             return allColumnNames;
         }
 
-        protected bool FillLeftRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max)
+        protected bool FillLeftRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues)
         {
-            leftRows = leftInput.GetRows(engine, outerAccessor, max);
+            leftRows = leftInput.GetRows(engine, outerAccessor, max, bindValues);
             return leftRows != null && leftRows.RowCount > 0;
         }
 
-        protected bool FillRightRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max)
+        protected bool FillRightRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues)
         {
-            rightRows = rightInput.GetRows(engine, outerAccessor, max);
+            rightRows = rightInput.GetRows(engine, outerAccessor, max, bindValues);
             return rightRows != null && rightRows.RowCount > 0;
         }
 
-        protected ResultSet ProduceOutputSet(Engines.IEngine engine, IRowValueAccessor? outerAccessor)
+        protected ResultSet ProduceOutputSet(Engines.IEngine engine, IRowValueAccessor? outerAccessor, Dictionary<string, ExpressionOperand> bindValues)
         {
             const int max = 7;
 
             if (leftRows == null)
             {
-                FillLeftRows(engine, outerAccessor, max);
+                FillLeftRows(engine, outerAccessor, max, bindValues);
                 leftIndex = 0;
             }
 
             if (rightRows == null)
             {
-                FillRightRows(engine, outerAccessor, max);
+                FillRightRows(engine, outerAccessor, max, bindValues);
                 rightIndex = 0;
             }
 
@@ -164,7 +164,7 @@
                     matched = true;
                 else
                 {
-                    ExpressionOperand op = PredicateExpressions[0].Evaluate(new TemporaryRowValueAccessor(totalRow, allColumnNames), engine);
+                    ExpressionOperand op = PredicateExpressions[0].Evaluate(new TemporaryRowValueAccessor(totalRow, allColumnNames), engine, bindValues);
                     matched = op.IsTrue();
                 }
 
@@ -198,11 +198,11 @@
                 rightIndex += 1;
                 if (rightIndex == rightRows.RowCount)
                 {
-                    if (!FillRightRows(engine, outerAccessor, max))
+                    if (!FillRightRows(engine, outerAccessor, max, bindValues))
                     {
                         // we exhausted right, so rewind ...
                         rightInput.Rewind();
-                        FillRightRows(engine, outerAccessor, max);
+                        FillRightRows(engine, outerAccessor, max, bindValues);
 
                         // was left ever matched? handle LEFT/RIGHT OUTER JOIN accordingly ...
                         if ((joinType == JoinType.LEFT_OUTER_JOIN || joinType == JoinType.RIGHT_OUTER_JOIN) && !leftMatched)
@@ -220,7 +220,7 @@
                         if (leftIndex == leftRows.RowCount)
                         {
                             // we exhausted the left side, so try to get more
-                            if (!FillLeftRows(engine, outerAccessor, max))
+                            if (!FillLeftRows(engine, outerAccessor, max, bindValues))
                                 break;
                             leftIndex = 0;
                         }

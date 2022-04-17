@@ -31,9 +31,9 @@
             get { return rowsAffected; }
         }
 
-        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max)
+        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues)
         {
-            ResultSet rsInput = myInput.GetRows(engine, outerAccessor, max);
+            ResultSet rsInput = myInput.GetRows(engine, outerAccessor, max, bindValues);
             if (rsInput.IsEOF)
             {
                 ResultSet eof = new (new List<FullColumnName>());

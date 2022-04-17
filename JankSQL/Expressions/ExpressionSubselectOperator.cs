@@ -16,10 +16,10 @@
             return "SUBSELECT";
         }
 
-        internal ExpressionOperand Evaluate(Engines.IEngine engine, IRowValueAccessor accessor, Stack<ExpressionOperand> stack)
+        internal ExpressionOperand Evaluate(Engines.IEngine engine, IRowValueAccessor accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
         {
             selectContext.Reset();
-            ExecuteResult result = selectContext.Execute(engine, accessor);
+            ExecuteResult result = selectContext.Execute(engine, accessor, bindValues);
 
             if (result.ResultSet.ColumnCount != 1)
                 throw new SemanticErrorException($"subselect returned {result.ResultSet.ColumnCount} columns, must only return 1 column");

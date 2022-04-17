@@ -49,6 +49,9 @@ namespace JankSQL
                   " from ten " +
                   " RIGHT OUTER JOIN mytable on numbeR_id = keycolumn; ";
 
+
+            str = "INSERT INTO ten(number_id, number_name, is_even) VALUES(@P1, @P2, @P3)";
+
             // str = "SELECT * FROM ten WHERE number_id IN (3, 5, 7, number_id);";
 
 
@@ -99,6 +102,10 @@ namespace JankSQL
             {
                 batch.Dump();
 
+                batch.SetBindValue("@P1", ExpressionOperand.IntegerFromInt(301));
+                batch.SetBindValue("@P2", ExpressionOperand.VARCHARFromString("three hundred one"));
+                batch.SetBindValue("@P3", ExpressionOperand.IntegerFromInt(0));
+
                 ExecuteResult[] sets = batch.Execute(engine);
                 for (int i = 0; i < sets.Length; i++)
                 {
@@ -121,6 +128,35 @@ namespace JankSQL
                 if (batch.HadSemanticError)
                     Console.WriteLine($"Semantic error: {batch.SemanticError}");
             }
+
+
+            string str3 = "SELECT * FROM ten";
+            ExecutableBatch batch3 = Parser.ParseSQLFileFromString(str3);
+            if (batch3.TotalErrors == 0)
+            {
+                batch3.Dump();
+
+                ExecuteResult[] sets = batch3.Execute(engine);
+                for (int i = 0; i < sets.Length; i++)
+                {
+                    Console.WriteLine($"ExecuteResult #{i} =====");
+                    ResultSet? rs = sets[i].ResultSet;
+                    if (rs != null)
+                    {
+                        rs.Dump();
+                        Console.WriteLine($"{rs.RowCount} total rows");
+                    }
+                    else
+                    {
+                        Console.WriteLine("(no result set)");
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("Errors!");
+            }
+
 
             /*
             string str2 = "INSERT INTO Ten (numbeR_id, numbeR_name, is_even) VALUES (11, 'Eleven', 0)";

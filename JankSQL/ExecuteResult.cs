@@ -29,7 +29,13 @@
 
         public string? ErrorMessage { get; set; }
 
-        public int RowsAffected { get { return rowsAffected; } }
+        public int RowsAffected
+        {
+            get
+            {
+                return rowsAffected;
+            }
+        }
 
         internal static ExecuteResult SuccessWithRowsAffected(int rowsaffected)
         {
