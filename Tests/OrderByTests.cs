@@ -253,5 +253,78 @@
 
             Assert.AreEqual(checksum, testsum);
         }
+
+
+        [Test]
+        public void TestOrderByManyNIntegersBinding()
+        {
+            Random random = new();
+            int testRowCount = 1000000;
+
+            // create a table
+            var ecCreate = Parser.ParseSQLFileFromString("CREATE TABLE TransientTestTable (SomeKey INTEGER, SomeInteger INTEGER);");
+
+            Assert.IsNotNull(ecCreate);
+            Assert.AreEqual(0, ecCreate.TotalErrors);
+
+            ExecuteResult resultsCreate = ecCreate.ExecuteSingle(engine);
+            Assert.AreEqual(ExecuteStatus.SUCCESSFUL_WITH_MESSAGE, resultsCreate.ExecuteStatus, resultsCreate.ErrorMessage);
+            Assert.NotNull(resultsCreate.ErrorMessage);
+
+            Stopwatch parsing = new ();
+            Stopwatch execution = new ();
+
+            parsing.Start();
+            string statement = $"INSERT INTO TransientTestTable (SomeKey, SomeInteger) VALUES(@RowNumber, @Random);";
+            var ecInsert = Parser.QuietParseSQLFileFromString(statement);
+            Assert.IsNotNull(ecInsert);
+            Assert.AreEqual(0, ecInsert.TotalErrors);
+            parsing.Stop();
+
+            // insert some rows
+            int checksum = 0;
+            for (int i = 1; i <= testRowCount; i++)
+            {
+                int r = random.Next();
+                checksum += r;
+
+                execution.Start();
+                ecInsert.SetBindValue("@RowNumber", ExpressionOperand.IntegerFromInt(i));
+                ecInsert.SetBindValue("@Random", ExpressionOperand.IntegerFromInt(r));
+                ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
+                execution.Stop();
+                // Console.WriteLine($"Inserted {r}");
+
+                JankAssert.SuccessfulNoResultSet(resultsInsert);
+            }
+
+            Console.WriteLine($"parsing:   {parsing.ElapsedMilliseconds}");
+            Console.WriteLine($"execution: {execution.ElapsedMilliseconds}");
+
+            // select it out
+            var ecSelect = Parser.ParseSQLFileFromString("SELECT SomeKey, SomeInteger FROM TransientTestTable ORDER BY SomeKey;");
+
+            ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(resultSelect, 2, testRowCount);
+            // resultsSelect.ResultSet.Dump();
+
+            int testsum = resultSelect.ResultSet.Row(0)[1].AsInteger();
+            int previous = resultSelect.ResultSet.Row(0)[0].AsInteger();
+            for (int i = 1; i < resultSelect.ResultSet.RowCount; i++)
+            {
+                int current = resultSelect.ResultSet.Row(i)[0].AsInteger();
+                Assert.IsTrue(previous.CompareTo(current) <= 0, $"expected {previous} <= {current}");
+                previous = current;
+
+
+                int x = resultSelect.ResultSet.Row(i)[1].AsInteger();
+                testsum += x;
+                // Console.WriteLine($"Read {x}");
+            }
+
+            Assert.AreEqual(testRowCount, resultSelect.ResultSet.RowCount);
+            Assert.AreEqual(checksum, testsum);
+        }
+
     }
 }
