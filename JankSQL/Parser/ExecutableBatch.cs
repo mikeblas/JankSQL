@@ -103,5 +103,20 @@
         {
             bindValues[bindTargetName] = bindValue;
         }
+
+        public void SetBindValue(string bindTargetName, int bindValue)
+        {
+            SetBindValue(bindTargetName, ExpressionOperand.IntegerFromInt(bindValue));
+        }
+
+        public void SetBindValue(string bindTargetName, string bindValue)
+        {
+            SetBindValue(bindTargetName, ExpressionOperand.VARCHARFromString(bindValue));
+        }
+
+        public void SetBindValue(string bindTargetName, double bindValue)
+        {
+            SetBindValue(bindTargetName, ExpressionOperand.DecimalFromDouble(bindValue));
+        }
     }
 }

@@ -20,8 +20,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.AreEqual(33.3, result.ResultSet.Row(0)[0].AsDouble(), 0.000001);
-            Assert.AreEqual(ExpressionOperandType.DECIMAL, result.ResultSet.Row(0)[0].NodeType);
+            JankAssert.ValueMatchesDecimal(result.ResultSet, 0, 0, 33.3, 0.000001);
         }
 
         [Test]
@@ -33,8 +32,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.AreEqual(33, result.ResultSet.Row(0)[0].AsInteger());
-            Assert.AreEqual(ExpressionOperandType.INTEGER, result.ResultSet.Row(0)[0].NodeType);
+            JankAssert.ValueMatchesInteger(result.ResultSet, 0, 0, 33);
         }
 
 

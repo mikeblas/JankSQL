@@ -29,9 +29,9 @@
             for (int i = 0; i < result.ResultSet.RowCount; i++)
             {
                 if (result.ResultSet.Row(i)[0].AsInteger() % 2 == 0)
-                    Assert.AreEqual("Even", result.ResultSet.Row(i)[1].AsString());
+                    JankAssert.ValueMatchesString(result.ResultSet, 1, i, "Even");
                 else
-                    Assert.AreEqual("Odd", result.ResultSet.Row(i)[1].AsString());
+                    JankAssert.ValueMatchesString(result.ResultSet, 1, i, "Odd");
             }
         }
 
@@ -88,11 +88,11 @@
                 int num = result.ResultSet.Row(i)[0].AsInteger();
 
                 if (num == 2)
-                    Assert.AreEqual("ni", result.ResultSet.Row(i)[1].AsString());
+                    JankAssert.ValueMatchesString(result.ResultSet, 1, i, "ni");
                 else if (num == 1)
-                    Assert.AreEqual("ichi", result.ResultSet.Row(i)[1].AsString());
+                    JankAssert.ValueMatchesString(result.ResultSet, 1, i, "ichi");
                 else
-                    Assert.AreEqual("unknown", result.ResultSet.Row(i)[1].AsString());
+                    JankAssert.ValueMatchesString(result.ResultSet, 1, i, "unknown");
             }
         }
 
@@ -117,9 +117,9 @@
                 int num = result.ResultSet.Row(i)[0].AsInteger();
 
                 if (num % 2 == 0)
-                    Assert.AreEqual("ComputedEven", result.ResultSet.Row(i)[1].AsString());
+                    JankAssert.ValueMatchesString(result.ResultSet, 1, i, "ComputedEven");
                 else
-                    Assert.AreEqual("ComputedOdd", result.ResultSet.Row(i)[1].AsString());
+                    JankAssert.ValueMatchesString(result.ResultSet, 1, i, "ComputedOdd");
             }
         }
 

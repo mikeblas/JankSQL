@@ -21,7 +21,7 @@
             result.ResultSet.Dump();
 
             for (int i = 0; i < result.ResultSet.RowCount; i++)
-                Assert.AreEqual(125, result.ResultSet.Row(i)[0].AsDouble());
+                JankAssert.ValueMatchesInteger(result.ResultSet, 0, i, 125);
         }
 
         [Test]
@@ -35,8 +35,8 @@
 
             for (int i = 0; i < result.ResultSet.RowCount; i++)
             {
-                Assert.AreEqual(3+5, result.ResultSet.Row(i)[0].AsDouble());
-                Assert.AreEqual(92*6, result.ResultSet.Row(i)[1].AsDouble());
+                JankAssert.ValueMatchesInteger(result.ResultSet, 0, i, 3 + 5);
+                JankAssert.ValueMatchesInteger(result.ResultSet, 1, i, 92 * 6);
             }
         }
 
@@ -51,9 +51,9 @@
 
             for (int i = 0; i < result.ResultSet.RowCount; i++)
             {
-                Assert.AreEqual(355 / 113, result.ResultSet.Row(i)[0].AsInteger());
-                Assert.AreEqual(867 - 5309, result.ResultSet.Row(i)[1].AsInteger());
-                Assert.AreEqual((123 + 456 - 111) / 3, result.ResultSet.Row(i)[2].AsInteger());
+                JankAssert.ValueMatchesInteger(result.ResultSet, 0, i, 355 / 113);
+                JankAssert.ValueMatchesInteger(result.ResultSet, 1, i, 867 - 5309);
+                JankAssert.ValueMatchesInteger(result.ResultSet, 2, i, (123 + 456 - 111) / 3);
             }
         }
 
@@ -169,7 +169,7 @@
             result.ResultSet.Dump();
 
             for (int i = 0; i < result.ResultSet.RowCount; i++)
-                Assert.AreEqual(8, result.ResultSet.Row(i)[0].AsInteger());
+                JankAssert.ValueMatchesInteger(result.ResultSet, 0, i, 8);
         }
 
 
@@ -183,7 +183,7 @@
             result.ResultSet.Dump();
 
             for (int i = 0; i < result.ResultSet.RowCount; i++)
-                Assert.AreEqual(8, result.ResultSet.Row(i)[0].AsInteger());
+                JankAssert.ValueMatchesInteger(result.ResultSet, 0, i, 8);
         }
 
 
@@ -197,7 +197,7 @@
             result.ResultSet.Dump();
 
             for (int i = 0; i < result.ResultSet.RowCount; i++)
-                Assert.AreEqual(20, result.ResultSet.Row(i)[0].AsInteger());
+                JankAssert.ValueMatchesInteger(result.ResultSet, 0, i, 20);
         }
 
 
@@ -224,7 +224,7 @@
             result.ResultSet.Dump();
 
             for (int i = 0; i < result.ResultSet.RowCount; i++)
-                Assert.AreEqual(125, result.ResultSet.Row(i)[0].AsInteger());
+                JankAssert.ValueMatchesInteger(result.ResultSet, 0, i, 125);
         }
 
         [Test]
@@ -242,9 +242,9 @@
                 results[i].ResultSet.Dump();
 
                 if (i == 0)
-                    Assert.AreEqual("This", results[i].ResultSet.Row(0)[0].AsString());
+                    JankAssert.ValueMatchesString(results[i].ResultSet, 0, 0, "This");
                 else if (i == 1)
-                    Assert.AreEqual("That", results[i].ResultSet.Row(0)[0].AsString());
+                    JankAssert.ValueMatchesString(results[i].ResultSet, 0, 0, "That");
             }
         }
 

@@ -26,6 +26,49 @@
 
 
         [Test]
+        public void TestAdditionBinds()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT @Left + @Right;");
+
+            for (int left = -5; left <= 5; left++)
+            {
+                for (int right = -5; right <= 5; right++)
+                {
+                    ec.SetBindValue("@Left", left);
+                    ec.SetBindValue("@Right", right);
+
+                    ExecuteResult result = ec.ExecuteSingle(engine);
+
+                    JankAssert.RowsetExistsWithShape(result, 1, 1);
+
+                    JankAssert.ValueMatchesInteger(result.ResultSet, 0, 0, left + right);
+                }
+            }
+        }
+
+
+        [Test]
+        public void TestMultiplicationBinds()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT @Left * @Right;");
+
+            for (int left = -60; left <= 60; left += 3)
+            {
+                for (int right = -50; right <= 50; right += 5)
+                {
+                    ec.SetBindValue("@Left", left);
+                    ec.SetBindValue("@Right", right);
+
+                    ExecuteResult result = ec.ExecuteSingle(engine);
+
+                    JankAssert.RowsetExistsWithShape(result, 1, 1);
+
+                    JankAssert.ValueMatchesInteger(result.ResultSet, 0, 0, left * right);
+                }
+            }
+        }
+
+        [Test]
         public void TestAdditionWithNull()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 3 + NULL;");
@@ -86,6 +129,36 @@
             result.ResultSet.Dump();
 
             JankAssert.ValueMatchesInteger(result.ResultSet, 0, 0, 8);
+        }
+
+
+        [Test]
+        public void TestAdditionWhereBinds()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT @Left + @Right WHERE 1=@Flag;");
+
+            int flag = 0;
+            for (int left = -5; left <= 5; left++)
+            {
+                for (int right = -5; right <= 5; right++)
+                {
+                    flag = (flag + 1) % 3;
+
+                    ec.SetBindValue("@Left", left);
+                    ec.SetBindValue("@Right", right);
+                    ec.SetBindValue("@Flag", flag);
+
+                    ExecuteResult result = ec.ExecuteSingle(engine);
+
+                    if (flag == 1)
+                    {
+                        JankAssert.RowsetExistsWithShape(result, 1, 1);
+                        JankAssert.ValueMatchesInteger(result.ResultSet, 0, 0, left + right);
+                    }
+                    else
+                        JankAssert.RowsetExistsWithShape(result, 1, 0);
+                }
+            }
         }
 
 
@@ -509,8 +582,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
-            Assert.AreEqual(3.1415926, result.ResultSet.Row(0)[0].AsDouble(), 0.0000001);
+            JankAssert.ValueMatchesDecimal(result.ResultSet, 0, 0, 3.1415926, 0.0000001);
         }
 
         [Test]
@@ -529,8 +601,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
-            Assert.AreEqual(729, result.ResultSet.Row(0)[0].AsDouble());
+            JankAssert.ValueMatchesInteger(result.ResultSet, 0, 0, 729);
         }
 
 
@@ -543,8 +614,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
-            Assert.AreEqual(729 * 2, result.ResultSet.Row(0)[0].AsDouble());
+            JankAssert.ValueMatchesInteger(result.ResultSet, 0, 0, 729 * 2);
         }
 
 
@@ -581,8 +651,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
-            Assert.AreEqual(1.41421356, result.ResultSet.Row(0)[0].AsDouble(), 0.00000001);
+            JankAssert.ValueMatchesDecimal(result.ResultSet, 0, 0, 1.41421356, 0.00000001);
         }
 
         [Test]
@@ -594,8 +663,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
-            Assert.AreEqual(-1.41421356, result.ResultSet.Row(0)[0].AsDouble(), 0.00000001);
+            JankAssert.ValueMatchesDecimal(result.ResultSet, 0, 0, -1.41421356, 0.00000001);
         }
 
 
@@ -620,8 +688,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
-            Assert.AreEqual(729, result.ResultSet.Row(0)[0].AsDouble());
+            JankAssert.ValueMatchesInteger(result.ResultSet, 0, 0, 729);
         }
 
         [Test]
@@ -633,8 +700,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
-            Assert.AreEqual(100000000, result.ResultSet.Row(0)[0].AsDouble());
+            JankAssert.ValueMatchesInteger(result.ResultSet, 0, 0, 100_000_000);
         }
 
         [Test]
@@ -646,8 +712,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
-            Assert.AreEqual(3.1415926, result.ResultSet.Row(0)[0].AsDouble(), 0.0000001);
+            JankAssert.ValueMatchesDecimal(result.ResultSet, 0, 0, 3.1415926, 0.0000001);
         }
 
         [Test]
@@ -688,8 +753,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
-            Assert.AreEqual(35, result.ResultSet.Row(0)[0].AsInteger());
+            JankAssert.ValueMatchesInteger(result.ResultSet, 0, 0, 35);
         }
 
         [Test]
@@ -701,8 +765,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
-            Assert.AreEqual(93, result.ResultSet.Row(0)[0].AsInteger());
+            JankAssert.ValueMatchesInteger(result.ResultSet, 0, 0, 93);
         }
 
         [Test]
@@ -727,8 +790,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
-            Assert.AreEqual(1000, result.ResultSet.Row(0)[0].AsInteger());
+            JankAssert.ValueMatchesInteger(result.ResultSet, 0, 0, 1000);
         }
 
 
@@ -741,8 +803,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
-            Assert.AreEqual(250 + 10 - 3, result.ResultSet.Row(0)[0].AsInteger());
+            JankAssert.ValueMatchesInteger(result.ResultSet, 0, 0, 250 + 10 - 3);
         }
 
         [Test]
@@ -754,8 +815,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
-            Assert.AreEqual(17 % 5, result.ResultSet.Row(0)[0].AsInteger());
+            JankAssert.ValueMatchesInteger(result.ResultSet, 0, 0, 17 % 5);
         }
 
         [Test]
@@ -767,8 +827,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
-            Assert.AreEqual(17.5 % 5.1, result.ResultSet.Row(0)[0].AsDouble());
+            JankAssert.ValueMatchesDecimal(result.ResultSet, 0, 0, 17.5 % 5.1, 0.00001);
         }
 
 
@@ -781,8 +840,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
-            Assert.AreEqual(-17 % 5, result.ResultSet.Row(0)[0].AsInteger());
+            JankAssert.ValueMatchesInteger(result.ResultSet, 0, 0, -17 % 5);
         }
 
         [Test]
@@ -794,8 +852,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
-            Assert.AreEqual(17 % -5, result.ResultSet.Row(0)[0].AsInteger());
+            JankAssert.ValueMatchesInteger(result.ResultSet, 0, 0, 17 % -5);
         }
 
         [Test]
@@ -807,8 +864,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
-            Assert.AreEqual(17 % -5, result.ResultSet.Row(0)[0].AsInteger());
+            JankAssert.ValueMatchesInteger(result.ResultSet, 0, 0, 17 % -5);
         }
 
         [Test]
@@ -832,8 +888,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
-            Assert.AreEqual(30 / 10, result.ResultSet.Row(0)[0].AsDouble());
+            JankAssert.ValueMatchesInteger(result.ResultSet, 0, 0, 30 / 10);
         }
 
         [Test]

@@ -310,7 +310,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.AreEqual(3854000, result.ResultSet.Row(0)[0].AsDouble(), 0.0001);
+            JankAssert.ValueMatchesDecimal(result.ResultSet, 0, 0, 3_854_000, 0.0001);
         }
 
         [Test]
