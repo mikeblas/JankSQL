@@ -25,7 +25,6 @@
             result.ResultSet.Dump();
 
             JankAssert.IntegerColumnMatchesSet(result.ResultSet, 0, new HashSet<int>() { 0, 1, 2 });
-            Assert.Fail("TEST");
         }
 
 

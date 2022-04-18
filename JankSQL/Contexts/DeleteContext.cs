@@ -24,7 +24,7 @@
         {
             DeleteContext clone = new (tableName);
             clone.predicateExpression = predicateExpression != null ? (Expression?)predicateExpression.Clone() : null;
-            return Clone();
+            return clone;
         }
 
         public void Dump()
