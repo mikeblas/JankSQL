@@ -9,7 +9,7 @@
         FULL_OUTER_JOIN,
     }
 
-    internal class JoinContext
+    internal class JoinContext : ICloneable
     {
         private readonly FullTableName? tableName;
         private readonly SelectContext? selectSource;
@@ -57,6 +57,29 @@
         {
             get { return joinType; }
         }
+
+        public object Clone()
+        {
+            JoinContext clone;
+            if (selectSource != null)
+                clone = new JoinContext(joinType, (SelectContext)selectSource.Clone());
+            else if (tableName != null)
+                clone = new JoinContext(joinType, tableName);
+            else
+                throw new InternalErrorException("join clone needs table name or selectSource");
+
+            clone.derivedTableAlias = derivedTableAlias;
+
+            if (predicateExpressions != null)
+            {
+                clone.predicateExpressions = new List<Expression>();
+                foreach (var pe in predicateExpressions)
+                    clone.predicateExpressions.Add(pe);
+            }
+
+            return clone;
+        }
+
 
         internal void Dump()
         {

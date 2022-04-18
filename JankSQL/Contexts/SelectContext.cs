@@ -85,7 +85,7 @@
                 clone.SelectListContext.AddRowsetColumnName(selectListContext.RowsetColumnName(i));
 
             foreach (var jc in joinContexts)
-                clone.joinContexts.Add(jc);
+                clone.joinContexts.Add((JoinContext)jc.Clone());
 
             return clone;
         }

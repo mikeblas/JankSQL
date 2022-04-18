@@ -101,6 +101,31 @@
 
 
         [Test]
+        public void TestFilterDoubleDerivedCrossJoinWithBinds()
+        {
+            var ec = Parser.ParseSQLFileFromString(
+                "    SELECT * " +
+                "      FROM [three] " +
+                "CROSS JOIN " +
+                "     (    SELECT * FROM [ten] " +
+                "      CROSS JOIN [mytable]) AS X " +
+                "     WHERE [three].[number_id] + 10 * [x].[number_id] > @LowLimit;");
+
+            ec.SetBindValue("@LowLimit", ExpressionOperand.IntegerFromInt(30));
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            ec.Dump();
+            JankAssert.RowsetExistsWithShape(result, 9, 63);
+            result.ResultSet.Dump();
+
+            ec.SetBindValue("@LowLimit", ExpressionOperand.IntegerFromInt(20));
+            ExecuteResult result2 = ec.ExecuteSingle(engine);
+            ec.Dump();
+            JankAssert.RowsetExistsWithShape(result2, 9, 72);
+            result2.ResultSet.Dump();
+        }
+
+
+        [Test]
         public void TestFilterDoubleCrossJoinOrderBy()
         {
             var ec = Parser.ParseSQLFileFromString(
