@@ -193,7 +193,7 @@
         public void TestOrderByManyNIntegers()
         {
             Random random = new ();
-            int testRowCount = 10000;
+            int testRowCount = 1000;
 
             // create a table
             var ecCreate = Parser.ParseSQLFileFromString("CREATE TABLE TransientTestTable (SomeKey INTEGER, SomeInteger INTEGER);");
@@ -259,7 +259,7 @@
         public void TestOrderByManyNIntegersBinding()
         {
             Random random = new();
-            int testRowCount = 1000000;
+            int testRowCount = 100000;
 
             // create a table
             var ecCreate = Parser.ParseSQLFileFromString("CREATE TABLE TransientTestTable (SomeKey INTEGER, SomeInteger INTEGER);");
