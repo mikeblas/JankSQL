@@ -80,10 +80,12 @@
 
             foreach (var expr in selectListContext.SelectExpressions)
                 clone.AddSelectListExpressionList(expr);
-            //            clone.selectListContext = (SelectListContext)selectListContext.Clone();
 
             for (int i = 0; i < selectListContext.RowsetColumnNameCount; i++)
                 clone.SelectListContext.AddRowsetColumnName(selectListContext.RowsetColumnName(i));
+
+            foreach (var jc in joinContexts)
+                clone.joinContexts.Add(jc);
 
             return clone;
         }
