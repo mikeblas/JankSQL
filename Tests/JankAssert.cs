@@ -86,7 +86,7 @@ namespace Tests
         {
             for (int i = 0; i < rs.RowCount; i++)
             {
-                int val = rs.Row(i)[0].AsInteger();
+                int val = rs.Row(i)[columnIndex].AsInteger();
                 if (expectedSet.Contains(val))
                     expectedSet.Remove(val);
                 else

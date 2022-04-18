@@ -162,7 +162,7 @@
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         static private string IntToRoman(int num)
         {
-            if ((num < 0) || (num > 39999)) throw new ArgumentOutOfRangeException();
+            if ((num < 0) || (num > 39999)) throw new ArgumentOutOfRangeException(nameof(num));
             if (num >= 10000) return "m" + IntToRoman(num - 10000);
             if (num >= 9000) return "Mm" + IntToRoman(num - 9000);
             if (num >= 5000) return "v" + IntToRoman(num - 5000);
