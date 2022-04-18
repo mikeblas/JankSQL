@@ -139,7 +139,7 @@
 
         public void Rewind()
         {
-            throw new NotImplementedException();
+            outputExhausted = false;
         }
         #endregion
 

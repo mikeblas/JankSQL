@@ -23,7 +23,7 @@
                     return rowData[i];
             }
 
-            throw new ExecutionException($"column {fcn} not found in TemporaryRowValueAccessor");
+            throw new ExecutionException($"column {fcn} not found in TemporaryRowValueAccessor; available are {string.Join(",", (object[])names)}");
         }
 
         void IRowValueAccessor.SetValue(FullColumnName fcn, ExpressionOperand op)
@@ -37,7 +37,7 @@
                 }
             }
 
-            throw new ExecutionException($"column {fcn} not found in TemporaryRowValueAccessor");
+            throw new ExecutionException($"column {fcn} not found in TemporaryRowValueAccessor; available are {string.Join(",", (object[])names)}");
         }
 
     }

@@ -5,7 +5,7 @@ namespace Tests
 
     using NUnit.Framework;
 
-    internal class JankAssert
+    public class JankAssert
     {
         public static void RowsetExistsWithShape(ExecuteResult executeResult, int expectedColumns, int expectedRows)
         {
@@ -79,6 +79,13 @@ namespace Tests
         public static void SuccessfulNoResultSet(ExecuteResult er)
         {
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL, er.ExecuteStatus);
+            Assert.Throws<InvalidOperationException>(() => { var _ = er.ResultSet; });
+        }
+
+
+        public static void SuccessfulWithMessageNoResultSet(ExecuteResult er)
+        {
+            Assert.AreEqual(ExecuteStatus.SUCCESSFUL_WITH_MESSAGE, er.ExecuteStatus);
             Assert.Throws<InvalidOperationException>(() => { var _ = er.ResultSet; });
         }
 

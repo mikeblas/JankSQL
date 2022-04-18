@@ -127,27 +127,19 @@
                         inner.DerivedTableAlias = currentTSIJ.table_source_item().as_table_alias().table_alias().id_().GetText();
                     leftSource = "Subselect";
                     selectContext.InputContext = inner;
-
-                    if (currentTSIJ.table_source_item().as_table_alias() != null)
-                    {
-                        string alias = currentTSIJ.table_source_item().as_table_alias().table_alias().id_().GetText();
-                        selectContext.DerivedTableAlias = alias;
-                    }
                 }
                 else
                 {
                     FullTableName ftn = FullTableName.FromTableNameContext(currentTSIJ.table_source_item().table_name_with_hint().table_name());
-                    Console.WriteLine($"iterative: {ftn}");
+                    FullTableName? ftnAlias = FullTableName.FromTableAliasContext(currentTSIJ.table_source_item().as_table_alias());
+                    Console.WriteLine($"iterative: {ftn} AS {(ftnAlias == null ? "no alias" : ftnAlias)}");
                     leftSource = ftn.ToString();
 
                     if (selectContext.SourceTableName == null)
                         selectContext.SourceTableName = ftn;
 
-                    if (currentTSIJ.table_source_item().as_table_alias() != null)
-                    {
-                        string alias = currentTSIJ.table_source_item().as_table_alias().table_alias().id_().GetText();
-                        selectContext.DerivedTableAlias = alias;
-                    }
+                    if (ftnAlias != null)
+                        selectContext.DerivedTableAlias = ftnAlias.TableName;
                 }
 
 
@@ -226,9 +218,9 @@
                                     Console.WriteLine($"{leftSource} {joinType} On subselect");
 
                                     string str = joinContext.join_on().table_source().table_source_item_joined().table_source_item().as_table_alias().table_alias().id_().GetText();
-                                    inner.DerivedTableAlias = str;
-
+                                    
                                     JoinContext jc = new (joinType, inner);
+                                    jc.DerivedTableAlias = str;
                                     selectContext.AddJoin(jc, pcon);
                                 }
                                 else if (joinContext.join_on().table_source().table_source_item_joined().table_source_item().table_name_with_hint() != null)

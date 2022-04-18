@@ -101,7 +101,7 @@
                     // if (derivedTableAlias != null)
                     //  fcn.SetTableName(derivedTableAlias);
                     allColumnNames.Add(fcn);
-                    // Console.WriteLine($"Left: {fcn}");
+                    Console.WriteLine($"Left: {fcn}");
                 }
 
                 foreach (var fcn in rightRows.GetColumnNames())
@@ -109,7 +109,7 @@
                     if (derivedTableAlias != null)
                         fcn.SetTableName(derivedTableAlias);
                     allColumnNames.Add(fcn);
-                    // Console.WriteLine($"Right: {fcn}");
+                    Console.WriteLine($"Right: {fcn}");
                 }
             }
 

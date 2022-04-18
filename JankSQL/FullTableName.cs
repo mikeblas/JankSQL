@@ -83,6 +83,16 @@
             return r;
         }
 
+        internal static FullTableName? FromTableAliasContext(TSqlParser.As_table_aliasContext? context)
+        {
+            if (context == null)
+                return null;
+
+            //TODO: need a StringFromID function
+            var r = new FullTableName(GetEffectiveName(context.table_alias().id_().ID().GetText()));
+            return r;
+        }
+
         internal static FullTableName FromTableName(string tableName)
         {
             return new FullTableName(tableName);

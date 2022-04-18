@@ -22,9 +22,16 @@
 
 namespace JankSQL
 {
+
     internal class Program
     {
         public static void Main()
+        {
+            Test2();
+        }
+
+
+        public static void Test2()
         {
             string str;
 
