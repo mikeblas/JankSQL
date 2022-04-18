@@ -34,12 +34,12 @@
             return new BTreeEngine();
         }
 
-        public void CreateTable(FullTableName tableName, IEnumerable<FullColumnName> columnNames, IEnumerable<ExpressionOperandType> columnTypes)
+        public void CreateTable(FullTableName tableName, IImmutableList<FullColumnName> columnNames, IImmutableList<ExpressionOperandType> columnTypes)
         {
-            if (columnNames.Count() == 0)
+            if (columnNames.Count == 0)
                 throw new ArgumentException("Must have at least one column name");
-            if (columnNames.Count() != columnTypes.Count())
-                throw new ArgumentException($"Must have at types for each column; got {columnNames.Count()} names and {columnTypes.Count()} types");
+            if (columnNames.Count != columnTypes.Count)
+                throw new ArgumentException($"Must have at types for each column; got {columnNames.Count} names and {columnTypes.Count} types");
 
             // create the table
             BTreeTable table = new (tableName.TableName, columnTypes.ToArray(), columnNames);
@@ -53,20 +53,17 @@
             sysTables.InsertRow(tablesRow);
 
             // add rows for the sys_columns
-            int nameIndex = 0;
-            foreach (var columnName in columnNames)
+            for (int nameIndex = 0; nameIndex < columnNames.Count; nameIndex++)
             {
                 Tuple columnRow = new ()
                 {
                     ExpressionOperand.VARCHARFromString(tableName.TableName),
-                    ExpressionOperand.VARCHARFromString(columnName.ColumnNameOnly()),
-                    ExpressionOperand.VARCHARFromString(columnTypes.ToString()), // type
+                    ExpressionOperand.VARCHARFromString(columnNames[nameIndex].ColumnNameOnly()),
+                    ExpressionOperand.VARCHARFromString(columnTypes[nameIndex].ToString()), // type
                     ExpressionOperand.IntegerFromInt(nameIndex), // ordinal
                 };
 
                 sysColumns.InsertRow(columnRow);
-
-                nameIndex++;
             }
 
 

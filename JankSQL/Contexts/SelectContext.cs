@@ -286,7 +286,7 @@
             }
 
             // then the select
-            Select select = new Select(lastLeftOutput, querySpecs.select_list().select_list_elem(), selectListContext, derivedTableAlias);
+            Select select = new (lastLeftOutput, querySpecs.select_list().select_list_elem(), selectListContext, derivedTableAlias);
             return select;
         }
 

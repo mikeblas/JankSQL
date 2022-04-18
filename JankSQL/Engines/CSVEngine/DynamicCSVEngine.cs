@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Engines
 {
+    using System.Collections.Immutable;
+
     using JankSQL.Expressions;
 
     public enum OpenPolicy
@@ -114,7 +116,7 @@
             }
         }
 
-        public void CreateTable(FullTableName tableName, IEnumerable<FullColumnName> columnNames, IEnumerable<ExpressionOperandType> columnTypes)
+        public void CreateTable(FullTableName tableName, IImmutableList<FullColumnName> columnNames, IImmutableList<ExpressionOperandType> columnTypes)
         {
             // guess file name
             string fileName = tableName.TableName.Replace("[", string.Empty).Replace("]", string.Empty) + ".csv";
@@ -188,14 +190,14 @@
 
         public IEngineTable GetSysTables()
         {
-            DynamicCSVTable sysTables = new DynamicCSVTable(sysTablesPath, "sys_tables", this);
+            DynamicCSVTable sysTables = new (sysTablesPath, "sys_tables", this);
             sysTables.Load();
             return sysTables;
         }
 
         public IEngineTable GetSysColumns()
         {
-            DynamicCSVTable sysColumns = new DynamicCSVTable(sysColumnsPath, "sys_columns", this);
+            DynamicCSVTable sysColumns = new (sysColumnsPath, "sys_columns", this);
             sysColumns.Load();
             return sysColumns;
         }
@@ -264,7 +266,7 @@
             else
             {
                 // found the source table, so load it
-                DynamicCSVTable table = new DynamicCSVTable(effectiveTableFileName, tableName.TableName, this);
+                DynamicCSVTable table = new (effectiveTableFileName, tableName.TableName, this);
                 table.Load();
                 return table;
             }
@@ -282,7 +284,7 @@
             if (effectiveTableFileName == null)
                 throw new InvalidOperationException();
 
-            DynamicCSVTable table = new DynamicCSVTable(effectiveTableFileName, testTable.TableName.TableName, this);
+            DynamicCSVTable table = new (effectiveTableFileName, testTable.TableName.TableName, this);
             table.Load();
 
             foreach (var row in testTable.Rows)

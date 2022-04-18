@@ -9,7 +9,7 @@
         private readonly ExecutionContext? executionContext;
         private readonly string? semanticError;
 
-        private readonly Dictionary<string, ExpressionOperand> bindValues = new Dictionary<string, ExpressionOperand>(StringComparer.InvariantCultureIgnoreCase);
+        private readonly Dictionary<string, ExpressionOperand> bindValues = new (StringComparer.InvariantCultureIgnoreCase);
 
         private ExecuteResult[]? results;
 
