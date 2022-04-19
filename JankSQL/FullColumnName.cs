@@ -100,9 +100,10 @@
             return ret;
         }
 
-        internal void SetTableName(string tableName)
+        internal FullColumnName ApplyTableAlias(string tableName)
         {
-            this.tableName = tableName;
+            FullColumnName fcnNew = FullColumnName.FromTableColumnName(tableName, this.columnName);
+            return fcnNew;
         }
 
         private static string GetEffectiveName(string objectName)

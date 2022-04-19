@@ -72,7 +72,7 @@
             {
                 FullColumnName fcn = source.ColumnName(n);
                 if (alias != null)
-                    fcn.SetTableName(alias);
+                    fcn = fcn.ApplyTableAlias(alias);
                 columnNames.Add(fcn);
             }
 

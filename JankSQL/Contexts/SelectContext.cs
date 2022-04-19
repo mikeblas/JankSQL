@@ -205,7 +205,10 @@
                     IComponentOutput joinSource;
                     if (j.SelectSource != null)
                     {
-                        joinSource = j.SelectSource.BuildSelectObject(engine);
+                        Select selectJoinSource = j.SelectSource.BuildSelectObject(engine);
+                        if (j.DerivedTableAlias != null)
+                            selectJoinSource.DerivedTableAlias = j.DerivedTableAlias;
+                        joinSource = selectJoinSource;
 
                         AccumulateTableNames(j.SelectSource.tableNames, j.DerivedTableAlias);
                     }

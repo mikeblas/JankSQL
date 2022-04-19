@@ -121,6 +121,7 @@
                 string leftSource = "unassigned";
                 if (currentTSIJ.table_source_item().derived_table() != null)
                 {
+                    // derived table ...
                     SelectContext inner = GobbleSelectStatement(currentTSIJ.table_source_item().derived_table().subquery()[0].select_statement());
 
                     if (currentTSIJ.table_source_item().as_table_alias() != null)
@@ -130,6 +131,7 @@
                 }
                 else
                 {
+                    // FROM table ...
                     FullTableName ftn = FullTableName.FromTableNameContext(currentTSIJ.table_source_item().table_name_with_hint().table_name());
                     FullTableName? ftnAlias = FullTableName.FromTableAliasContext(currentTSIJ.table_source_item().as_table_alias());
                     Console.WriteLine($"iterative: {ftn} AS {(ftnAlias == null ? "no alias" : ftnAlias)}");

@@ -9,7 +9,7 @@
         private readonly SelectListContext selectList;
         private readonly TSqlParser.Select_list_elemContext[] selectListContexts;
 
-        private readonly string? derivedTableAlias;
+        private string? derivedTableAlias;
 
         private List<FullColumnName>? effectiveColumns;
 
@@ -21,6 +21,12 @@
             this.selectListContexts = selectListContexts;
             this.selectList = selectList;
             this.derivedTableAlias = derivedTableAlias;
+        }
+
+        internal string? DerivedTableAlias
+        {
+            get { return derivedTableAlias; }
+            set { derivedTableAlias = value; }
         }
 
         public void Rewind()
@@ -46,7 +52,7 @@
                         {
                             FullColumnName fcn = rsInput.GetColumnName(i);
                             if (derivedTableAlias != null)
-                                fcn.SetTableName(derivedTableAlias);
+                                fcn = fcn.ApplyTableAlias(derivedTableAlias);
                             if (fcn.ColumnNameOnly() == "bookmark_key")
                                 continue;
                             effectiveColumns.Add(fcn);
@@ -58,6 +64,8 @@
                     else
                     {
                         var fcn = selectList.RowsetColumnName(resultSetColumnIndex++);
+                        if (derivedTableAlias != null)
+                            fcn = fcn.ApplyTableAlias(derivedTableAlias);
                         effectiveColumns.Add(fcn);
                     }
                 }

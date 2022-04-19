@@ -106,8 +106,9 @@
 
                 foreach (var fcn in rightRows.GetColumnNames())
                 {
+                    FullColumnName effective = fcn;
                     if (derivedTableAlias != null)
-                        fcn.SetTableName(derivedTableAlias);
+                        effective = effective.ApplyTableAlias(derivedTableAlias);
                     allColumnNames.Add(fcn);
                     Console.WriteLine($"Right: {fcn}");
                 }
