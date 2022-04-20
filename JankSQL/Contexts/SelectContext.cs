@@ -246,10 +246,10 @@
             if (aggregateContexts.Count > 0)
             {
                 // get names for all the expressions
-                List<string> groupByExpressionBindNames = new ();
+                List<FullColumnName> groupByExpressionBindNames = new ();
                 foreach (var gbe in groupByExpressions)
                 {
-                    string? bindName = selectListContext.BindNameForExpression(gbe);
+                    FullColumnName? bindName = selectListContext.BindNameForExpression(gbe);
                     if (bindName != null)
                         groupByExpressionBindNames.Add(bindName);
                 }

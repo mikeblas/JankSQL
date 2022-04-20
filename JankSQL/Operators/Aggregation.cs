@@ -25,7 +25,7 @@
         private readonly List<string> expressionNames;
         private readonly List<Expression>? groupByExpressions;
         private readonly Dictionary<Tuple, List<IAggregateAccumulator>> dictKeyToAggs;
-        private readonly List<string>? groupByExpressionBindNames;
+        private readonly List<FullColumnName>? groupByExpressionBindNames;
 
         private readonly List<FullColumnName> outputNames = new ();
 
@@ -33,7 +33,7 @@
         private bool inputExhausted;
         private bool outputExhausted;
 
-        internal Aggregation(IComponentOutput input, List<AggregateContext> contexts, List<Expression>? groupByExpressions, List<string>? groupByExpressionBindNames)
+        internal Aggregation(IComponentOutput input, List<AggregateContext> contexts, List<Expression>? groupByExpressions, List<FullColumnName>? groupByExpressionBindNames)
         {
             expressionNames = new List<string>();
             expressions = new List<Expression>();
@@ -173,7 +173,8 @@
             {
                 foreach (var x in groupByExpressionBindNames)
                 {
-                    outputNames.Add(FullColumnName.FromColumnName(x));
+                    outputNames.Add(x);
+                    // outputNames.Add(FullColumnName.FromColumnName(x));
                     n++;
                 }
             }

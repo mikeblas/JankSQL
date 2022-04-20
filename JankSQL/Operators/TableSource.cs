@@ -11,12 +11,12 @@
 
         private bool enumeratorExhausted;
 
-        private List<FullColumnName>? columnNames;
+        private List<FullColumnName>? allColumnNames;
 
         internal TableSource(Engines.IEngineTable source)
         {
             this.source = source;
-            columnNames = null;
+            allColumnNames = null;
             rowEnumerator = this.source.GetEnumerator();
             enumeratorExhausted = false;
             this.alias = null;
@@ -25,7 +25,7 @@
         internal TableSource(Engines.IEngineTable source, string? alias)
         {
             this.source = source;
-            columnNames = null;
+            allColumnNames = null;
             rowEnumerator = this.source.GetEnumerator();
             enumeratorExhausted = false;
             this.alias = alias;
@@ -67,17 +67,21 @@
 
         protected List<FullColumnName> GetAllColumnNames()
         {
-            columnNames = new ();
-            for (int n = 0; n < source.ColumnCount; n++)
+            if (allColumnNames == null)
             {
-                FullColumnName fcn = source.ColumnName(n);
-                if (alias != null)
-                    fcn = fcn.ApplyTableAlias(alias);
-                columnNames.Add(fcn);
+                allColumnNames = new ();
+                for (int n = 0; n < source.ColumnCount; n++)
+                {
+                    FullColumnName fcn = source.ColumnName(n);
+                    if (alias != null)
+                        fcn = fcn.ApplyTableAlias(alias);
+                    allColumnNames.Add(fcn);
+                }
+
+                allColumnNames.Add(FullColumnName.FromColumnName("bookmark_key"));
             }
 
-            columnNames.Add(FullColumnName.FromColumnName("bookmark_key"));
-            return columnNames;
+            return allColumnNames;
         }
     }
 }

@@ -14,6 +14,8 @@ namespace JankSQL
         public static void Test2()
         {
             var engine = Engines.BTreeEngine.CreateInMemory();
+            TestHelpers.InjectTableTen(engine);
+            TestHelpers.InjectTableMyTable(engine);
 
             string creates = @"
 CREATE TABLE students (
@@ -36,19 +38,24 @@ INSERT INTO students(StudentID, StudentName, score, class) VALUES(6, 'Rob', 802,
             ExecuteResult resultCreate = ecCreate.ExecuteSingle(engine);
             JankAssert.SuccessfulWithMessageNoResultSet(resultCreate);
 
+            /*
             string select =
                 "SELECT Y.StudentName, Y.Score, Y.Class " +
                 "  FROM Students Y" +
-                "  JOIN ( SELECT XX.Class, MAX(XX.Score) TopScore FROM Students AS XX GROUP BY XX.Class) X " +
+                "  JOIN ( SELECT Class, MAX(XX.Score) TopScore FROM Students AS XX GROUP BY Class) X " +
                 "    ON X.Class = Y.Class AND X.TopScore = Y.Score; ";
 
-            /*
+            // select = "SELECT XX.Class, MAX(XX.Score) TopScore FROM Students AS XX GROUP BY XX.Class";
+
             string select =
                 "SELECT Y.StudentName, Y.Score, Y.Class " +
                 "  FROM Students Y " +
                 "  JOIN ( SELECT Class, MAX(Score) TopScore FROM Students XX GROUP BY Class) X " +
                 "    ON X.Class = Y.Class AND X.TopScore = Y.Score; ";
             */
+
+            string select =
+                "SELECT * FROM Ten X CROSS JOIN MyTable Y";
 
             var ecSelect = Parser.ParseSQLFileFromString(select);
 

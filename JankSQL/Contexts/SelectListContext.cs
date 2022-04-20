@@ -80,12 +80,12 @@
             unknownColumnID += 1;
         }
 
-        internal string? BindNameForExpression(Expression x)
+        internal FullColumnName? BindNameForExpression(Expression x)
         {
             for (int i = 0; i < expressionList.Count; i++)
             {
                 if (expressionList[i].Equals(x))
-                    return RowsetColumnName(i).ColumnNameOnly();
+                    return RowsetColumnName(i);
             }
 
             return null;

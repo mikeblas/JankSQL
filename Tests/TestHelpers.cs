@@ -5,9 +5,9 @@
     using static JankSQL.ExpressionOperandType;
     using System.Diagnostics;
 
-    internal class TestHelpers
+    public class TestHelpers
     {
-        static internal void InjectTableMyTable(Engines.IEngine engine)
+        static public void InjectTableMyTable(Engines.IEngine engine)
         {
             Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
                 .WithTableName("mytable")
@@ -22,7 +22,7 @@
         }
 
 
-        static internal void InjectTableTen(Engines.IEngine engine)
+        static public void InjectTableTen(Engines.IEngine engine)
         {
             Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
                 .WithTableName("ten")
@@ -44,7 +44,7 @@
         }
 
 
-        static internal void InjectTableStates(Engines.IEngine engine)
+        static public void InjectTableStates(Engines.IEngine engine)
         {
             Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
                 .WithTableName("states")
@@ -64,7 +64,7 @@
         }
 
 
-        static internal void InjectTableThree(Engines.IEngine engine)
+        static public void InjectTableThree(Engines.IEngine engine)
         {
             Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
                 .WithTableName("three")
@@ -79,7 +79,7 @@
         }
 
 
-        static internal void InjectTableKeyOrdering(Engines.IEngine engine)
+        static public void InjectTableKeyOrdering(Engines.IEngine engine)
         {
             // order matches the description text when key is (K2, K3, K1)
 
@@ -101,7 +101,7 @@
         }
 
 
-        static internal void InjectTableKiloLeft(Engines.IEngine engine)
+        static public void InjectTableKiloLeft(Engines.IEngine engine)
         {
             Stopwatch sw = Stopwatch.StartNew();
 
@@ -127,7 +127,7 @@
         }
 
 
-        static internal void InjectTableKiloRight(Engines.IEngine engine)
+        static public void InjectTableKiloRight(Engines.IEngine engine)
         {
             Stopwatch sw = Stopwatch.StartNew();
 
