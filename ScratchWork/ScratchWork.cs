@@ -37,10 +37,10 @@ INSERT INTO students(StudentID, StudentName, score, class) VALUES(6, 'Rob', 802,
             JankAssert.SuccessfulWithMessageNoResultSet(resultCreate);
 
             string select =
-                "SELECT Students.StudentName, Students.Score, Students.Class " +
-                "  FROM Students " +
-                "  JOIN ( SELECT Class, MAX(Score) TopScore FROM Students XX GROUP BY Class) X " +
-                "    ON X.Class = Class AND X.TopScore = Score; ";
+                "SELECT Y.StudentName, Y.Score, Y.Class " +
+                "  FROM Students Y" +
+                "  JOIN ( SELECT XX.Class, MAX(XX.Score) TopScore FROM Students AS XX GROUP BY XX.Class) X " +
+                "    ON X.Class = Y.Class AND X.TopScore = Y.Score; ";
 
             /*
             string select =

@@ -17,7 +17,7 @@
             CreateStudentsTable();
 
             string select =
-                "SELECT Students.StudentName, Students.Score, Students.Class "+
+                "SELECT Students.StudentName, Students.Score, Students.Class " +
                 "  FROM Students " +
                 "  JOIN ( SELECT Class, MAX(Score) TopScore FROM Students GROUP BY Class) X " +
                 "    ON X.Class = Class AND X.TopScore = Score; ";
@@ -25,8 +25,7 @@
             var ecSelect = Parser.ParseSQLFileFromString(select);
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
-
-            resultSelect.ResultSet.Dump();
+            CheckStudentResults(resultSelect);
         }
 
 
@@ -44,9 +43,9 @@
             var ecSelect = Parser.ParseSQLFileFromString(select);
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
-
             resultSelect.ResultSet.Dump();
 
+            CheckStudentResults(resultSelect);
         }
 
 
@@ -64,8 +63,9 @@
             var ecSelect = Parser.ParseSQLFileFromString(select);
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
-
             resultSelect.ResultSet.Dump();
+
+            CheckStudentResults(resultSelect);
         }
 
         [Test]
@@ -82,9 +82,9 @@
             var ecSelect = Parser.ParseSQLFileFromString(select);
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
-
             resultSelect.ResultSet.Dump();
 
+            CheckStudentResults(resultSelect);
         }
 
         [Test]
@@ -101,9 +101,9 @@
             var ecSelect = Parser.ParseSQLFileFromString(select);
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
-
             resultSelect.ResultSet.Dump();
 
+            CheckStudentResults(resultSelect);
         }
 
 
@@ -129,6 +129,59 @@ INSERT INTO students(StudentID, StudentName, score, class) VALUES(6, 'Rob', 802,
 
             ExecuteResult resultCreate = ecCreate.ExecuteSingle(engine);
             JankAssert.SuccessfulWithMessageNoResultSet(resultCreate);
+        }
+
+        private void CheckStudentResults(ExecuteResult resultSelect)
+        {
+            JankAssert.RowsetExistsWithShape(resultSelect, 3, 4);
+            resultSelect.ResultSet.Dump();
+
+            //REVIEW: probably should've made a set with records in it, but ...
+            bool sawJohn = false;
+            bool sawMark = false;
+            bool sawBill = false;
+            bool sawMaria = false;
+            for (int i = 0; i < resultSelect.ResultSet.RowCount; i++)
+            {
+                string studentName = resultSelect.ResultSet.Row(i)[0].AsString();
+                int studentClass = resultSelect.ResultSet.Row(i)[2].AsInteger();
+                int studentScore = resultSelect.ResultSet.Row(i)[1].AsInteger();
+
+                if (studentName == "Mark")
+                {
+                    Assert.False(sawMark);
+                    sawMark = true;
+                    Assert.AreEqual(studentClass, 7);
+                    Assert.AreEqual(studentScore, 894);
+                }
+                else if (studentName == "Bill")
+                {
+                    Assert.False(sawBill);
+                    sawBill = true;
+                    Assert.AreEqual(studentClass, 7);
+                    Assert.AreEqual(studentScore, 894);
+                }
+                else if (studentName == "Maria")
+                {
+                    Assert.False(sawMaria);
+                    sawMaria = true;
+                    Assert.AreEqual(studentClass, 8);
+                    Assert.AreEqual(studentScore, 678);
+
+                }
+                else if (studentName == "John")
+                {
+                    Assert.False(sawJohn);
+                    sawJohn = true;
+                    Assert.AreEqual(studentClass, 9);
+                    Assert.AreEqual(studentScore, 899);
+                }
+            }
+
+            Assert.True(sawMark);
+            Assert.True(sawBill);
+            Assert.True(sawMaria);
+            Assert.True(sawJohn);
         }
     }
 }
