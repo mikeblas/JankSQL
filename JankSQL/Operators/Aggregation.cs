@@ -231,7 +231,16 @@
 
             Tuple result = Tuple.CreateEmpty(groupByExpressions.Count);
             for (int i = 0; i < groupByExpressions.Count; i++)
-                result[i] = groupByExpressions[i].Evaluate(accessor, engine, bindValues);
+            {
+                try
+                {
+                    result[i] = groupByExpressions[i].Evaluate(accessor, engine, bindValues);
+                }
+                catch (ExecutionException ex)
+                {
+                    throw new ExecutionException($"Error evaluating GROUP BY expression {groupByExpressions[i]} due to: {ex.Message}");
+                }
+            }
 
             return result;
         }
