@@ -396,5 +396,31 @@
 
             JankAssert.ValueMatchesInteger(result.ResultSet, 0, 0, 1000);
         }
+
+        [Test]
+        public void TestSelectJoinAsteriskLeft()
+        {
+            TestHelpers.InjectTableKiloLeft(engine);
+            TestHelpers.InjectTableKiloRight(engine);
+
+            var ec = Parser.ParseSQLFileFromString("SELECT Y.* FROM Ten X CROSS JOIN MyTable Y;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 4, 30);
+            result.ResultSet.Dump();
+        }
+
+        [Test]
+        public void TestSelectJoinAsteriskRight()
+        {
+            TestHelpers.InjectTableKiloLeft(engine);
+            TestHelpers.InjectTableKiloRight(engine);
+
+            var ec = Parser.ParseSQLFileFromString("SELECT X.* FROM Ten X CROSS JOIN MyTable Y;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 3, 30);
+            result.ResultSet.Dump();
+        }
     }
 }

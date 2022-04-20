@@ -126,6 +126,7 @@
 
                     if (currentTSIJ.table_source_item().as_table_alias() != null)
                         inner.DerivedTableAlias = currentTSIJ.table_source_item().as_table_alias().table_alias().id_().GetText();
+                    Console.WriteLine($"FROM: derived table AS {inner.DerivedTableAlias ?? "no alias"}");
                     leftSource = "Subselect";
                     selectContext.InputContext = inner;
                 }
@@ -134,14 +135,14 @@
                     // FROM table ...
                     FullTableName ftn = FullTableName.FromTableNameContext(currentTSIJ.table_source_item().table_name_with_hint().table_name());
                     FullTableName? ftnAlias = FullTableName.FromTableAliasContext(currentTSIJ.table_source_item().as_table_alias());
-                    Console.WriteLine($"iterative: {ftn} AS {(ftnAlias == null ? "no alias" : ftnAlias)}");
+                    Console.WriteLine($"FROM: {ftn} AS {(ftnAlias == null ? "no alias" : ftnAlias)}");
                     leftSource = ftn.ToString();
 
                     if (selectContext.SourceTableName == null)
                         selectContext.SourceTableName = ftn;
 
                     if (ftnAlias != null)
-                        selectContext.DerivedTableAlias = ftnAlias.TableName;
+                        selectContext.DerivedTableAlias = ftnAlias.TableNameOnly;
                 }
 
 
@@ -161,33 +162,40 @@
 
                                 if (joinContext.cross_join().table_source().table_source_item_joined().table_source_item().derived_table() != null)
                                 {
+                                    // CROSS JOIN with a derived table ...
                                     SelectContext inner = GobbleSelectStatement(joinContext.cross_join().table_source().table_source_item_joined().table_source_item().derived_table().subquery()[0].select_statement());
-                                    Console.WriteLine($"{leftSource} CROSS JOIN On subselect");
-
 
                                     JoinContext jc = new (JoinType.CROSS_JOIN, inner);
                                     PredicateContext pcon = new ();
 
+                                    string? alias = null;
                                     if (joinContext.cross_join().table_source().table_source_item_joined().table_source_item().as_table_alias() != null)
                                     {
-                                        string alias = joinContext.cross_join().table_source().table_source_item_joined().table_source_item().as_table_alias().table_alias().id_().GetText();
+                                        alias = joinContext.cross_join().table_source().table_source_item_joined().table_source_item().as_table_alias().table_alias().id_().GetText();
                                         jc.DerivedTableAlias = alias;
-                                        Console.WriteLine($"alias is {alias}");
                                     }
+
+                                    Console.WriteLine($"{leftSource} CROSS JOIN On subselect {alias ?? "(no alias)"}");
 
                                     selectContext.AddJoin(jc, pcon);
                                 }
                                 else
                                 {
+                                    // CROSS JOIN with a table name ...
                                     FullTableName otherTableName = FullTableName.FromTableNameContext(joinContext.cross_join().table_source().table_source_item_joined().table_source_item().table_name_with_hint().table_name());
-                                    Console.WriteLine($"{leftSource} CROSS JOIN On {otherTableName}");
-
-                                    // string str = joinContext.cross_join().table_source().table_source_item_joined().table_source_item().as_table_alias().table_alias().id_().GetText();
 
                                     JoinContext jc = new (JoinType.CROSS_JOIN, otherTableName);
                                     PredicateContext pcon = new ();
-                                    selectContext.AddJoin(jc, pcon);
 
+                                    string? alias = null;
+                                    if (joinContext.cross_join().table_source().table_source_item_joined().table_source_item().as_table_alias() != null)
+                                    {
+                                        alias = joinContext.cross_join().table_source().table_source_item_joined().table_source_item().as_table_alias().table_alias().id_().GetText();
+                                        jc.DerivedTableAlias = alias;
+                                    }
+
+                                    Console.WriteLine($"{leftSource} CROSS JOIN On {otherTableName} {alias ?? "(no alias)"}");
+                                    selectContext.AddJoin(jc, pcon);
                                 }
 
                                 currentTSIJ = joinContext.cross_join().table_source().table_source_item_joined();
@@ -220,7 +228,7 @@
                                     Console.WriteLine($"{leftSource} {joinType} On subselect");
 
                                     string str = joinContext.join_on().table_source().table_source_item_joined().table_source_item().as_table_alias().table_alias().id_().GetText();
-                                    
+
                                     JoinContext jc = new (joinType, inner);
                                     jc.DerivedTableAlias = str;
                                     selectContext.AddJoin(jc, pcon);

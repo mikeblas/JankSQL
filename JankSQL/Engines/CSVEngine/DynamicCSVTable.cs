@@ -261,7 +261,7 @@
             ExpressionOperandType[] ret;
 
             // we'd infinitely recurse if we had to look up columns for sys_columns by looking up sys_columns ...
-            if (tableName.TableName.Equals("sys_columns", StringComparison.InvariantCultureIgnoreCase))
+            if (tableName.TableNameOnly.Equals("sys_columns", StringComparison.InvariantCultureIgnoreCase))
             {
                 List<ExpressionOperandType> types = new ();
 
@@ -292,7 +292,7 @@
                 int matchCount = 0;
                 foreach (var row in sysColumns)
                 {
-                    if (row.RowData[tableNameIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
+                    if (row.RowData[tableNameIndex].AsString().Equals(tableName.TableNameOnly, StringComparison.InvariantCultureIgnoreCase))
                         matchCount++;
                 }
 
@@ -300,12 +300,12 @@
 
                 foreach (var row in sysColumns)
                 {
-                    if (row.RowData[tableNameIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
+                    if (row.RowData[tableNameIndex].AsString().Equals(tableName.TableNameOnly, StringComparison.InvariantCultureIgnoreCase))
                     {
                         ExpressionOperandType operandType;
                         if (!ExpressionNode.TypeFromString(row.RowData[typeIndex].AsString(), out operandType))
                         {
-                            throw new ExecutionException($"unknown type {row.RowData[typeIndex].AsString()} in table {tableName.TableName}");
+                            throw new ExecutionException($"unknown type {row.RowData[typeIndex].AsString()} in table {tableName.TableNameOnly}");
                         }
 
                         int index = row.RowData[indexIndex].AsInteger();

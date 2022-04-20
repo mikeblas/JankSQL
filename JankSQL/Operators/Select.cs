@@ -47,7 +47,9 @@
                 {
                     if (c.asterisk() != null)
                     {
-                        Console.WriteLine("Asterisk!");
+                        FullTableName? tableName = FullTableName.FromPossibleTableNameContext(c.asterisk().table_name());
+
+                        Console.WriteLine($"Asterisk!: {(tableName == null ? "no qualifier" : tableName)}");
                         for (int i = 0; i < rsInput.ColumnCount; i++)
                         {
                             FullColumnName fcn = rsInput.GetColumnName(i);
@@ -55,6 +57,14 @@
                                 fcn = fcn.ApplyTableAlias(derivedTableAlias);
                             if (fcn.ColumnNameOnly() == "bookmark_key")
                                 continue;
+
+                            // check scoped table name ...
+                            if (tableName != null && !tableName.TableNameOnly.Equals(fcn.TableNameOnly, StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                Console.WriteLine($"Skipping {tableName.TableNameOnly} != {fcn.TableNameOnly}");
+                                continue;
+                            }
+
                             effectiveColumns.Add(fcn);
                             var node = new ExpressionOperandFromColumn(rsInput.GetColumnName(i));
                             Expression expression = new () { node };

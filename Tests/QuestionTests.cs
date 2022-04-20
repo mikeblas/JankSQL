@@ -131,7 +131,7 @@ INSERT INTO students(StudentID, StudentName, score, class) VALUES(6, 'Rob', 802,
             JankAssert.SuccessfulWithMessageNoResultSet(resultCreate);
         }
 
-        private void CheckStudentResults(ExecuteResult resultSelect)
+        private static void CheckStudentResults(ExecuteResult resultSelect)
         {
             JankAssert.RowsetExistsWithShape(resultSelect, 3, 4);
             resultSelect.ResultSet.Dump();

@@ -13,6 +13,11 @@
             this.columnName = columnName;
         }
 
+        public string? TableNameOnly
+        {
+            get { return tableName; }
+        }
+
         public static FullColumnName FromContext(TSqlParser.Full_column_nameContext context)
         {
             var r = new FullColumnName(GetEffectiveName(context.column_name.GetText()));

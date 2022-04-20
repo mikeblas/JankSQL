@@ -22,7 +22,6 @@
 
 namespace JankSQL
 {
-
     internal class Program
     {
         public static void Main()

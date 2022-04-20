@@ -13,7 +13,7 @@
             this.tableName = tableName;
         }
 
-        internal string TableName
+        internal string TableNameOnly
         {
             get { return tableName; }
         }
@@ -72,6 +72,13 @@
             r.databaseName = (context.database != null) ? GetEffectiveName(context.database.GetText()) : null;
             r.schemaName = (context.schema != null) ? GetEffectiveName(context.schema.GetText()) : null;
             return r;
+        }
+
+        internal static FullTableName? FromPossibleTableNameContext(TSqlParser.Table_nameContext? context)
+        {
+            if (context == null)
+                return null;
+            return FromTableNameContext(context);
         }
 
         internal static FullTableName FromFullTableNameContext(TSqlParser.Full_table_nameContext context)

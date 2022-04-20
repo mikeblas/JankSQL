@@ -60,8 +60,7 @@
 
                 // meets the predicate, so delete it
                 int bookmarkIndex = batch.ColumnIndex(FullColumnName.FromColumnName("bookmark_key"));
-                ExpressionOperandBookmark? bookmark = batch.Row(i)[bookmarkIndex] as ExpressionOperandBookmark;
-                if (bookmark == null)
+                if (batch.Row(i)[bookmarkIndex] is not ExpressionOperandBookmark bookmark)
                     throw new InternalErrorException("Expected bookmark column at index {bookmarkIndex}");
                 bookmarksToDelete.Add(bookmark);
 

@@ -337,8 +337,6 @@
 
                 stack.Add(isnullContext.left);
                 stack.Add(isnullContext.right);
-
-                Console.WriteLine($"functionCallContext: it's ISNULL!");
             }
             else if (bifContext is TSqlParser.CASTContext castContext)
             {
@@ -349,22 +347,20 @@
                 x.Insert(0, f);
 
                 stack.Add(castContext.expression());
-
-                Console.WriteLine($"functionCallContext: it's a CAST!");
             }
             else if (bifContext is TSqlParser.IIFContext iifContext)
             {
+                // IFF(cond, left, right)
                 ExpressionFunction f = new Expressions.Functions.FunctionIIF();
                 x.Insert(0, f);
 
-                // Expression searchCondition = GobbleSearchCondition(iifContext.cond);
                 stack.Add(iifContext.cond);
                 stack.Add(iifContext.left);
                 stack.Add(iifContext.right);
             }
             else
             {
-                throw new NotImplementedException($"Unknown built-in function");
+                throw new NotImplementedException($"Unknown built-in function {bifContext.GetText()}");
             }
         }
     }

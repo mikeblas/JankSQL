@@ -126,16 +126,7 @@
             else
             {
                 for (int i = 0; i < predicateContext.PredicateExpressionListCount; i++)
-                {
-                    Console.Write($"  #{i}: ");
-                    Console.Write($"{predicateContext.PredicateExpressions[i]}");
-                    /*
-                    foreach (var x in predicateContext.PredicateExpressions[i])
-                        Console.Write($"{x} ");
-                    */
-
-                    Console.WriteLine();
-                }
+                    Console.WriteLine($"  #{i}: {predicateContext.PredicateExpressions[i]}");
             }
 
             Console.WriteLine("Joins:");
@@ -289,7 +280,7 @@
             }
 
             // then the select
-            Select select = new (lastLeftOutput, querySpecs.select_list().select_list_elem(), selectListContext, derivedTableAlias);
+            Select select = new (lastLeftOutput, querySpecs.select_list().select_list_elem(), selectListContext, null /* derivedTableAlias */);
             return select;
         }
 
@@ -321,7 +312,7 @@
 
         internal void AccumulateTableNames(FullTableName ftn, string? aliasName)
         {
-            string effectiveName = aliasName ?? ftn.TableName;
+            string effectiveName = aliasName ?? ftn.TableNameOnly;
 
             AccumulateTableName(effectiveName);
         }

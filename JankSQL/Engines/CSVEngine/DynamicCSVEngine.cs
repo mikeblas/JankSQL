@@ -42,7 +42,7 @@
                     break;
 
                 default:
-                    throw new ArgumentException();
+                    throw new ArgumentException($"can't handle OpenPolicy {policy}");
             }
 
             return engine;
@@ -119,13 +119,13 @@
         public void CreateTable(FullTableName tableName, IImmutableList<FullColumnName> columnNames, IImmutableList<ExpressionOperandType> columnTypes)
         {
             // guess file name
-            string fileName = tableName.TableName.Replace("[", string.Empty).Replace("]", string.Empty) + ".csv";
+            string fileName = tableName.TableNameOnly.Replace("[", string.Empty).Replace("]", string.Empty) + ".csv";
             string fullPath = Path.Combine(basePath, fileName);
 
             // see if table doesn't exist
             IEngineTable sysTables = GetSysTables();
 
-            string? foundFileName = FileFromSysTables(sysTables, tableName.TableName);
+            string? foundFileName = FileFromSysTables(sysTables, tableName.TableNameOnly);
             if (foundFileName != null)
             {
                 throw new ExecutionException($"Table named {tableName} already exists");
@@ -153,7 +153,7 @@
             // add row to sys_tables
             Tuple newRow = Tuple.CreateEmpty(sysTables.ColumnCount);
             newRow[idxFile] = ExpressionOperand.VARCHARFromString(fullPath);
-            newRow[idxName] = ExpressionOperand.VARCHARFromString(tableName.TableName);
+            newRow[idxName] = ExpressionOperand.VARCHARFromString(tableName.TableNameOnly);
 
             sysTables.InsertRow(newRow);
 
@@ -173,7 +173,7 @@
                 Tuple columnRow = Tuple.CreateEmpty(sysColumns.ColumnCount);
 
                 columnRow[idxIdx] = ExpressionOperand.IntegerFromInt(columnNameIndex);
-                columnRow[idxTableName] = ExpressionOperand.VARCHARFromString(tableName.TableName);
+                columnRow[idxTableName] = ExpressionOperand.VARCHARFromString(tableName.TableNameOnly);
                 columnRow[idxColumnName] = ExpressionOperand.VARCHARFromString(columnName.ColumnNameOnly());
                 columnRow[idxType] = ExpressionOperand.VARCHARFromString(columnTypeEnumerator.Current.ToString());
 
@@ -217,7 +217,7 @@
             // delete the file
             IEngineTable sysTables = GetSysTables();
 
-            string? fileName = DynamicCSVEngine.FileFromSysTables(sysTables, tableName.TableName);
+            string? fileName = DynamicCSVEngine.FileFromSysTables(sysTables, tableName.TableNameOnly);
             if (fileName == null)
                 throw new ExecutionException($"Table {tableName} does not exist");
 
@@ -230,7 +230,7 @@
             List<ExpressionOperandBookmark> rowIndexesToDelete = new ();
             foreach (var row in sysColumns)
             {
-                if (row.RowData[tableNameIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
+                if (row.RowData[tableNameIndex].AsString().Equals(tableName.TableNameOnly, StringComparison.InvariantCultureIgnoreCase))
                 {
                     rowIndexesToDelete.Add(row.Bookmark);
                 }
@@ -244,7 +244,7 @@
 
             foreach (var row in sysTables)
             {
-                if (row.RowData[idxName].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
+                if (row.RowData[idxName].AsString().Equals(tableName.TableNameOnly, StringComparison.InvariantCultureIgnoreCase))
                 {
                     rowIndexesToDelete.Add(row.Bookmark);
                 }
@@ -259,14 +259,14 @@
             IEngineTable sysTables = GetSysTables();
 
             // get the file name for our table
-            string? effectiveTableFileName = FileFromSysTables(sysTables, tableName.TableName);
+            string? effectiveTableFileName = FileFromSysTables(sysTables, tableName.TableNameOnly);
 
             if (effectiveTableFileName == null)
                 return null;
             else
             {
                 // found the source table, so load it
-                DynamicCSVTable table = new (effectiveTableFileName, tableName.TableName, this);
+                DynamicCSVTable table = new (effectiveTableFileName, tableName.TableNameOnly, this);
                 table.Load();
                 return table;
             }
@@ -280,11 +280,11 @@
             // then insert each of the given rows
             // get the file name for our table
             IEngineTable sysTables = GetSysTables();
-            string? effectiveTableFileName = FileFromSysTables(sysTables, testTable.TableName.TableName);
+            string? effectiveTableFileName = FileFromSysTables(sysTables, testTable.TableName.TableNameOnly);
             if (effectiveTableFileName == null)
                 throw new InvalidOperationException();
 
-            DynamicCSVTable table = new (effectiveTableFileName, testTable.TableName.TableName, this);
+            DynamicCSVTable table = new (effectiveTableFileName, testTable.TableName.TableNameOnly, this);
             table.Load();
 
             foreach (var row in testTable.Rows)

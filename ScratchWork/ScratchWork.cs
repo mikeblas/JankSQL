@@ -55,7 +55,10 @@ INSERT INTO students(StudentID, StudentName, score, class) VALUES(6, 'Rob', 802,
             */
 
             string select =
-                "SELECT * FROM Ten X CROSS JOIN MyTable Y";
+                "SELECT Class, MAX(XX.Score) TopScore FROM Students AS XX GROUP BY Class";
+
+            select =
+                "SELECT XX.Class, MAX(XX.Score) TopScore FROM Students AS XX GROUP BY Class";
 
             var ecSelect = Parser.ParseSQLFileFromString(select);
 

@@ -42,12 +42,12 @@
                 throw new ArgumentException($"Must have at types for each column; got {columnNames.Count} names and {columnTypes.Count} types");
 
             // create the table
-            BTreeTable table = new (tableName.TableName, columnTypes.ToArray(), columnNames);
+            BTreeTable table = new (tableName.TableNameOnly, columnTypes.ToArray(), columnNames);
 
             // add a row to sys_tables
             Tuple tablesRow = new ()
             {
-                ExpressionOperand.VARCHARFromString(tableName.TableName),
+                ExpressionOperand.VARCHARFromString(tableName.TableNameOnly),
                 ExpressionOperand.VARCHARFromString(string.Empty),
             };
             sysTables.InsertRow(tablesRow);
@@ -57,7 +57,7 @@
             {
                 Tuple columnRow = new ()
                 {
-                    ExpressionOperand.VARCHARFromString(tableName.TableName),
+                    ExpressionOperand.VARCHARFromString(tableName.TableNameOnly),
                     ExpressionOperand.VARCHARFromString(columnNames[nameIndex].ColumnNameOnly()),
                     ExpressionOperand.VARCHARFromString(columnTypes[nameIndex].ToString()), // type
                     ExpressionOperand.IntegerFromInt(nameIndex), // ordinal
@@ -67,7 +67,7 @@
             }
 
 
-            inMemoryTables.Add(tableName.TableName, table);
+            inMemoryTables.Add(tableName.TableNameOnly, table);
         }
 
         public void CreateIndex(FullTableName tableName, string indexName, bool isUnique, IEnumerable<(string columnName, bool isDescending)> columnInfos)
@@ -95,7 +95,7 @@
             int indexNameIndex = sysIndexes.ColumnIndex("index_name");
             foreach (var row in sysIndexes)
             {
-                if (row.RowData[tableNameIndex].AsString().Equals(tableName.TableName, StringComparison.OrdinalIgnoreCase) &&
+                if (row.RowData[tableNameIndex].AsString().Equals(tableName.TableNameOnly, StringComparison.OrdinalIgnoreCase) &&
                     row.RowData[indexNameIndex].AsString().Equals(indexName, StringComparison.OrdinalIgnoreCase))
                 {
                     throw new ExecutionException($"index {indexName} already exists on table {tableName}");
@@ -109,7 +109,7 @@
             Dictionary<string, int> columnNameToIndex = new (StringComparer.InvariantCultureIgnoreCase);
             foreach (var row in sysColumns)
             {
-                if (row.RowData[columnsTableNameIndex].AsString().Equals(tableName.TableName, StringComparison.OrdinalIgnoreCase))
+                if (row.RowData[columnsTableNameIndex].AsString().Equals(tableName.TableNameOnly, StringComparison.OrdinalIgnoreCase))
                     columnNameToIndex.Add(row.RowData[columnsColumnNameIndex].AsString(), row.RowData[columnsIndexIndex].AsInteger());
             }
 
@@ -125,7 +125,7 @@
             // a new row for Sysindexes about this index
             Tuple indexesRow = new ()
             {
-                ExpressionOperand.VARCHARFromString(tableName.TableName),
+                ExpressionOperand.VARCHARFromString(tableName.TableNameOnly),
                 ExpressionOperand.VARCHARFromString(indexName),
                 ExpressionOperand.VARCHARFromString(isUnique ? "U" : "N"),
             };
@@ -138,7 +138,7 @@
             {
                 indexColumnsRow = new ()
                 {
-                    ExpressionOperand.VARCHARFromString(tableName.TableName),
+                    ExpressionOperand.VARCHARFromString(tableName.TableNameOnly),
                     ExpressionOperand.VARCHARFromString(indexName),
                     ExpressionOperand.IntegerFromInt(index),
                     ExpressionOperand.VARCHARFromString(columnName),
@@ -155,13 +155,13 @@
         public void DropTable(FullTableName tableName)
         {
             // delete the file (remove from map)
-            if (!inMemoryTables.ContainsKey(tableName.TableName))
+            if (!inMemoryTables.ContainsKey(tableName.TableNameOnly))
                 throw new ExecutionException($"table {tableName} does not exist");
 
-            inMemoryTables.Remove(tableName.TableName);
+            inMemoryTables.Remove(tableName.TableNameOnly);
 
             // delete from sys_tables
-            ExpressionOperandBookmark tableBookmark = new (Tuple.FromSingleValue(tableName.TableName, ExpressionOperandType.VARCHAR));
+            ExpressionOperandBookmark tableBookmark = new (Tuple.FromSingleValue(tableName.TableNameOnly, ExpressionOperandType.VARCHAR));
             List<ExpressionOperandBookmark> tableMark = new () { tableBookmark };
             sysTables.DeleteRows(tableMark);
 
@@ -172,7 +172,7 @@
 
             foreach (var row in sysColumns)
             {
-                if (row.RowData[tableIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
+                if (row.RowData[tableIndex].AsString().Equals(tableName.TableNameOnly, StringComparison.InvariantCultureIgnoreCase))
                 {
                     var k = Tuple.FromOperands(row.RowData[tableIndex], row.RowData[columnIndex]);
                     ExpressionOperandBookmark columnMark = new (k);
@@ -230,7 +230,7 @@
 
         internal BTreeTable? GetEngineBTreeTable(FullTableName tableName)
         {
-            inMemoryTables.TryGetValue(tableName.TableName, out BTreeTable? table);
+            inMemoryTables.TryGetValue(tableName.TableNameOnly, out BTreeTable? table);
             return table;
         }
 

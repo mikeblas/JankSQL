@@ -109,8 +109,8 @@
                     FullColumnName effective = fcn;
                     if (derivedTableAlias != null)
                         effective = effective.ApplyTableAlias(derivedTableAlias);
-                    allColumnNames.Add(fcn);
-                    Console.WriteLine($"Right: {fcn}");
+                    allColumnNames.Add(effective);
+                    Console.WriteLine($"Right: {effective}");
                 }
             }
 

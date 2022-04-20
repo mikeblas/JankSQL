@@ -42,7 +42,7 @@
 
         public object Clone()
         {
-            SelectListContext clone = new SelectListContext(this.context);
+            var clone = new SelectListContext(this.context);
             foreach (var expression in this.expressionList)
                 clone.expressionList.Add(expression);
             foreach (var name in this.rowsetColumnNames)
