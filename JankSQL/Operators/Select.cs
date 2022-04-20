@@ -87,11 +87,19 @@
                 Tuple rowResults = Tuple.CreateEmpty(effectiveColumns.Count);
                 foreach (FullColumnName columnName in effectiveColumns)
                 {
-                    ExpressionOperand result = selectList.Execute(exprIndex, rsInput, i, engine, bindValues);
-                    rowResults[rsIndex] = result;
-                    exprIndex++;
+                    try
+                    {
+                        ExpressionOperand result = selectList.SelectExpressions[exprIndex].Evaluate(new ResultSetValueAccessor(rsInput, i), engine, bindValues);
 
-                    rsIndex++;
+                        rowResults[rsIndex] = result;
+                        exprIndex++;
+
+                        rsIndex++;
+                    }
+                    catch (ExecutionException ex)
+                    {
+                        throw new ExecutionException($"Couldn't evaluate SELECT expression {selectList.SelectExpressions[exprIndex]} because of error: {ex.Message}");
+                    }
                 }
 
                 rsOutput.AddRow(rowResults);

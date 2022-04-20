@@ -91,26 +91,12 @@
             return null;
         }
 
-        //TODO: refactor this into Select operator?
-        internal ExpressionOperand Execute(int index, ResultSet resultSet, int rowIndex, Engines.IEngine engine, Dictionary<string, ExpressionOperand> bindValues)
-        {
-            return expressionList[index].Evaluate(new ResultSetValueAccessor(resultSet, rowIndex), engine, bindValues);
-        }
-
         internal void Dump()
         {
             Console.WriteLine($"rowsetColumnNames: {string.Join(", ", rowsetColumnNames)}");
             Console.WriteLine("SelectExpressions:");
             for (int i = 0; i < ExpressionListCount; i++)
-            {
-                Console.Write($"  #{i}: ");
-                foreach (var x in expressionList[i])
-                {
-                    Console.Write($"{x} ");
-                }
-
-                Console.WriteLine();
-            }
+                Console.WriteLine($"  #{i}: {expressionList[i]}");
         }
     }
 }
