@@ -82,6 +82,30 @@
 
 
         [Test]
+        public void TestJanapeseString()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT '〒105-0011 東京都港区芝公園４丁目２−8';");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
+            result.ResultSet.Dump();
+
+            JankAssert.ValueMatchesString(result.ResultSet, 0, 0, "〒105-0011 東京都港区芝公園４丁目２−8");
+        }
+
+        [Test]
+        public void TestJanapeseNString()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT N'〒105-0011 東京都港区芝公園４丁目２−8';");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
+            result.ResultSet.Dump();
+
+            JankAssert.ValueMatchesString(result.ResultSet, 0, 0, "〒105-0011 東京都港区芝公園４丁目２−8");
+        }
+
+        [Test]
         public void TestNegativeNumber()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT -32;");
