@@ -4,40 +4,26 @@
     {
         private readonly string columnName;
 
-        private string? serverName;
-        private string? schemaName;
-        private string? tableName;
+        private readonly string? serverName;
+        private readonly string? schemaName;
+        private readonly string? tableName;
 
         private FullColumnName(string columnName)
         {
             this.columnName = columnName;
         }
 
+        private FullColumnName(string? serverName, string? schemaName, string? tableName, string columnName)
+        {
+            this.serverName = serverName;
+            this.schemaName = schemaName;
+            this.tableName = tableName;
+            this.columnName = columnName;
+        }
+
         public string? TableNameOnly
         {
             get { return tableName; }
-        }
-
-        public static FullColumnName FromContext(TSqlParser.Full_column_nameContext context)
-        {
-            var r = new FullColumnName(GetEffectiveName(context.column_name.GetText()));
-            r.serverName = (context.server != null) ? GetEffectiveName(context.server.GetText()) : null;
-            r.schemaName = (context.schema != null) ? GetEffectiveName(context.schema.GetText()) : null;
-            r.tableName = (context.tablename != null) ? GetEffectiveName(context.tablename.GetText()) : null;
-            return r;
-        }
-
-        public static FullColumnName FromColumnName(string columnName)
-        {
-            var r = new FullColumnName(GetEffectiveName(columnName));
-            return r;
-        }
-
-        public static FullColumnName FromTableColumnName(string tableName, string columnName)
-        {
-            var r = new FullColumnName(GetEffectiveName(columnName));
-            r.tableName = GetEffectiveName(tableName);
-            return r;
         }
 
         public override bool Equals(object? o)
@@ -105,19 +91,39 @@
             return ret;
         }
 
-        internal FullColumnName ApplyTableAlias(string tableName)
+
+        internal static FullColumnName FromContext(TSqlParser.Full_column_nameContext context)
         {
-            FullColumnName fcnNew = FullColumnName.FromTableColumnName(tableName, this.columnName);
-            return fcnNew;
+            string? serverName = ParseHelpers.PossibleStringFromIDContext(context.server);
+            string? schemaName = ParseHelpers.PossibleStringFromIDContext(context.schema);
+            string? tableName = ParseHelpers.PossibleStringFromIDContext(context.tablename);
+            string columnName = ParseHelpers.StringFromIDContext(context.column_name);
+
+            return new FullColumnName(serverName, schemaName, tableName, columnName);
         }
 
-        private static string GetEffectiveName(string objectName)
+        internal static FullColumnName FromIDContext(TSqlParser.Id_Context context)
         {
-            // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/proposals/csharp-8.0/ranges
-            if (objectName[0] != '[' || objectName[^1] != ']')
-                return objectName;
+            var r = new FullColumnName(ParseHelpers.StringFromIDContext(context));
+            return r;
+        }
 
-            return objectName[1..^1];
+        internal static FullColumnName FromColumnName(string columnName)
+        {
+            var r = new FullColumnName(columnName);
+            return r;
+        }
+
+        internal static FullColumnName FromTableColumnName(string tableName, string columnName)
+        {
+            var r = new FullColumnName(null, null, tableName, columnName);
+            return r;
+        }
+
+        internal FullColumnName ApplyTableAlias(string newTableName)
+        {
+            FullColumnName fcnNew = new FullColumnName(serverName, schemaName, newTableName, columnName);
+            return fcnNew;
         }
     }
 }

@@ -52,12 +52,12 @@
 
                     // column elements have the AS clause here
                     if (elem.column_elem().as_column_alias() != null)
-                        fcn = FullColumnName.FromColumnName(elem.column_elem().as_column_alias().column_alias().id_().GetText());
+                        fcn = FullColumnName.FromIDContext(elem.column_elem().as_column_alias().column_alias().id_());
                 }
                 else if (elem.expression_elem() != null)
                 {
                     if (elem.expression_elem().as_column_alias() != null)
-                        fcn = FullColumnName.FromColumnName(elem.expression_elem().as_column_alias().GetText());
+                        fcn = FullColumnName.FromIDContext(elem.expression_elem().as_column_alias().column_alias().id_());
 
                     x = GobbleSelectExpression(elem.expression_elem().expression(), selectContext);
                 }
@@ -125,7 +125,7 @@
                     SelectContext inner = GobbleSelectStatement(currentTSIJ.table_source_item().derived_table().subquery()[0].select_statement());
 
                     if (currentTSIJ.table_source_item().as_table_alias() != null)
-                        inner.DerivedTableAlias = currentTSIJ.table_source_item().as_table_alias().table_alias().id_().GetText();
+                        inner.DerivedTableAlias = ParseHelpers.StringFromIDContext(currentTSIJ.table_source_item().as_table_alias().table_alias().id_());
                     Console.WriteLine($"FROM: derived table AS {inner.DerivedTableAlias ?? "no alias"}");
                     leftSource = "Subselect";
                     selectContext.InputContext = inner;
@@ -171,7 +171,7 @@
                                     string? alias = null;
                                     if (joinContext.cross_join().table_source().table_source_item_joined().table_source_item().as_table_alias() != null)
                                     {
-                                        alias = joinContext.cross_join().table_source().table_source_item_joined().table_source_item().as_table_alias().table_alias().id_().GetText();
+                                        alias = ParseHelpers.StringFromIDContext(joinContext.cross_join().table_source().table_source_item_joined().table_source_item().as_table_alias().table_alias().id_());
                                         jc.DerivedTableAlias = alias;
                                     }
 
@@ -190,7 +190,7 @@
                                     string? alias = null;
                                     if (joinContext.cross_join().table_source().table_source_item_joined().table_source_item().as_table_alias() != null)
                                     {
-                                        alias = joinContext.cross_join().table_source().table_source_item_joined().table_source_item().as_table_alias().table_alias().id_().GetText();
+                                        alias = ParseHelpers.StringFromIDContext(joinContext.cross_join().table_source().table_source_item_joined().table_source_item().as_table_alias().table_alias().id_());
                                         jc.DerivedTableAlias = alias;
                                     }
 
@@ -227,7 +227,7 @@
                                     SelectContext inner = GobbleSelectStatement(joinContext.join_on().table_source().table_source_item_joined().table_source_item().derived_table().subquery()[0].select_statement());
                                     Console.WriteLine($"{leftSource} {joinType} On subselect");
 
-                                    string str = joinContext.join_on().table_source().table_source_item_joined().table_source_item().as_table_alias().table_alias().id_().GetText();
+                                    string str = ParseHelpers.StringFromIDContext(joinContext.join_on().table_source().table_source_item_joined().table_source_item().as_table_alias().table_alias().id_());
 
                                     JoinContext jc = new (joinType, inner);
                                     jc.DerivedTableAlias = str;
@@ -241,7 +241,7 @@
 
                                     if (joinContext.join_on().table_source().table_source_item_joined().table_source_item().as_table_alias() != null)
                                     {
-                                        string alias = joinContext.join_on().table_source().table_source_item_joined().table_source_item().as_table_alias().table_alias().id_().GetText();
+                                        string alias = ParseHelpers.StringFromIDContext(joinContext.join_on().table_source().table_source_item_joined().table_source_item().as_table_alias().table_alias().id_());
                                         Console.WriteLine($"alias is {alias}");
                                     }
 

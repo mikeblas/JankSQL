@@ -11,7 +11,7 @@
             base.EnterCreate_index(context);
 
             bool isUnique = context.UNIQUE() != null;
-            string indexName = context.id_(0).GetText();
+            string indexName = ParseHelpers.StringFromIDContext(context.id_(0));
             var tableName = FullTableName.FromTableNameContext(context.table_name());
 
             CreateIndexContext cic = new (tableName, indexName, isUnique);
@@ -43,8 +43,8 @@
                 }
                 else if (n is TSqlParser.Id_Context idContext)
                 {
-                    Console.WriteLine($"ID: {idContext.ID()}");
-                    columnName = idContext.ID().ToString();
+                    columnName = ParseHelpers.StringFromIDContext(idContext);
+                    Console.WriteLine($"ID: {columnName}");
                 }
             }
 

@@ -24,28 +24,25 @@
 
                 if (dt.unscaled_type is not null)
                 {
-                    string typeName = (dt.unscaled_type.ID() != null) ? dt.unscaled_type.ID().GetText() : dt.unscaled_type.keyword().GetText();
+                    FullColumnName fcn = FullColumnName.FromIDContext(id0);
+                    string typeName = ParseHelpers.StringFromIDContext(dt.unscaled_type);
+                    Console.Write($"    {fcn} {typeName} ");
 
-                    if (typeName == null)
-                    {
-                        throw new ExecutionException($"No typename found for column {id0.ID()}");
-                    }
-
-                    Console.Write($"{id0.ID()}, {typeName} ");
                     ExpressionOperandType columnType;
                     if (!ExpressionNode.TypeFromString(typeName, out columnType))
-                        throw new ExecutionException($"Unknown column type {typeName} on column {id0.ID()}");
+                        throw new ExecutionException($"Unknown column type {typeName} on column {fcn}");
 
-                    columnNames.Add(FullColumnName.FromColumnName(id0.ID().GetText()));
+                    columnNames.Add(fcn);
                     columnTypes.Add(columnType);
                 }
                 else
                 {
-                    string typeName = dt.ext_type.keyword().GetText();
-                    Console.Write($"{id0.ID()}, {typeName} ");
+                    FullColumnName fcn = FullColumnName.FromIDContext(id0);
+                    string typeName = ParseHelpers.StringFromIDContext(dt.ext_type);
+                    Console.Write($"    {fcn} {typeName} ");
 
                     ExpressionOperandType columnType;
-                    if (!ExpressionNode.TypeFromString(dt.ext_type.keyword().GetText(), out columnType))
+                    if (!ExpressionNode.TypeFromString(typeName, out columnType))
                         throw new ExecutionException($"Unknown column type {typeName} on column {id0.ID()}");
 
                     // null or not, if it's VARCHAR or not.
@@ -54,7 +51,7 @@
 
                     if (dktvc != null || dktnvc != null)
                     {
-                        columnNames.Add(FullColumnName.FromColumnName(id0.ID().GetText()));
+                        columnNames.Add(fcn);
                         columnTypes.Add(ExpressionOperandType.VARCHAR);
                     }
                     else

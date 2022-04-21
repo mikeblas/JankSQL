@@ -2,14 +2,23 @@
 {
     public class FullTableName
     {
-        private readonly string tableName;
+        private readonly string? linkedServerName;
+        private readonly string? databaseName;
+        private readonly string? schemaName;
 
-        private string? linkedServerName;
-        private string? schemaName;
-        private string? databaseName;
+        private readonly string tableName;
 
         private FullTableName(string tableName)
         {
+            this.tableName = tableName;
+        }
+
+        private FullTableName(string? linkedServerName, string? databaseName, string? schemaName, string tableName)
+        {
+            this.linkedServerName = linkedServerName;
+            this.databaseName = databaseName;
+            this.schemaName = schemaName;
+
             this.tableName = tableName;
         }
 
@@ -68,9 +77,11 @@
 
         internal static FullTableName FromTableNameContext(TSqlParser.Table_nameContext context)
         {
-            var r = new FullTableName(GetEffectiveName(context.table.GetText()));
-            r.databaseName = (context.database != null) ? GetEffectiveName(context.database.GetText()) : null;
-            r.schemaName = (context.schema != null) ? GetEffectiveName(context.schema.GetText()) : null;
+            string? databaseName = ParseHelpers.PossibleStringFromIDContext(context.database);
+            string? schemaName = ParseHelpers.PossibleStringFromIDContext(context.schema);
+            string tableName = ParseHelpers.StringFromIDContext(context.table);
+
+            var r = new FullTableName(null, databaseName, schemaName, tableName);
             return r;
         }
 
@@ -83,10 +94,12 @@
 
         internal static FullTableName FromFullTableNameContext(TSqlParser.Full_table_nameContext context)
         {
-            var r = new FullTableName(GetEffectiveName(context.table.GetText()));
-            r.databaseName = (context.database != null) ? GetEffectiveName(context.database.GetText()) : null;
-            r.schemaName = (context.schema != null) ? GetEffectiveName(context.schema.GetText()) : null;
-            r.linkedServerName = (context.linkedServer != null) ? GetEffectiveName(context.linkedServer.GetText()) : null;
+            string? databaseName = ParseHelpers.PossibleStringFromIDContext(context.database);
+            string? schemaName = ParseHelpers.PossibleStringFromIDContext(context.schema);
+            string? linkedServerName = ParseHelpers.PossibleStringFromIDContext(context.linkedServer);
+            string tableName = ParseHelpers.StringFromIDContext(context.table);
+
+            var r = new FullTableName(linkedServerName, databaseName, schemaName, tableName);
             return r;
         }
 
@@ -95,8 +108,7 @@
             if (context == null)
                 return null;
 
-            //TODO: need a StringFromID function
-            var r = new FullTableName(GetEffectiveName(context.table_alias().id_().ID().GetText()));
+            var r = new FullTableName(ParseHelpers.StringFromIDContext(context.table_alias().id_()));
             return r;
         }
 
@@ -104,15 +116,5 @@
         {
             return new FullTableName(tableName);
         }
-
-        private static string GetEffectiveName(string objectName)
-        {
-            // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/proposals/csharp-8.0/ranges
-            if (objectName[0] != '[' || objectName[^1] != ']')
-                return objectName;
-
-            return objectName[1..^1];
-        }
-
     }
 }
