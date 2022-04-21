@@ -60,7 +60,7 @@ INSERT INTO students(StudentID, StudentName, score, class) VALUES(6, 'Rob', 802,
             select =
                 "SELECT XX.Class, MAX(XX.Score) TopScore FROM Students AS XX GROUP BY Class";
 
-            select = "CREATE TABLE monkey ([name] INTEGER, integer INTEGER);";
+
 
 
             var ecSelect = Parser.ParseSQLFileFromString(select);

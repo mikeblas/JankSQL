@@ -113,6 +113,30 @@
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL_WITH_MESSAGE, resultsDrop.ExecuteStatus, resultsCreate.ErrorMessage);
             Assert.NotNull(resultsDrop.ErrorMessage);
         }
+
+        [Test]
+        public void TestCreateIDNames()
+        {
+            var ecCreate = Parser.ParseSQLFileFromString("CREATE TABLE \"monkey\" ([name] \"INTEGER\", integer [INTEGER]);");
+
+            Assert.IsNotNull(ecCreate);
+            Assert.AreEqual(0, ecCreate.TotalErrors);
+
+            ExecuteResult resultsCreate = ecCreate.ExecuteSingle(engine);
+            Assert.AreEqual(ExecuteStatus.SUCCESSFUL_WITH_MESSAGE, resultsCreate.ExecuteStatus, resultsCreate.ErrorMessage);
+            Assert.NotNull(resultsCreate.ErrorMessage);
+
+            var ecDrop = Parser.ParseSQLFileFromString("DROP TABLE \"monkey\";");
+
+            Assert.IsNotNull(ecDrop);
+            Assert.AreEqual(0, ecDrop.TotalErrors);
+
+            ExecuteResult resultsDrop = ecDrop.ExecuteSingle(engine);
+
+            Assert.AreEqual(ExecuteStatus.SUCCESSFUL_WITH_MESSAGE, resultsDrop.ExecuteStatus, resultsCreate.ErrorMessage);
+            Assert.NotNull(resultsDrop.ErrorMessage);
+        }
+
     }
 }
 
