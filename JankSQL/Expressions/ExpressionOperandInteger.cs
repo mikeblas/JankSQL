@@ -324,6 +324,24 @@
                 return 8675309;
             return n.GetHashCode();
         }
+
+        internal override void WriteToByteStream(Stream stream)
+        {
+            WriteTypeAndNullness(stream);
+
+            // then ourselves
+            byte[] rep = BitConverter.GetBytes(n);
+            stream.Write(rep);
+        }
+
+        internal static ExpressionOperandInteger FromByteStream(Stream stream)
+        {
+            byte[] rep = new byte[4];
+            stream.Read(rep, 0, rep.Length);
+
+            int n = BitConverter.ToInt32(rep, 0);
+            return new ExpressionOperandInteger(n);
+        }
     }
 }
 

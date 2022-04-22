@@ -285,6 +285,24 @@
                 return 8675309;
             return d.GetHashCode();
         }
+
+        internal override void WriteToByteStream(Stream stream)
+        {
+            WriteTypeAndNullness(stream);
+
+            // then ourselves
+            byte[] rep = BitConverter.GetBytes(d);
+            stream.Write(rep);
+        }
+
+        internal static ExpressionOperandDecimal FromByteStream(Stream stream)
+        {
+            byte[] rep = new byte[8];
+            stream.Read(rep, 0, rep.Length);
+
+            double d = BitConverter.ToDouble(rep, 0);
+
+            return new ExpressionOperandDecimal(d);
+        }
     }
 }
-

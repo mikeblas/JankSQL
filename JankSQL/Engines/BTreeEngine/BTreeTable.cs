@@ -1,14 +1,44 @@
 ﻿namespace JankSQL.Engines
 {
     using System.Collections;
-    using System.Collections.Immutable;
-
+    using System.IO;
     using CSharpTest.Net;
     using CSharpTest.Net.Collections;
+    using CSharpTest.Net.Serialization;
 
     using JankSQL.Expressions;
 
-    internal class BTreeTable : IEngineTable, IEnumerable, IEnumerable<RowWithBookmark>
+    class TupleSerializer : ISerializer<Tuple>
+    {
+        private static readonly ISerializer<byte> ByteSerialzier = PrimitiveSerializer.Byte;
+        private static readonly ISerializer<int> IntSerializer = PrimitiveSerializer.Int32;
+
+        public Tuple ReadFrom(Stream stream)
+        {
+            // byte: number of columns
+            byte columnCount = TupleSerializer.ByteSerialzier.ReadFrom(stream);
+            Tuple ret = Tuple.CreateEmpty(columnCount);
+
+            // [#cols]: byte: ExpressionOperandTypes per column
+            for (int i = 0; i < columnCount; i++)
+                ret.Values[i] = ExpressionOperand.CreateFromByteStream(stream);
+
+            return ret;
+        }
+
+        public void WriteTo(Tuple value, Stream stream)
+        {
+            // byte: number of columns
+            TupleSerializer.ByteSerialzier.WriteTo((byte)value.Count, stream);
+
+            // [#cols]: ExpresionOperandType values
+            for (int i = 0; i < value.Count; i++)
+                value.Values[i].WriteToByteStream(stream);
+        }
+    }
+
+
+    internal class BTreeTable : IEngineTable, IEnumerable, IEnumerable<RowWithBookmark>, IDisposable
     {
         private readonly FullColumnName[] keyColumnNames;
         private readonly FullColumnName[] valueColumnNames;
@@ -25,14 +55,24 @@
 
         private int nextBookmark = 1337;
 
-        internal BTreeTable(string tableName, ExpressionOperandType[] keyTypes, IEnumerable<FullColumnName> keyNames, ExpressionOperandType[] valueTypes, IEnumerable<FullColumnName> valueNames)
+        internal BTreeTable(string tableName, ExpressionOperandType[] keyTypes, IEnumerable<FullColumnName> keyNames, ExpressionOperandType[] valueTypes, IEnumerable<FullColumnName> valueNames, BPlusTree<Tuple, Tuple>.OptionsV2? options)
         {
             if (keyTypes.Length != keyNames.Count())
                 throw new ArgumentException("keyTypes length doesn't match keyNames length");
             if (valueTypes.Length != valueNames.Count())
                 throw new ArgumentException("valueTypes length doesn't match valueNames length");
 
-            myTree = new BPlusTree<Tuple, Tuple>(new IExpressionOperandComparer());
+
+            if (options == null)
+            {
+                myTree = new BPlusTree<Tuple, Tuple>(new IExpressionOperandComparer());
+            }
+            else
+            {
+                options.KeyComparer = new IExpressionOperandComparer();
+                myTree = new BPlusTree<Tuple, Tuple>(options);
+            }
+
             hasUniqueKey = true;
 
             this.keyTypes = keyTypes;
@@ -71,13 +111,22 @@
         /// <param name="tableName">string with the name of our table.</param>
         /// <param name="valueTypes">array containing the value types for each of our columns.</param>
         /// <param name="valueNames">list containing the names of each of the values in our columns.</param>
-        internal BTreeTable(string tableName, ExpressionOperandType[] valueTypes, IEnumerable<FullColumnName> valueNames)
+        internal BTreeTable(string tableName, ExpressionOperandType[] valueTypes, IEnumerable<FullColumnName> valueNames, BPlusTree<Tuple, Tuple>.OptionsV2? options)
         {
             int countValueNames = valueNames.Count();
             if (valueTypes.Length != countValueNames)
                 throw new ArgumentException("valueTypes length doesn't match valueNames length");
 
-            myTree = new BPlusTree<Tuple, Tuple>(new IExpressionOperandComparer());
+            if (options == null)
+            {
+                myTree = new BPlusTree<Tuple, Tuple>(new IExpressionOperandComparer());
+            }
+            else
+            {
+                var o = new BPlusTree<Tuple, Tuple>.OptionsV2(new TupleSerializer(), new TupleSerializer(), new IExpressionOperandComparer());
+                myTree = new BPlusTree<Tuple, Tuple>(o);
+            }
+
             hasUniqueKey = false;
 
             this.keyTypes = new ExpressionOperandType[] { ExpressionOperandType.INTEGER };
@@ -233,6 +282,12 @@
             myTree.Clear();
         }
 
+        public void Commit()
+        {
+            myTree.Commit();
+        }
+
+
         public void Dump()
         {
             Console.WriteLine("===========");
@@ -295,6 +350,11 @@
             indexes.Add(indexName, (def, indexTree));
 
             Dump();
+        }
+
+        public void Dispose()
+        {
+            myTree.Dispose();
         }
     }
 }

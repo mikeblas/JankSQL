@@ -1,4 +1,6 @@
-﻿namespace JankSQL.Expressions
+﻿using System.Text;
+
+namespace JankSQL.Expressions
 {
     internal class ExpressionOperandVARCHAR : ExpressionOperand, IComparable<ExpressionOperandVARCHAR>, IEquatable<ExpressionOperandVARCHAR>
     {
@@ -278,6 +280,30 @@
                 return 8675309;
             return str.GetHashCode();
         }
+
+        internal override void WriteToByteStream(Stream stream)
+        {
+            WriteTypeAndNullness(stream);
+
+            // then ourselves
+            byte[] rep = Encoding.UTF8.GetBytes(str!);
+            stream.Write(BitConverter.GetBytes(rep.Length));
+            stream.Write(rep, 0, rep.Length);
+        }
+
+        internal static ExpressionOperandVARCHAR FromByteStream(Stream stream)
+        {
+            byte[] repLengthBytes = new byte[4];
+            stream.Read(repLengthBytes);
+
+            int len = BitConverter.ToInt32(repLengthBytes, 0);
+            byte[] rep = new byte[len];
+            stream.Read(rep, 0, len);
+            string str = Encoding.UTF8.GetString(rep);
+
+            return new ExpressionOperandVARCHAR(str);
+        }
+
     }
 }
 

@@ -11,6 +11,59 @@
             nodeType = t;
         }
 
+        internal abstract void WriteToByteStream(Stream stream);
+
+        internal void WriteTypeAndNullness(Stream stream)
+        {
+            stream.WriteByte((byte)NodeType);
+
+            // describe our nullness
+            if (RepresentsNull)
+                stream.WriteByte(1);
+            else
+                stream.WriteByte(0);
+        }
+
+        internal static ExpressionOperand CreateFromByteStream(Stream stream)
+        {
+            ExpressionOperandType nodeType = (ExpressionOperandType)stream.ReadByte();
+
+            int representsNull = stream.ReadByte();
+            if (representsNull != 0)
+                return ExpressionOperand.NullLiteral();
+
+            ExpressionOperand ret;
+
+            switch (nodeType)
+            {
+                case ExpressionOperandType.BOOLEAN:
+                    ret = ExpressionOperandBoolean.FromByteStream(stream);
+                    break;
+
+                case ExpressionOperandType.INTEGER:
+                    ret = ExpressionOperandInteger.FromByteStream(stream);
+                    break;
+
+                case ExpressionOperandType.VARCHAR:
+                    ret = ExpressionOperandVARCHAR.FromByteStream(stream);
+                    break;
+
+                case ExpressionOperandType.BOOKMARK:
+                    ret = ExpressionOperandBookmark.FromByteStream(stream);
+                    break;
+
+                case ExpressionOperandType.DECIMAL:
+                    ret = ExpressionOperandDecimal.FromByteStream(stream);
+                    break;
+
+                default:
+                    throw new NotSupportedException($"unknown nodeType {nodeType}");
+            }
+
+            return ret;
+        }
+
+
         public ExpressionOperandType NodeType
         {
             get { return nodeType; }
@@ -55,9 +108,9 @@
         public int Compare(ExpressionOperand? x, ExpressionOperand? y)
         {
             if (x == null)
-                throw new ArgumentNullException("x");
+                throw new ArgumentNullException(nameof(x));
             if (y == null)
-                throw new ArgumentNullException("y");
+                throw new ArgumentNullException(nameof(y));
 
             if (x.NodeType != y.NodeType)
                 throw new ArgumentException($"can't compare {x.NodeType} to {y.NodeType}");

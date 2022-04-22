@@ -65,5 +65,7 @@
         /// <param name="bookmarksToDelete">List of bookmarks to be deleted.</param>
         /// <returns>integer count of the number of rows actually deleted.</returns>
         int DeleteRows(List<ExpressionOperandBookmark> bookmarksToDelete);
+
+        void Commit();
     }
 }

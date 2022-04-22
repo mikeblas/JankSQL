@@ -7,7 +7,7 @@
     /// are a couple of implementations of the engine, mainly for simplication
     /// of testing.
     /// </summary>
-    public interface IEngine
+    public interface IEngine : IDisposable
     {
         /// <summary>
         /// Drop a table. This removes the table and deletes all data, and

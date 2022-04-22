@@ -24,6 +24,11 @@
             this.sysColumnsPath = sysColsPath;
         }
 
+        public void Dispose()
+        {
+            // nothing to dispose
+        }
+
         public static DynamicCSVEngine Open(string basePath, OpenPolicy policy)
         {
             DynamicCSVEngine engine;
