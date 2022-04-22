@@ -123,8 +123,8 @@
             }
             else
             {
-                var o = new BPlusTree<Tuple, Tuple>.OptionsV2(new TupleSerializer(), new TupleSerializer(), new IExpressionOperandComparer());
-                myTree = new BPlusTree<Tuple, Tuple>(o);
+                options.KeyComparer = new IExpressionOperandComparer();
+                myTree = new BPlusTree<Tuple, Tuple>(options);
             }
 
             hasUniqueKey = false;
@@ -287,6 +287,10 @@
             myTree.Commit();
         }
 
+        public void Rollback()
+        {
+            myTree.Rollback();
+        }
 
         public void Dump()
         {

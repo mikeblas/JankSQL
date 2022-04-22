@@ -301,7 +301,9 @@
             Console.WriteLine($"parsing:   {parsing.ElapsedMilliseconds}");
             Console.WriteLine($"execution: {execution.ElapsedMilliseconds}");
 
-            // select it out
+            engine.Commit();
+
+            // -----
             var ecSelect = Parser.ParseSQLFileFromString("SELECT SomeKey, SomeInteger FROM TransientTestTable ORDER BY SomeKey;");
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);

@@ -15,5 +15,12 @@
 
             engine = Engines.BTreeEngine.CreateInMemory();
         }
+
+        [TearDown]
+        public void ClassShutdown()
+        {
+            if (engine != null)
+                engine.Dispose();
+        }
     }
 }

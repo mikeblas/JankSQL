@@ -4,7 +4,7 @@
 
     using Engines = JankSQL.Engines;
     [TestFixture]
-    public class JoinBTreeTests : JoinTests
+    public class JoinBTreeDiskTests : JoinTests
     {
         [SetUp]
         public void ClassInitialize()
@@ -17,6 +17,13 @@
             TestHelpers.InjectTableTen(engine);
             TestHelpers.InjectTableStates(engine);
             TestHelpers.InjectTableThree(engine);
+        }
+
+        [TearDown]
+        public void ClassShutdown()
+        {
+            if (engine != null)
+                engine.Dispose();
         }
     }
 }

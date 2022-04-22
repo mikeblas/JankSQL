@@ -20,6 +20,12 @@
             TestHelpers.InjectTableKiloLeft(engine);
         }
 
+        [TearDown]
+        public void ClassShutdown()
+        {
+            if (engine != null)
+                engine.Dispose();
+        }
     }
 }
 

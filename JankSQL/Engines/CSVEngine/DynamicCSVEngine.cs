@@ -29,6 +29,11 @@
             // nothing to dispose
         }
 
+        public void Commit()
+        {
+            // nothing to commit
+        }
+
         public static DynamicCSVEngine Open(string basePath, OpenPolicy policy)
         {
             DynamicCSVEngine engine;

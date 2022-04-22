@@ -5,17 +5,23 @@
     using Engines = JankSQL.Engines;
 
     [TestFixture]
-
-    public class OrderByBTreeTests : OrderByTests
+    public class AggregateBTreeDiskTests : AggregateTests
     {
         [SetUp]
         public void ClassInitialize()
         {
-            mode = "BTree";
+            mode = "BTreeDisk";
             Console.WriteLine($"Test mode is {mode}");
 
-            engine = Engines.BTreeEngine.CreateInMemory();
+            string tempPath = Path.GetTempPath();
+            tempPath = Path.Combine(tempPath, "XYZZY");
+
+            engine = Engines.BTreeEngine.OpenDiskBased(tempPath, Engines.OpenPolicy.Obliterate);
+
+            TestHelpers.InjectTableMyTable(engine);
             TestHelpers.InjectTableTen(engine);
+
+            TestHelpers.InjectTableKiloLeft(engine);
         }
 
         [TearDown]

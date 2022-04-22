@@ -67,5 +67,7 @@
         int DeleteRows(List<ExpressionOperandBookmark> bookmarksToDelete);
 
         void Commit();
+
+        void Rollback();
     }
 }

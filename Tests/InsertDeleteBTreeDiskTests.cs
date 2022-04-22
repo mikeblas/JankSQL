@@ -1,11 +1,12 @@
-﻿namespace Tests
+﻿
+namespace Tests
 {
     using NUnit.Framework;
 
     using Engines = JankSQL.Engines;
 
     [TestFixture]
-    public class OrderByBTreeDiskTests : OrderByTests
+    public class InsertDeleteBTreeDiskTests : InsertDeleteTests
     {
         [SetUp]
         public void ClassInitialize()
@@ -17,7 +18,8 @@
             tempPath = Path.Combine(tempPath, "XYZZY");
 
             engine = Engines.BTreeEngine.OpenDiskBased(tempPath, Engines.OpenPolicy.Obliterate);
-            TestHelpers.InjectTableTen(engine);
+
+            TestHelpers.InjectTableMyTable(engine);
         }
 
         [TearDown]

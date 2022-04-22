@@ -318,8 +318,12 @@
             return ret;
         }
 
-
         public void Commit()
+        {
+            // nothing here, since the implenentation auto-commits
+        }
+
+        public void Rollback()
         {
             // nothing here, since the implenentation auto-commits
         }

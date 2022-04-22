@@ -22,7 +22,8 @@
         [TearDown]
         public void ClassShutdown()
         {
-            engine.Dispose();
+            if (engine != null)
+                engine.Dispose();
         }
     }
 }

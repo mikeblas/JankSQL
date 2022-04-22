@@ -16,5 +16,12 @@
             engine = Engines.BTreeEngine.CreateInMemory();
             TestHelpers.InjectTableMyTable(engine);
         }
+
+        [TearDown]
+        public void ClassShutdown()
+        {
+            if (engine != null)
+                engine.Dispose();
+        }
     }
 }

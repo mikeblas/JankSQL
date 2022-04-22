@@ -3,9 +3,8 @@
     using NUnit.Framework;
 
     using Engines = JankSQL.Engines;
-
     [TestFixture]
-    public class OrderByBTreeDiskTests : OrderByTests
+    public class SubselectBTreeDiskTests : SubselectTests
     {
         [SetUp]
         public void ClassInitialize()
@@ -17,8 +16,12 @@
             tempPath = Path.Combine(tempPath, "XYZZY");
 
             engine = Engines.BTreeEngine.OpenDiskBased(tempPath, Engines.OpenPolicy.Obliterate);
+            TestHelpers.InjectTableMyTable(engine);
             TestHelpers.InjectTableTen(engine);
+            TestHelpers.InjectTableStates(engine);
+            TestHelpers.InjectTableThree(engine);
         }
+
 
         [TearDown]
         public void ClassShutdown()
@@ -26,5 +29,6 @@
             if (engine != null)
                 engine.Dispose();
         }
+
     }
 }

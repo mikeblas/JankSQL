@@ -78,5 +78,7 @@
         /// <param name="testTable">TestTable with the definition of this table.</param>
         /// <returns>Object implementing IEngineTable for the new table.</returns>
         public IEngineTable InjectTestTable(TestTable testTable);
+
+        public void Commit();
     }
 }

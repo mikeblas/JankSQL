@@ -18,5 +18,14 @@
             TestHelpers.InjectTableStates(engine);
             TestHelpers.InjectTableThree(engine);
         }
+
+
+        [TearDown]
+        public void ClassShutdown()
+        {
+            if (engine != null)
+                engine.Dispose();
+        }
+
     }
 }

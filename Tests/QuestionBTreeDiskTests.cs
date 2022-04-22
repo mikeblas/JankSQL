@@ -1,21 +1,21 @@
 ﻿namespace Tests
 {
     using NUnit.Framework;
-
     using Engines = JankSQL.Engines;
 
     [TestFixture]
-
-    public class OrderByBTreeTests : OrderByTests
+    public class QuestionBTreeDiskTests : QuestionTests
     {
         [SetUp]
         public void ClassInitialize()
         {
-            mode = "BTree";
+            mode = "BTreeDisk";
             Console.WriteLine($"Test mode is {mode}");
 
-            engine = Engines.BTreeEngine.CreateInMemory();
-            TestHelpers.InjectTableTen(engine);
+            string tempPath = Path.GetTempPath();
+            tempPath = Path.Combine(tempPath, "XYZZY");
+
+            engine = Engines.BTreeEngine.OpenDiskBased(tempPath, Engines.OpenPolicy.Obliterate);
         }
 
         [TearDown]

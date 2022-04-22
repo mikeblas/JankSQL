@@ -17,6 +17,12 @@
             TestHelpers.InjectTableTen(engine);
         }
 
+        [TearDown]
+        public void ClassShutdown()
+        {
+            if (engine != null)
+                engine.Dispose();
+        }
     }
 }
 

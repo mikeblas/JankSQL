@@ -8,7 +8,7 @@ namespace Tests
     [TestFixture]
     public class CaseBTreeTests : CaseTests
     {
-        [Test]
+        [SetUp]
         public void ClassInitialize()
         {
             mode = "BTree";
@@ -19,6 +19,12 @@ namespace Tests
             TestHelpers.InjectTableTen(engine);
         }
 
+        [TearDown]
+        public void ClassShutdown()
+        {
+            if (engine != null)
+                engine.Dispose();
+        }
     }
 }
 
