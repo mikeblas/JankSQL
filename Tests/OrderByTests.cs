@@ -203,9 +203,8 @@
             Assert.IsNotNull(ecCreate);
             Assert.AreEqual(0, ecCreate.TotalErrors);
 
-            ExecuteResult resultsCreate = ecCreate.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL_WITH_MESSAGE, resultsCreate.ExecuteStatus, resultsCreate.ErrorMessage);
-            Assert.NotNull(resultsCreate.ErrorMessage);
+            ExecuteResult resultCreate = ecCreate.ExecuteSingle(engine);
+            JankAssert.SuccessfulWithMessageNoResultSet(resultCreate);
 
             Stopwatch parsing = new ();
             Stopwatch execution = new ();
@@ -269,9 +268,8 @@
             Assert.IsNotNull(ecCreate);
             Assert.AreEqual(0, ecCreate.TotalErrors);
 
-            ExecuteResult resultsCreate = ecCreate.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL_WITH_MESSAGE, resultsCreate.ExecuteStatus, resultsCreate.ErrorMessage);
-            Assert.NotNull(resultsCreate.ErrorMessage);
+            ExecuteResult resultCreate = ecCreate.ExecuteSingle(engine);
+            JankAssert.SuccessfulWithMessageNoResultSet(resultCreate);
 
             Stopwatch parsing = new ();
             Stopwatch execution = new ();

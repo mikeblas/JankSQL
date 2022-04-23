@@ -165,12 +165,9 @@
             ExecuteResult result = ec.ExecuteSingle(engine);
 
             Assert.IsNotNull(ec);
-            Assert.IsNotNull(result.ErrorMessage);
-
             Assert.AreEqual(0, ec.TotalErrors);
 
-            Assert.AreEqual(ExecuteStatus.FAILED, result.ExecuteStatus);
-            Assert.IsNotNull(result.ErrorMessage);
+            JankAssert.FailureWithMessage(result);
         }
 
         [Test]
@@ -187,8 +184,7 @@
 
             Assert.AreEqual(0, ec.TotalErrors);
 
-            Assert.AreEqual(ExecuteStatus.FAILED, result.ExecuteStatus);
-            Assert.IsNotNull(result.ErrorMessage);
+            JankAssert.FailureWithMessage(result);
         }
 
         [Test]
@@ -204,12 +200,10 @@
             ExecuteResult result = ec.ExecuteSingle(engine);
 
             Assert.IsNotNull(ec);
-            Assert.IsNotNull(result.ErrorMessage);
 
             Assert.AreEqual(0, ec.TotalErrors);
 
-            Assert.AreEqual(ExecuteStatus.FAILED, result.ExecuteStatus);
-            Assert.IsNotNull(result.ErrorMessage);
+            JankAssert.FailureWithMessage(result);
         }
 
         [Test]
@@ -236,12 +230,10 @@
             ExecuteResult result = ec.ExecuteSingle(engine);
 
             Assert.IsNotNull(ec);
-            Assert.IsNotNull(result.ErrorMessage);
 
             Assert.AreEqual(0, ec.TotalErrors);
 
-            Assert.AreEqual(ExecuteStatus.FAILED, result.ExecuteStatus);
-            Assert.IsNotNull(result.ErrorMessage);
+            JankAssert.FailureWithMessage(result);
         }
 
 
@@ -263,12 +255,10 @@
             ExecuteResult result = ec.ExecuteSingle(engine);
 
             Assert.IsNotNull(ec);
-            Assert.IsNotNull(result.ErrorMessage);
 
             Assert.AreEqual(0, ec.TotalErrors);
 
-            Assert.AreEqual(ExecuteStatus.FAILED, result.ExecuteStatus);
-            Assert.IsNotNull(result.ErrorMessage);
+            JankAssert.FailureWithMessage(result);
         }
 
         [Test]

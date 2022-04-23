@@ -395,11 +395,7 @@
             var ec = Parser.ParseSQLFileFromString("SELECT number_name, MIN(number_name), MAX(number_name) FROM ten GROUP BY is_even");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ErrorMessage);
-
-            // this will throw, since no result set is available
-            Assert.Throws<InvalidOperationException>(() => { var x = result.ResultSet; });
+            JankAssert.FailureWithMessage(result);
         }
     }
 }
-

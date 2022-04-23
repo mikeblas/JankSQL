@@ -21,8 +21,7 @@
             Assert.AreEqual(0, ecCreate.TotalErrors);
 
             ExecuteResult resultCreate = ecCreate.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL_WITH_MESSAGE, resultCreate.ExecuteStatus, resultCreate.ErrorMessage);
-            Assert.NotNull(resultCreate.ErrorMessage);
+            JankAssert.SuccessfulWithMessageNoResultSet(resultCreate);
 
             // insert some rows
             var ecInsert = Parser.ParseSQLFileFromString(
@@ -34,9 +33,8 @@
             Assert.IsNotNull(ecInsert);
             Assert.AreEqual(0, ecInsert.TotalErrors);
 
-            ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsInsert.ExecuteStatus, resultsInsert.ErrorMessage);
-            Assert.Throws<InvalidOperationException>(() => { var x = resultsInsert.ResultSet; } );
+            ExecuteResult resultInsert = ecInsert.ExecuteSingle(engine);
+            JankAssert.SuccessfulRowsAffected(resultInsert, 3);
 
             // truncate the table
             var ecTruncate = Parser.ParseSQLFileFromString("TRUNCATE TABLE [TransientTestTable];");
@@ -45,8 +43,7 @@
             Assert.AreEqual(0, ecTruncate.TotalErrors);
 
             ExecuteResult resultTruncate = ecTruncate.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL_WITH_MESSAGE, resultTruncate.ExecuteStatus, resultTruncate.ErrorMessage);
-            Assert.NotNull(resultTruncate.ErrorMessage);
+            JankAssert.SuccessfulWithMessageNoResultSet(resultTruncate);
 
             // drop the table
             var ecDrop = Parser.ParseSQLFileFromString("DROP TABLE TransientTestTable;");
@@ -56,8 +53,7 @@
 
             ExecuteResult resultDrop = ecDrop.ExecuteSingle(engine);
 
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL_WITH_MESSAGE, resultDrop.ExecuteStatus, resultDrop.ErrorMessage);
-            Assert.NotNull(resultDrop.ErrorMessage);
+            JankAssert.SuccessfulWithMessageNoResultSet(resultDrop);
         }
 
 
@@ -71,8 +67,7 @@
 
             ExecuteResult result = ec.ExecuteSingle(engine);
 
-            Assert.AreEqual(ExecuteStatus.FAILED, result.ExecuteStatus);
-            Assert.IsNotNull(result.ErrorMessage);
+            JankAssert.FailureWithMessage(result);
         }
 
 
@@ -86,8 +81,7 @@
 
             ExecuteResult result = ec.ExecuteSingle(engine);
 
-            Assert.AreEqual(ExecuteStatus.FAILED, result.ExecuteStatus);
-            Assert.IsNotNull(result.ErrorMessage);
+            JankAssert.FailureWithMessage(result);
         }
 
 
@@ -99,19 +93,16 @@
             Assert.IsNotNull(ecCreate);
             Assert.AreEqual(0, ecCreate.TotalErrors);
 
-            ExecuteResult resultsCreate = ecCreate.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL_WITH_MESSAGE, resultsCreate.ExecuteStatus, resultsCreate.ErrorMessage);
-            Assert.NotNull(resultsCreate.ErrorMessage);
+            ExecuteResult resultCreate = ecCreate.ExecuteSingle(engine);
+            JankAssert.SuccessfulWithMessageNoResultSet(resultCreate);
 
             var ecDrop = Parser.ParseSQLFileFromString("DROP TABLE TransientTestTable;");
 
             Assert.IsNotNull(ecDrop);
             Assert.AreEqual(0, ecDrop.TotalErrors);
 
-            ExecuteResult resultsDrop = ecDrop.ExecuteSingle(engine);
-
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL_WITH_MESSAGE, resultsDrop.ExecuteStatus, resultsCreate.ErrorMessage);
-            Assert.NotNull(resultsDrop.ErrorMessage);
+            ExecuteResult resultDrop = ecDrop.ExecuteSingle(engine);
+            JankAssert.SuccessfulWithMessageNoResultSet(resultDrop);
         }
 
         [Test]
@@ -122,19 +113,16 @@
             Assert.IsNotNull(ecCreate);
             Assert.AreEqual(0, ecCreate.TotalErrors);
 
-            ExecuteResult resultsCreate = ecCreate.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL_WITH_MESSAGE, resultsCreate.ExecuteStatus, resultsCreate.ErrorMessage);
-            Assert.NotNull(resultsCreate.ErrorMessage);
+            ExecuteResult resultCreate = ecCreate.ExecuteSingle(engine);
+            JankAssert.SuccessfulWithMessageNoResultSet(resultCreate);
 
             var ecDrop = Parser.ParseSQLFileFromString("DROP TABLE \"monkey\";");
 
             Assert.IsNotNull(ecDrop);
             Assert.AreEqual(0, ecDrop.TotalErrors);
 
-            ExecuteResult resultsDrop = ecDrop.ExecuteSingle(engine);
-
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL_WITH_MESSAGE, resultsDrop.ExecuteStatus, resultsCreate.ErrorMessage);
-            Assert.NotNull(resultsDrop.ErrorMessage);
+            ExecuteResult resultDrop = ecDrop.ExecuteSingle(engine);
+            JankAssert.SuccessfulWithMessageNoResultSet(resultDrop);
         }
 
     }

@@ -18,7 +18,7 @@
             var ecDelete = Parser.ParseSQLFileFromString("DELETE FROM [mytable] WHERE keycolumn = 2;");
 
             ExecuteResult resultDelete = ecDelete.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultDelete.ExecuteStatus, resultDelete.ErrorMessage);
+            JankAssert.SuccessfulRowsAffected(resultDelete, 1);
 
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM [mytable];");
 
@@ -45,9 +45,8 @@
             Assert.IsNotNull(ecCreate);
             Assert.AreEqual(0, ecCreate.TotalErrors);
 
-            ExecuteResult resultsCreate = ecCreate.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL_WITH_MESSAGE, resultsCreate.ExecuteStatus, resultsCreate.ErrorMessage);
-            Assert.NotNull(resultsCreate.ErrorMessage);
+            ExecuteResult resultCreate = ecCreate.ExecuteSingle(engine);
+            JankAssert.SuccessfulWithMessageNoResultSet(resultCreate);
 
             // insert some rows
             var ecInsert = Parser.ParseSQLFileFromString(
@@ -97,9 +96,8 @@
             Assert.IsNotNull(ecCreate);
             Assert.AreEqual(0, ecCreate.TotalErrors);
 
-            ExecuteResult resultsCreate = ecCreate.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL_WITH_MESSAGE, resultsCreate.ExecuteStatus, resultsCreate.ErrorMessage);
-            Assert.NotNull(resultsCreate.ErrorMessage);
+            ExecuteResult resultCreate = ecCreate.ExecuteSingle(engine);
+            JankAssert.SuccessfulWithMessageNoResultSet(resultCreate);
 
             // insert some rows, but the last one doesn't have all columns
             var ecInsert = Parser.ParseSQLFileFromString(
@@ -121,9 +119,8 @@
             Assert.IsNotNull(ecCreate);
             Assert.AreEqual(0, ecCreate.TotalErrors);
 
-            ExecuteResult resultsCreate = ecCreate.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL_WITH_MESSAGE, resultsCreate.ExecuteStatus, resultsCreate.ErrorMessage);
-            Assert.NotNull(resultsCreate.ErrorMessage);
+            ExecuteResult resultCreate = ecCreate.ExecuteSingle(engine);
+            JankAssert.SuccessfulWithMessageNoResultSet(resultCreate);
 
             // insert some rows
             var ecInsert = Parser.ParseSQLFileFromString("INSERT INTO TransientTestTable (SomeInteger, SomeString, AnotherOne) VALUES(1, 'moe', 100);");
@@ -139,7 +136,6 @@
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(resultSelect, 3, 1);
-            Assert.IsNotNull(resultSelect.ResultSet, resultSelect.ErrorMessage);
             resultSelect.ResultSet.Dump();
 
             int someIntegerIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("someinteger"));
@@ -328,7 +324,7 @@
             Assert.AreEqual(0, ecInsert.TotalErrors);
 
             ExecuteResult resultInsert = ecInsert.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.FAILED, resultInsert.ExecuteStatus);
+            JankAssert.FailureWithMessage(resultInsert);
         }
 
 
@@ -351,7 +347,7 @@
             Assert.AreEqual(0, ecInsert.TotalErrors);
 
             ExecuteResult resultInsert = ecInsert.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.FAILED, resultInsert.ExecuteStatus);
+            JankAssert.FailureWithMessage(resultInsert);
         }
 
         [Test]
@@ -364,7 +360,7 @@
             Assert.AreEqual(0, ecInsert.TotalErrors);
 
             ExecuteResult resultInsert = ecInsert.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.FAILED, resultInsert.ExecuteStatus);
+            JankAssert.FailureWithMessage(resultInsert);
         }
 
 
@@ -375,6 +371,8 @@
             var ecDelete = Parser.ParseSQLFileFromString("DELETE FROM [mytable];");
 
             ExecuteResult resultDelete = ecDelete.ExecuteSingle(engine);
+            JankAssert.SuccessfulRowsAffected(resultDelete, 3);
+
             Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultDelete.ExecuteStatus, resultDelete.ErrorMessage);
 
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM [mytable];");
@@ -390,7 +388,7 @@
             var ecDelete = Parser.ParseSQLFileFromString("DELETE FROM [mytable] WHERE  1=1;");
 
             ExecuteResult resultDelete = ecDelete.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultDelete.ExecuteStatus, resultDelete.ErrorMessage);
+            JankAssert.SuccessfulRowsAffected(resultDelete, 3);
 
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM [mytable];");
 

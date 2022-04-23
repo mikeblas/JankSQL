@@ -19,9 +19,8 @@
             Assert.IsNotNull(ecUpdate);
             Assert.AreEqual(0, ecUpdate.TotalErrors);
 
-            ExecuteResult resultsUpdate = ecUpdate.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsUpdate.ExecuteStatus, resultsUpdate.ErrorMessage);
-            Assert.IsNull(resultsUpdate.ErrorMessage);
+            ExecuteResult resultUpdate = ecUpdate.ExecuteSingle(engine);
+            JankAssert.SuccessfulRowsAffected(resultUpdate, 3);
 
             var ecSelect = Parser.ParseSQLFileFromString("SELECT population FROM MyTable;");
 
@@ -55,9 +54,8 @@
             Assert.IsNotNull(ecUpdate);
             Assert.AreEqual(0, ecUpdate.TotalErrors);
 
-            ExecuteResult resultsUpdate = ecUpdate.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsUpdate.ExecuteStatus, resultsUpdate.ErrorMessage);
-            Assert.IsNull(resultsUpdate.ErrorMessage);
+            ExecuteResult resultUpdate = ecUpdate.ExecuteSingle(engine);
+            JankAssert.SuccessfulRowsAffected(resultUpdate, 0);
 
             var ecSelect = Parser.ParseSQLFileFromString("SELECT is_even, number_id FROM ten;");
 
@@ -86,9 +84,8 @@
             Assert.IsNotNull(ecUpdate);
             Assert.AreEqual(0, ecUpdate.TotalErrors);
 
-            ExecuteResult resultsUpdate = ecUpdate.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsUpdate.ExecuteStatus, resultsUpdate.ErrorMessage);
-            Assert.IsNull(resultsUpdate.ErrorMessage);
+            ExecuteResult resultUpdate = ecUpdate.ExecuteSingle(engine);
+            JankAssert.SuccessfulRowsAffected(resultUpdate, 5);
 
             var ecSelect = Parser.ParseSQLFileFromString("SELECT is_even, number_id FROM ten;");
 
@@ -117,9 +114,8 @@
             Assert.IsNotNull(ecUpdate);
             Assert.AreEqual(0, ecUpdate.TotalErrors);
 
-            ExecuteResult resultsUpdate = ecUpdate.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsUpdate.ExecuteStatus, resultsUpdate.ErrorMessage);
-            Assert.IsNull(resultsUpdate.ErrorMessage);
+            ExecuteResult resultUpdate = ecUpdate.ExecuteSingle(engine);
+            JankAssert.SuccessfulRowsAffected(resultUpdate, 2);
 
             var ecSelect = Parser.ParseSQLFileFromString("SELECT number_name, is_even, number_id FROM ten;");
 
@@ -156,9 +152,8 @@
             Assert.IsNotNull(ecUpdate);
             Assert.AreEqual(0, ecUpdate.TotalErrors);
 
-            ExecuteResult resultsUpdate = ecUpdate.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsUpdate.ExecuteStatus, resultsUpdate.ErrorMessage);
-            Assert.IsNull(resultsUpdate.ErrorMessage);
+            ExecuteResult resultUpdate = ecUpdate.ExecuteSingle(engine);
+            JankAssert.SuccessfulRowsAffected(resultUpdate, 5);
 
             var ecSelect = Parser.ParseSQLFileFromString("SELECT is_even, number_id FROM ten;");
 

@@ -89,6 +89,15 @@ namespace Tests
             Assert.Throws<InvalidOperationException>(() => { var _ = er.ResultSet; });
         }
 
+
+        public static void SuccessfulRowsAffected(ExecuteResult er, int rowsExpected)
+        {
+            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, er.ExecuteStatus);
+            Assert.IsNull(er.ErrorMessage);
+            Assert.AreEqual(rowsExpected, er.RowsAffected);
+        }
+
+
         public static void IntegerColumnMatchesSet(ResultSet rs, int columnIndex, ISet<int> expectedSet)
         {
             for (int i = 0; i < rs.RowCount; i++)
@@ -101,6 +110,15 @@ namespace Tests
             }
 
             Assert.AreEqual(expectedSet.Count, 0, $"not all values were found in the expected set: {expectedSet} missing");
+        }
+
+        public static void FailureWithMessage(ExecuteResult er)
+        {
+            Assert.AreEqual(ExecuteStatus.FAILED, er.ExecuteStatus);
+            Assert.IsNotNull(er.ErrorMessage);
+
+            // throws exception since no ResultSet is available
+            Assert.Throws<InvalidOperationException>(() => { var x = er.ResultSet; });
         }
     }
 }

@@ -91,10 +91,7 @@
             var ec = Parser.ParseSQLFileFromString("SELECT CAST('33.3' AS INTEGER)");
 
             ExecuteResult result = ec.ExecuteSingle(engine);
-            Assert.IsNotNull(result.ErrorMessage);
-
-            // throws exception since no ResultSet is available
-            Assert.Throws<InvalidOperationException>(() => { var x = result.ResultSet; });
+            JankAssert.FailureWithMessage(result);
         }
     }
 }
