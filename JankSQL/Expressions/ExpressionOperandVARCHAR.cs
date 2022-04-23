@@ -1,11 +1,11 @@
-﻿using System.Text;
-
-namespace JankSQL.Expressions
+﻿namespace JankSQL.Expressions
 {
+    using System.Text;
+
     internal class ExpressionOperandVARCHAR : ExpressionOperand, IComparable<ExpressionOperandVARCHAR>, IEquatable<ExpressionOperandVARCHAR>
     {
         private readonly string? str;
-        private bool isNull;
+        private readonly bool isNull;
 
         internal ExpressionOperandVARCHAR(string? str)
             : base(ExpressionOperandType.VARCHAR)
@@ -239,7 +239,7 @@ namespace JankSQL.Expressions
         public int CompareTo(ExpressionOperandVARCHAR? other)
         {
             if (other == null)
-                throw new ArgumentNullException("other");
+                throw new ArgumentNullException(nameof(other));
 
             if (isNull && other.isNull)
                 return 0;
@@ -281,16 +281,6 @@ namespace JankSQL.Expressions
             return str.GetHashCode();
         }
 
-        internal override void WriteToByteStream(Stream stream)
-        {
-            WriteTypeAndNullness(stream);
-
-            // then ourselves
-            byte[] rep = Encoding.UTF8.GetBytes(str!);
-            stream.Write(BitConverter.GetBytes(rep.Length));
-            stream.Write(rep, 0, rep.Length);
-        }
-
         internal static ExpressionOperandVARCHAR FromByteStream(Stream stream)
         {
             byte[] repLengthBytes = new byte[4];
@@ -304,6 +294,15 @@ namespace JankSQL.Expressions
             return new ExpressionOperandVARCHAR(str);
         }
 
+        internal override void WriteToByteStream(Stream stream)
+        {
+            WriteTypeAndNullness(stream);
+
+            // then ourselves
+            byte[] rep = Encoding.UTF8.GetBytes(str!);
+            stream.Write(BitConverter.GetBytes(rep.Length));
+            stream.Write(rep, 0, rep.Length);
+        }
     }
 }
 

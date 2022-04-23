@@ -168,7 +168,7 @@
             if (row.Length != columnNames!.Length)
                 throw new ExecutionException($"table {tableName}: can't insert row with {row.Length} columns, need {columnNames.Length} columns");
 
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new ();
 
             for (int i = 0; i < row.Length; i++)
             {
@@ -252,8 +252,18 @@
 
         public IEnumerator<RowWithBookmark> GetEnumerator()
         {
-            DynamicCSVRowEnumerator e = new DynamicCSVRowEnumerator(values.GetEnumerator(), bookmarks.GetEnumerator());
+            DynamicCSVRowEnumerator e = new (values.GetEnumerator(), bookmarks.GetEnumerator());
             return e;
+        }
+
+        public void Commit()
+        {
+            // nothing here, since the implenentation auto-commits
+        }
+
+        public void Rollback()
+        {
+            // nothing here, since the implenentation auto-commits
         }
 
         private ExpressionOperandType[] GetColumnTypes(FullTableName tableName)
@@ -302,14 +312,10 @@
                 {
                     if (row.RowData[tableNameIndex].AsString().Equals(tableName.TableNameOnly, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        ExpressionOperandType operandType;
-                        if (!ExpressionNode.TypeFromString(row.RowData[typeIndex].AsString(), out operandType))
-                        {
+                        if (!ExpressionNode.TypeFromString(row.RowData[typeIndex].AsString(), out ExpressionOperandType operandType))
                             throw new ExecutionException($"unknown type {row.RowData[typeIndex].AsString()} in table {tableName.TableNameOnly}");
-                        }
 
                         int index = row.RowData[indexIndex].AsInteger();
-
                         ret[index] = operandType;
                     }
                 }
@@ -317,17 +323,6 @@
 
             return ret;
         }
-
-        public void Commit()
-        {
-            // nothing here, since the implenentation auto-commits
-        }
-
-        public void Rollback()
-        {
-            // nothing here, since the implenentation auto-commits
-        }
-
     }
 }
 

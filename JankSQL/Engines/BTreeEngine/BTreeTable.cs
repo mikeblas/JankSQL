@@ -1,41 +1,10 @@
 ﻿namespace JankSQL.Engines
 {
     using System.Collections;
-    using System.IO;
     using CSharpTest.Net;
     using CSharpTest.Net.Collections;
-    using CSharpTest.Net.Serialization;
 
     using JankSQL.Expressions;
-
-    class TupleSerializer : ISerializer<Tuple>
-    {
-        private static readonly ISerializer<byte> ByteSerialzier = PrimitiveSerializer.Byte;
-        private static readonly ISerializer<int> IntSerializer = PrimitiveSerializer.Int32;
-
-        public Tuple ReadFrom(Stream stream)
-        {
-            // byte: number of columns
-            byte columnCount = TupleSerializer.ByteSerialzier.ReadFrom(stream);
-            Tuple ret = Tuple.CreateEmpty(columnCount);
-
-            // [#cols]: byte: ExpressionOperandTypes per column
-            for (int i = 0; i < columnCount; i++)
-                ret.Values[i] = ExpressionOperand.CreateFromByteStream(stream);
-
-            return ret;
-        }
-
-        public void WriteTo(Tuple value, Stream stream)
-        {
-            // byte: number of columns
-            TupleSerializer.ByteSerialzier.WriteTo((byte)value.Count, stream);
-
-            // [#cols]: ExpresionOperandType values
-            for (int i = 0; i < value.Count; i++)
-                value.Values[i].WriteToByteStream(stream);
-        }
-    }
 
 
     internal class BTreeTable : IEngineTable, IEnumerable, IEnumerable<RowWithBookmark>, IDisposable
@@ -55,13 +24,14 @@
 
         private int nextBookmark = 1337;
 
+        private bool isDisposed = false;
+
         internal BTreeTable(string tableName, ExpressionOperandType[] keyTypes, IEnumerable<FullColumnName> keyNames, ExpressionOperandType[] valueTypes, IEnumerable<FullColumnName> valueNames, BPlusTree<Tuple, Tuple>.OptionsV2? options)
         {
             if (keyTypes.Length != keyNames.Count())
                 throw new ArgumentException("keyTypes length doesn't match keyNames length");
             if (valueTypes.Length != valueNames.Count())
                 throw new ArgumentException("valueTypes length doesn't match valueNames length");
-
 
             if (options == null)
             {
@@ -149,7 +119,6 @@
             keyColumnNames = new FullColumnName[] { fcnBookmark };
             columnNameIndexes.Add(fcnBookmark.ColumnNameOnly(), n++);
         }
-
 
         public int ColumnCount
         {
@@ -309,6 +278,15 @@
             }
         }
 
+        public void Dispose()
+        {
+            if (!isDisposed)
+            {
+                isDisposed = true;
+                myTree.Dispose();
+            }
+        }
+
         /// <summary>
         /// Adds a new index to this table.
         /// </summary>
@@ -354,11 +332,6 @@
             indexes.Add(indexName, (def, indexTree));
 
             Dump();
-        }
-
-        public void Dispose()
-        {
-            myTree.Dispose();
         }
     }
 }

@@ -1,8 +1,8 @@
-﻿using JankSQL.Engines;
-using JankSQL.Expressions;
-
-namespace JankSQL.Contexts
+﻿namespace JankSQL.Contexts
 {
+    using JankSQL.Engines;
+    using JankSQL.Expressions;
+
     internal class CommitContext : IExecutableContext
     {
         public object Clone()
@@ -17,7 +17,7 @@ namespace JankSQL.Contexts
 
         public ExecuteResult Execute(IEngine engine, IRowValueAccessor? accessor, Dictionary<string, ExpressionOperand> bindValues)
         {
-            // engine.Rollback();
+            engine.Commit();
 
             ExecuteResult results = ExecuteResult.SuccessWithMessage("Committed");
             return results;

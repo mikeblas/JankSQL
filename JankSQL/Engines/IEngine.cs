@@ -79,6 +79,14 @@
         /// <returns>Object implementing IEngineTable for the new table.</returns>
         public IEngineTable InjectTestTable(TestTable testTable);
 
+        /// <summary>
+        /// Commit all outstanding changes in this engine.
+        /// </summary>
         public void Commit();
+
+        /// <summary>
+        /// Rollback all outstanding changes in this engine.
+        /// </summary>
+        public void Rollback();
     }
 }

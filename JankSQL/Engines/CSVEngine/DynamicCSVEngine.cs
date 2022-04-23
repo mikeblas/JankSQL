@@ -24,16 +24,6 @@
             this.sysColumnsPath = sysColsPath;
         }
 
-        public void Dispose()
-        {
-            // nothing to dispose
-        }
-
-        public void Commit()
-        {
-            // nothing to commit
-        }
-
         public static DynamicCSVEngine Open(string basePath, OpenPolicy policy)
         {
             DynamicCSVEngine engine;
@@ -124,6 +114,22 @@
             {
                 // that's OK -- already gone!
             }
+        }
+
+        public void Dispose()
+        {
+            // nothing to dispose
+            GC.SuppressFinalize(this);
+        }
+
+        public void Commit()
+        {
+            // nothing to commit
+        }
+
+        public void Rollback()
+        {
+            // nothing to rollback
         }
 
         public void CreateTable(FullTableName tableName, IImmutableList<FullColumnName> columnNames, IImmutableList<ExpressionOperandType> columnTypes)

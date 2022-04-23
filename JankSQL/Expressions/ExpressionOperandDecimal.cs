@@ -2,8 +2,8 @@
 {
     internal class ExpressionOperandDecimal : ExpressionOperand
     {
+        private readonly bool isNull;
         private double d;
-        private bool isNull;
 
         internal ExpressionOperandDecimal(double d)
             : base(ExpressionOperandType.DECIMAL)
@@ -286,15 +286,6 @@
             return d.GetHashCode();
         }
 
-        internal override void WriteToByteStream(Stream stream)
-        {
-            WriteTypeAndNullness(stream);
-
-            // then ourselves
-            byte[] rep = BitConverter.GetBytes(d);
-            stream.Write(rep);
-        }
-
         internal static ExpressionOperandDecimal FromByteStream(Stream stream)
         {
             byte[] rep = new byte[8];
@@ -303,6 +294,15 @@
             double d = BitConverter.ToDouble(rep, 0);
 
             return new ExpressionOperandDecimal(d);
+        }
+
+        internal override void WriteToByteStream(Stream stream)
+        {
+            WriteTypeAndNullness(stream);
+
+            // then ourselves
+            byte[] rep = BitConverter.GetBytes(d);
+            stream.Write(rep);
         }
     }
 }

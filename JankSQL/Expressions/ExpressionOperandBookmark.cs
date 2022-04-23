@@ -107,7 +107,7 @@
         public int CompareTo(ExpressionOperandBookmark? other)
         {
             if (other == null)
-                throw new ArgumentNullException("obj");
+                throw new ArgumentNullException(nameof(other));
             if (other.tuple.Length != tuple.Length)
                 throw new ArgumentException($"can't compare bookmarks of different lengths; this is {tuple.Length} other is {other.tuple.Length}");
 
@@ -140,6 +140,14 @@
             return ret;
         }
 
+        internal static ExpressionOperandBookmark FromByteStream(Stream stream)
+        {
+            var ts = new Engines.TupleSerializer();
+            Tuple t = ts.ReadFrom(stream);
+
+            return new ExpressionOperandBookmark(t);
+        }
+
         internal static ExpressionOperandBookmark FromInteger(int mark)
         {
             var ret = new ExpressionOperandBookmark(Tuple.FromSingleValue(mark));
@@ -152,14 +160,6 @@
 
             var ts = new Engines.TupleSerializer();
             ts.WriteTo(tuple, stream);
-        }
-
-        internal static ExpressionOperandBookmark FromByteStream(Stream stream)
-        {
-            var ts = new Engines.TupleSerializer();
-            Tuple t = ts.ReadFrom(stream);
-
-            return new ExpressionOperandBookmark(t);
         }
     }
 }

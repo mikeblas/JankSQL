@@ -132,116 +132,12 @@
                 table.Commit();
         }
 
-        protected static BTreeEngine OpenExistingOnly(string basePath)
+        public void Rollback()
         {
-            if (!Directory.Exists(basePath))
-                throw new FileNotFoundException($"database directory {basePath} not found");
+            CheckNotDisposed();
 
-            Dictionary<string, string> catalogPath = GetCatalogPaths(basePath);
-
-            if (!File.Exists(catalogPath["sys_columns"]))
-                throw new FileNotFoundException($"SysColumns file {catalogPath["sys_columns"]} not found");
-
-            if (!File.Exists(catalogPath["sys_tables"]))
-                throw new FileNotFoundException($"SysTables file {catalogPath["sys_tables"]} not found");
-
-            if (!File.Exists(catalogPath["sys_indexes"]))
-                throw new FileNotFoundException($"SysIndexes file {catalogPath["sys_indexes"]} not found");
-
-            if (!File.Exists(catalogPath["sys_indexcolumns"]))
-                throw new FileNotFoundException($"SysIndexColumns file {catalogPath["sys_indexcolumns"]} not found");
-
-            return new BTreeEngine(basePath, catalogPath);
-        }
-
-        protected static BTreeEngine OpenAlways(string basePath)
-        {
-            BTreeEngine? engine = null;
-            try
-            {
-                engine = OpenExistingOnly(basePath);
-            }
-            catch (FileNotFoundException)
-            {
-                // it's okay, we're meant to handle this
-            }
-
-            if (engine == null)
-                engine = OpenObliterate(basePath);
-
-            return engine;
-        }
-
-        protected static BTreeEngine OpenObliterate(string basePath)
-        {
-            RemoveDatabase(basePath);
-            CreateDatabase(basePath);
-            return OpenExistingOnly(basePath);
-        }
-
-
-        protected static void RemoveDatabase(string basePath)
-        {
-            try
-            {
-                Directory.Delete(basePath, true);
-            }
-            catch (DirectoryNotFoundException)
-            {
-                // that's OK -- already gone!
-            }
-        }
-
-        protected static void CreateDatabase(string basePath)
-        {
-            Directory.CreateDirectory(basePath);
-            CreateSystemCatalog(basePath);
-        }
-
-        protected static void CreateSystemCatalog(string basePath)
-        {
-            Dictionary<string, string> catalogPath = GetCatalogPaths(basePath);
-
-            BPlusTree<Tuple, Tuple>.OptionsV2? sysColumnsOptions = new (new TupleSerializer(), new TupleSerializer());
-            sysColumnsOptions.FileName = catalogPath["sys_columns"];
-            sysColumnsOptions.CreateFile = CreatePolicy.Always;
-            using BTreeTable sysColumns = CreateSysColumns(sysColumnsOptions);
-            InitializeSysColumns(sysColumns);
-            sysColumns.Commit();
-
-            BPlusTree<Tuple, Tuple>.OptionsV2? sysTablesOptions = new (new TupleSerializer(), new TupleSerializer());
-            sysTablesOptions.FileName = catalogPath["sys_tables"];
-            sysTablesOptions.CreateFile = CreatePolicy.Always;
-            using BTreeTable sysTables = CreateSysTables(sysTablesOptions);
-            InitializeSysTables(sysTables, catalogPath);
-            sysTables.Commit();
-
-            BPlusTree<Tuple, Tuple>.OptionsV2? sysIndexesOptions = new (new TupleSerializer(), new TupleSerializer());
-            sysIndexesOptions.FileName = catalogPath["sys_indexes"];
-            sysIndexesOptions.CreateFile = CreatePolicy.Always;
-            using BTreeTable sysIndexes = CreateSysIndexes(sysIndexesOptions);
-            InitializeSysIndexes(sysIndexes);
-            sysIndexes.Commit();
-
-            BPlusTree<Tuple, Tuple>.OptionsV2? sysIndexColumnsOptions = new (new TupleSerializer(), new TupleSerializer());
-            sysIndexColumnsOptions.FileName = catalogPath["sys_indexcolumns"];
-            sysIndexColumnsOptions.CreateFile = CreatePolicy.Always;
-            using BTreeTable sysIndexColumns = CreateSysIndexColumns(sysIndexColumnsOptions);
-            InitializeSysIndexColumns(sysIndexColumns);
-            sysIndexColumns.Commit();
-        }
-
-        protected static Dictionary<string, string> GetCatalogPaths(string basePath)
-        {
-            Dictionary<string, string> pathDict = new (StringComparer.InvariantCultureIgnoreCase)
-            {
-                { "sys_tables",       Path.Combine(basePath, "sys_tables.jankdb") },
-                { "sys_columns",      Path.Combine(basePath, "sys_columns.jankdb") },
-                { "sys_indexes",      Path.Combine(basePath, "sys_indexes.jankdb") },
-                { "sys_indexcolumns", Path.Combine(basePath, "sys_indexcolumns.jankdb") },
-            };
-
-            return pathDict;
+            foreach (var table in inMemoryTables.Values)
+                table.Rollback();
         }
 
         public void CreateTable(FullTableName tableName, IImmutableList<FullColumnName> columnNames, IImmutableList<ExpressionOperandType> columnTypes)
@@ -389,7 +285,7 @@
             CheckNotDisposed();
 
             // delete the file (remove from map)
-            if (!inMemoryTables.TryGetValue(tableName.TableNameOnly, out BTreeTable table))
+            if (!inMemoryTables.TryGetValue(tableName.TableNameOnly, out BTreeTable? table))
                 throw new ExecutionException($"table {tableName} does not exist");
 
             table.Commit();
@@ -479,10 +375,116 @@
             return table;
         }
 
-        private void CheckNotDisposed()
+        protected static BTreeEngine OpenExistingOnly(string basePath)
         {
-            if (disposed)
-                throw new ObjectDisposedException(GetType().FullName);
+            if (!Directory.Exists(basePath))
+                throw new FileNotFoundException($"database directory {basePath} not found");
+
+            Dictionary<string, string> catalogPath = GetCatalogPaths(basePath);
+
+            if (!File.Exists(catalogPath["sys_columns"]))
+                throw new FileNotFoundException($"SysColumns file {catalogPath["sys_columns"]} not found");
+
+            if (!File.Exists(catalogPath["sys_tables"]))
+                throw new FileNotFoundException($"SysTables file {catalogPath["sys_tables"]} not found");
+
+            if (!File.Exists(catalogPath["sys_indexes"]))
+                throw new FileNotFoundException($"SysIndexes file {catalogPath["sys_indexes"]} not found");
+
+            if (!File.Exists(catalogPath["sys_indexcolumns"]))
+                throw new FileNotFoundException($"SysIndexColumns file {catalogPath["sys_indexcolumns"]} not found");
+
+            return new BTreeEngine(basePath, catalogPath);
+        }
+
+        protected static BTreeEngine OpenAlways(string basePath)
+        {
+            BTreeEngine? engine = null;
+            try
+            {
+                engine = OpenExistingOnly(basePath);
+            }
+            catch (FileNotFoundException)
+            {
+                // it's okay, we're meant to handle this
+            }
+
+            if (engine == null)
+                engine = OpenObliterate(basePath);
+
+            return engine;
+        }
+
+        protected static BTreeEngine OpenObliterate(string basePath)
+        {
+            RemoveDatabase(basePath);
+            CreateDatabase(basePath);
+            return OpenExistingOnly(basePath);
+        }
+
+
+        protected static void RemoveDatabase(string basePath)
+        {
+            try
+            {
+                Directory.Delete(basePath, true);
+            }
+            catch (DirectoryNotFoundException)
+            {
+                // that's OK -- already gone!
+            }
+        }
+
+        protected static void CreateDatabase(string basePath)
+        {
+            Directory.CreateDirectory(basePath);
+            CreateSystemCatalog(basePath);
+        }
+
+        protected static void CreateSystemCatalog(string basePath)
+        {
+            Dictionary<string, string> catalogPath = GetCatalogPaths(basePath);
+
+            BPlusTree<Tuple, Tuple>.OptionsV2? sysColumnsOptions = new (new TupleSerializer(), new TupleSerializer());
+            sysColumnsOptions.FileName = catalogPath["sys_columns"];
+            sysColumnsOptions.CreateFile = CreatePolicy.Always;
+            using BTreeTable sysColumns = CreateSysColumns(sysColumnsOptions);
+            InitializeSysColumns(sysColumns);
+            sysColumns.Commit();
+
+            BPlusTree<Tuple, Tuple>.OptionsV2? sysTablesOptions = new (new TupleSerializer(), new TupleSerializer());
+            sysTablesOptions.FileName = catalogPath["sys_tables"];
+            sysTablesOptions.CreateFile = CreatePolicy.Always;
+            using BTreeTable sysTables = CreateSysTables(sysTablesOptions);
+            InitializeSysTables(sysTables, catalogPath);
+            sysTables.Commit();
+
+            BPlusTree<Tuple, Tuple>.OptionsV2? sysIndexesOptions = new (new TupleSerializer(), new TupleSerializer());
+            sysIndexesOptions.FileName = catalogPath["sys_indexes"];
+            sysIndexesOptions.CreateFile = CreatePolicy.Always;
+            using BTreeTable sysIndexes = CreateSysIndexes(sysIndexesOptions);
+            InitializeSysIndexes(sysIndexes);
+            sysIndexes.Commit();
+
+            BPlusTree<Tuple, Tuple>.OptionsV2? sysIndexColumnsOptions = new (new TupleSerializer(), new TupleSerializer());
+            sysIndexColumnsOptions.FileName = catalogPath["sys_indexcolumns"];
+            sysIndexColumnsOptions.CreateFile = CreatePolicy.Always;
+            using BTreeTable sysIndexColumns = CreateSysIndexColumns(sysIndexColumnsOptions);
+            InitializeSysIndexColumns(sysIndexColumns);
+            sysIndexColumns.Commit();
+        }
+
+        protected static Dictionary<string, string> GetCatalogPaths(string basePath)
+        {
+            Dictionary<string, string> pathDict = new (StringComparer.InvariantCultureIgnoreCase)
+            {
+                { "sys_tables",       Path.Combine(basePath, "sys_tables.jankdb") },
+                { "sys_columns",      Path.Combine(basePath, "sys_columns.jankdb") },
+                { "sys_indexes",      Path.Combine(basePath, "sys_indexes.jankdb") },
+                { "sys_indexcolumns", Path.Combine(basePath, "sys_indexcolumns.jankdb") },
+            };
+
+            return pathDict;
         }
 
         private static BTreeTable CreateSysColumns(BPlusTree<Tuple, Tuple>.OptionsV2? options)
@@ -767,6 +769,12 @@
                 ExpressionOperand.VARCHARFromString("index"),
             };
             table.InsertRow(row);
+        }
+
+        private void CheckNotDisposed()
+        {
+            if (disposed)
+                throw new ObjectDisposedException(GetType().FullName);
         }
     }
 }

@@ -142,18 +142,18 @@
             return b.GetHashCode();
         }
 
+        internal static ExpressionOperandBoolean FromByteStream(Stream stream)
+        {
+            int bInt = stream.ReadByte();
+            return new ExpressionOperandBoolean(bInt != 0);
+        }
+
         internal override void WriteToByteStream(Stream stream)
         {
             WriteTypeAndNullness(stream);
 
             // then ourselves
             stream.WriteByte((byte)(b ? 1 : 0));
-        }
-
-        internal static ExpressionOperandBoolean FromByteStream(Stream stream)
-        {
-            int bInt = stream.ReadByte();
-            return new ExpressionOperandBoolean(bInt != 0);
         }
     }
 }
