@@ -29,6 +29,11 @@
             get { return executionContext; }
         }
 
+        /// <summary>
+        /// Do some tracing at rule entry. We'll write a nmumbered line with some
+        /// indentation to see the parse tree.
+        /// </summary>
+        /// <param name="context">ParserRuleContext for the current visit context.</param>
         public override void EnterEveryRule([NotNull] ParserRuleContext context)
         {
             base.EnterEveryRule(context);
@@ -42,6 +47,10 @@
             depth++;
         }
 
+        /// <summary>
+        /// Do some tracing at rule exit, too. Lines up with the entry tracing.
+        /// </summary>
+        /// <param name="context">ParserRuleContext for the current visit context.</param>
         public override void ExitEveryRule([NotNull] ParserRuleContext context)
         {
             base.ExitEveryRule(context);

@@ -3,7 +3,7 @@
     using JankSQL.Expressions;
     using JankSQL.Operators;
 
-    public class SelectContext : IExecutableContext
+    internal class SelectContext : IExecutableContext
     {
         private readonly TSqlParser.Select_statementContext statementContext;
 
