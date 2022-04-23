@@ -8,7 +8,7 @@
     public class OrderByBTreeDiskTests : OrderByTests
     {
         [SetUp]
-        public void ClassInitialize()
+        public override void ClassInitialize()
         {
             mode = "BTreeDisk";
             Console.WriteLine($"Test mode is {mode}");
