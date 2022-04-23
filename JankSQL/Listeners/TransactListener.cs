@@ -9,12 +9,12 @@
         {
             base.EnterTransaction_statement(context);
 
-            if (context.COMMIT != null)
+            if (context.COMMIT() != null)
             {
                 CommitContext ctx = new ();
                 executionContext.ExecuteContexts.Add(ctx);
             }
-            else if (context.ROLLBACK != null)
+            else if (context.ROLLBACK() != null)
             {
                 RollbackContext ctx = new ();
                 executionContext.ExecuteContexts.Add(ctx);

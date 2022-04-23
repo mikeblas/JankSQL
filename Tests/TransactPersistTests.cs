@@ -4,8 +4,6 @@
 
     using JankSQL;
     using Engines = JankSQL.Engines;
-    using System.Diagnostics;
-
 
     abstract public class TransactPersistTests
     {
@@ -23,7 +21,6 @@
             ExecuteResult resultInsert = ecInsert.ExecuteSingle(engine);
             JankAssert.SuccessfulNoResultSet(resultInsert);
 
-
             // select it all back, expecting 11
             var ecSelect1 = Parser.ParseSQLFileFromString("SELECT number_name FROM ten ORDER BY number_name ASC;");
 
@@ -32,7 +29,9 @@
             resultSelect1.ResultSet.Dump();
 
             // rollback
-            engine.Rollback();
+            var ecRollback = Parser.ParseSQLFileFromString("ROLLBACK;");
+            ExecuteResult resultRollback = ecRollback.ExecuteSingle(engine);
+            JankAssert.SuccessfulWithMessageNoResultSet(resultRollback);
 
             // select it all back, expecting 10 now
             var ecSelect2 = Parser.ParseSQLFileFromString("SELECT number_name FROM ten ORDER BY number_name ASC;");
@@ -60,7 +59,9 @@
             resultSelect1.ResultSet.Dump();
 
             // commit
-            engine.Commit();
+            var ecCommit = Parser.ParseSQLFileFromString("COMMIT;");
+            ExecuteResult resultCommit = ecCommit.ExecuteSingle(engine);
+            JankAssert.SuccessfulWithMessageNoResultSet(resultCommit);
 
             // select it all back, still expecting 11
             var ecSelect2 = Parser.ParseSQLFileFromString("SELECT number_name FROM ten ORDER BY number_name ASC;");
