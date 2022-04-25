@@ -7,6 +7,7 @@
         INTEGER,
         DECIMAL,
         BOOLEAN,
+        DATETIME,
     }
 
     public class ExpressionNode
@@ -28,6 +29,10 @@
             else if (str.Equals("BOOLEAN", StringComparison.OrdinalIgnoreCase))
             {
                 operandType = ExpressionOperandType.BOOLEAN;
+            }
+            else if (str.Equals("DATETIME", StringComparison.OrdinalIgnoreCase))
+            {
+                operandType = ExpressionOperandType.DATETIME;
             }
             else
             {

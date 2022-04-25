@@ -29,7 +29,7 @@
 
         public object Clone()
         {
-            CreateTableContext context = new CreateTableContext(tableName, columnNames, columnTypes);
+            var context = new CreateTableContext(tableName, columnNames, columnTypes);
             return context;
         }
 

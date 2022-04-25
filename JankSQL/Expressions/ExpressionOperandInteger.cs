@@ -56,6 +56,12 @@
             return n;
         }
 
+        public override DateTime AsDateTime()
+        {
+            var dt = new DateTime(n * TimeSpan.TicksPerDay, DateTimeKind.Utc);
+            return dt;
+        }
+
         public override bool IsTrue()
         {
             throw new NotImplementedException();
@@ -122,7 +128,13 @@
             if (RepresentsNull || other.RepresentsNull)
                 return new ExpressionOperandInteger(0, true);
 
-            if (other.NodeType == ExpressionOperandType.INTEGER)
+            if (other.NodeType == ExpressionOperandType.DATETIME)
+            {
+                long l = (long)(other.AsDateTime().Ticks + (n * TimeSpan.TicksPerDay));
+                var result = new DateTime(l, DateTimeKind.Utc);
+                return new ExpressionOperandDateTime(result);
+            }
+            else if (other.NodeType == ExpressionOperandType.INTEGER)
             {
                 int result = AsInteger() + other.AsInteger();
                 return new ExpressionOperandInteger(result);
@@ -149,7 +161,13 @@
             if (RepresentsNull || other.RepresentsNull)
                 return new ExpressionOperandInteger(0, true);
 
-            if (other.NodeType == ExpressionOperandType.INTEGER)
+            if (other.NodeType == ExpressionOperandType.DATETIME)
+            {
+                long l = (n * TimeSpan.TicksPerDay) - other.AsDateTime().Ticks;
+                var result = new DateTime(l, DateTimeKind.Utc);
+                return new ExpressionOperandDateTime(result);
+            }
+            else if (other.NodeType == ExpressionOperandType.INTEGER)
             {
                 int result = AsInteger() - other.AsInteger();
                 return new ExpressionOperandInteger(result);

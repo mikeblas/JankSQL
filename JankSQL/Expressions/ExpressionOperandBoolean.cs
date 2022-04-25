@@ -46,6 +46,11 @@
             throw new NotImplementedException();
         }
 
+        public override DateTime AsDateTime()
+        {
+            throw new NotImplementedException();
+        }
+
         public override bool OperatorEquals(ExpressionOperand other)
         {
             throw new NotImplementedException();

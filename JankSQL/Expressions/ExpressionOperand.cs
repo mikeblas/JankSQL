@@ -27,6 +27,8 @@
 
         public abstract int AsInteger();
 
+        public abstract DateTime AsDateTime();
+
         public abstract bool OperatorEquals(ExpressionOperand other);
 
         public abstract bool OperatorGreaterThan(ExpressionOperand other);
@@ -132,6 +134,11 @@
         internal static ExpressionOperand DecimalFromDouble(double d)
         {
             return new ExpressionOperandDecimal(d);
+        }
+
+        internal static ExpressionOperand DateTimeFromDateTime(DateTime dt)
+        {
+            return new ExpressionOperandDateTime(dt);
         }
 
         internal static ExpressionOperand IntegerFromInt(int n)

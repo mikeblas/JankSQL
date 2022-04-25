@@ -66,6 +66,18 @@
             return int.Parse(str);
         }
 
+        public override DateTime AsDateTime()
+        {
+            if (isNull || str == null)
+                throw new InvalidOperationException("can't convert null VARCHAR to DATETIME");
+
+            DateTime dt;
+            if (DateTime.TryParse(str, out dt))
+                return dt;
+
+            throw new SemanticErrorException($"couldn't convert VARCHAR {str} to DATETIME");
+        }
+
         public override bool OperatorEquals(ExpressionOperand other)
         {
             if (RepresentsNull || other.RepresentsNull)

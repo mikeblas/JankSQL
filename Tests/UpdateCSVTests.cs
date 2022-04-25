@@ -5,7 +5,7 @@
     using Engines = JankSQL.Engines;
 
     [TestFixture]
-    public class UpdateCSVTests : BareSelectTests
+    public class UpdateCSVTests : UpdateTests
     {
         [SetUp]
         public void ClassInitialize()

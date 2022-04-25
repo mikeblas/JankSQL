@@ -33,6 +33,10 @@
                         result = ExpressionOperand.DecimalFromDouble(op.AsDouble());
                         break;
 
+                    case ExpressionOperandType.DATETIME:
+                        result = ExpressionOperand.DateTimeFromDateTime(op.AsDateTime());
+                        break;
+
                     default:
                         throw new NotImplementedException($"type {targetType} not supported by CAST");
                 }

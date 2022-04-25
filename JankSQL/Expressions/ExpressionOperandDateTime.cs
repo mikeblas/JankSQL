@@ -1,21 +1,22 @@
 ﻿namespace JankSQL.Expressions
 {
-    internal class ExpressionOperandDecimal : ExpressionOperand
+    internal class ExpressionOperandDateTime : ExpressionOperand, IComparable<ExpressionOperandDateTime>, IEquatable<ExpressionOperandDateTime>
     {
         private readonly bool isNull;
-        private double d;
+        private DateTime dt;
 
-        internal ExpressionOperandDecimal(double d)
-            : base(ExpressionOperandType.DECIMAL)
+        internal ExpressionOperandDateTime(DateTime dt)
+            : base(ExpressionOperandType.DATETIME)
         {
-            this.d = d;
+            this.dt = dt;
             isNull = false;
         }
 
-        internal ExpressionOperandDecimal(double d, bool isNull)
-            : base(ExpressionOperandType.DECIMAL)
+
+        internal ExpressionOperandDateTime(DateTime dt, bool isNull)
+            : base(ExpressionOperandType.DATETIME)
         {
-            this.d = d;
+            this.dt = dt;
             this.isNull = isNull;
         }
 
@@ -24,37 +25,46 @@
             get { return isNull; }
         }
 
-
         public override object Clone()
         {
-            return new ExpressionOperandDecimal(d, isNull);
+            return new ExpressionOperandDateTime(dt, isNull);
         }
-
 
         public override string ToString()
         {
-            return $"decimal({(isNull ? "NULL" : d)})";
+            if (isNull)
+                return "DateTime(NULL)";
+            return $"DateTime({dt:yyyy-MM-ddTHH:mm:ssZ})";
         }
 
         public override double AsDouble()
         {
             if (isNull)
-                throw new InvalidOperationException("can't convert null DECIMAL to double");
-            return d;
+                throw new InvalidOperationException("can't convert null DATETIME to double");
+
+            // convert unit to days
+            return dt.Ticks / (double)TimeSpan.TicksPerDay;
         }
 
         public override string AsString()
         {
             if (isNull)
-                throw new InvalidOperationException("can't convert null DECIMAL to string");
-            return $"{d}";
+                throw new InvalidOperationException("can't convert null DATETIME to string");
+            return $"{dt:yyyy-MM-ddTHH:mm:ssZ}";
         }
 
         public override int AsInteger()
         {
             if (isNull)
-                throw new InvalidOperationException("can't convert null DECIMAL to integer");
-            return (int)d;
+                throw new InvalidOperationException("can't convert null DATETIME to integer");
+
+            // convert unit to days
+            return (int)(dt.Ticks / TimeSpan.TicksPerDay);
+        }
+
+        public override DateTime AsDateTime()
+        {
+            return dt;
         }
 
         public override bool IsTrue()
@@ -62,17 +72,16 @@
             throw new NotImplementedException();
         }
 
-        public override DateTime AsDateTime()
-        {
-            var dt = new DateTime((long)(TimeSpan.TicksPerDay * d), DateTimeKind.Utc);
-            return dt;
-        }
-
         public override bool OperatorEquals(ExpressionOperand other)
         {
             if (RepresentsNull || other.RepresentsNull)
                 return false;
 
+            if (other.NodeType == ExpressionOperandType.DATETIME)
+            {
+                return other.AsDateTime() == AsDateTime();
+            }
+            else
             if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
             {
                 return other.AsDouble() == AsDouble();
@@ -81,10 +90,8 @@
             {
                 return other.AsDouble() == AsDouble();
             }
-            else
-            {
-                throw new NotImplementedException("DECIMAL Equals");
-            }
+
+            return false;
         }
 
         public override bool OperatorGreaterThan(ExpressionOperand other)
@@ -93,11 +100,17 @@
                 return false;
 
             if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
+            {
                 return AsDouble() > other.AsDouble();
-            else if (other.NodeType == ExpressionOperandType.VARCHAR)
+            }
+            else if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.VARCHAR)
+            {
                 return AsDouble() > other.AsDouble();
+            }
             else
-                throw new NotImplementedException("DECIMAL GreaterThan");
+            {
+                throw new NotImplementedException("INTEGER GreaterThan");
+            }
         }
 
         public override bool OperatorLessThan(ExpressionOperand other)
@@ -106,64 +119,75 @@
                 return false;
 
             if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
+            {
                 return AsDouble() < other.AsDouble();
-            else if (other.NodeType == ExpressionOperandType.VARCHAR)
+            }
+            else if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.VARCHAR)
+            {
                 return AsDouble() < other.AsDouble();
+            }
             else
-                throw new NotImplementedException("DECIMAL LessThan");
+            {
+                throw new NotImplementedException("INTEGER LessThan");
+            }
         }
+
 
         public override ExpressionOperand OperatorPlus(ExpressionOperand other)
         {
             if (RepresentsNull || other.RepresentsNull)
-                return new ExpressionOperandDecimal(0, true);
+                return new ExpressionOperandInteger(0, true);
 
-            if (other.NodeType == ExpressionOperandType.DATETIME)
+            if (other.NodeType == ExpressionOperandType.INTEGER)
             {
-                long l = (long) (other.AsDateTime().Ticks + (d * TimeSpan.TicksPerDay));
+                long l = dt.Ticks + (other.AsInteger() * TimeSpan.TicksPerDay);
                 DateTime result = new DateTime(l, DateTimeKind.Utc);
                 return new ExpressionOperandDateTime(result);
             }
-            else if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
+            else if (other.NodeType == ExpressionOperandType.DECIMAL)
             {
-                double result = AsDouble() + other.AsDouble();
-                return new ExpressionOperandDecimal(result);
+                long l = dt.Ticks + (long)(other.AsDouble() * TimeSpan.TicksPerDay);
+                DateTime result = new DateTime(l, DateTimeKind.Utc);
+                return new ExpressionOperandDateTime(result);
             }
             else if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
-                double result = AsDouble() + other.AsDouble();
-                return new ExpressionOperandDecimal(result);
+                int oint = other.AsInteger();
+                int result = AsInteger() + oint;
+                return new ExpressionOperandInteger(result);
             }
             else
             {
-                throw new InvalidOperationException("OperatorPlus Decimal");
+                throw new InvalidOperationException("OperatorPlus Integer");
             }
         }
 
         public override ExpressionOperand OperatorMinus(ExpressionOperand other)
         {
             if (RepresentsNull || other.RepresentsNull)
-                return new ExpressionOperandDecimal(0, true);
+                return new ExpressionOperandInteger(0, true);
 
-            if (other.NodeType == ExpressionOperandType.DATETIME)
+            if (other.NodeType == ExpressionOperandType.INTEGER)
             {
-                 long l = (long)((d * TimeSpan.TicksPerDay) - other.AsDateTime().Ticks);
-                DateTime result = new DateTime(l, DateTimeKind.Utc);
+                long l = dt.Ticks - (other.AsInteger() * TimeSpan.TicksPerDay);
+                var result = new DateTime(l, DateTimeKind.Utc);
                 return new ExpressionOperandDateTime(result);
             }
-            else if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
+            else if (other.NodeType == ExpressionOperandType.DECIMAL)
             {
-                double result = AsDouble() - other.AsDouble();
-                return new ExpressionOperandDecimal(result);
+                long l = dt.Ticks - (long)(other.AsDouble() * TimeSpan.TicksPerDay);
+                var result = new DateTime(l, DateTimeKind.Utc);
+                return new ExpressionOperandDateTime(result);
             }
             else if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
-                double result = AsDouble() - other.AsDouble();
-                return new ExpressionOperandDecimal(result);
+                int oint = other.AsInteger();
+                int result = AsInteger() - oint;
+                return new ExpressionOperandInteger(result);
             }
             else
             {
-                throw new InvalidOperationException("OperatorMinus Decimal");
+                throw new InvalidOperationException("OperatorMinus Integer");
             }
         }
 
@@ -171,9 +195,14 @@
         public override ExpressionOperand OperatorSlash(ExpressionOperand other)
         {
             if (RepresentsNull || other.RepresentsNull)
-                return new ExpressionOperandDecimal(0, true);
+                return new ExpressionOperandInteger(0, true);
 
-            if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
+            if (other.NodeType == ExpressionOperandType.INTEGER)
+            {
+                int result = AsInteger() / other.AsInteger();
+                return new ExpressionOperandInteger(result);
+            }
+            else if (other.NodeType == ExpressionOperandType.DECIMAL)
             {
                 double result = AsDouble() / other.AsDouble();
                 return new ExpressionOperandDecimal(result);
@@ -185,16 +214,22 @@
             }
             else
             {
-                throw new InvalidOperationException("OperatorSlash Decimal");
+                throw new InvalidOperationException("OperatorSlash Integer");
             }
         }
+
 
         public override ExpressionOperand OperatorTimes(ExpressionOperand other)
         {
             if (RepresentsNull || other.RepresentsNull)
-                return new ExpressionOperandDecimal(0, true);
+                return new ExpressionOperandInteger(0, true);
 
-            if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
+            if (other.NodeType == ExpressionOperandType.INTEGER)
+            {
+                int result = AsInteger() * other.AsInteger();
+                return new ExpressionOperandInteger(result);
+            }
+            else if (other.NodeType == ExpressionOperandType.DECIMAL)
             {
                 double result = AsDouble() * other.AsDouble();
                 return new ExpressionOperandDecimal(result);
@@ -206,24 +241,30 @@
             }
             else
             {
-                throw new InvalidOperationException("OperatorTimes Decimal");
+                throw new InvalidOperationException("OperatorTimes Integer");
             }
         }
 
         public override ExpressionOperand OperatorModulo(ExpressionOperand other)
         {
             if (RepresentsNull || other.RepresentsNull)
-                return new ExpressionOperandDecimal(0, true);
+                return new ExpressionOperandInteger(0, true);
 
-            if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
+            if (other.NodeType == ExpressionOperandType.INTEGER)
+            {
+                int result = AsInteger() % other.AsInteger();
+                return new ExpressionOperandInteger(result);
+            }
+            else if (other.NodeType == ExpressionOperandType.DECIMAL)
             {
                 double result = AsDouble() % other.AsDouble();
                 return new ExpressionOperandDecimal(result);
             }
             else if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
-                double result = AsDouble() % other.AsDouble();
-                return new ExpressionOperandDecimal(result);
+                int oint = other.AsInteger();
+                int result = AsInteger() % oint;
+                return new ExpressionOperandInteger(result);
             }
             else
             {
@@ -234,33 +275,25 @@
 
         public override void AddToSelf(ExpressionOperand other)
         {
-            if (RepresentsNull)
-                throw new InvalidOperationException("Can't increment NULL");
-
-            d += other.AsDouble();
+            throw new NotImplementedException("Can't increment a DATETIME");
         }
 
         public override ExpressionOperand OperatorUnaryMinus()
         {
-            if (RepresentsNull)
-                return this;
-            return new ExpressionOperandDecimal(-d, false);
+            throw new SemanticErrorException("Can't negate a DATETIME");
         }
 
         public override ExpressionOperand OperatorUnaryPlus()
         {
-            if (RepresentsNull)
-                return this;
-            return new ExpressionOperandDecimal(-d, false);
+            return new ExpressionOperandDateTime(dt);
         }
 
         public override ExpressionOperand OperatorUnaryTilde()
         {
-            throw new NotImplementedException();
+            throw new SemanticErrorException("DATETIME has no bitwise NOT");
         }
 
-
-        public int CompareTo(ExpressionOperandDecimal? other)
+        public int CompareTo(ExpressionOperandDateTime? other)
         {
             if (other == null)
                 throw new ArgumentNullException(nameof(other));
@@ -272,7 +305,7 @@
             if (!isNull && other.isNull)
                 return 1;
 
-            int result = d.CompareTo(other.d);
+            int result = dt.CompareTo(other.dt);
             return result;
         }
 
@@ -280,38 +313,37 @@
         {
             if (other == null)
                 throw new ArgumentNullException(nameof(other));
-            ExpressionOperandDecimal o = (ExpressionOperandDecimal)other;
-            return d.CompareTo(o);
+            ExpressionOperandInteger o = (ExpressionOperandInteger)other;
+
+            return CompareTo(o);
         }
 
-        public bool Equals(ExpressionOperandDecimal? other)
+        public bool Equals(ExpressionOperandDateTime? other)
         {
             return CompareTo(other) == 0;
         }
 
-        public override bool Equals(object? obj)
+        public override bool Equals(object? o)
         {
-            ExpressionOperandDecimal? o = obj as ExpressionOperandDecimal;
-            if (o == null)
+            if (o is not ExpressionOperandDateTime other)
                 return false;
-            return Equals(o);
+            return this.Equals(other);
         }
 
         public override int GetHashCode()
         {
             if (isNull)
                 return 8675309;
-            return d.GetHashCode();
+            return dt.GetHashCode();
         }
 
-        internal static ExpressionOperandDecimal FromByteStream(Stream stream)
+        internal static ExpressionOperandDateTime FromByteStream(Stream stream)
         {
             byte[] rep = new byte[8];
             stream.Read(rep, 0, rep.Length);
 
-            double d = BitConverter.ToDouble(rep, 0);
-
-            return new ExpressionOperandDecimal(d);
+            long ticks = BitConverter.ToInt64(rep, 0);
+            return new ExpressionOperandDateTime(new DateTime(ticks, DateTimeKind.Utc));
         }
 
         internal override void WriteToByteStream(Stream stream)
@@ -319,8 +351,9 @@
             WriteTypeAndNullness(stream);
 
             // then ourselves
-            byte[] rep = BitConverter.GetBytes(d);
+            byte[] rep = BitConverter.GetBytes(dt.Ticks);
             stream.Write(rep);
         }
     }
 }
+

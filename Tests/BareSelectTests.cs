@@ -1061,5 +1061,117 @@
 
             JankAssert.ValueIsNull(result.ResultSet, 0, 0);
         }
+
+        [Test]
+        public void TestDateTimeFromString()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT CAST('1963-11-22 12:30:00' AS DATETIME);");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
+            result.ResultSet.Dump();
+
+            JankAssert.ValueMatchesDateTime(result.ResultSet, 0, 0, new DateTime(1963, 11, 22, 12, 30, 0, DateTimeKind.Utc));
+        }
+
+        [Test]
+        public void TestDateTimeFromStringIntegerAddition()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT CAST('1963-11-22 12:30:00' AS DATETIME) + 5;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
+            result.ResultSet.Dump();
+
+            JankAssert.ValueMatchesDateTime(result.ResultSet, 0, 0, new DateTime(1963, 11, 27, 12, 30, 0, DateTimeKind.Utc));
+        }
+
+        [Test]
+        public void TestDateTimeIntegerAdditionFromString()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 5 + CAST('1963-11-22 12:30:00' AS DATETIME);");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
+            result.ResultSet.Dump();
+
+            JankAssert.ValueMatchesDateTime(result.ResultSet, 0, 0, new DateTime(1963, 11, 27, 12, 30, 0, DateTimeKind.Utc));
+        }
+
+        [Test]
+        public void TestDateTimeFromStringDecimalAddition()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT CAST('1963-11-22 12:30:00' AS DATETIME) + 5.3;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
+            result.ResultSet.Dump();
+
+            JankAssert.ValueMatchesDateTime(result.ResultSet, 0, 0, new DateTime(1963, 11, 27, 19, 42, 0, DateTimeKind.Utc));
+        }
+
+        [Test]
+        public void TestDateTimeDecimalAdditionFromString()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 5.3 + CAST('1963-11-22 12:30:00' AS DATETIME);");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
+            result.ResultSet.Dump();
+
+            JankAssert.ValueMatchesDateTime(result.ResultSet, 0, 0, new DateTime(1963, 11, 27, 19, 42, 0, DateTimeKind.Utc));
+        }
+
+
+        // ---
+
+        [Test]
+        public void TestDateTimeFromStringIntegerSubtraction()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT CAST('1963-11-22 12:30:00' AS DATETIME) - 5;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
+            result.ResultSet.Dump();
+
+            JankAssert.ValueMatchesDateTime(result.ResultSet, 0, 0, new DateTime(1963, 11, 17, 12, 30, 0, DateTimeKind.Utc));
+        }
+
+        [Test]
+        public void TestDateTimeIntegerSubtractionFromString()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 1050000 - CAST('1963-11-22 12:30:00' AS DATETIME);");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
+            result.ResultSet.Dump();
+
+            JankAssert.ValueMatchesDateTime(result.ResultSet, 0, 0, new DateTime(912, 11, 30, 11, 30, 0, DateTimeKind.Utc));
+        }
+
+        [Test]
+        public void TestDateTimeFromStringDecimalSubtraction()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT CAST('1963-11-22 12:30:00' AS DATETIME) - 5.3;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
+            result.ResultSet.Dump();
+
+            JankAssert.ValueMatchesDateTime(result.ResultSet, 0, 0, new DateTime(1963, 11, 17, 5, 18, 0, DateTimeKind.Utc));
+        }
+
+        [Test]
+        public void TestDateTimeDecimalSubtractionFromString()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT 1050000.3 - CAST('1963-11-22 12:30:00' AS DATETIME);");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
+            result.ResultSet.Dump();
+
+            JankAssert.ValueMatchesDateTime(result.ResultSet, 0, 0, new DateTime(912, 11, 30, 18, 42, 0, DateTimeKind.Utc));
+        }
+
     }
 }

@@ -52,13 +52,27 @@ namespace Tests
             Assert.AreEqual(expectedValue, rs.Row(row)[column].AsInteger());
         }
 
+        public static void ValueMatchesDateTime(ResultSet rs, int column, int row, DateTime expectedValue)
+        {
+            if (rs == null)
+                throw new AssertionException($"expected a non-null result set");
+
+            if (rs.Row(row)[column].RepresentsNull)
+                throw new AssertionException($"expected non-null DateTime value at column {column}, row {row}");
+
+            if (rs.Row(row)[column].NodeType != ExpressionOperandType.DATETIME)
+                throw new AssertionException($"expected DateTime value at column {column}, row {row}, found {rs.Row(row)[column].NodeType}");
+
+            Assert.AreEqual(expectedValue, rs.Row(row)[column].AsDateTime());
+        }
+
         public static void ValueIsNull(ResultSet rs, int column, int row)
         {
             if (rs == null)
                 throw new AssertionException($"expected a non-null result set");
 
             if (!rs.Row(row)[column].RepresentsNull)
-                throw new AssertionException($"expected null at column {column}, row {row}");
+                throw new AssertionException($"expected null at column {column}, row {row}; instead found {rs.Row(row)[column]}");
         }
 
         public static void ValueMatchesDecimal(ResultSet rs, int column, int row, double expectedValue, double tolerance)
