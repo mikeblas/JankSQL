@@ -73,7 +73,7 @@
             if (RepresentsNull || other.RepresentsNull)
                 return false;
 
-            if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
+            if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER || other.NodeType == ExpressionOperandType.DATETIME)
             {
                 return other.AsDouble() == AsDouble();
             }
@@ -83,7 +83,7 @@
             }
             else
             {
-                throw new NotImplementedException("DECIMAL Equals");
+                throw new NotImplementedException($"Decimal Equals {other.NodeType}");
             }
         }
 
@@ -92,12 +92,12 @@
             if (RepresentsNull || other.RepresentsNull)
                 return false;
 
-            if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
+            if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER || other.NodeType == ExpressionOperandType.DATETIME)
                 return AsDouble() > other.AsDouble();
             else if (other.NodeType == ExpressionOperandType.VARCHAR)
                 return AsDouble() > other.AsDouble();
             else
-                throw new NotImplementedException("DECIMAL GreaterThan");
+                throw new NotImplementedException($"Decimal GreaterThan {other.NodeType}");
         }
 
         public override bool OperatorLessThan(ExpressionOperand other)
@@ -105,12 +105,12 @@
             if (RepresentsNull || other.RepresentsNull)
                 return false;
 
-            if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
+            if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER || other.NodeType == ExpressionOperandType.DATETIME)
                 return AsDouble() < other.AsDouble();
             else if (other.NodeType == ExpressionOperandType.VARCHAR)
                 return AsDouble() < other.AsDouble();
             else
-                throw new NotImplementedException("DECIMAL LessThan");
+                throw new NotImplementedException($"Decimal LessThan {other.NodeType}");
         }
 
         public override ExpressionOperand OperatorPlus(ExpressionOperand other)
@@ -120,8 +120,8 @@
 
             if (other.NodeType == ExpressionOperandType.DATETIME)
             {
-                long l = (long) (other.AsDateTime().Ticks + (d * TimeSpan.TicksPerDay));
-                DateTime result = new DateTime(l, DateTimeKind.Utc);
+                long l = (long)(other.AsDateTime().Ticks + (d * TimeSpan.TicksPerDay));
+                var result = new DateTime(l, DateTimeKind.Utc);
                 return new ExpressionOperandDateTime(result);
             }
             else if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
@@ -136,7 +136,7 @@
             }
             else
             {
-                throw new InvalidOperationException("OperatorPlus Decimal");
+                throw new NotImplementedException($"Decimal OperatorPlus {other.NodeType}");
             }
         }
 
@@ -147,8 +147,8 @@
 
             if (other.NodeType == ExpressionOperandType.DATETIME)
             {
-                 long l = (long)((d * TimeSpan.TicksPerDay) - other.AsDateTime().Ticks);
-                DateTime result = new DateTime(l, DateTimeKind.Utc);
+                long l = (long)((d * TimeSpan.TicksPerDay) - other.AsDateTime().Ticks);
+                var result = new DateTime(l, DateTimeKind.Utc);
                 return new ExpressionOperandDateTime(result);
             }
             else if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
@@ -163,7 +163,7 @@
             }
             else
             {
-                throw new InvalidOperationException("OperatorMinus Decimal");
+                throw new NotImplementedException($"Decimal OperatorMinus {other.NodeType}");
             }
         }
 
@@ -185,7 +185,7 @@
             }
             else
             {
-                throw new InvalidOperationException("OperatorSlash Decimal");
+                throw new NotImplementedException($"Decimal OperatorSlash {other.NodeType}");
             }
         }
 
@@ -206,7 +206,7 @@
             }
             else
             {
-                throw new InvalidOperationException("OperatorTimes Decimal");
+                throw new NotImplementedException($"Decimal OperatorTimes {other.NodeType}");
             }
         }
 
@@ -227,7 +227,7 @@
             }
             else
             {
-                throw new InvalidOperationException("OperatorModulo Integer");
+                throw new NotImplementedException($"Decimal OperatorModulo {other.NodeType}");
             }
         }
 

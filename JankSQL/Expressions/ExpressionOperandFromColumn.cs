@@ -17,7 +17,7 @@
         public bool Equals(ExpressionOperandFromColumn? other)
         {
             if (other == null)
-                throw new ArgumentNullException("other");
+                throw new ArgumentNullException(nameof(other));
 
             if (ReferenceEquals(this, other))
                 return true;

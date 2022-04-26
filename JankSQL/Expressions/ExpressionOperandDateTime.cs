@@ -160,13 +160,13 @@
             if (other.NodeType == ExpressionOperandType.INTEGER)
             {
                 long l = dt.Ticks + (other.AsInteger() * TimeSpan.TicksPerDay);
-                DateTime result = new DateTime(l, DateTimeKind.Utc);
+                var result = new DateTime(l, DateTimeKind.Utc);
                 return new ExpressionOperandDateTime(result);
             }
             else if (other.NodeType == ExpressionOperandType.DECIMAL)
             {
                 long l = dt.Ticks + (long)(other.AsDouble() * TimeSpan.TicksPerDay);
-                DateTime result = new DateTime(l, DateTimeKind.Utc);
+                var result = new DateTime(l, DateTimeKind.Utc);
                 return new ExpressionOperandDateTime(result);
             }
             else if (other.NodeType == ExpressionOperandType.VARCHAR)
