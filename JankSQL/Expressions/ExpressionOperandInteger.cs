@@ -93,7 +93,7 @@
             {
                 return AsDouble() > other.AsDouble();
             }
-            else if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.VARCHAR)
+            else if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
                 return AsDouble() > other.AsDouble();
             }
@@ -112,7 +112,7 @@
             {
                 return AsDouble() < other.AsDouble();
             }
-            else if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.VARCHAR)
+            else if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
                 return AsDouble() < other.AsDouble();
             }

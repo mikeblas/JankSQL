@@ -7,10 +7,11 @@
         // here's a dictionary of functions by string name to the classes which work them
         private static readonly Dictionary<string, Func<ExpressionFunction>> FunctionDict = new (StringComparer.InvariantCultureIgnoreCase)
         {
-            { "LEN",    () => new FunctionLEN() },
-            { "PI",     () => new FunctionPI() },
-            { "POWER",  () => new FunctionPOWER() },
-            { "SQRT",   () => new FunctionSQRT() },
+            { "GETDATE",    () => new FunctionGetDate() },
+            { "LEN",        () => new FunctionLEN() },
+            { "PI",         () => new FunctionPI() },
+            { "POWER",      () => new FunctionPOWER() },
+            { "SQRT",       () => new FunctionSQRT() },
         };
 
         private readonly string str;

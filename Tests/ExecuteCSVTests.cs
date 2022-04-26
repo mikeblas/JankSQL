@@ -18,6 +18,7 @@
 
             TestHelpers.InjectTableMyTable(engine);
             TestHelpers.InjectTableTen(engine);
+            TestHelpers.InjectTableEvents(engine);
         }
     }
 }

@@ -146,26 +146,34 @@
             return new ExpressionOperandInteger(n);
         }
 
-        internal static ExpressionOperand FromObjectAndType(object o, ExpressionOperandType opType)
+        internal static ExpressionOperand FromObjectAndType(object? o, ExpressionOperandType opType)
         {
-            if (o.GetType() == typeof(int))
+            if (o == null)
+                return NullLiteral();
+
+            if (o is int oInt)
             {
                 if (opType == ExpressionOperandType.INTEGER)
-                    return IntegerFromInt((int)o);
+                    return IntegerFromInt(oInt);
                 else if (opType == ExpressionOperandType.DECIMAL)
-                    return DecimalFromDouble((double)(int)o);
+                    return DecimalFromDouble((double)oInt);
             }
-            else if (o.GetType() == typeof(string))
+            else if (o is string oString)
             {
                 if (opType == ExpressionOperandType.VARCHAR)
-                    return VARCHARFromString((string)o);
+                    return VARCHARFromString(oString);
+                if (opType == ExpressionOperandType.DATETIME)
+                {
+                    if (DateTime.TryParse(oString, out DateTime dt))
+                        return DateTimeFromDateTime(dt);
+                }
             }
-            else if (o.GetType() == typeof(double))
+            else if (o is double oDouble)
             {
                 if (opType == ExpressionOperandType.INTEGER)
-                    return DecimalFromDouble((double)(int)o);
+                    return IntegerFromInt((int)oDouble);
                 else if (opType == ExpressionOperandType.DECIMAL)
-                    return DecimalFromDouble((double)o);
+                    return DecimalFromDouble(oDouble);
             }
 
             throw new ArgumentException($"Can't make ExpressionOperand of {opType} out of {o.GetType()}");

@@ -183,6 +183,23 @@
             if (num == 1) return "I";
             return string.Empty;
         }
+
+
+        static public void InjectTableEvents(Engines.IEngine engine)
+        {
+            Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
+                .WithTableName("Events")
+                .WithColumnNames(new string[] { "number_id", "when_start", "when_end" })
+                .WithColumnTypes(new ExpressionOperandType[] { INTEGER, DATETIME, DATETIME })
+                .WithRow(new object?[] { 1, "1975-03-25", "1985-09-20" })
+                .WithRow(new object?[] { 2, "2022-01-20", "2022-05-30" })
+                .WithRow(new object?[] { 3, "1999-04-10", "2019-04-10" })
+                .WithRow(new object?[] { 4, "1620-09-09", null })
+                .WithRow(new object?[] { 5, "1922-08-01", "1922-08-02" })
+                .Build();
+
+            engine.InjectTestTable(tt);
+        }
     }
 }
 

@@ -342,5 +342,58 @@
                     Assert.Fail($"didn't expect key {key}");
             }
         }
+
+        [Test]
+        public void TestSelectDateTime()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM events;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 3, 5);
+            result.ResultSet.Dump();
+        }
+
+
+        [Test]
+        public void TestSelectDateTimeNotNull()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM events WHERE when_end IS NOT NULL;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 3, 4);
+            result.ResultSet.Dump();
+        }
+
+
+        [Test]
+        public void TestSelectDateTimeAbove()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM events WHERE when_end > '2019-01-01';");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 3, 2);
+            result.ResultSet.Dump();
+        }
+
+        [Test]
+        public void TestSelectDateTimeBelow()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM events WHERE when_end < '2019-01-01';");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 3, 2);
+            result.ResultSet.Dump();
+        }
+
+
+        [Test]
+        public void TestSelectDateTimeEquals()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM events WHERE when_start =  '1620-09-09';");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 3, 1);
+            result.ResultSet.Dump();
+        }
     }
 }

@@ -15,6 +15,7 @@
             engine = Engines.BTreeEngine.CreateInMemory();
             TestHelpers.InjectTableMyTable(engine);
             TestHelpers.InjectTableTen(engine);
+            TestHelpers.InjectTableEvents(engine);
         }
 
         [TearDown]

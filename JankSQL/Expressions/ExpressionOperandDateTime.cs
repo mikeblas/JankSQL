@@ -81,14 +81,17 @@
             {
                 return other.AsDateTime() == AsDateTime();
             }
-            else
-            if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
+            else if (other.NodeType == ExpressionOperandType.DECIMAL )
             {
                 return other.AsDouble() == AsDouble();
             }
+            else if (other.NodeType == ExpressionOperandType.INTEGER)
+            {
+                return other.AsInteger() == AsInteger();
+            }
             else if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
-                return other.AsDouble() == AsDouble();
+                return AsDateTime() == other.AsDateTime();
             }
 
             return false;
@@ -99,17 +102,25 @@
             if (RepresentsNull || other.RepresentsNull)
                 return false;
 
-            if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
+            if (other.NodeType == ExpressionOperandType.DATETIME)
+            {
+                return other.AsDateTime() > AsDateTime();
+            }
+            else if (other.NodeType == ExpressionOperandType.DECIMAL)
             {
                 return AsDouble() > other.AsDouble();
             }
-            else if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.VARCHAR)
+            else if (other.NodeType == ExpressionOperandType.INTEGER)
             {
-                return AsDouble() > other.AsDouble();
+                return AsInteger() > other.AsInteger();
+            }
+            else if (other.NodeType == ExpressionOperandType.VARCHAR)
+            {
+                return AsDateTime() > other.AsDateTime();
             }
             else
             {
-                throw new NotImplementedException("INTEGER GreaterThan");
+                throw new NotImplementedException($"DateTime GreaterThan {other.NodeType}");
             }
         }
 
@@ -118,17 +129,25 @@
             if (RepresentsNull || other.RepresentsNull)
                 return false;
 
-            if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
+            if (other.NodeType == ExpressionOperandType.DATETIME)
+            {
+                return other.AsDateTime() < AsDateTime();
+            }
+            else if (other.NodeType == ExpressionOperandType.DECIMAL)
             {
                 return AsDouble() < other.AsDouble();
             }
-            else if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.VARCHAR)
+            else if (other.NodeType == ExpressionOperandType.INTEGER)
             {
-                return AsDouble() < other.AsDouble();
+                return AsInteger() < other.AsInteger();
+            }
+            else if (other.NodeType == ExpressionOperandType.VARCHAR)
+            {
+                return AsDateTime() < other.AsDateTime();
             }
             else
             {
-                throw new NotImplementedException("INTEGER LessThan");
+                throw new NotImplementedException($"DateTime LessThan {other.NodeType}");
             }
         }
 
@@ -158,7 +177,7 @@
             }
             else
             {
-                throw new InvalidOperationException("OperatorPlus Integer");
+                throw new NotImplementedException($"DateTime OperatorPlus {other.NodeType}");
             }
         }
 
@@ -187,7 +206,7 @@
             }
             else
             {
-                throw new InvalidOperationException("OperatorMinus Integer");
+                throw new NotImplementedException($"DateTime OperatorMinus {other.NodeType}");
             }
         }
 
@@ -214,7 +233,7 @@
             }
             else
             {
-                throw new InvalidOperationException("OperatorSlash Integer");
+                throw new NotImplementedException($"DateTime OperatorSlash {other.NodeType}");
             }
         }
 
@@ -241,7 +260,7 @@
             }
             else
             {
-                throw new InvalidOperationException("OperatorTimes Integer");
+                throw new NotImplementedException($"DateTime OperatorTimes {other.NodeType}");
             }
         }
 
@@ -268,7 +287,7 @@
             }
             else
             {
-                throw new InvalidOperationException("OperatorModulo Integer");
+                throw new NotImplementedException($"DateTime OperatorModulo {other.NodeType}");
             }
         }
 

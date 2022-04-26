@@ -96,8 +96,12 @@
                                     newRow[i] = new ExpressionOperandInteger(int.Parse(fileFields[i]));
                                     break;
 
+                                case ExpressionOperandType.DATETIME:
+                                    newRow[i] = new ExpressionOperandDateTime(DateTime.Parse(fileFields[i]).ToUniversalTime());
+                                    break;
+
                                 default:
-                                    throw new NotImplementedException();
+                                    throw new NotImplementedException($"Can't support type {columnTypes[i]}");
                             }
                         }
                     }

@@ -18,6 +18,7 @@
             engine = Engines.BTreeEngine.OpenDiskBased(tempPath, Engines.OpenPolicy.Obliterate);
             TestHelpers.InjectTableMyTable(engine);
             TestHelpers.InjectTableTen(engine);
+            TestHelpers.InjectTableEvents(engine);
         }
 
         [TearDown]
