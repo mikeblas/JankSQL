@@ -1173,5 +1173,54 @@
             JankAssert.ValueMatchesDateTime(result.ResultSet, 0, 0, new DateTime(912, 11, 30, 18, 42, 0, DateTimeKind.Utc));
         }
 
+        [Test]
+        public void TestDateAddDays()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT DATEADD(day, 1, CAST('1900-12-31 13:22' AS DATETIME))");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
+            result.ResultSet.Dump();
+
+            JankAssert.ValueMatchesDateTime(result.ResultSet, 0, 0, new DateTime(1901, 1, 1, 13, 22, 0, DateTimeKind.Utc));
+        }
+
+        [Test]
+        public void TestDateAddHours()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT DATEADD(hour, 1, CAST('1900-12-31 13:22' AS DATETIME))");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
+            result.ResultSet.Dump();
+
+            JankAssert.ValueMatchesDateTime(result.ResultSet, 0, 0, new DateTime(1900, 12, 31, 14, 22, 0, DateTimeKind.Utc));
+        }
+
+
+        [Test]
+        public void TestDateAddYears()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT DATEADD(year, 1, CAST('1900-12-31 13:22' AS DATETIME))");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
+            result.ResultSet.Dump();
+
+            JankAssert.ValueMatchesDateTime(result.ResultSet, 0, 0, new DateTime(1901, 12, 31, 13, 22, 0, DateTimeKind.Utc));
+        }
+
+
+        [Test]
+        public void TestDateAddMonths()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT DATEADD(month, 1, CAST('1900-12-31 13:22' AS DATETIME))");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
+            result.ResultSet.Dump();
+
+            JankAssert.ValueMatchesDateTime(result.ResultSet, 0, 0, new DateTime(1901, 1, 31, 13, 22, 0, DateTimeKind.Utc));
+        }
     }
 }

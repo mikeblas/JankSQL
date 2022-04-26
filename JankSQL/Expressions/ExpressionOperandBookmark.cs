@@ -43,6 +43,7 @@
         {
             throw new NotImplementedException();
         }
+
         public override DateTime AsDateTime()
         {
             throw new NotImplementedException();

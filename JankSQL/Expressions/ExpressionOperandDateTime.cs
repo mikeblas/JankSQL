@@ -3,7 +3,7 @@
     internal class ExpressionOperandDateTime : ExpressionOperand, IComparable<ExpressionOperandDateTime>, IEquatable<ExpressionOperandDateTime>
     {
         private readonly bool isNull;
-        private DateTime dt;
+        private readonly DateTime dt;
 
         internal ExpressionOperandDateTime(DateTime dt)
             : base(ExpressionOperandType.DATETIME)
@@ -81,7 +81,7 @@
             {
                 return other.AsDateTime() == AsDateTime();
             }
-            else if (other.NodeType == ExpressionOperandType.DECIMAL )
+            else if (other.NodeType == ExpressionOperandType.DECIMAL)
             {
                 return other.AsDouble() == AsDouble();
             }

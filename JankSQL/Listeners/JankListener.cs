@@ -367,6 +367,15 @@
                 stack.Add(iifContext.left);
                 stack.Add(iifContext.right);
             }
+            else if (bifContext is TSqlParser.DATEADDContext dateAddContext)
+            {
+                ExpressionFunction f = new Expressions.Functions.FunctionDateAdd(dateAddContext.ID().GetText());
+                x.Insert(0, f);
+
+//                stack.Add(ExpressionOperand.VARCHARFromString(dateAddContext.ID().GetText()));
+                stack.Add(dateAddContext.expression()[0]);
+                stack.Add(dateAddContext.expression()[1]);
+            }
             else
             {
                 throw new NotImplementedException($"Unknown built-in function {bifContext.GetText()}");
