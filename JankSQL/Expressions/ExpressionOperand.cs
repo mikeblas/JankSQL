@@ -56,22 +56,6 @@
 
         public abstract object Clone();
 
-        /*
-        public int Compare(ExpressionOperand? x, ExpressionOperand? y)
-        {
-            if (x == null)
-                throw new ArgumentNullException(nameof(x));
-            if (y == null)
-                throw new ArgumentNullException(nameof(y));
-
-            if (x.NodeType != y.NodeType)
-                throw new ArgumentException($"can't compare {x.NodeType} to {y.NodeType}");
-
-            int ret = x.Compare(x, y);
-            return ret;
-        }
-        */
-
         public abstract int CompareTo(ExpressionOperand? other);
 
         internal static ExpressionOperand CreateFromByteStream(Stream stream)
