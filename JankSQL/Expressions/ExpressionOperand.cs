@@ -66,34 +66,16 @@
             if (representsNull != 0)
                 return ExpressionOperand.NullLiteral();
 
-            ExpressionOperand ret;
-
-            switch (nodeType)
+            ExpressionOperand ret = nodeType switch
             {
-                case ExpressionOperandType.BOOLEAN:
-                    ret = ExpressionOperandBoolean.FromByteStream(stream);
-                    break;
-
-                case ExpressionOperandType.INTEGER:
-                    ret = ExpressionOperandInteger.FromByteStream(stream);
-                    break;
-
-                case ExpressionOperandType.VARCHAR:
-                    ret = ExpressionOperandVARCHAR.FromByteStream(stream);
-                    break;
-
-                case ExpressionOperandType.BOOKMARK:
-                    ret = ExpressionOperandBookmark.FromByteStream(stream);
-                    break;
-
-                case ExpressionOperandType.DECIMAL:
-                    ret = ExpressionOperandDecimal.FromByteStream(stream);
-                    break;
-
-                default:
-                    throw new NotSupportedException($"unknown nodeType {nodeType}");
-            }
-
+                ExpressionOperandType.BOOLEAN => ExpressionOperandBoolean.FromByteStream(stream),
+                ExpressionOperandType.INTEGER => ExpressionOperandInteger.FromByteStream(stream),
+                ExpressionOperandType.VARCHAR => ExpressionOperandVARCHAR.FromByteStream(stream),
+                ExpressionOperandType.BOOKMARK => ExpressionOperandBookmark.FromByteStream(stream),
+                ExpressionOperandType.DECIMAL => ExpressionOperandDecimal.FromByteStream(stream),
+                ExpressionOperandType.DATETIME => ExpressionOperandDateTime.FromByteStream(stream),
+                _ => throw new NotSupportedException($"unknown nodeType {nodeType}"),
+            };
             return ret;
         }
 

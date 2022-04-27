@@ -19,27 +19,14 @@
 
             try
             {
-                switch (targetType)
+                result = targetType switch
                 {
-                    case ExpressionOperandType.INTEGER:
-                        result = ExpressionOperand.IntegerFromInt(op.AsInteger());
-                        break;
-
-                    case ExpressionOperandType.VARCHAR:
-                        result = ExpressionOperand.VARCHARFromString(op.AsString());
-                        break;
-
-                    case ExpressionOperandType.DECIMAL:
-                        result = ExpressionOperand.DecimalFromDouble(op.AsDouble());
-                        break;
-
-                    case ExpressionOperandType.DATETIME:
-                        result = ExpressionOperand.DateTimeFromDateTime(op.AsDateTime());
-                        break;
-
-                    default:
-                        throw new NotImplementedException($"type {targetType} not supported by CAST");
-                }
+                    ExpressionOperandType.INTEGER => ExpressionOperand.IntegerFromInt(op.AsInteger()),
+                    ExpressionOperandType.VARCHAR => ExpressionOperand.VARCHARFromString(op.AsString()),
+                    ExpressionOperandType.DECIMAL => ExpressionOperand.DecimalFromDouble(op.AsDouble()),
+                    ExpressionOperandType.DATETIME => ExpressionOperand.DateTimeFromDateTime(op.AsDateTime()),
+                    _ => throw new NotImplementedException($"type {targetType} not supported by CAST"),
+                };
             }
             catch (FormatException)
             {
