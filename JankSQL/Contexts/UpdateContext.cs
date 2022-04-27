@@ -4,50 +4,13 @@
     using JankSQL.Expressions;
     using JankSQL.Operators;
 
-    internal enum SetOperator
-    {
-        ASSIGN,
-        ADD_ASSIGN,
-        SUB_ASSIGN,
-        MUL_ASSIGN,
-        DIV_ASSIGN,
-        MOD_ASSIGN,
-    }
 
-    //TODO: move to Operators (or Expressions?)
-    internal class SetOperation
-    {
-        private readonly FullColumnName fcn;
-        private readonly Expression expression;
-        private readonly SetOperator op;
-
-        internal SetOperation(FullColumnName fcn, SetOperator op, Expression expression)
-        {
-            this.fcn = fcn;
-            this.op = op;
-            this.expression = expression;
-        }
-
-        public override string ToString()
-        {
-            return $"{fcn} {op} {expression}";
-        }
-
-        internal void Execute(Engines.IEngine engine, IRowValueAccessor outputaccessor, IRowValueAccessor inputAccessor, Dictionary<string, ExpressionOperand> bindValues)
-        {
-            if (op != SetOperator.ASSIGN)
-                throw new NotImplementedException();
-
-            ExpressionOperand val = expression.Evaluate(inputAccessor, engine, bindValues);
-            outputaccessor.SetValue(fcn, val);
-        }
-    }
 
     internal class UpdateContext : IExecutableContext
     {
         private readonly FullTableName tableName;
         private readonly TSqlParser.Update_statementContext context;
-        private readonly List<SetOperation> setList = new ();
+        private readonly List<UpdateSetOperation> setList = new ();
 
         private Expression? predicateExpression;
 
@@ -74,7 +37,7 @@
 
             clone.predicateExpression = predicateExpression != null ? (Expression)predicateExpression.Clone() : null;
 
-            foreach (SetOperation op in setList)
+            foreach (UpdateSetOperation op in setList)
                 clone.setList.Add(op);
 
             return clone;
@@ -130,7 +93,7 @@
 
         internal void AddAssignment(FullColumnName fcn, Expression x)
         {
-            SetOperation op = new (fcn, SetOperator.ASSIGN, x);
+            UpdateSetOperation op = new (fcn, UpdateSetOperator.ASSIGN, x);
             setList.Add(op);
         }
 

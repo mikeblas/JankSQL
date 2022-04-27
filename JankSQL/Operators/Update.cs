@@ -10,11 +10,11 @@
         private readonly Expression? predicateExpression;
         private readonly List<ExpressionOperandBookmark> bookmarksToDelete = new ();
         private readonly List<Tuple> rowsToInsert = new ();
-        private readonly List<SetOperation> setList;
+        private readonly List<UpdateSetOperation> setList;
 
         private int rowsAffected;
 
-        internal Update(Engines.IEngineTable targetTable, IComponentOutput input, Expression? predicateExpression, List<SetOperation> setList)
+        internal Update(Engines.IEngineTable targetTable, IComponentOutput input, Expression? predicateExpression, List<UpdateSetOperation> setList)
         {
             myInput = input;
             engineTable = targetTable;
