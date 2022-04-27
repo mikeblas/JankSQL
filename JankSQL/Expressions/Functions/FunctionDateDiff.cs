@@ -1,6 +1,6 @@
 ﻿namespace JankSQL.Expressions.Functions
 {
-    internal class FunctionDateAdd : ExpressionFunction
+    internal class FunctionDateDiff : ExpressionFunction
     {
 #pragma warning disable SA1509 // Opening braces should not be preceded by blank line
 #pragma warning disable SA1001 // Commas should be spaced correctly
@@ -29,15 +29,6 @@
 
             { "dayofyear",DatePart.DAYOFYEAR },
             { "dy",     DatePart.DAYOFYEAR },
-            { "y",      DatePart.DAYOFYEAR },
-
-            { "week",   DatePart.WEEK },
-            { "wk",     DatePart.WEEK },
-            { "ww",     DatePart.WEEK },
-
-            { "weekday",DatePart.WEEKDAY },
-            { "dw",     DatePart.WEEKDAY },
-            { "w",      DatePart.WEEKDAY },
 
             { "month",  DatePart.MONTH },
             { "mm",     DatePart.MONTH },
@@ -49,6 +40,7 @@
 
             { "year",   DatePart.YEAR },
             { "yy",     DatePart.YEAR },
+            { "y",      DatePart.YEAR },
             { "yyyy",   DatePart.YEAR },
         };
 #pragma warning restore SA1001 // Commas should be spaced correctly
@@ -56,8 +48,8 @@
 
         private readonly DatePart datePart;
 
-        internal FunctionDateAdd(string datePartName)
-            : base("DATEADD")
+        internal FunctionDateDiff(string datePartName)
+            : base("DATEDIFF")
         {
             if (!PartMap.TryGetValue(datePartName, out datePart))
                 throw new SemanticErrorException($"Unknown date part {datePartName}");
@@ -73,8 +65,6 @@
             MONTH,
             DAYOFYEAR,
             DAY,
-            WEEK,
-            WEEKDAY,
             HOUR,
             MINUTE,
             SECOND,
@@ -87,24 +77,28 @@
 
         internal override ExpressionOperand Evaluate(Stack<ExpressionOperand> stack)
         {
-            ExpressionOperand dateValue = stack.Pop();
-            ExpressionOperand number = stack.Pop();
-            var delta = number.AsInteger();
-            var startDate = dateValue.AsDateTime();
+            ExpressionOperand dateRight = stack.Pop();
+            ExpressionOperand dateLeft = stack.Pop();
 
+            var startDate = dateLeft.AsDateTime();
+            var endDate = dateRight.AsDateTime();
+
+            TimeSpan ts = endDate.Subtract(startDate);
+
+            //REVIEW: DateDiff is hard, so this is half-baked. Need to decide how to do it.
             var ret = datePart switch
             {
-                DatePart.DAY or DatePart.DAYOFYEAR or DatePart.WEEKDAY => startDate.AddDays(delta),
-                DatePart.YEAR => startDate.AddYears(delta),
-                DatePart.MONTH => startDate.AddMonths(delta),
-                DatePart.HOUR => startDate.AddHours(delta),
-                DatePart.MINUTE => startDate.AddMinutes(delta),
-                DatePart.SECOND => startDate.AddSeconds(delta),
-                DatePart.MILLISECOND => startDate.AddMilliseconds(delta),
+                DatePart.DAY or DatePart.DAYOFYEAR => (int)ts.TotalDays,
+                DatePart.YEAR => endDate.Year - startDate.Year,
+                DatePart.MONTH => (endDate.Month + (endDate.Year * 12)) - (startDate.Month + (startDate.Year * 12)),
+                DatePart.HOUR => (int)ts.TotalHours,
+                DatePart.MINUTE => (int)ts.TotalMinutes,
+                DatePart.SECOND => (int)ts.TotalSeconds,
+                DatePart.MILLISECOND => (int)ts.TotalMilliseconds,
                 _ => throw new InternalErrorException($"Can't handle datepart {datePart}"),
             };
 
-            return ExpressionOperand.DateTimeFromDateTime(ret);
+            return ExpressionOperand.IntegerFromInt(ret);
         }
     }
 }

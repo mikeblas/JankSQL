@@ -1222,5 +1222,45 @@
 
             JankAssert.ValueMatchesDateTime(result.ResultSet, 0, 0, new DateTime(1901, 1, 31, 13, 22, 0, DateTimeKind.Utc));
         }
+
+
+        [Test]
+        public void TestDateDiffDays()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT DATEDIFF(day, CAST('2022-04-25 12:35' AS DATETIME), CAST('2022-04-27 16:45' AS DATETIME))");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
+            result.ResultSet.Dump();
+
+            JankAssert.ValueMatchesInteger(result.ResultSet, 0, 0, 2);
+        }
+
+
+        [Test]
+        public void TestDateDiffMonth()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT DATEDIFF(month, CAST('2022-01-25 12:35' AS DATETIME), CAST('2022-04-27 16:45' AS DATETIME))");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
+            result.ResultSet.Dump();
+
+            JankAssert.ValueMatchesInteger(result.ResultSet, 0, 0, 3);
+        }
+
+
+        [Test]
+        public void TestDateDiffMonthLess()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT DATEDIFF(month, CAST('2022-01-25 12:35' AS DATETIME), CAST('2022-04-05 16:45' AS DATETIME))");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 1, 1);
+            result.ResultSet.Dump();
+
+            JankAssert.ValueMatchesInteger(result.ResultSet, 0, 0, 3);
+        }
+
     }
 }

@@ -369,12 +369,21 @@
             }
             else if (bifContext is TSqlParser.DATEADDContext dateAddContext)
             {
-                ExpressionFunction f = new Expressions.Functions.FunctionDateAdd(dateAddContext.ID().GetText());
+                // DATEADD(datepart, number, date)
+                ExpressionFunction f = new Expressions.Functions.FunctionDateAdd(dateAddContext.datepart.Text);
                 x.Insert(0, f);
 
-//                stack.Add(ExpressionOperand.VARCHARFromString(dateAddContext.ID().GetText()));
-                stack.Add(dateAddContext.expression()[0]);
-                stack.Add(dateAddContext.expression()[1]);
+                stack.Add(dateAddContext.number);
+                stack.Add(dateAddContext.date);
+            }
+            else if (bifContext is TSqlParser.DATEDIFFContext dateDiffContext)
+            {
+                // DATEDIFF(datepart, date_first, date_second)
+                ExpressionFunction f = new Expressions.Functions.FunctionDateDiff(dateDiffContext.ID().GetText());
+                x.Insert(0, f);
+
+                stack.Add(dateDiffContext.date_first);
+                stack.Add(dateDiffContext.date_second);
             }
             else
             {

@@ -61,7 +61,7 @@ INSERT INTO students(StudentID, StudentName, score, class) VALUES(6, 'Rob', 802,
                 "SELECT XX.Class, MAX(XX.Score) TopScore FROM Students AS XX GROUP BY Class";
 
 
-            select = "SELECT DATEADD(day, 1, CAST('1900-02-05 13:22' AS DATETIME))";
+            select = "SELECT DATEDIFF(hour, CAST('2022-04-25 12:35' AS DATETIME), CAST('2022-04-27 16:45' AS DATETIME))";
 
             var ecSelect = Parser.ParseSQLFileFromString(select);
 
