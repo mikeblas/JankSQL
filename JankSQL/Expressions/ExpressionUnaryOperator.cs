@@ -1,4 +1,4 @@
-﻿namespace JankSQL
+﻿namespace JankSQL.Expressions
 {
     public class ExpressionUnaryOperator : ExpressionOperator
     {
@@ -16,25 +16,25 @@
         }
 
 
-        internal override ExpressionOperand Evaluate(Stack<ExpressionOperand> stack)
+        internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
         {
             if (Str == "~")
             {
                 ExpressionOperand op = stack.Pop();
                 ExpressionOperand result = op.OperatorUnaryTilde();
-                return result;
+                stack.Push(result);
             }
             else if (Str == "+")
             {
                 ExpressionOperand op = stack.Pop();
                 ExpressionOperand result = op.OperatorUnaryPlus();
-                return result;
+                stack.Push(result);
             }
             else if (Str == "-")
             {
                 ExpressionOperand op = stack.Pop();
                 ExpressionOperand result = op.OperatorUnaryMinus();
-                return result;
+                stack.Push(result);
             }
             else
             {

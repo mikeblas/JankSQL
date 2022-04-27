@@ -1,6 +1,7 @@
 ﻿namespace JankSQL
 {
     using System.Collections;
+    using JankSQL.Expressions;
 
     public class Tuple : IEnumerable<ExpressionOperand>, IEnumerable
     {

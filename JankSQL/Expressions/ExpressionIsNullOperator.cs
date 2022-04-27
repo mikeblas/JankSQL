@@ -16,12 +16,12 @@
             return isNotNull ? "IS NOT NULL" : "IS NULL";
         }
 
-        internal ExpressionOperand Evaluate(Stack<ExpressionOperand> stack)
+        internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
         {
             ExpressionOperand left = stack.Pop();
 
             bool result = left.RepresentsNull ^ isNotNull;
-            return new ExpressionOperandBoolean(result);
+            stack.Push(new ExpressionOperandBoolean(result));
         }
     }
 }

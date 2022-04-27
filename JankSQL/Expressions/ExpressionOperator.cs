@@ -1,4 +1,4 @@
-﻿namespace JankSQL
+﻿namespace JankSQL.Expressions
 {
     public class ExpressionOperator : ExpressionNode, IEquatable<ExpressionOperator>
     {
@@ -40,52 +40,50 @@
             return str;
         }
 
-        internal virtual ExpressionOperand Evaluate(Stack<ExpressionOperand> stack)
+        internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
         {
+            ExpressionOperand result;
             if (str == "/")
             {
                 ExpressionOperand right = stack.Pop();
                 ExpressionOperand left = stack.Pop();
 
-                ExpressionOperand result = left.OperatorSlash(right);
-                return result;
+                result = left.OperatorSlash(right);
             }
             else if (str == "+")
             {
                 ExpressionOperand op1 = stack.Pop();
                 ExpressionOperand op2 = stack.Pop();
 
-                ExpressionOperand result = op2.OperatorPlus(op1);
-                return result;
+                result = op2.OperatorPlus(op1);
             }
             else if (str == "-")
             {
                 ExpressionOperand right = stack.Pop();
                 ExpressionOperand left = stack.Pop();
 
-                ExpressionOperand result = left.OperatorMinus(right);
-                return result;
+                result = left.OperatorMinus(right);
             }
             else if (str == "*")
             {
                 ExpressionOperand op1 = stack.Pop();
                 ExpressionOperand op2 = stack.Pop();
 
-                ExpressionOperand result = op1.OperatorTimes(op2);
-                return result;
+                result = op1.OperatorTimes(op2);
             }
             else if (str == "%")
             {
                 ExpressionOperand right = stack.Pop();
                 ExpressionOperand left = stack.Pop();
 
-                ExpressionOperand result = left.OperatorModulo(right);
-                return result;
+                result = left.OperatorModulo(right);
             }
             else
             {
                 throw new NotImplementedException($"ExpressionOperator: no implementation for {str}");
             }
+
+            stack.Push(result);
         }
     }
 }

@@ -1,16 +1,6 @@
-﻿namespace JankSQL
+﻿namespace JankSQL.Expressions
 {
-    public enum ExpressionOperandType
-    {
-        BOOKMARK,
-        VARCHAR,
-        INTEGER,
-        DECIMAL,
-        BOOLEAN,
-        DATETIME,
-    }
-
-    public class ExpressionNode
+    public abstract class ExpressionNode
     {
         public static bool TypeFromString(string str, out ExpressionOperandType operandType)
         {
@@ -42,6 +32,8 @@
 
             return true;
         }
+
+        internal abstract void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues);
     }
 }
 

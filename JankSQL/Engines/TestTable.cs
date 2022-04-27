@@ -2,6 +2,8 @@
 {
     using System.Collections.Immutable;
 
+    using JankSQL.Expressions;
+
     public class TestTable
     {
         private readonly Tuple[] rows;

@@ -25,8 +25,11 @@
             return "IN Operator";
         }
 
-        internal ExpressionOperand Evaluate(Engines.IEngine engine, IRowValueAccessor accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
+        internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
         {
+            if (accessor == null)
+                throw new ExecutionException($"Not in a row context to evaluate {this}");
+
             bool result;
             if (targets != null)
                 result = EvaluateTargets(engine, accessor, stack, bindValues);
@@ -35,7 +38,7 @@
 
             // return what we discovered
             ExpressionOperand r = new ExpressionOperandBoolean(result);
-            return r;
+            stack.Push(r);
         }
 
         protected bool EvaluateTargets(Engines.IEngine engine, IRowValueAccessor accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)

@@ -9,15 +9,20 @@
 
         internal override int ExpectedParameters => 1;
 
-        internal override ExpressionOperand Evaluate(Stack<ExpressionOperand> stack)
+        internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
         {
             ExpressionOperand op1 = stack.Pop();
-            if (op1.RepresentsNull)
-                return ExpressionOperand.NullLiteral();
+            ExpressionOperand result;
 
-            double d = Math.Sqrt(op1.AsDouble());
-            ExpressionOperand result = ExpressionOperand.DecimalFromDouble(d);
-            return result;
+            if (op1.RepresentsNull)
+                result = ExpressionOperand.NullLiteral();
+            else
+            {
+                double d = Math.Sqrt(op1.AsDouble());
+                result = ExpressionOperand.DecimalFromDouble(d);
+            }
+
+            stack.Push(result);
         }
     }
 }

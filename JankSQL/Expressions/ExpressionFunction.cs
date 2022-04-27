@@ -58,8 +58,6 @@
             var r = FunctionDict[str].Invoke();
             return r;
         }
-
-        internal abstract ExpressionOperand Evaluate(Stack<ExpressionOperand> stack);
     }
 }
 

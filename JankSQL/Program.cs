@@ -22,6 +22,8 @@
 
 namespace JankSQL
 {
+    // using JankSQL.Expressions;
+
     internal class Program
     {
         public static void Main()

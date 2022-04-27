@@ -1,5 +1,6 @@
 ﻿namespace JankSQL
 {
+    using JankSQL.Engines;
     using JankSQL.Expressions;
 
     public abstract class ExpressionOperand : ExpressionNode, ICloneable, IComparable<ExpressionOperand>
@@ -55,6 +56,7 @@
 
         public abstract object Clone();
 
+        /*
         public int Compare(ExpressionOperand? x, ExpressionOperand? y)
         {
             if (x == null)
@@ -68,6 +70,7 @@
             int ret = x.Compare(x, y);
             return ret;
         }
+        */
 
         public abstract int CompareTo(ExpressionOperand? other);
 
@@ -221,6 +224,10 @@
                 stream.WriteByte(0);
         }
 
+        internal override void Evaluate(IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
+        {
+            stack.Push(this);
+        }
 
         private static string NormalizeString(string str)
         {

@@ -9,9 +9,9 @@
 
         internal override int ExpectedParameters => 0;
 
-        internal override ExpressionOperand Evaluate(Stack<ExpressionOperand> stack)
+        internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
         {
-            return ExpressionOperand.DecimalFromDouble(Math.PI);
+            stack.Push(ExpressionOperand.DecimalFromDouble(Math.PI));
         }
     }
 }

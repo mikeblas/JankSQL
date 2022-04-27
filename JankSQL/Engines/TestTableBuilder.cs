@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Engines
 {
+    using JankSQL.Expressions;
+
     public class TestTableBuilder
     {
         private readonly List<FullColumnName> columnNames = new ();

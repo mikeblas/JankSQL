@@ -9,16 +9,14 @@
 
         internal override int ExpectedParameters => 2;
 
-        internal override ExpressionOperand Evaluate(Stack<ExpressionOperand> stack)
+        internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
         {
             ExpressionOperand right = stack.Pop();
             ExpressionOperand left = stack.Pop();
             ExpressionOperand condition = stack.Pop();
 
-            if (condition.IsTrue())
-                return left;
-            else
-                return right;
+            ExpressionOperand result = condition.IsTrue() ? left : right;
+            stack.Push(result);
         }
     }
 }

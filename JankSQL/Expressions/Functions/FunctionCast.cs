@@ -12,7 +12,7 @@
 
         internal override int ExpectedParameters => 2;
 
-        internal override ExpressionOperand Evaluate(Stack<ExpressionOperand> stack)
+        internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
         {
             ExpressionOperand op = stack.Pop();
             ExpressionOperand result;
@@ -46,7 +46,7 @@
                 throw new ExecutionException($"failed to convert {op} to {targetType}");
             }
 
-            return result;
+            stack.Push(result);
         }
     }
 }

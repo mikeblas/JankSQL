@@ -36,7 +36,7 @@
             return new ExpressionBooleanOperator(BooleanOperatorType.NOT);
         }
 
-        internal ExpressionOperand Evaluate(Stack<ExpressionOperand> stack)
+        internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
         {
             bool result = true;
 
@@ -59,7 +59,7 @@
                     break;
             }
 
-            return new ExpressionOperandBoolean(result);
+            stack.Push(new ExpressionOperandBoolean(result));
         }
     }
 }

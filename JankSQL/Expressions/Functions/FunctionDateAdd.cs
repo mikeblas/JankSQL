@@ -85,7 +85,7 @@
 
         internal override int ExpectedParameters => 2;
 
-        internal override ExpressionOperand Evaluate(Stack<ExpressionOperand> stack)
+        internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
         {
             ExpressionOperand dateValue = stack.Pop();
             ExpressionOperand number = stack.Pop();
@@ -104,7 +104,8 @@
                 _ => throw new InternalErrorException($"Can't handle datepart {datePart}"),
             };
 
-            return ExpressionOperand.DateTimeFromDateTime(ret);
+            ExpressionOperand result = ExpressionOperand.DateTimeFromDateTime(ret);
+            stack.Push(result);
         }
     }
 }
