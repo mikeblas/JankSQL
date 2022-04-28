@@ -10,7 +10,27 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Antlr4 Include="Grammar\TSqlLexer.g4">
+      <Visitor>False</Visitor>
+      <AntlrToolJar>C:\antlr\antlr-4.9.3-complete.jar</AntlrToolJar>
+      <JavaExec>C:\Program Files\Common Files\Oracle\Java\javapath\java.exe</JavaExec>
+      <ForceAtn>True</ForceAtn>
+      <AntOutDir></AntOutDir>
+    </Antlr4>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Antlr4 Include="Grammar\TSqlParser.g4">
+      <Visitor>False</Visitor>
+      <JavaExec>C:\Program Files\Common Files\Oracle\Java\javapath\java.exe</JavaExec>
+      <AntlrToolJar>C:\antlr\antlr-4.9.3-complete.jar</AntlrToolJar>
+      <AntOutDir></AntOutDir>
+    </Antlr4>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Antlr4.Runtime.Standard" Version="4.9.3" />
+    <PackageReference Include="Antlr4BuildTasks" Version="10.3.0" />
   </ItemGroup>
 
 </Project>
