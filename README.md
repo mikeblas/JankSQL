@@ -22,41 +22,48 @@ Also, my wife said I'm not allowed to build a robot, so this project will have t
 
 ### SQL Grammar
 
-I've chosen to re-use an existing SQL grammar for parsing; even at my most ambitious, I can't hope to implement all the features of the grammar, but it seems better than struggling along with subsets of the grammar itself while I try to implement features.
+I've chosen to re-use an existing SQL grammar for parsing; even at my most ambitious, I can't hope to implement even half the features of the grammar, but it seems better than struggling along writing and fixing subsets of the grammar itself while I try to implement features.
 
-Remarkably, I'll want to extend the grammar to support features unique to JankSQL.
+On the other hand, we can expect that I'll want to extend the grammar to support features unique to JankSQL.
 
 ### Storage
 
-I'll expect to implement my own binary file format, but that will take time. For now, there's a simpler mechanism for storage which just uses CSV files. This means I'll eventually have pluggable engines; maybe something works against CSV files, maybe I'll have different binary implementations and formats.
+The storage engine is based on the [CSharpTest.Net](https://github.com/csharptest/CSharpTest.Net.Collections) B-Tree implementation. The engines are pluggable through the `IEngine` and `IEngineTable` interfaces. Implementations for in-memory and on-disk storage against the CSharpTest B-Tree are supplied. A limited implementation against a CSV flat-file is also supplied.
 
 ### Tests
 
-I'd like to be test-driven in development of the server, so I'll have a variety of unit tests. Strictly, the "unit" tests are a bit stretched -- they're probably a bit more integration tests, since they'll exercise multiple components in concert. 
+There are more than 750 tests now, though that's a bit multiplicative due to tests running against each engine. Strictly, the "unit" tests are a bit stretched -- they're probably a bit more integration tests, since they'll exercise multiple components in concert.
+
+Tests are implemented with [NUnit](https://github.com/nunit/nunit).
+
+### Style
+
+The project uses [StyleCop](https://github.com/StyleCop) for static analysis. I've tweaked away some of the rules that I find more annoying or counter-productive 
 
 # Setup 
 
 This project uses .Net 6.0 and therefore requires Visual Studio 2022.
 
-After that, the project has just two prerequisites: the Antlr tool and an external T-SQL grammar for Antlr.
+After that, the project has just two prerequisites: the Antlr tool and the external T-SQL grammar for Antlr.
 
 ## Installing Antlr
-The first requirement is Antlr -- which, in turn, requires the Java run-time. The [Antlr installation instructions]( https://github.com/antlr/antlr4/blob/master/doc/getting-started.md) explain how to get Antlr going, and I just added the Antlr JAR file to my `\bin` directory, which is already on my path.
+The first requirement is Antlr -- which, in turn, requires the Java run-time. The [Antlr installation instructions](https://github.com/antlr/antlr4/blob/master/doc/getting-started.md) explain how to get Antlr going, and I just added the Antlr JAR file to my `\bin` directory, which is already on my path.
 
 ## The T-SQL Antlr Grammar
 Rather than write my own grammar as I go, I started with [an available Antlr grammar for T-SQL](https://github.com/antlr/grammars-v4/tree/master/sql/tsql). 
 
-The `grammars-v4` project on GitHub contains many grammars, including the [sql/tsql](https://github.com/antlr/grammars-v4/tree/master/sql/tsql) grammar I chose. It's more than adequate, though it's a annoyingly case-sensitive: `SELECT` is a token, but `select` is not.
+The `grammars-v4` project on GitHub contains many grammars, including the [sql/tsql](https://github.com/antlr/grammars-v4/tree/master/sql/tsql) grammar I chose. It's more than adequate! I may start paring-down unused features in it to make the parser a little smaller but more importantly faster.
 
-The grammar's `*.g4` files can be copied from that project to the `$/grammar` directory.  Once landed there, build the grammar with Antlr while targeting C#:
+The grammar's `*.g4` files live in the Parser directory, which uses the [Antlr4BuildTasks package](https://github.com/kaby76/Antlr4BuildTasks). I've added the SQL grammar files into this repository and they'll build into the `*.CS` implementation files as needed just by building the project.
 
-```
-    antlr4 -Dlanguage=CSharp TSqlLexer.g4 TSqlParser.g4 -o ..\Parsing -visitor
-```
+## Shell
 
-The resulting C# files end up in the `$\Parsing` directory of the project.
+The JankSh project implements an interactive shell against a local engine. It's working against the in-memory B-Tree right now, and soon I'll have it able to attach to (or create) a directory and use that with the persisted B-Tree implementation.
 
-At this point, the project is buildable. Note that the `$\Parsing` directory is checked in with existing `*.cs` files, so maybe it's not necessary to build the grammar directly. Once Antlr add-ins are available for Visual Studio 2022, I can automate the whole thing.
+## Status
+The project is buildable, and I intend that the main branch always has all of its tests passing.
+
+There are lots of language features being added as I work, so the best way to see what's supported is to scan through the tests.
 
 
 # Licensing
