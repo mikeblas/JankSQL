@@ -9,7 +9,7 @@
     {
         static public void InjectTableMyTable(Engines.IEngine engine)
         {
-            Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
+            Engines.TestTableDefinition tt = Engines.TestTableBuilder.NewBuilder()
                 .WithTableName("mytable")
                 .WithColumnNames(new string[] { "keycolumn", "city_name", "state_code", "population" })
                 .WithColumnTypes(new ExpressionOperandType[] { INTEGER, VARCHAR, VARCHAR, DECIMAL })
@@ -24,7 +24,7 @@
 
         static public void InjectTableTen(Engines.IEngine engine)
         {
-            Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
+            Engines.TestTableDefinition tt = Engines.TestTableBuilder.NewBuilder()
                 .WithTableName("ten")
                 .WithColumnNames(new string[] { "number_id", "number_name", "is_even" })
                 .WithColumnTypes(new ExpressionOperandType[] { INTEGER, VARCHAR, INTEGER })
@@ -46,7 +46,7 @@
 
         static public void InjectTableStates(Engines.IEngine engine)
         {
-            Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
+            Engines.TestTableDefinition tt = Engines.TestTableBuilder.NewBuilder()
                 .WithTableName("states")
                 .WithColumnNames(new string[] { "state_code", "state_name" })
                 .WithColumnTypes(new ExpressionOperandType[] { VARCHAR, VARCHAR })
@@ -66,7 +66,7 @@
 
         static public void InjectTableThree(Engines.IEngine engine)
         {
-            Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
+            Engines.TestTableDefinition tt = Engines.TestTableBuilder.NewBuilder()
                 .WithTableName("three")
                 .WithColumnNames(new string[] { "number_id", "number_name" })
                 .WithColumnTypes(new ExpressionOperandType[] { DECIMAL, VARCHAR })
@@ -83,7 +83,7 @@
         {
             // order matches the description text when key is (K2, K3, K1)
 
-            Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
+            Engines.TestTableDefinition tt = Engines.TestTableBuilder.NewBuilder()
                 .WithTableName("three")
                 .WithColumnNames(new string[] { "K1", "K2", "K3", "Description" })
                 .WithColumnTypes(new ExpressionOperandType[] { INTEGER, INTEGER, INTEGER, VARCHAR })
@@ -100,12 +100,29 @@
             engine.InjectTestTable(tt);
         }
 
+        static public void InjectTableFiveIndex(Engines.IEngine engine)
+        {
+
+            Engines.TestTableDefinition tt = Engines.TestTableBuilder.NewBuilder()
+                .WithTableName("fiveindex")
+                .WithColumnNames(new string[] { "Col1", "Col2", "Col3", "Col4", "Col5" })
+                .WithColumnTypes(new ExpressionOperandType[] { INTEGER, INTEGER, INTEGER, INTEGER, INTEGER })
+                .WithRow(new object[] { 0, 0, 0, 0, 0 })
+                .WithIndex("JustOne", new string[] { "Col1" })
+                .WithIndex("FirstTwo", new string[] { "Col1", "Col2" })
+                .WithIndex("LastTwo", new string[] { "Col4", "Col5" })
+                .WithIndex("AnyTwo", new string[] { "Col5", "Col3" })
+                .Build();
+
+            engine.InjectTestTable(tt);
+        }
+
 
         static public void InjectTableKiloLeft(Engines.IEngine engine)
         {
             Stopwatch sw = Stopwatch.StartNew();
 
-            Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
+            Engines.TestTableDefinition tt = Engines.TestTableBuilder.NewBuilder()
                 .WithTableName("kiloLeft")
                 .WithColumnNames(new string[] { "number_id", "number_name", "is_even" })
                 .WithColumnTypes(new ExpressionOperandType[] { INTEGER, VARCHAR, INTEGER })
@@ -131,7 +148,7 @@
         {
             Stopwatch sw = Stopwatch.StartNew();
 
-            Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
+            Engines.TestTableDefinition tt = Engines.TestTableBuilder.NewBuilder()
                 .WithTableName("kiloRight")
                 .WithColumnNames(new string[] { "number_id", "number_name", "is_even" })
                 .WithColumnTypes(new ExpressionOperandType[] { INTEGER, VARCHAR, INTEGER })
@@ -187,7 +204,7 @@
 
         static public void InjectTableEvents(Engines.IEngine engine)
         {
-            Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
+            Engines.TestTableDefinition tt = Engines.TestTableBuilder.NewBuilder()
                 .WithTableName("Events")
                 .WithColumnNames(new string[] { "number_id", "when_start", "when_end" })
                 .WithColumnTypes(new ExpressionOperandType[] { INTEGER, DATETIME, DATETIME })

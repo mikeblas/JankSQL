@@ -71,7 +71,7 @@ namespace JankSQL
             tempPath = Path.Combine(tempPath, "XYZZY");
             var csvEngine = Engines.DynamicCSVEngine.OpenObliterate(tempPath);
 
-            Engines.TestTable tt10 = Engines.TestTableBuilder.NewBuilder()
+            Engines.TestTableDefinition tt10 = Engines.TestTableBuilder.NewBuilder()
                 .WithTableName("ten")
                 .WithColumnNames(new string[] { "number_id", "number_name", "is_even" })
                 .WithColumnTypes(new ExpressionOperandType[] { ExpressionOperandType.INTEGER, ExpressionOperandType.VARCHAR, ExpressionOperandType.INTEGER })
@@ -90,7 +90,7 @@ namespace JankSQL
             csvEngine.InjectTestTable(tt10);
             btreeEngine.InjectTestTable(tt10);
 
-            Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
+            Engines.TestTableDefinition tt = Engines.TestTableBuilder.NewBuilder()
                 .WithTableName("mytable")
                 .WithColumnNames(new string[] { "keycolumn", "city_name", "state_code", "population" })
                 .WithColumnTypes(new ExpressionOperandType[] { ExpressionOperandType.INTEGER, ExpressionOperandType.VARCHAR, ExpressionOperandType.VARCHAR, ExpressionOperandType.INTEGER })

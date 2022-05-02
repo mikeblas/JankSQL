@@ -7,6 +7,10 @@
         private readonly List<FullColumnName> columnNames = new ();
         private List<object?[]>? rows;
         private List<ExpressionOperandType>? columnTypes;
+        private List<List<string>> indexes = new ();
+        private List<List<string>> uniqueIndexes = new ();
+        private List<string> indexNames = new ();
+        private List<string> uniqueIndexNames = new ();
 
         private FullTableName? tableName;
 
@@ -42,7 +46,22 @@
             return this;
         }
 
-        public TestTable Build()
+        public TestTableBuilder WithIndex(string indexName, string[] columnNames)
+        {
+            indexNames.Add(indexName);
+            indexes.Add(columnNames.ToList());
+            return this;
+        }
+
+        public TestTableBuilder WithUniqueIndex(string indexName, string[] columnNames)
+        {
+            uniqueIndexNames.Add(indexName);
+            uniqueIndexes.Add(columnNames.ToList());
+            return this;
+        }
+
+
+        public TestTableDefinition Build()
         {
             var convertedRows = new List<Tuple>();
 
@@ -70,7 +89,7 @@
                 }
             }
 
-            TestTable table = new TestTable(tableName, columnNames, columnTypes, convertedRows);
+            var table = new TestTableDefinition(tableName, columnNames, columnTypes, convertedRows, indexNames, indexes, uniqueIndexNames, uniqueIndexes);
             return table;
         }
     }

@@ -288,7 +288,7 @@
             }
         }
 
-        public IEngineTable InjectTestTable(TestTable testTable)
+        public IEngineTable InjectTestTable(TestTableDefinition testTable)
         {
             // create the table ...
             CreateTable(testTable.TableName, testTable.ColumnNames, testTable.ColumnTypes);

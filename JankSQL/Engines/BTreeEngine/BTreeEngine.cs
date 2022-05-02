@@ -348,7 +348,7 @@
             return sysIndexColumns;
         }
 
-        public IEngineTable InjectTestTable(TestTable testTable)
+        public IEngineTable InjectTestTable(TestTableDefinition testTable)
         {
             CheckNotDisposed();
 
@@ -361,8 +361,28 @@
             if (table == null)
                 throw new InvalidOperationException();
 
+            // add the rows we were supplied
             foreach (var row in testTable.Rows)
                 table.InsertRow(row);
+
+            // build all the indexes
+            for (int index = 0; index < testTable.IndexCount; index++)
+            {
+                List<(string columnName, bool isDescending)> indexColumnInfos = new ();
+                foreach (var columnName in testTable.IndexColumnNames[index])
+                    indexColumnInfos.Add((columnName, false));
+
+                CreateIndex(testTable.TableName, testTable.IndexNames[index], false, indexColumnInfos);
+            }
+
+            for (int index = 0; index < testTable.UniqueIndexCount; index++)
+            {
+                List<(string columnName, bool isDescending)> indexColumnInfos = new ();
+                foreach (var columnName in testTable.UniqueIndexColumnNames[index])
+                    indexColumnInfos.Add((columnName, false));
+
+                CreateIndex(testTable.TableName, testTable.UniqueIndexNames[index], true, indexColumnInfos);
+            }
 
             table.Commit();
             return table;

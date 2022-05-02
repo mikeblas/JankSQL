@@ -67,6 +67,8 @@ INSERT INTO students(StudentID, StudentName, score, class) VALUES(6, 'Rob', 802,
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
 
+            TestHelpers.InjectTableFiveIndex(engine);
+
             resultSelect.ResultSet.Dump();
         }
     }
