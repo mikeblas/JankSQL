@@ -18,6 +18,7 @@ namespace Tests
             TestHelpers.InjectTableTen(engine);
             TestHelpers.InjectTableStates(engine);
             TestHelpers.InjectTableThree(engine);
+            TestHelpers.InjectTableFiveIndex(engine);
         }
     }
 }

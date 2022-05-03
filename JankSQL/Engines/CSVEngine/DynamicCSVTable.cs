@@ -125,6 +125,11 @@
             return columnNames![n];
         }
 
+        public string? BestIndex(IEnumerable<(string columnName, bool isEquality)> accessColumns)
+        {
+            return null;
+        }
+
         public int ColumnIndex(string columnName)
         {
             FullColumnName fcnMatch = FullColumnName.FromColumnName(columnName);

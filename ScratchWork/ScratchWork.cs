@@ -69,6 +69,39 @@ INSERT INTO students(StudentID, StudentName, score, class) VALUES(6, 'Rob', 802,
 
             TestHelpers.InjectTableFiveIndex(engine);
 
+            var fiveTable = engine.GetEngineTable(FullTableName.FromTableName("fiveindex"));
+            if (fiveTable == null)
+                throw new InternalErrorException("couldn't get table");
+
+            List<(string, bool)> filterColumns = new ();
+            string? str;
+
+            filterColumns.Add(("Col1", true));
+            filterColumns.Add(("Col2", true));
+            str = fiveTable.BestIndex(filterColumns);
+            Console.WriteLine($"[{string.Join(", ", filterColumns.Select(x => x.Item1))}]: index is {str}");
+
+            filterColumns.Clear();
+            filterColumns.Add(("Col1", true));
+            filterColumns.Add(("Col5", true));
+            str = fiveTable.BestIndex(filterColumns);
+            Console.WriteLine($"[{string.Join(", ", filterColumns.Select(x => x.Item1))}]: index is {str}");
+
+            filterColumns.Clear();
+            filterColumns.Add(("Col3", true));
+            filterColumns.Add(("Col2", true));
+            str = fiveTable.BestIndex(filterColumns);
+            Console.WriteLine($"[{string.Join(", ", filterColumns.Select(x => x.Item1))}]: index is {str}");
+
+            filterColumns.Clear();
+            filterColumns.Add(("Col4", true));
+            filterColumns.Add(("Col5", true));
+            filterColumns.Add(("Col1", false));
+            filterColumns.Add(("Col2", false));
+            str = fiveTable.BestIndex(filterColumns);
+            Console.WriteLine($"[{string.Join(", ", filterColumns.Select(x => x.Item1))}]: index is {str}");
+
+
             resultSelect.ResultSet.Dump();
         }
     }

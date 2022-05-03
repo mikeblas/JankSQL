@@ -52,7 +52,7 @@
             keyColumnNames = new FullColumnName[keyNames.Count()];
             valueColumnNames = new FullColumnName[valueNames.Count()];
 
-            columnNameIndexes = new Dictionary<string, int>();
+            columnNameIndexes = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
             int n = 0;
             int keyIndex = 0;
@@ -259,6 +259,69 @@
         public void Rollback()
         {
             myTree.Rollback();
+        }
+
+        public string? BestIndex(IEnumerable<(string columnName, bool isEquality)> accessColumns)
+        {
+            double bestEqualityScore = -1.0;
+            double bestInequalityScore = -1.0;
+            string? bestIndex = null;
+
+            Dictionary<string, bool> columns = new (StringComparer.OrdinalIgnoreCase);
+            foreach (var accessColumn in accessColumns)
+                columns.Add(accessColumn.columnName, accessColumn.isEquality);
+
+            // for each index
+            foreach ((var k, var v) in indexes)
+            {
+                double equalityScore = -1.0;
+                double inequalityScore = -1.0;
+                bool matchingEqualities = true;
+
+                // for each column in that index
+                foreach (var columnInfo in v.def.ColumnInfos)
+                {
+                    // is that in the columns we're considering here?
+                    if (!columns.TryGetValue(columnInfo.columnName, out bool isEquality))
+                    {
+                        // not a match. we're done
+                        break;
+                    }
+
+                    // if this is an equality requirement, and we're done matching equalities,
+                    // we're also as good as done
+                    if (!matchingEqualities && isEquality)
+                        break;
+
+                    // if this is an inequality requirement and we were matching inequalities,
+                    // we transition to ineqialities now.
+                    if (matchingEqualities && !isEquality)
+                        matchingEqualities = false;
+
+                    if (matchingEqualities)
+                    {
+                        if (equalityScore == -1.0)
+                            equalityScore = 0.0;
+                        equalityScore += 1.0 / columns.Count;
+                    }
+                    else
+                    {
+                        if (inequalityScore == -1.0)
+                            inequalityScore = 0.0;
+                        inequalityScore += 1.0 / columns.Count;
+                    }
+                }
+
+                Console.WriteLine($"index {k} has score {equalityScore}, {inequalityScore}");
+                if (equalityScore > bestEqualityScore || (equalityScore == bestEqualityScore && inequalityScore > bestInequalityScore))
+                {
+                    bestEqualityScore = equalityScore;
+                    bestInequalityScore = inequalityScore;
+                    bestIndex = k;
+                }
+            }
+
+            return bestIndex;
         }
 
         public void Dump()

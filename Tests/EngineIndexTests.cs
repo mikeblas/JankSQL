@@ -452,6 +452,68 @@
             // create it again, should fail
             Assert.Throws<ExecutionException>(() => engine.CreateIndex(FullTableName.FromTableName("ten"), "evenNameIndex", false, columnInfos));
         }
+
+        [Test]
+        public void TestBestIndexFirstTwo()
+        {
+            List<(string, bool)> filterColumns = new ();
+            filterColumns.Add(("Col1", true));
+            filterColumns.Add(("Col2", true));
+
+            var fiveTable = engine.GetEngineTable(FullTableName.FromTableName("fiveindex"));
+            Assert.NotNull(fiveTable);
+
+            string? str = fiveTable!.BestIndex(filterColumns);
+            Console.WriteLine($"[{string.Join(", ", filterColumns.Select(x => x.Item1))}]: index is {str}");
+            Assert.AreEqual("FirstTwo", str);
+        }
+
+        [Test]
+        public void TestBestIndexJustOne()
+        {
+            List<(string, bool)> filterColumns = new();
+            filterColumns.Add(("Col1", true));
+            filterColumns.Add(("Col5", true));
+
+            var fiveTable = engine.GetEngineTable(FullTableName.FromTableName("fiveindex"));
+            Assert.NotNull(fiveTable);
+
+            string? str = fiveTable!.BestIndex(filterColumns);
+            Console.WriteLine($"[{string.Join(", ", filterColumns.Select(x => x.Item1))}]: index is {str}");
+            Assert.AreEqual("JustOne", str);
+        }
+
+        [Test]
+        public void TestBestIndexNoMatch()
+        {
+            List<(string, bool)> filterColumns = new();
+            filterColumns.Add(("Col3", true));
+            filterColumns.Add(("Col2", true));
+
+            var fiveTable = engine.GetEngineTable(FullTableName.FromTableName("fiveindex"));
+            Assert.NotNull(fiveTable);
+
+            string? str = fiveTable!.BestIndex(filterColumns);
+            Console.WriteLine($"[{string.Join(", ", filterColumns.Select(x => x.Item1))}]: index is {str}");
+            Assert.IsNull(str, "Didn't expect a match");
+        }
+
+        [Test]
+        public void TestBestIndexEqualityBetter()
+        {
+            List<(string, bool)> filterColumns = new();
+            filterColumns.Add(("Col4", true));
+            filterColumns.Add(("Col5", true));
+            filterColumns.Add(("Col1", false));
+            filterColumns.Add(("Col2", false));
+
+            var fiveTable = engine.GetEngineTable(FullTableName.FromTableName("fiveindex"));
+            Assert.NotNull(fiveTable);
+
+            string? str = fiveTable!.BestIndex(filterColumns);
+            Console.WriteLine($"[{string.Join(", ", filterColumns.Select(x => x.Item1))}]: index is {str}");
+            Assert.AreEqual("LastTwo", str);
+        }
     }
 }
 

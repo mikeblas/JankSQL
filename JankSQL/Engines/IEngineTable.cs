@@ -69,5 +69,13 @@
         void Commit();
 
         void Rollback();
+
+        /// <summary>
+        /// return a string identifying the best index to access this table along the given
+        /// filter, or null if no index is viable.
+        /// </summary>
+        /// <param name="accessColumns">IEnumerable of pairs describing the desired access path.</param>
+        /// <returns>name of index to use, or null if no viable indexed access path.</returns>
+        string? BestIndex(IEnumerable<(string columnName, bool isEquality)> accessColumns);
     }
 }

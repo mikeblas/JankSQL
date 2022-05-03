@@ -58,6 +58,11 @@
         {
             throw new NotImplementedException();
         }
+
+        public string? BestIndex(IEnumerable<(string columnName, bool isEquality)> accessColumns)
+        {
+            return null;
+        }
     }
 }
 

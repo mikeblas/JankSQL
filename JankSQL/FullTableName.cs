@@ -27,6 +27,11 @@
             get { return tableName; }
         }
 
+        public static FullTableName FromTableName(string tableName)
+        {
+            return new FullTableName(tableName);
+        }
+
         public override int GetHashCode()
         {
             int hash = 19;
@@ -112,9 +117,5 @@
             return r;
         }
 
-        internal static FullTableName FromTableName(string tableName)
-        {
-            return new FullTableName(tableName);
-        }
     }
 }
