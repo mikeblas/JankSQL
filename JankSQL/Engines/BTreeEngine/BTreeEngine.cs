@@ -117,6 +117,7 @@
                 foreach (var table in inMemoryTables.Values)
                     table.Dispose();
                 inMemoryTables.Clear();
+
             }
             finally
             {
@@ -246,8 +247,17 @@
             }
 
             // actually create the index
-            //TODO: needs options for persistence
-            table.AddIndex(indexName, isUnique, columnInfos);
+            BPlusTree<Tuple, Tuple>.OptionsV2? options = null;
+            if (basePath != null)
+            {
+                options = new (new TupleSerializer(), new TupleSerializer());
+                options.CreateFile = CreatePolicy.Always;
+                //TODO: make a safe file name from the table name
+                string fileName = Path.Combine(basePath, $"{tableName.TableNameOnly}.{indexName}.jankidx");
+                options.FileName = fileName;
+            }
+
+            table.AddIndex(indexName, isUnique, columnInfos, options);
 
             // a new row for Sysindexes about this index
             Tuple indexesRow = new ()

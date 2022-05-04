@@ -18,12 +18,16 @@
         private readonly ExpressionOperandType[] keyTypes;
         private readonly ExpressionOperandType[] valueTypes;
 
+        // the BTree that implments this table
         private readonly BPlusTree<Tuple, Tuple> myTree;
 
+        // a dictionary of indexes to BTree objects for each index
         private readonly Dictionary<string, (IndexDefinition def, BPlusTree<Tuple, Tuple> index)> indexes = new ();
 
+        // next bookmark ID this table will use
         private int nextBookmark = 1337;
 
+        // were we disposed?
         private bool isDisposed = false;
 
         internal BTreeTable(string tableName, ExpressionOperandType[] keyTypes, IEnumerable<FullColumnName> keyNames, ExpressionOperandType[] valueTypes, IEnumerable<FullColumnName> valueNames, BPlusTree<Tuple, Tuple>.OptionsV2? options)
@@ -345,8 +349,16 @@
         {
             if (!isDisposed)
             {
-                isDisposed = true;
-                myTree.Dispose();
+                try
+                {
+                    foreach ((IndexDefinition indexDef, var indexTree) in indexes.Values)
+                        indexTree.Dispose();
+                    myTree.Dispose();
+                }
+                finally
+                {
+                    isDisposed = true;
+                }
             }
         }
 
@@ -357,12 +369,22 @@
         /// <param name="isUnique">boolean that's true if this new index is meant to be unique.</param>
         /// <param name="columnInfos">descriptions of the columns involved in this index.</param>
         /// <exception cref="ExecutionException">Thrown if an error is encountered when building the index.</exception>
-        internal void AddIndex(string indexName, bool isUnique, IEnumerable<(string columnName, bool isDescending)> columnInfos)
+        internal void AddIndex(string indexName, bool isUnique, IEnumerable<(string columnName, bool isDescending)> columnInfos, BPlusTree<Tuple, Tuple>.OptionsV2? options)
         {
             if (indexes.ContainsKey(indexName))
                 throw new ExecutionException($"Index definition {indexName} already exists");
 
-            var indexTree = new BPlusTree<Tuple, Tuple>(new IExpressionOperandComparer(columnInfos.Select(x => x.isDescending).ToArray()));
+            BPlusTree<Tuple, Tuple> indexTree;
+
+            if (options == null)
+            {
+                indexTree = new BPlusTree<Tuple, Tuple>(new IExpressionOperandComparer(columnInfos.Select(x => x.isDescending).ToArray()));
+            }
+            else
+            {
+                options.KeyComparer = new IExpressionOperandComparer(columnInfos.Select(x => x.isDescending).ToArray());
+                indexTree = new BPlusTree<Tuple, Tuple>(options);
+            }
 
             // enumerate and add
             using var e = myTree.GetEnumerator();
@@ -387,6 +409,7 @@
                 }
                 catch (DuplicateKeyException)
                 {
+                    indexTree.Dispose();
                     throw new ExecutionException($"Duplicate key found when building unique index: {indexKey}");
                 }
             }
