@@ -54,8 +54,8 @@
         {
             Console.WriteLine($"Create {(isUnique ? "UNIQUE" : "non-Unique")} on table {tableName}");
 
-            foreach (var t in columnInfo)
-                Console.WriteLine($"   {t.columnName}: {(t.isDescending ? "DESCENDING" : "ASCENDING")}");
+            foreach (var (columnName, isDescending) in columnInfo)
+                Console.WriteLine($"   {columnName}: {(isDescending ? "DESCENDING" : "ASCENDING")}");
         }
 
         internal void AddColumn(string columnName, bool isDescending)

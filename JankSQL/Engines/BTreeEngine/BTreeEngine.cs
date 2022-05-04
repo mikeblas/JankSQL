@@ -118,6 +118,7 @@
                     table.Dispose();
                 inMemoryTables.Clear();
 
+                GC.SuppressFinalize(this);
             }
             finally
             {

@@ -351,7 +351,7 @@
             {
                 try
                 {
-                    foreach ((IndexDefinition indexDef, var indexTree) in indexes.Values)
+                    foreach ((IndexDefinition _, var indexTree) in indexes.Values)
                         indexTree.Dispose();
                     myTree.Dispose();
                 }
