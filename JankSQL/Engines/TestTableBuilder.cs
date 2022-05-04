@@ -5,13 +5,13 @@
     public class TestTableBuilder
     {
         private readonly List<FullColumnName> columnNames = new ();
+        private readonly List<List<string>> indexes = new ();
+        private readonly List<List<string>> uniqueIndexes = new ();
+        private readonly List<string> indexNames = new ();
+        private readonly List<string> uniqueIndexNames = new ();
+
         private List<object?[]>? rows;
         private List<ExpressionOperandType>? columnTypes;
-        private List<List<string>> indexes = new ();
-        private List<List<string>> uniqueIndexes = new ();
-        private List<string> indexNames = new ();
-        private List<string> uniqueIndexNames = new ();
-
         private FullTableName? tableName;
 
         public static TestTableBuilder NewBuilder()

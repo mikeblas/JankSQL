@@ -9,6 +9,11 @@
             this.str = str;
         }
 
+        internal bool IsEquality
+        {
+            get { return str == "="; }
+        }
+
         public override string ToString()
         {
             return str;

@@ -102,21 +102,51 @@
 
         static public void InjectTableFiveIndex(Engines.IEngine engine)
         {
-
-            Engines.TestTableDefinition tt = Engines.TestTableBuilder.NewBuilder()
-                .WithTableName("fiveindex")
-                .WithColumnNames(new string[] { "Col1", "Col2", "Col3", "Col4", "Col5" })
-                .WithColumnTypes(new ExpressionOperandType[] { INTEGER, INTEGER, INTEGER, INTEGER, INTEGER })
-                .WithRow(new object[] { 0, 0, 0, 0, 0 })
-                .WithIndex("JustOne", new string[] { "Col1" })
-                .WithIndex("FirstTwo", new string[] { "Col1", "Col2" })
-                .WithIndex("LastTwo", new string[] { "Col4", "Col5" })
-                .WithIndex("AnyTwo", new string[] { "Col5", "Col3" })
-                .Build();
-
+            Engines.TestTableBuilder ttb = MakeFiveIndexBuilder();
+            Engines.TestTableDefinition tt = ttb.Build();
             engine.InjectTestTable(tt);
         }
 
+
+        static public void InjectTableFiveIndexPopulated(Engines.IEngine engine)
+        {
+            Engines.TestTableBuilder ttb = MakeFiveIndexBuilder();
+
+            for (int c1 = 1; c1 <= 10; c1++)
+            {
+                for (int c2 = 1; c2 <= 10; c2++)
+                {
+                    for (int c3 = 1; c3 <= 10; c3++)
+                    {
+                        for (int c4 = 1; c4 <= 10; c4++)
+                        {
+                            for (int c5 = 1; c5 <= 10; c5++)
+                            {
+                                ttb.WithRow(new object[] { c1, c2, c3, c4, c5 });
+                            }
+                        }
+                    }
+                }
+            }
+
+            Engines.TestTableDefinition tt = ttb.Build();
+            engine.InjectTestTable(tt);
+        }
+
+
+        static private Engines.TestTableBuilder MakeFiveIndexBuilder()
+        {
+            Engines.TestTableBuilder ttb = Engines.TestTableBuilder.NewBuilder()
+                .WithTableName("fiveindex")
+                .WithColumnNames(new string[] { "Col1", "Col2", "Col3", "Col4", "Col5" })
+                .WithColumnTypes(new ExpressionOperandType[] { INTEGER, INTEGER, INTEGER, INTEGER, INTEGER })
+                .WithIndex("JustOne", new string[] { "Col1" })
+                .WithIndex("FirstTwo", new string[] { "Col1", "Col2" })
+                .WithIndex("LastTwo", new string[] { "Col4", "Col5" })
+                .WithIndex("AnyTwo", new string[] { "Col5", "Col3" });
+
+            return ttb;
+        }
 
         static public void InjectTableKiloLeft(Engines.IEngine engine)
         {

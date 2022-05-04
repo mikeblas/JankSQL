@@ -456,6 +456,8 @@
         [Test]
         public void TestBestIndexFirstTwo()
         {
+            TestHelpers.InjectTableFiveIndex(engine);
+
             List<(string, bool)> filterColumns = new ();
             filterColumns.Add(("Col1", true));
             filterColumns.Add(("Col2", true));
@@ -471,6 +473,8 @@
         [Test]
         public void TestBestIndexJustOne()
         {
+            TestHelpers.InjectTableFiveIndex(engine);
+
             List<(string, bool)> filterColumns = new();
             filterColumns.Add(("Col1", true));
             filterColumns.Add(("Col5", true));
@@ -486,6 +490,8 @@
         [Test]
         public void TestBestIndexNoMatch()
         {
+            TestHelpers.InjectTableFiveIndex(engine);
+
             List<(string, bool)> filterColumns = new();
             filterColumns.Add(("Col3", true));
             filterColumns.Add(("Col2", true));
@@ -501,6 +507,8 @@
         [Test]
         public void TestBestIndexEqualityBetter()
         {
+            TestHelpers.InjectTableFiveIndex(engine);
+
             List<(string, bool)> filterColumns = new();
             filterColumns.Add(("Col4", true));
             filterColumns.Add(("Col5", true));
