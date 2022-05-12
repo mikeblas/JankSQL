@@ -16,6 +16,10 @@
             return "SUBSELECT";
         }
 
+        internal override void EvaluateContained(Stack<ExpressionOperand> stack)
+        {
+            throw new SemanticErrorException("Can't use SUBELECT in this context");
+        }
         internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
         {
             if (accessor == null)

@@ -14,7 +14,7 @@
             return isNotBetween ? "NOT BETWEEN" : "BETWEEN";
         }
 
-        internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
+        internal override void EvaluateContained(Stack<ExpressionOperand> stack)
         {
             bool result;
             ExpressionOperand right = stack.Pop();
@@ -28,9 +28,11 @@
 
             stack.Push(new ExpressionOperandBoolean(result));
         }
+
+        internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
+        {
+            EvaluateContained(stack);
+        }
     }
 }
-
-
-
 

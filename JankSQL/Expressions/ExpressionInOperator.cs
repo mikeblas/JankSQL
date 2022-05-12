@@ -41,6 +41,11 @@
             stack.Push(r);
         }
 
+        internal override void EvaluateContained(Stack<ExpressionOperand> stack)
+        {
+            throw new SemanticErrorException("Can't use IN operator here");
+        }
+
         protected bool EvaluateTargets(Engines.IEngine engine, IRowValueAccessor accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
         {
             bool result = false;

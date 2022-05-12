@@ -15,6 +15,11 @@
             return $"BindValue({targetName}";
         }
 
+        internal override void EvaluateContained(Stack<ExpressionOperand> stack)
+        {
+            throw new SemanticErrorException($"Can't use bind value {targetName} here");
+        }
+
         internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
         {
             if (!bindValues.TryGetValue(targetName, out bindValue))

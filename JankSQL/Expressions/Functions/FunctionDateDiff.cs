@@ -77,6 +77,11 @@
 
         internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
         {
+            EvaluateContained(stack);
+        }
+
+        internal override void EvaluateContained(Stack<ExpressionOperand> stack)
+        {
             ExpressionOperand dateRight = stack.Pop();
             ExpressionOperand dateLeft = stack.Pop();
 

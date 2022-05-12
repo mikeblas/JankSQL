@@ -21,6 +21,11 @@
             return "CASE Operator";
         }
 
+        internal override void EvaluateContained(Stack<ExpressionOperand> stack)
+        {
+            throw new SemanticErrorException($"can't use CASE operator in this context");
+        }
+
         internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
         {
             if (accessor == null)

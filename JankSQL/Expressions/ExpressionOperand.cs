@@ -190,7 +190,12 @@
                 stream.WriteByte(0);
         }
 
-        internal override void Evaluate(IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
+        internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
+        {
+            EvaluateContained(stack);
+        }
+
+        internal override void EvaluateContained(Stack<ExpressionOperand> stack)
         {
             stack.Push(this);
         }

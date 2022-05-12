@@ -75,5 +75,24 @@
 
             return result;
         }
+
+        internal ExpressionOperand EvaluateContained()
+        {
+            Stack<ExpressionOperand> stack = new ();
+
+            do
+            {
+                foreach (ExpressionNode n in this)
+                    n.Evaluate(null, null, stack, null);
+            }
+            while (stack.Count > 1);
+
+            ExpressionOperand result = (ExpressionOperand)stack.Pop();
+
+            // Console.WriteLine($"EvaluateContained {this} ==> [{result}]");
+
+            return result;
+        }
+
     }
 }

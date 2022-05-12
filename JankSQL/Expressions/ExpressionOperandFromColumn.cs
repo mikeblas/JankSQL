@@ -40,6 +40,11 @@
             return $"FromColumn({columnName})";
         }
 
+        internal override void EvaluateContained(Stack<ExpressionOperand> stack)
+        {
+            throw new SemanticErrorException($"Can't provide column value {ColumnName} in this context");
+        }
+
         internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
         {
             // value from a column

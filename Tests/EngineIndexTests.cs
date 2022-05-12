@@ -607,6 +607,50 @@
             // 1000 rows, right?
             Assert.AreEqual(1_000, threesFound);
         }
+
+
+
+        [Test]
+        public void TestIndexPredicateEqualityGreaterTwoAccessor()
+        {
+            TestHelpers.InjectTableFiveIndexPopulated(engine);
+
+            // get our table
+            Engines.IEngineTable? t = engine.GetEngineTable(FullTableName.FromTableName("fiveindex"));
+            Assert.IsNotNull(t);
+
+            // JustOne has a single column; get it where it equals 3
+            var comparisonOperators = new List<ExpressionComparisonOperator>()
+            {
+                new ExpressionComparisonOperator("="),
+                new ExpressionComparisonOperator(">")
+            };
+
+            List<Expression> predicates = new()
+            {
+                new Expression { ExpressionOperand.IntegerFromInt(5) },
+                new Expression { ExpressionOperand.IntegerFromInt(3) },
+            };
+
+            // the accessor for that should generate 10,000 rows, all with the keys of 5 and 3 on the first two columns
+            // and a payload that has a bookmark which goes back to a row in the table
+            var idx = t!.PredicateIndex("firsttwo", comparisonOperators, predicates);
+            int threesFound = 0;
+            foreach (var row in idx!)
+            {
+                threesFound += 1;
+                Assert.AreEqual(5, row.RowData[0].AsInteger());
+                Assert.AreEqual(3, row.RowData[1].AsInteger());
+
+                var wholeRow = t.RowFromBookmark(row.Bookmark);
+                Assert.AreEqual(5, wholeRow[0].AsInteger());
+                Assert.AreEqual(3, wholeRow[1].AsInteger());
+                // Console.WriteLine($"{row.RowData} --> {row.Bookmark} --> {wholeRow}");
+            }
+
+            // 1000 rows, right?
+            Assert.AreEqual(1_000, threesFound);
+        }
     }
 }
 
