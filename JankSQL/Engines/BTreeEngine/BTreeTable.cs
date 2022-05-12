@@ -79,7 +79,7 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="BTreeTable"/> class as a heap.
         /// Creates a "heap" table with no unique index. Our approach to this is a table that has a fake
-        /// "uniquifier" key as its bookmar_key. That single-column bookmark key maps to the values,
+        /// "uniquifier" key as its bookmark_key. That single-column bookmark key maps to the values,
         /// which are all the columns given.
         /// </summary>
         /// <param name="tableName">string with the name of our table.</param>

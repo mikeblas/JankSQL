@@ -28,7 +28,7 @@ On the other hand, we can expect that I'll want to extend the grammar to support
 
 ### Storage
 
-The storage engine is based on the [CSharpTest.Net](https://github.com/csharptest/CSharpTest.Net.Collections) B-Tree implementation. The engines are pluggable through the `IEngine` and `IEngineTable` interfaces. Implementations for in-memory and on-disk storage against the CSharpTest B-Tree are supplied. A limited implementation against a CSV flat-file is also supplied.
+The storage engine is based on the p. The engines are pluggable through the `IEngine` and `IEngineTable` interfaces. Implementations for in-memory and on-disk storage against the CSharpTest B-Tree are supplied. A limited implementation against a CSV flat-file is also supplied.
 
 ### Tests
 
@@ -65,6 +65,9 @@ The project is buildable, and I intend that the main branch always has all of it
 
 There are lots of language features being added as I work, so the best way to see what's supported is to scan through the tests.
 
+# Documentation
+
+I've started writing [documentation](docs/index.md).
 
 # Licensing
 
