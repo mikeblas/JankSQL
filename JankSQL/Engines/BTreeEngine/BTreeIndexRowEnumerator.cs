@@ -9,10 +9,32 @@
         private readonly IEnumerator<KeyValuePair<Tuple, Tuple>> treeEnumerator;
         private readonly IndexDefinition def;
 
+        private readonly ExpressionComparisonOperator[]? comparisons;
+        private readonly Expression[]? expressions;
+
         internal BTreeIndexRowEnumerator(BPlusTree<Tuple, Tuple> tree, IndexDefinition indexDefinition)
         {
             treeEnumerator = tree.GetEnumerator();
             def = indexDefinition;
+        }
+
+        internal BTreeIndexRowEnumerator(BPlusTree<Tuple, Tuple> tree, IndexDefinition indexDefinition, ExpressionComparisonOperator[] comparisons, Expression[] expressions)
+        {
+            def = indexDefinition;
+
+            this.expressions = expressions.ToArray();
+            this.comparisons = comparisons.ToArray();
+
+            Tuple startKey = Tuple.CreateEmpty(this.expressions.Length + (def.IsUnique ? 0 : 1));
+
+            for (int i = 0; i < this.expressions.Length; i++)
+                startKey[i] = this.expressions[i].Evaluate(null, null, null);
+
+            // add a bookmark to the key
+            if (!def.IsUnique)
+                startKey[this.expressions.Length] = ExpressionOperand.IntegerFromInt(0);
+
+            treeEnumerator = (IEnumerator<KeyValuePair<Tuple, Tuple>>)tree.EnumerateFrom(startKey);
         }
 
         public RowWithBookmark Current
@@ -43,7 +65,27 @@
 
         public bool MoveNext()
         {
-            return treeEnumerator.MoveNext();
+            bool ret = treeEnumerator.MoveNext();
+
+            if (expressions != null && ret)
+            {
+                // see if this still matches the key
+                bool fullMatch = true;
+
+                for (int i = 0; i < expressions.Length; i++)
+                {
+                    ExpressionOperand x = this.expressions[i].Evaluate(null, null, null);
+                    if (!comparisons![i].DirectEvaluate(treeEnumerator.Current.Key[i], x))
+                    {
+                        fullMatch = false;
+                        break;
+                    }
+                }
+
+                ret = fullMatch;
+            }
+
+            return ret;
         }
 
         public void Reset()

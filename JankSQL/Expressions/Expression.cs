@@ -4,7 +4,7 @@
     using JankSQL.Expressions;
 
     [DebuggerDisplay("Expression = {ToString()}")]
-    internal class Expression : List<ExpressionNode>, IEquatable<Expression>
+    public class Expression : List<ExpressionNode>, IEquatable<Expression>
     {
         internal Expression()
         {

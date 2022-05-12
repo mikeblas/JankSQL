@@ -284,8 +284,6 @@
                 index++;
             }
 
-            sysIndexes.Dump();
-            sysIndexColumns.Dump();
             sysIndexes.Commit();
             sysIndexColumns.Commit();
         }
@@ -396,6 +394,10 @@
             }
 
             table.Commit();
+
+            sysIndexes.Dump();
+            sysIndexColumns.Dump();
+
             return table;
         }
 

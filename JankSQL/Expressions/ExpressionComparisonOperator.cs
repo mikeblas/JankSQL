@@ -1,6 +1,6 @@
 ﻿namespace JankSQL.Expressions
 {
-    internal class ExpressionComparisonOperator : ExpressionNode
+    public class ExpressionComparisonOperator : ExpressionNode
     {
         private readonly string str;
 
@@ -21,9 +21,17 @@
 
         internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
         {
-            bool result;
             ExpressionOperand right = stack.Pop();
             ExpressionOperand left = stack.Pop();
+
+            bool result = DirectEvaluate(left, right);
+
+            stack.Push(new ExpressionOperandBoolean(result));
+        }
+
+        internal bool DirectEvaluate(ExpressionOperand left, ExpressionOperand right)
+        {
+            bool result;
 
             if (str == ">")
                 result = left.OperatorGreaterThan(right);
@@ -40,7 +48,7 @@
             else
                 throw new NotImplementedException($"ExpressionComparisonOperator: no implementation for {str}");
 
-            stack.Push(new ExpressionOperandBoolean(result));
+            return result;
         }
     }
 }

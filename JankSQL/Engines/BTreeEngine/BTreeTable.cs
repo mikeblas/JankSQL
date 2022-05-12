@@ -22,7 +22,7 @@
         private readonly BPlusTree<Tuple, Tuple> myTree;
 
         // a dictionary of indexes to BTree objects for each index
-        private readonly Dictionary<string, (IndexDefinition def, BPlusTree<Tuple, Tuple> index)> indexes = new ();
+        private readonly Dictionary<string, (IndexDefinition def, BPlusTree<Tuple, Tuple> index)> indexes = new (StringComparer.InvariantCultureIgnoreCase);
 
         // next bookmark ID this table will use
         private int nextBookmark = 1337;
@@ -167,6 +167,15 @@
             return new IndexAccessor(o.def, o.index);
         }
 
+        public IndexAccessor? PredicateIndex(string indexName, IEnumerable<ExpressionComparisonOperator> comparisons, IEnumerable<Expression> expressions)
+        {
+            if (!indexes.TryGetValue(indexName, out (IndexDefinition def, BPlusTree<Tuple, Tuple> index) o))
+                return null;
+
+            return new IndexAccessor(o.def, o.index, comparisons, expressions);
+        }
+
+
         public int DeleteRows(List<ExpressionOperandBookmark> bookmarksToDelete)
         {
             // nothing to delete?
@@ -246,8 +255,16 @@
                 indexTree.Add(indexKey, heapKey);
             }
 
+            /*
             if (indexes.Count > 0)
                 Dump();
+            */
+        }
+
+        public Tuple RowFromBookmark(ExpressionOperandBookmark bmk)
+        {
+            Tuple t = myTree[bmk.Tuple];
+            return t;
         }
 
         public void TruncateTable()
@@ -258,11 +275,15 @@
         public void Commit()
         {
             myTree.Commit();
+            foreach ((IndexDefinition _, var indexTree) in indexes.Values)
+                indexTree.Commit();
         }
 
         public void Rollback()
         {
             myTree.Rollback();
+            foreach ((IndexDefinition _, var indexTree) in indexes.Values)
+                indexTree.Rollback();
         }
 
         public string? BestIndex(IEnumerable<(string columnName, bool isEquality)> accessColumns)
@@ -272,8 +293,8 @@
             string? bestIndex = null;
 
             Dictionary<string, bool> columns = new (StringComparer.OrdinalIgnoreCase);
-            foreach (var accessColumn in accessColumns)
-                columns.Add(accessColumn.columnName, accessColumn.isEquality);
+            foreach (var (columnName, isEquality) in accessColumns)
+                columns.Add(columnName, isEquality);
 
             // for each index
             foreach ((var k, var v) in indexes)
@@ -417,7 +438,7 @@
             // add the new index definition and its corresponding tree
             indexes.Add(indexName, (def, indexTree));
 
-            Dump();
+            // Dump();
         }
     }
 }

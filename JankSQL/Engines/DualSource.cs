@@ -27,6 +27,11 @@
             throw new NotImplementedException();
         }
 
+        public Tuple RowFromBookmark(ExpressionOperandBookmark bmk)
+        {
+            throw new NotImplementedException();
+        }
+
         public int DeleteRows(List<ExpressionOperandBookmark> bookmarksToDelete)
         {
             throw new NotImplementedException();
@@ -45,6 +50,11 @@
         }
 
         public IndexAccessor Index(string indexName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IndexAccessor? PredicateIndex(string indexName, IEnumerable<ExpressionComparisonOperator> comparisons, IEnumerable<Expression> expressions)
         {
             throw new NotImplementedException();
         }

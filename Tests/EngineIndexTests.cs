@@ -3,6 +3,7 @@
     using NUnit.Framework;
 
     using JankSQL;
+    using JankSQL.Expressions;
     using Engines = JankSQL.Engines;
 
     abstract public class EngineIndexTests
@@ -521,6 +522,90 @@
             string? str = fiveTable!.BestIndex(filterColumns);
             Console.WriteLine($"[{string.Join(", ", filterColumns.Select(x => x.Item1))}]: index is {str}");
             Assert.AreEqual("LastTwo", str);
+        }
+
+        [Test]
+        public void TestIndexPredicateEqualityAccessor()
+        {
+            TestHelpers.InjectTableFiveIndexPopulated(engine);
+
+            // get our table
+            Engines.IEngineTable? t = engine.GetEngineTable(FullTableName.FromTableName("fiveindex"));
+            Assert.IsNotNull(t);
+
+            // JustOne has a single column; get it where it equals 3
+            var comparisonOperators = new List<ExpressionComparisonOperator>()
+            {
+                new ExpressionComparisonOperator("=")
+            };
+
+            var predicate = new Expression
+            {
+                ExpressionOperand.IntegerFromInt(3),
+            };
+
+            List<Expression> predicates = new ();
+            predicates.Add(predicate);
+
+            // the accessor for that should generate 10,000 rows, all with the key of 3
+            // and a payload that has a bookmark which goes back to a row in the table
+            var idx = t!.PredicateIndex("JustOne", comparisonOperators, predicates);
+            int threesFound = 0;
+            foreach (var row in idx!)
+            {
+                threesFound += 1;
+                Assert.AreEqual(3, row.RowData[0].AsInteger());
+
+                var wholeRow = t.RowFromBookmark(row.Bookmark);
+                Assert.AreEqual(3, wholeRow[0].AsInteger());
+                // Console.WriteLine($"{row.RowData} --> {row.Bookmark} --> {wholeRow}");
+            }
+
+            // 10000 rows, right?
+            Assert.AreEqual(10_000, threesFound);
+        }
+
+
+        [Test]
+        public void TestIndexPredicateEqualityTwoAccessor()
+        {
+            TestHelpers.InjectTableFiveIndexPopulated(engine);
+
+            // get our table
+            Engines.IEngineTable? t = engine.GetEngineTable(FullTableName.FromTableName("fiveindex"));
+            Assert.IsNotNull(t);
+
+            // JustOne has a single column; get it where it equals 3
+            var comparisonOperators = new List<ExpressionComparisonOperator>()
+            {
+                new ExpressionComparisonOperator("="),
+                new ExpressionComparisonOperator("=")
+            };
+
+            List<Expression> predicates = new()
+            {
+                new Expression { ExpressionOperand.IntegerFromInt(5) },
+                new Expression { ExpressionOperand.IntegerFromInt(3) },
+            };
+
+            // the accessor for that should generate 10,000 rows, all with the keys of 5 and 3 on the first two columns
+            // and a payload that has a bookmark which goes back to a row in the table
+            var idx = t!.PredicateIndex("firsttwo", comparisonOperators, predicates);
+            int threesFound = 0;
+            foreach (var row in idx!)
+            {
+                threesFound += 1;
+                Assert.AreEqual(5, row.RowData[0].AsInteger());
+                Assert.AreEqual(3, row.RowData[1].AsInteger());
+
+                var wholeRow = t.RowFromBookmark(row.Bookmark);
+                Assert.AreEqual(5, wholeRow[0].AsInteger());
+                Assert.AreEqual(3, wholeRow[1].AsInteger());
+                // Console.WriteLine($"{row.RowData} --> {row.Bookmark} --> {wholeRow}");
+            }
+
+            // 1000 rows, right?
+            Assert.AreEqual(1_000, threesFound);
         }
     }
 }

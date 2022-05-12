@@ -1,14 +1,49 @@
 ﻿
 namespace JankSQL
 {
-
+    using JankSQL.Expressions;
     using Tests;
 
     internal class ScratchWork
     {
         public static void Main()
         {
-            Test2();
+            Test5();
+
+            // Test2();
+        }
+
+        public static void Test5()
+        {
+            var engine = Engines.BTreeEngine.CreateInMemory();
+
+            TestHelpers.InjectTableFiveIndexPopulated(engine);
+
+            // get our table
+            Engines.IEngineTable? t = engine.GetEngineTable(FullTableName.FromTableName("fiveindex"));
+
+            // JustOne has a single column; get it where it equals 3
+
+            var comparisonOperators = new List<ExpressionComparisonOperator>()
+            {
+                new ExpressionComparisonOperator("=")
+            };
+
+            var predicate = new Expression
+            {
+                ExpressionOperand.IntegerFromInt(3),
+            };
+
+            List<Expression> predicates = new();
+            predicates.Add(predicate);
+
+            var idx = t!.PredicateIndex("JustOne", comparisonOperators, predicates);
+
+            foreach (var indexRow in idx)
+            {
+                Tuple tableRow = t.RowFromBookmark(indexRow.Bookmark);
+                Console.WriteLine($"  key = {indexRow.RowData[0]} --> {tableRow}");
+            }
         }
 
         public static void Test2()

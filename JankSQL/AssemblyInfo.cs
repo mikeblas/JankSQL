@@ -16,3 +16,4 @@ using System.Runtime.InteropServices;
 //  https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.internalsvisibletoattribute?view=net-6.0
 //  https://softwareengineering.stackexchange.com/questions/126545/would-you-rather-make-private-stuff-internal-public-for-tests-or-use-some-kind
 [assembly: InternalsVisibleToAttribute("Tests")]
+[assembly: InternalsVisibleToAttribute("ScratchWork")]

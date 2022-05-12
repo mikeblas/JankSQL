@@ -46,6 +46,18 @@
         /// <returns>IndexAccessor object for the index, null if not found.</returns>
         IndexAccessor? Index(string indexName);
 
+        /// <summary>
+        /// Get an IndexAccessor filtered to match the expression list. The expression list
+        /// has a one-to-one correlation to the column list in the index. Only values matching the expresions
+        /// with the given comparison operators will be returned.  An operator of "=" and an expression
+        /// of "=" for the first column will return only rows matching 3 on that first column.
+        /// </summary>
+        /// <param name="indexName">string with a name of the index to retrieve.</param>
+        /// <param name="comparisons">list of comparisons.</param>
+        /// <param name="expressions">list of expression values.</param>
+        /// <returns>IndexAccessor object for the index, null if not found.</returns>
+        IndexAccessor? PredicateIndex(string indexName, IEnumerable<ExpressionComparisonOperator> comparisons, IEnumerable<Expression> expressions);
+
         // === data manipulation
 
         /// <summary>
@@ -66,8 +78,14 @@
         /// <returns>integer count of the number of rows actually deleted.</returns>
         int DeleteRows(List<ExpressionOperandBookmark> bookmarksToDelete);
 
+        /// <summary>
+        /// Commits all changes to this table.
+        /// </summary>
         void Commit();
 
+        /// <summary>
+        /// Rolls back all changes to this table.
+        /// </summary>
         void Rollback();
 
         /// <summary>
@@ -77,5 +95,12 @@
         /// <param name="accessColumns">IEnumerable of pairs describing the desired access path.</param>
         /// <returns>name of index to use, or null if no viable indexed access path.</returns>
         string? BestIndex(IEnumerable<(string columnName, bool isEquality)> accessColumns);
+
+        /// <summary>
+        /// Get a row given a bookmark tuple.
+        /// </summary>
+        /// <param name="bmk">ExpressionOperandBookmark to be retrieved.</param>
+        /// <returns>Tuple value from that bookmark.</returns>
+        Tuple RowFromBookmark(ExpressionOperandBookmark bmk);
     }
 }

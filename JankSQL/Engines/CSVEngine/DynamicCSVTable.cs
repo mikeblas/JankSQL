@@ -120,6 +120,16 @@
             throw new NotImplementedException();
         }
 
+        public IndexAccessor? PredicateIndex(string indexName, IEnumerable<ExpressionComparisonOperator> comparisons, IEnumerable<Expression> expressions)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Tuple RowFromBookmark(ExpressionOperandBookmark bmk)
+        {
+            throw new NotImplementedException();
+        }
+
         public FullColumnName ColumnName(int n)
         {
             return columnNames![n];
