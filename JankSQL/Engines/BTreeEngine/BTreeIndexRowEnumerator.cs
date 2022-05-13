@@ -27,8 +27,9 @@
 
             Tuple startKey = Tuple.CreateEmpty(this.expressions.Length + (def.IsUnique ? 0 : 1));
 
+            // compute the matching values for the expressions
             for (int i = 0; i < this.expressions.Length; i++)
-                startKey[i] = this.expressions[i].Evaluate(null, null, null);
+                startKey[i] = this.expressions[i].EvaluateContained();
 
             // add a bookmark to the key
             if (!def.IsUnique)
