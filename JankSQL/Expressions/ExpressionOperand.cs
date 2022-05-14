@@ -3,15 +3,20 @@
     using JankSQL.Engines;
     using JankSQL.Expressions;
 
+    internal enum LimitMarkerType
+    {
+        LOWEST_POSSIBLE,
+        HIGHEST_POSSIBLE,
+    }
+
     public abstract class ExpressionOperand : ExpressionNode, ICloneable, IComparable<ExpressionOperand>
     {
         private readonly ExpressionOperandType nodeType;
 
-        internal ExpressionOperand(ExpressionOperandType t)
+        internal ExpressionOperand(ExpressionOperandType nodeType)
         {
-            nodeType = t;
+            this.nodeType = nodeType;
         }
-
 
         public ExpressionOperandType NodeType
         {
@@ -148,6 +153,16 @@
             throw new ArgumentException($"Can't make ExpressionOperand of {opType} out of {o.GetType()}");
         }
 
+        internal static ExpressionOperand LowestPossible()
+        {
+            return new ExpressionOperandLimitMarker(LimitMarkerType.LOWEST_POSSIBLE);
+        }
+
+        internal static ExpressionOperand HighestPossible()
+        {
+            return new ExpressionOperandLimitMarker(LimitMarkerType.HIGHEST_POSSIBLE);
+        }
+
         internal static ExpressionOperandType IntegerOrDecimal(string str)
         {
             if (str.IndexOf('.') != -1)
@@ -190,7 +205,7 @@
                 stream.WriteByte(0);
         }
 
-        internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
+        internal override void Evaluate(IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
         {
             EvaluateContained(stack);
         }

@@ -319,6 +319,10 @@
         {
             if (other == null)
                 throw new ArgumentNullException(nameof(other));
+
+            if (other.NodeType == ExpressionOperandType.LIMITMARKER)
+                return -other.CompareTo(this);
+
             ExpressionOperandInteger o = (ExpressionOperandInteger)other;
 
             return CompareTo(o);

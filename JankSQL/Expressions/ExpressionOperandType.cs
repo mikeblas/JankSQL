@@ -8,6 +8,7 @@
         DECIMAL,
         BOOLEAN,
         DATETIME,
+        LIMITMARKER,
     }
 }
 

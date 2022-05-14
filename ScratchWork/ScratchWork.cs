@@ -28,7 +28,7 @@ namespace JankSQL
             var comparisonOperators = new List<ExpressionComparisonOperator>()
             {
                 new ExpressionComparisonOperator("="),
-                new ExpressionComparisonOperator(">")
+                new ExpressionComparisonOperator("<=")
             };
 
             List<Expression> predicates = new()

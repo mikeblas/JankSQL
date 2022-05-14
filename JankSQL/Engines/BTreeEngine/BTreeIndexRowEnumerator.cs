@@ -29,7 +29,12 @@
 
             // compute the matching values for the expressions
             for (int i = 0; i < this.expressions.Length; i++)
-                startKey[i] = this.expressions[i].EvaluateContained();
+            {
+                if (comparisons[i].IsEquality)
+                    startKey[i] = this.expressions[i].EvaluateContained();
+                else
+                    startKey[i] = ExpressionOperand.LowestPossible();
+            }
 
             // add a bookmark to the key
             if (!def.IsUnique)
@@ -75,7 +80,7 @@
 
                 for (int i = 0; i < expressions.Length; i++)
                 {
-                    ExpressionOperand x = this.expressions[i].Evaluate(null, null, null);
+                    ExpressionOperand x = this.expressions[i].EvaluateContained();
                     if (!comparisons![i].DirectEvaluate(treeEnumerator.Current.Key[i], x))
                     {
                         fullMatch = false;

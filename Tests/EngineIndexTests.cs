@@ -623,7 +623,7 @@
             var comparisonOperators = new List<ExpressionComparisonOperator>()
             {
                 new ExpressionComparisonOperator("="),
-                new ExpressionComparisonOperator(">")
+                new ExpressionComparisonOperator("<")
             };
 
             List<Expression> predicates = new()
@@ -636,20 +636,21 @@
             // and a payload that has a bookmark which goes back to a row in the table
             var idx = t!.PredicateIndex("firsttwo", comparisonOperators, predicates);
             int threesFound = 0;
+
             foreach (var row in idx!)
             {
                 threesFound += 1;
                 Assert.AreEqual(5, row.RowData[0].AsInteger());
-                Assert.AreEqual(3, row.RowData[1].AsInteger());
+                Assert.That(row.RowData[1].AsInteger(), Is.AnyOf(1, 2));
 
                 var wholeRow = t.RowFromBookmark(row.Bookmark);
                 Assert.AreEqual(5, wholeRow[0].AsInteger());
-                Assert.AreEqual(3, wholeRow[1].AsInteger());
+                Assert.That(row.RowData[1].AsInteger(), Is.AnyOf(1, 2));
                 // Console.WriteLine($"{row.RowData} --> {row.Bookmark} --> {wholeRow}");
             }
 
-            // 1000 rows, right?
-            Assert.AreEqual(1_000, threesFound);
+            // 2000 rows, right? (5,1,x,x,x) thru (5,2,x,x,x)
+            Assert.AreEqual(2_000, threesFound);
         }
     }
 }
