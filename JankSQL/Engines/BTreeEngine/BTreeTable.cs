@@ -38,9 +38,7 @@
                 throw new ArgumentException("valueTypes length doesn't match valueNames length");
 
             if (options == null)
-            {
                 myTree = new BPlusTree<Tuple, Tuple>(new IExpressionOperandComparer());
-            }
             else
             {
                 options.KeyComparer = new IExpressionOperandComparer();
@@ -160,10 +158,7 @@
                 return null;
 
             foreach (var row in o.index)
-            {
                 Console.WriteLine($"RawIndex: {row.Key}: {row.Value}");
-            }
-
             return new IndexAccessor(o.def, o.index);
         }
 
