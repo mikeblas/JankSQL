@@ -5,13 +5,14 @@
 
     internal class SelectContext : IExecutableContext
     {
-        private readonly TSqlParser.Select_statementContext statementContext;
+        private readonly TSqlParser.Query_specificationContext querySpecification;
 
         private readonly List<JoinContext> joinContexts = new ();
         private readonly List<AggregateContext> aggregateContexts = new ();
         private readonly List<Expression> groupByExpressions = new ();
         private readonly SelectListContext selectListContext;
         private readonly HashSet<string> tableNames = new (StringComparer.OrdinalIgnoreCase);
+        private readonly List<(UnionType ut, SelectContext selectContext)> unionContexts = new ();
 
         // for WHERE clauses
         private readonly PredicateContext? predicateContext;
@@ -24,11 +25,11 @@
 
         private string? derivedTableAlias;
 
-        internal SelectContext(TSqlParser.Select_statementContext context, PredicateContext? predicateContext)
+        internal SelectContext(TSqlParser.Query_specificationContext context, PredicateContext? predicateContext)
         {
-            statementContext = context;
+            querySpecification = context;
             this.predicateContext = predicateContext;
-            selectListContext = new SelectListContext(context.query_expression().query_specification().select_list());
+            selectListContext = new SelectListContext(querySpecification.select_list());
 
             sourceTableName = null;
             orderByContext = null;
@@ -64,9 +65,10 @@
             set { inputContext = value; }
         }
 
+
         public object Clone()
         {
-            SelectContext clone = new (statementContext, predicateContext);
+            SelectContext clone = new (querySpecification, predicateContext);
 
             clone.inputContext = inputContext != null ? (SelectContext)inputContext.Clone() : null;
             clone.orderByContext = orderByContext != null ? (OrderByContext)orderByContext.Clone() : null;
@@ -146,6 +148,12 @@
                 foreach (var aggregate in aggregateContexts)
                     aggregate.Dump();
             }
+
+            foreach (var unionContext in unionContexts)
+            {
+                Console.WriteLine($"  Got union context: {unionContext.ut}");
+                unionContext.selectContext.Dump();
+            }
         }
 
         internal void Reset()
@@ -153,13 +161,17 @@
             tableNames.Clear();
         }
 
+        internal void AddUnionContext(UnionType ut, SelectContext unionContext)
+        {
+            unionContexts.Add((ut, unionContext));
+        }
+
         internal Select BuildSelectObject(Engines.IEngine engine)
         {
             if (selectListContext == null)
                 throw new InternalErrorException("Expected a SelectList");
 
-            var expressions = statementContext.query_expression();
-            var querySpecs = expressions.query_specification();
+//            var querySpecs = expressionContext.query_specification();
 
             // the top most output in this tree of objects
             IComponentOutput lastLeftOutput;
@@ -280,7 +292,7 @@
             }
 
             // then the select
-            Select select = new (lastLeftOutput, querySpecs.select_list().select_list_elem(), selectListContext, null /* derivedTableAlias */);
+            Select select = new (lastLeftOutput, querySpecification.select_list().select_list_elem(), selectListContext, null /* derivedTableAlias */);
             return select;
         }
 

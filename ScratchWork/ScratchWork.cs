@@ -8,7 +8,25 @@ namespace JankSQL
     {
         public static void Main()
         {
-            Test2();
+            Test3();
+        }
+
+        public static void Test3()
+        {
+            var engine = Engines.BTreeEngine.CreateInMemory();
+            TestHelpers.InjectTableKiloLeft(engine);
+            TestHelpers.InjectTableKiloRight(engine);
+
+            string select =
+                "SELECT * FROM KiloLeft UNION ALL SELECT * FROM KiloRight";
+
+            var ecSelect = Parser.ParseSQLFileFromString(select);
+
+            ecSelect.Dump();
+
+            ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
+
+            resultSelect.ResultSet.Dump();
         }
 
         public static void Test2()

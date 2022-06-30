@@ -17,19 +17,90 @@
 
         internal SelectContext GobbleSelectStatement(TSqlParser.Select_statementContext context)
         {
+            SelectContext selectContext = GobbleQueryExpression(context.query_expression());
+
+            // see if there is an order-by clause
+            if (context.order_by_clause() != null)
+            {
+                OrderByContext obc = new ();
+
+                foreach (var expr in context.order_by_clause().order_by_expression())
+                {
+                    Expression obx = GobbleExpression(expr.expression());
+                    Console.Write($"   {string.Join(",", obx.Select(x => $"[{x}]"))} ");
+                    if (expr.DESC() != null)
+                        Console.WriteLine("DESC");
+                    else
+                        Console.WriteLine("ASC");
+
+                    obc.AddExpression(obx, expr.DESC() == null);
+                }
+
+                selectContext.OrderByContext = obc;
+            }
+
+            return selectContext;
+        }
+
+        internal SelectContext GobbleQueryExpression(TSqlParser.Query_expressionContext context)
+        {
+            SelectContext selectContext = GobbleQuerySpecification(context.query_specification());
+
+            // eat up unions
+            foreach (var unionContext in context.sql_union())
+            {
+                var spec = unionContext.spec;
+                var ex = unionContext.op;
+                SelectContext? ctx = null;
+
+                UnionType ut = UnionType.UNION;
+
+                if (unionContext.ALL() != null)
+                    ut = UnionType.UNION_ALL;
+                else
+                {
+                    if (unionContext.INTERSECT() != null)
+                        ut = UnionType.INTERSECT;
+                    else if (unionContext.EXCEPT() != null)
+                        ut = UnionType.EXCEPT;
+                }
+
+                if (spec != null)
+                {
+                    Console.WriteLine("Union: got spec");
+                    ctx = GobbleQuerySpecification(spec);
+                }
+
+                if (ex != null)
+                {
+                    Console.WriteLine("Union: got ex");
+                    ctx = GobbleQueryExpression(ex);
+                }
+
+                if (ctx == null)
+                    throw new SemanticErrorException("expected unionContext");
+
+                selectContext.AddUnionContext(ut, ctx);
+            }
+
+            return selectContext;
+        }
+
+        internal SelectContext GobbleQuerySpecification(TSqlParser.Query_specificationContext context)
+        {
             PredicateContext? pc = null;
 
             // consume the WHERE predicate
-            if (context.query_expression().query_specification().search_condition().Length > 0)
+            if (context.search_condition().Length > 0)
             {
-                Expression x = GobbleSearchCondition(context.query_expression().query_specification().search_condition()[0]);
+                Expression x = GobbleSearchCondition(context.search_condition()[0]);
                 pc = new PredicateContext(x);
             }
 
             SelectContext selectContext = new (context, pc);
 
             // get through the select list
-            foreach (var elem in context.query_expression().query_specification().select_list().select_list_elem())
+            foreach (var elem in context.select_list().select_list_elem())
             {
                 FullColumnName? fcn = null;
                 Expression? x;
@@ -81,35 +152,15 @@
                 selectContext.AddSelectListExpressionList(x);
             }
 
-            // see if there is an order-by clause
-            if (context.order_by_clause() != null)
-            {
-                OrderByContext obc = new ();
-
-                foreach (var expr in context.order_by_clause().order_by_expression())
-                {
-                    Expression obx = GobbleExpression(expr.expression());
-                    Console.Write($"   {string.Join(",", obx.Select(x => $"[{x}]"))} ");
-                    if (expr.DESC() != null)
-                        Console.WriteLine("DESC");
-                    else
-                        Console.WriteLine("ASC");
-
-                    obc.AddExpression(obx, expr.DESC() == null);
-                }
-
-                selectContext.OrderByContext = obc;
-            }
-
             // and any group-by clauses
-            foreach (var groupByItem in context.query_expression().query_specification().group_by_item())
+            foreach (var groupByItem in context.group_by_item())
             {
                 Expression gbe = GobbleExpression(groupByItem.expression());
                 selectContext.AddGroupByExpression(gbe);
             }
 
             // figure out sources
-            if (context.query_expression().query_specification().table_sources() == null)
+            if (context.table_sources() == null)
             {
                 // no table source, so it's just from the "DUAL" table
             }
@@ -117,7 +168,7 @@
             {
                 // find the source table, along with all the joins
 
-                var currentTSIJ = context.query_expression().query_specification().from.table_source()[0].table_source_item_joined();
+                var currentTSIJ = context.from.table_source()[0].table_source_item_joined();
                 string leftSource = "unassigned";
                 if (currentTSIJ.table_source_item().derived_table() != null)
                 {
@@ -148,7 +199,9 @@
 
                 while (currentTSIJ != null)
                 {
-                    if (currentTSIJ.join_part().Length > 0)
+                    if (currentTSIJ.join_part().Length == 0)
+                        currentTSIJ = null;
+                    else
                     {
                         var joinContext = currentTSIJ.join_part()[0];
                         if (joinContext == null)
@@ -158,6 +211,7 @@
                             // figure out which join type
                             if (joinContext.cross_join() != null)
                             {
+                                //TODO: joinContext.cross_join().table_source().table_source_item_joined().table_source_item() into variable
                                 // CROSS Join!
 
                                 if (joinContext.cross_join().table_source().table_source_item_joined().table_source_item().derived_table() != null)
@@ -220,6 +274,8 @@
                                 Expression x = GobbleSearchCondition(joinContext.join_on().search_condition());
                                 PredicateContext pcon = new (x);
 
+                                //TODO: joinContext.join_on().table_source().table_source_item_joined().table_source_item() into variable
+
                                 // and work out the table sources ...
                                 if (joinContext.join_on().table_source().table_source_item_joined().table_source_item().derived_table() != null)
                                 {
@@ -250,7 +306,7 @@
                                 }
                                 else
                                 {
-                                    throw new NotImplementedException("coulnd't consume this JOIN table source");
+                                    throw new NotImplementedException("couldn't consume this JOIN table source");
                                 }
 
                                 currentTSIJ = joinContext.join_on().table_source().table_source_item_joined();
@@ -262,10 +318,7 @@
 
                         }
                     }
-                    else
-                        currentTSIJ = null;
                 }
-
             }
 
             return selectContext;
