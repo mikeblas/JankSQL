@@ -211,21 +211,21 @@
                             // figure out which join type
                             if (joinContext.cross_join() != null)
                             {
-                                //TODO: joinContext.cross_join().table_source().table_source_item_joined().table_source_item() into variable
                                 // CROSS Join!
 
-                                if (joinContext.cross_join().table_source().table_source_item_joined().table_source_item().derived_table() != null)
+                                var tempTSI = joinContext.cross_join().table_source().table_source_item_joined().table_source_item();
+                                if (tempTSI.derived_table() != null)
                                 {
                                     // CROSS JOIN with a derived table ...
-                                    SelectContext inner = GobbleSelectStatement(joinContext.cross_join().table_source().table_source_item_joined().table_source_item().derived_table().subquery()[0].select_statement());
+                                    SelectContext inner = GobbleSelectStatement(tempTSI.derived_table().subquery()[0].select_statement());
 
                                     JoinContext jc = new (JoinType.CROSS_JOIN, inner);
                                     PredicateContext pcon = new ();
 
                                     string? alias = null;
-                                    if (joinContext.cross_join().table_source().table_source_item_joined().table_source_item().as_table_alias() != null)
+                                    if (tempTSI.as_table_alias() != null)
                                     {
-                                        alias = ParseHelpers.StringFromIDContext(joinContext.cross_join().table_source().table_source_item_joined().table_source_item().as_table_alias().table_alias().id_());
+                                        alias = ParseHelpers.StringFromIDContext(tempTSI.as_table_alias().table_alias().id_());
                                         jc.DerivedTableAlias = alias;
                                     }
 
@@ -236,15 +236,15 @@
                                 else
                                 {
                                     // CROSS JOIN with a table name ...
-                                    FullTableName otherTableName = FullTableName.FromTableNameContext(joinContext.cross_join().table_source().table_source_item_joined().table_source_item().table_name_with_hint().table_name());
+                                    FullTableName otherTableName = FullTableName.FromTableNameContext(tempTSI.table_name_with_hint().table_name());
 
                                     JoinContext jc = new (JoinType.CROSS_JOIN, otherTableName);
                                     PredicateContext pcon = new ();
 
                                     string? alias = null;
-                                    if (joinContext.cross_join().table_source().table_source_item_joined().table_source_item().as_table_alias() != null)
+                                    if (tempTSI.as_table_alias() != null)
                                     {
-                                        alias = ParseHelpers.StringFromIDContext(joinContext.cross_join().table_source().table_source_item_joined().table_source_item().as_table_alias().table_alias().id_());
+                                        alias = ParseHelpers.StringFromIDContext(tempTSI.as_table_alias().table_alias().id_());
                                         jc.DerivedTableAlias = alias;
                                     }
 
@@ -274,30 +274,29 @@
                                 Expression x = GobbleSearchCondition(joinContext.join_on().search_condition());
                                 PredicateContext pcon = new (x);
 
-                                //TODO: joinContext.join_on().table_source().table_source_item_joined().table_source_item() into variable
-
                                 // and work out the table sources ...
-                                if (joinContext.join_on().table_source().table_source_item_joined().table_source_item().derived_table() != null)
+                                var tempTSI = joinContext.join_on().table_source().table_source_item_joined().table_source_item();
+                                if (tempTSI.derived_table() != null)
                                 {
                                     // derived table
-                                    SelectContext inner = GobbleSelectStatement(joinContext.join_on().table_source().table_source_item_joined().table_source_item().derived_table().subquery()[0].select_statement());
+                                    SelectContext inner = GobbleSelectStatement(tempTSI.derived_table().subquery()[0].select_statement());
                                     Console.WriteLine($"{leftSource} {joinType} On subselect");
 
-                                    string str = ParseHelpers.StringFromIDContext(joinContext.join_on().table_source().table_source_item_joined().table_source_item().as_table_alias().table_alias().id_());
+                                    string str = ParseHelpers.StringFromIDContext(tempTSI.as_table_alias().table_alias().id_());
 
                                     JoinContext jc = new (joinType, inner);
                                     jc.DerivedTableAlias = str;
                                     selectContext.AddJoin(jc, pcon);
                                 }
-                                else if (joinContext.join_on().table_source().table_source_item_joined().table_source_item().table_name_with_hint() != null)
+                                else if (tempTSI.table_name_with_hint() != null)
                                 {
-                                    // plain old table_name_with_hint
-                                    FullTableName otherTableName = FullTableName.FromTableNameContext(joinContext.join_on().table_source().table_source_item_joined().table_source_item().table_name_with_hint().table_name());
+                                    // plain old table_name_with_hint 
+                                    FullTableName otherTableName = FullTableName.FromTableNameContext(tempTSI.table_name_with_hint().table_name());
                                     Console.WriteLine($"{leftSource} {joinType} On {otherTableName}");
 
-                                    if (joinContext.join_on().table_source().table_source_item_joined().table_source_item().as_table_alias() != null)
+                                    if (tempTSI.as_table_alias() != null)
                                     {
-                                        string alias = ParseHelpers.StringFromIDContext(joinContext.join_on().table_source().table_source_item_joined().table_source_item().as_table_alias().table_alias().id_());
+                                        string alias = ParseHelpers.StringFromIDContext(tempTSI.as_table_alias().table_alias().id_());
                                         Console.WriteLine($"alias is {alias}");
                                     }
 

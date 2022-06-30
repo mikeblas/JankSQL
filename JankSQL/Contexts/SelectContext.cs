@@ -89,17 +89,20 @@
             foreach (var jc in joinContexts)
                 clone.joinContexts.Add((JoinContext)jc.Clone());
 
+            foreach (var uc in unionContexts)
+                clone.unionContexts.Add(uc);
+
             return clone;
         }
 
         public ExecuteResult Execute(Engines.IEngine engine, IRowValueAccessor? outerAccessor, Dictionary<string, ExpressionOperand> bindValues)
         {
-            Select select = BuildSelectObject(engine);
+            IComponentOutput treeOut = BuildOperatorTree(engine);
             ResultSet? resultSet = null;
 
             while (true)
             {
-                ResultSet batch = select.GetRows(engine, outerAccessor, 5, bindValues);
+                ResultSet batch = treeOut.GetRows(engine, outerAccessor, 5, bindValues);
                 if (resultSet == null)
                     resultSet = ResultSet.NewWithShape(batch);
 
@@ -166,12 +169,24 @@
             unionContexts.Add((ut, unionContext));
         }
 
+        internal IComponentOutput BuildOperatorTree(Engines.IEngine engine)
+        {
+            IComponentOutput root = BuildSelectObject(engine);
+
+            foreach (var (ut, selectContext) in unionContexts)
+            {
+                IComponentOutput currentRight = selectContext.BuildSelectObject(engine);
+                Union u = new (ut, root, currentRight);
+                root = u;
+            }
+
+            return root;
+        }
+
         internal Select BuildSelectObject(Engines.IEngine engine)
         {
             if (selectListContext == null)
                 throw new InternalErrorException("Expected a SelectList");
-
-//            var querySpecs = expressionContext.query_specification();
 
             // the top most output in this tree of objects
             IComponentOutput lastLeftOutput;
