@@ -4,11 +4,11 @@
  *    install, and setup Antlr (now, just setantlr.bat in c:\bin)
  *         https://github.com/antlr/antlr4/blob/master/doc/getting-started.md
  *
- *    walkthrough of TSQL grammar in Antlr:
+ *    walk-through of TSQL grammar in Antlr:
  *         https://dskrzypiec.dev/parsing-tsql/
  *
  *    TSQL Grammar in Antlr:
- *         just this directory; this contains many many grammars
+ *         just this directory; this contains many grammars
  *         https://github.com/antlr/grammars-v4/tree/master/sql/tsql
  *
  *    build the grammar over in the $/grammar directory:

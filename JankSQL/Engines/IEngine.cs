@@ -3,8 +3,8 @@
     using System.Collections.Immutable;
 
     /// <summary>
-    /// The IEngine interface commjunicates with a modular storage engine. There
-    /// are a couple of implementations of the engine, mainly for simplication
+    /// The IEngine interface communicates with a modular storage engine. There
+    /// are a couple of implementations of the engine, mainly for simplification
     /// of testing.
     /// </summary>
     public interface IEngine : IDisposable
@@ -39,7 +39,7 @@
         public void CreateIndex(FullTableName tableName, string indexName, bool isUnique, IEnumerable<(string columnName, bool isDescending)> columnInfos);
 
         /// <summary>
-        /// Gets an object that implements IEngineTable to talk to a table. The talbe is identified by name.
+        /// Gets an object that implements IEngineTable to talk to a table. The table is identified by name.
         /// The returned interface can be used for operations on the individual table.
         /// </summary>
         /// <param name="tableName">Name of the table to retrieve.</param>

@@ -136,7 +136,7 @@ INSERT INTO students(StudentID, StudentName, score, class) VALUES(6, 'Rob', 802,
             JankAssert.RowsetExistsWithShape(resultSelect, 3, 4);
             resultSelect.ResultSet.Dump();
 
-            //REVIEW: probably should've made a set with records in it, but ...
+            //REVIEW: probably should have made a set with records in it, but ...
             bool sawJohn = false;
             bool sawMark = false;
             bool sawBill = false;

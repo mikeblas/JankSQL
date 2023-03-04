@@ -30,7 +30,7 @@
         }
 
         /// <summary>
-        /// Do some tracing at rule entry. We'll write a nmumbered line with some
+        /// Do some tracing at rule entry. We'll write a numbered line with some
         /// indentation to see the parse tree.
         /// </summary>
         /// <param name="context">ParserRuleContext for the current visit context.</param>
@@ -218,7 +218,7 @@
                     }
                     else
                     {
-                        Console.WriteLine($"functionCallContext: skpping {functionCallContext}");
+                        Console.WriteLine($"functionCallContext: skipping {functionCallContext}");
                     }
                 }
                 else if (rule is TSqlParser.ExpressionContext xContext)
@@ -234,19 +234,19 @@
                     }
                     else if (xContext.primitive_expression() != null)
                     {
-                        // primitive exression, like NULL or a constant literal
+                        // primitive expression, like NULL or a constant literal
                         stack.Add(xContext.primitive_expression());
                     }
                     else if (xContext.bracket_expression() != null)
                     {
                         // bracket expression, which is just an expression in brackets ...
-                        // but could also be a subquery
+                        // but could also be a sub-query
                         if (xContext.bracket_expression().subquery() != null)
                         {
                             SelectContext subSelect = GobbleSelectStatement(xContext.bracket_expression().subquery().select_statement());
                             ExpressionNode n = new ExpressionSubselectOperator(subSelect);
                             x.Insert(0, n);
-                            // throw new NotImplementedException("Subqueries are not yet implemented");
+                            // throw new NotImplementedException("Sub-queries are not yet implemented");
                         }
                         else
                         {
@@ -308,7 +308,7 @@
                 string typeName = (context.unscaled_type.ID() != null) ? context.unscaled_type.ID().GetText() : context.unscaled_type.keyword().GetText();
 
                 if (typeName == null)
-                    throw new ExecutionException($"No typename found");
+                    throw new ExecutionException($"No type name found");
 
                 Console.Write($"{typeName} ");
                 if (!ExpressionNode.TypeFromString(typeName, out ot))

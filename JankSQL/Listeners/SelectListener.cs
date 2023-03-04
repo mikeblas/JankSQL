@@ -175,7 +175,7 @@
                                         jc.DerivedTableAlias = alias;
                                     }
 
-                                    Console.WriteLine($"{leftSource} CROSS JOIN On subselect {alias ?? "(no alias)"}");
+                                    Console.WriteLine($"{leftSource} CROSS JOIN On sub-select {alias ?? "(no alias)"}");
 
                                     selectContext.AddJoin(jc, pcon);
                                 }
@@ -225,7 +225,7 @@
                                 {
                                     // derived table
                                     SelectContext inner = GobbleSelectStatement(joinContext.join_on().table_source().table_source_item_joined().table_source_item().derived_table().subquery()[0].select_statement());
-                                    Console.WriteLine($"{leftSource} {joinType} On subselect");
+                                    Console.WriteLine($"{leftSource} {joinType} On sub-select");
 
                                     string str = ParseHelpers.StringFromIDContext(joinContext.join_on().table_source().table_source_item_joined().table_source_item().as_table_alias().table_alias().id_());
 
@@ -250,14 +250,14 @@
                                 }
                                 else
                                 {
-                                    throw new NotImplementedException("coulnd't consume this JOIN table source");
+                                    throw new NotImplementedException("couldn't consume this JOIN table source");
                                 }
 
                                 currentTSIJ = joinContext.join_on().table_source().table_source_item_joined();
                             }
                             else
                             {
-                                throw new NotImplementedException("unsupported JOIN type enountered");
+                                throw new NotImplementedException("unsupported JOIN type encountered");
                             }
 
                         }

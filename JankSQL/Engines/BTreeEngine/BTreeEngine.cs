@@ -744,7 +744,7 @@
             table.InsertRow(row);
 
 
-            // --- for sys_indexcolumns, the key is the tablename, index name, and index
+            // --- for sys_indexcolumns, the key is the table name, index name, and index
             row = new Tuple()
             {
                 ExpressionOperand.VARCHARFromString("sys_indexcolumns"),

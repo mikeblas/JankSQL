@@ -92,7 +92,7 @@
             if (allColumnNames == null)
             {
                 if (leftRows == null || rightRows == null)
-                    throw new InternalErrorException("an expected rowset was null");
+                    throw new InternalErrorException("an expected row set was null");
 
                 allColumnNames = new List<FullColumnName>();
                 foreach (var fcn in leftRows.GetColumnNames())

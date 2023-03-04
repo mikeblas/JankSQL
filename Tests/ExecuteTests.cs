@@ -294,7 +294,7 @@
             for (int i = 0; i < result.ResultSet.RowCount; i++)
             {
                 int num = result.ResultSet.Row(i)[0].AsInteger();
-                Assert.IsTrue(num % 2 == 0, "exepcted only even numbers");
+                Assert.IsTrue(num % 2 == 0, "expected only even numbers");
             }
         }
 
