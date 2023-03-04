@@ -53,7 +53,7 @@
                     rightRows = null;
                 }
             }
- 
+
             return rsOutput;
         }
 
