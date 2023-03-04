@@ -279,7 +279,7 @@
                     if (expr.ContainsAggregate)
                         continue;
 
-                    // otherwise, it needs a match in the group expressoins
+                    // otherwise, it needs a match in the group expressions
                     bool found = false;
                     foreach (var gbe in groupByExpressions)
                     {

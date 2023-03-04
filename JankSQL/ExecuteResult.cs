@@ -15,7 +15,7 @@
             get
             {
                 if (resultSet == null)
-                    throw new InvalidOperationException("no rowset is available");
+                    throw new InvalidOperationException("no row set is available");
                 return resultSet;
             }
 

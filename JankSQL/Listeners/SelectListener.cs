@@ -229,7 +229,7 @@
                                         jc.DerivedTableAlias = alias;
                                     }
 
-                                    Console.WriteLine($"{leftSource} CROSS JOIN On subselect {alias ?? "(no alias)"}");
+                                    Console.WriteLine($"{leftSource} CROSS JOIN On sub-select {alias ?? "(no alias)"}");
 
                                     selectContext.AddJoin(jc, pcon);
                                 }
@@ -279,8 +279,8 @@
                                 if (tempTSI.derived_table() != null)
                                 {
                                     // derived table
-                                    SelectContext inner = GobbleSelectStatement(tempTSI.derived_table().subquery()[0].select_statement());
-                                    Console.WriteLine($"{leftSource} {joinType} On subselect");
+                                    SelectContext inner = GobbleSelectStatement(joinContext.join_on().table_source().table_source_item_joined().table_source_item().derived_table().subquery()[0].select_statement());
+                                    Console.WriteLine($"{leftSource} {joinType} On sub-select");
 
                                     string str = ParseHelpers.StringFromIDContext(tempTSI.as_table_alias().table_alias().id_());
 
@@ -290,7 +290,7 @@
                                 }
                                 else if (tempTSI.table_name_with_hint() != null)
                                 {
-                                    // plain old table_name_with_hint 
+                                    // plain old table_name_with_hint
                                     FullTableName otherTableName = FullTableName.FromTableNameContext(tempTSI.table_name_with_hint().table_name());
                                     Console.WriteLine($"{leftSource} {joinType} On {otherTableName}");
 
@@ -312,7 +312,7 @@
                             }
                             else
                             {
-                                throw new NotImplementedException("unsupported JOIN type enountered");
+                                throw new NotImplementedException("unsupported JOIN type encountered");
                             }
 
                         }

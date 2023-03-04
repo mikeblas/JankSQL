@@ -4,7 +4,7 @@
 
     /// <summary>
     /// IExecutableContext is the interface to an executable context class. Contexts are
-    /// built from the wakler, containing the context they need to cause execution of a
+    /// built from the walker, containing the context they need to cause execution of a
     /// statement.
     ///
     /// Generally, DML contexts will build operator trees to actually execute (with a data

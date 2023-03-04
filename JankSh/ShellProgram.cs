@@ -22,7 +22,7 @@
                 line = line.Trim();
                 if (line.Equals("go", StringComparison.OrdinalIgnoreCase))
                 {
-                    Console.WriteLine($"Commmand is {command}");
+                    Console.WriteLine($"Command is {command}");
  
                     var ec = Parser.QuietParseSQLFileFromString(command.ToString());
 

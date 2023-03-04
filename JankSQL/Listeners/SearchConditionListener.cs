@@ -81,7 +81,7 @@
             if (context.IN() != null)
             {
                 // expression [NOT] IN (subquery | expression_list)
-                // throw new NotImplementedException("subqueries are not yet supported");
+                // throw new NotImplementedException("sub-queries are not yet supported");
 
                 Console.WriteLine("IN clause Predicate Expression!");
 
@@ -155,7 +155,7 @@
             }
             else if (context.BETWEEN() != null)
             {
-                // expression [NOT] BETWEEN expresion AND expression
+                // expression [NOT] BETWEEN expression AND expression
 
                 Expression value = GobbleExpression(context.expression()[0]);
                 Expression left = GobbleExpression(context.expression()[1]);

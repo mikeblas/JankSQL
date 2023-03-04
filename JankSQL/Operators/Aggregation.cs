@@ -81,7 +81,7 @@
             if (groupByExpressions == null || groupByExpressions.Count == 0)
             {
                 // with no group by, we should have exactly one row with
-                // the number of columns equal to the number of aggregaton expressions
+                // the number of columns equal to the number of aggregation expressions
                 Tuple outputRow = Tuple.CreateEmpty(expressions.Count);
 
                 if (dictKeyToAggs.Count == 0)
@@ -108,7 +108,7 @@
             }
             else
             {
-                // with group bys, we'll hvae a row for each value that's in the keys to aggs dictionary
+                // with group by objects, we'll have a row for each value that's in the dictKeyToAggs dictionary
                 foreach (var kv in dictKeyToAggs)
                 {
                     // expressions.Count + groupByExpressions.Count

@@ -6,13 +6,13 @@
 
     /// <summary>
     /// Parses a File of SQL commands into an ExecutableBatch object.  The ExecutableBatch might indicate
-    /// errors in parsing. If it does, it can't be executed. If it has no errors, it may be ex ecuted to
+    /// errors in parsing. If it does, it can't be executed. If it has no errors, it may be executed to
     /// return actual results (or effect changes to the database.)
     /// </summary>
     public class Parser
     {
         /// <summary>
-        /// case-sensitive parsing; this wkips the CaseChangingCharStream and requires
+        /// case-sensitive parsing; this skips the CaseChangingCharStream and requires
         /// all-upper SQL tokens. Mixed-case identifiers must be in [QuoteBrackets].
         /// Eventually, I can remove this and commit to mixed-case the parsing solution.
         /// </summary>
