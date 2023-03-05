@@ -86,12 +86,12 @@
             }
 
             /*
-            str = String.Join(',',
+            name = String.Join(',',
                 constructors.Select(x => "{" +
                     String.Join(',',
                             x.Select(y => "[" + y + "]"))
                         + "}"));
-            Console.WriteLine($"   Expressions: {str}");
+            Console.WriteLine($"   Expressions: {name}");
             */
 
             if (constructors == null || constructors.Count == 0)

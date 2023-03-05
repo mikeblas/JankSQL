@@ -60,10 +60,10 @@ namespace JankSQL
 
             str = "INSERT INTO ten(number_id, number_name, is_even) VALUES(@P1, @P2, @P3)";
 
-            // str = "SELECT * FROM ten WHERE number_id IN (3, 5, 7, number_id);";
+            // name = "SELECT * FROM ten WHERE number_id IN (3, 5, 7, number_id);";
 
 
-            // str = "SELECT LEN(city_name) FROM mytable;";
+            // name = "SELECT LEN(city_name) FROM mytable;";
 
             var btreeEngine = Engines.BTreeEngine.CreateInMemory();
 

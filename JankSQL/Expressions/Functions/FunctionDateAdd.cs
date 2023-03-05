@@ -56,16 +56,11 @@
 #pragma warning restore SA1001 // Commas should be spaced correctly
 #pragma warning restore SA1509 // Opening braces should not be preceded by blank line
 
-        private readonly DatePart datePart;
+        private DatePart datePart;
 
-        internal FunctionDateAdd(string datePartName)
+        internal FunctionDateAdd()
             : base("DATEADD")
         {
-            if (!PartMap.TryGetValue(datePartName, out datePart))
-                throw new SemanticErrorException($"Unknown date part {datePartName}");
-
-            if (datePart == DatePart.MICROSECOND || datePart == DatePart.NANOSECOND || datePart == DatePart.QUARTER)
-                throw new SemanticErrorException($"Unsupported date part {datePartName}");
         }
 
         private enum DatePart
@@ -113,7 +108,14 @@
         internal override void SetFromBuiltInFunctionsContext(IList<ParserRuleContext> stack, TSqlParser.Built_in_functionsContext bifContext)
         {
             var c = (TSqlParser.DATEADDContext)bifContext;
-            stack.Add(c.datepart);
+
+            string datePartName = c.dateparts_12().GetText();
+
+            if (!PartMap.TryGetValue(datePartName, out datePart))
+                throw new SemanticErrorException($"Unknown date part {datePartName}");
+            if (datePart == DatePart.MICROSECOND || datePart == DatePart.NANOSECOND || datePart == DatePart.QUARTER)
+                throw new SemanticErrorException($"Unsupported date part {datePartName}");
+
             stack.Add(c.number);
             stack.Add(c.date);
         }

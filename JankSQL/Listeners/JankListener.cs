@@ -5,7 +5,6 @@
 
     using JankSQL.Contexts;
     using JankSQL.Expressions;
-    using JankSQL.Expressions.Functions;
 
     public partial class JankListener : TSqlParserBaseListener
     {
@@ -28,6 +27,7 @@
         {
             get { return executionContext; }
         }
+
 
         /// <summary>
         /// Do some tracing at rule entry. We'll write a numbered line with some
@@ -63,6 +63,59 @@
 
             depth--;
         }
+
+        internal static ExpressionOperandType GobbleDataType(TSqlParser.Data_typeContext context)
+        {
+            ExpressionOperandType ot;
+
+            if (context.unscaled_type is not null)
+            {
+                string typeName = (context.unscaled_type.ID() != null) ? context.unscaled_type.ID().GetText() : context.unscaled_type.keyword().GetText();
+
+                if (typeName == null)
+                    throw new ExecutionException($"No type name found");
+
+                Console.Write($"{typeName} ");
+                if (!ExpressionNode.TypeFromString(typeName, out ot))
+                    throw new ExecutionException($"Unknown column type {typeName}");
+            }
+            else
+            {
+                string typeName = context.ext_type.keyword().GetText();
+                Console.Write($"{typeName} ");
+                if (!ExpressionNode.TypeFromString(context.ext_type.keyword().GetText(), out _))
+                    throw new ExecutionException($"Unknown column type {typeName}");
+
+                // null or not, if it's VARCHAR or not.
+                var dktvc = context.ext_type.keyword().VARCHAR();
+                var dktnvc = context.ext_type.keyword().NVARCHAR();
+
+                if (dktvc != null || dktnvc != null)
+                    ot = ExpressionOperandType.VARCHAR;
+                else
+                    throw new ExecutionException($"Unknown scaled column type {typeName}");
+            }
+
+            return ot;
+        }
+
+        internal static void HandleBuiltInFunction(Expression x, List<ParserRuleContext> stack, TSqlParser.Built_in_functionsContext bifContext)
+        {
+            // get a function object and see what to do
+            ExpressionFunction? ef = ExpressionFunction.FromFunctionType(bifContext.GetType());
+
+            if (ef != null)
+            {
+                // found it in the table! get it initialized and added to the eval stack
+                ef.SetFromBuiltInFunctionsContext(stack, bifContext);
+                x.Insert(0, ef);
+            }
+            else
+            {
+                throw new NotImplementedException($"Unknown built-in function {bifContext.GetText()}");
+            }
+        }
+
 
         internal Expression GobbleSelectExpression(TSqlParser.ExpressionContext expr, SelectContext selectContext)
         {
@@ -164,7 +217,11 @@
                     }
                     else if (functionCallContext is TSqlParser.SCALAR_FUNCTIONContext scalarFunctionContext)
                     {
-                        // get a function call
+                        // this is a function call to a user-defined function. UDFs are not supported yet.
+                        // Because the grammar strongly matches built-in function names (including their parameter lists),
+                        // we'll end up here for a parameter mismatch. PI() does not take a parameter, for example,
+                        // so PI(10) matches as a SCALAR_FUNCTION instead of a BUILT_IN_FUNC. Here, we check the list of
+                        // built-in functions and look for a better error message if we can manage a match.
                         string functionName = scalarFunctionContext.scalar_function_name().func_proc_name_server_database_schema().func_proc_name_database_schema().func_proc_name_schema().procedure.GetText();
                         ExpressionFunction? n = ExpressionFunction.FromFunctionName(functionName);
 
@@ -178,8 +235,11 @@
                             if (n.ExpectedParameters != exprContext.expression().Length)
                                 throw new SemanticErrorException($"function {n} expects {n.ExpectedParameters} parameters, received {exprContext.expression().Length}");
 
+                            throw new NotImplementedException("SCALAR_FUNCTION is not supported");
+                            /*
                             for (int i = 0; i < exprContext.expression().Length; i++)
                                 stack.Add(exprContext.expression()[i]);
+                            */
                         }
                         else
                         {
@@ -299,104 +359,6 @@
             }
 
             return x;
-        }
-
-        internal ExpressionOperandType GobbleDataType(TSqlParser.Data_typeContext context)
-        {
-            ExpressionOperandType ot;
-
-            if (context.unscaled_type is not null)
-            {
-                string typeName = (context.unscaled_type.ID() != null) ? context.unscaled_type.ID().GetText() : context.unscaled_type.keyword().GetText();
-
-                if (typeName == null)
-                    throw new ExecutionException($"No type name found");
-
-                Console.Write($"{typeName} ");
-                if (!ExpressionNode.TypeFromString(typeName, out ot))
-                    throw new ExecutionException($"Unknown column type {typeName}");
-            }
-            else
-            {
-                string typeName = context.ext_type.keyword().GetText();
-                Console.Write($"{typeName} ");
-
-                ExpressionOperandType columnType;
-                if (!ExpressionNode.TypeFromString(context.ext_type.keyword().GetText(), out columnType))
-                    throw new ExecutionException($"Unknown column type {typeName}");
-
-                // null or not, if it's VARCHAR or not.
-                var dktvc = context.ext_type.keyword().VARCHAR();
-                var dktnvc = context.ext_type.keyword().NVARCHAR();
-
-                if (dktvc != null || dktnvc != null)
-                    ot = ExpressionOperandType.VARCHAR;
-                else
-                    throw new ExecutionException($"Unknown scaled column type {typeName}");
-            }
-
-            return ot;
-        }
-
-        // here's a dictionary of functions by string name to the classes which work them
-        private static readonly Dictionary<Type, Func<ExpressionFunction>> FunctionDict = new ()
-        {
-            { typeof(TSqlParser.GETDATEContext),    () => new FunctionGetDate() },
-            { typeof(TSqlParser.LENContext),        () => new FunctionLEN()     },
-            { typeof(TSqlParser.PIContext),         () => new FunctionPI()      },
-            { typeof(TSqlParser.POWERContext),      () => new FunctionPOWER()   },
-            { typeof(TSqlParser.SQRTContext),       () => new FunctionSQRT()    },
-            { typeof(TSqlParser.ISNULLContext),     () => new FunctionIsNull()  },
-//          { typeof(TSqlParser.CASTContext),       () => new FunctionCast()    },
-            { typeof(TSqlParser.IIFContext),        () => new FunctionIIF()     },
-//          { typeof(TSqlParser.DATEADDContext),    () => new FunctionDateAdd() },
-//          { typeof(TSqlParser.DATEDIFFContext),   () => new FunctionDateDiff() },
-        };
-
-
-        internal void HandleBuiltInFunction(Expression x, List<ParserRuleContext> stack, TSqlParser.Built_in_functionsContext bifContext)
-        {
-            if (FunctionDict.ContainsKey(bifContext.GetType()))
-            {
-                var r = FunctionDict[bifContext.GetType()].Invoke();
-
-                x.Insert(0, r);
-
-                r.SetFromBuiltInFunctionsContext(stack, bifContext);
-
-            }
-            else if (bifContext is TSqlParser.CASTContext castContext)
-            {
-                // CAST
-                ExpressionOperandType opType = GobbleDataType(castContext.data_type());
-
-                ExpressionFunction f = new Expressions.Functions.FunctionCast(opType);
-                x.Insert(0, f);
-
-                stack.Add(castContext.expression());
-            }
-            else if (bifContext is TSqlParser.DATEADDContext dateAddContext)
-            {
-                // DATEADD(datepart_12, number, date)
-                ExpressionFunction f = new Expressions.Functions.FunctionDateAdd(dateAddContext.dateparts_12().GetText());
-                x.Insert(0, f);
-
-                stack.Add(dateAddContext.number);
-                stack.Add(dateAddContext.date);
-            }
-            else if (bifContext is TSqlParser.DATEDIFFContext dateDiffContext)
-            {
-                // DATEDIFF(dateparts_12, date_first, date_second)
-                ExpressionFunction f = new Expressions.Functions.FunctionDateDiff(dateDiffContext.dateparts_12().GetText());
-                x.Insert(0, f);
-
-                stack.Add(dateDiffContext.date_first);
-                stack.Add(dateDiffContext.date_second);
-            }
-            else
-            {
-                throw new NotImplementedException($"Unknown built-in function {bifContext.GetText()}");
-            }
         }
     }
 }

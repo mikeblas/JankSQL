@@ -75,8 +75,7 @@
 
             if (sobc != null && context.select_order_by_clause() != null)
                 throw new InternalErrorException("Don't expect ORDER BY on both select_statement and query_expression");
-            if (sobc == null)
-                sobc = context.query_expression().select_order_by_clause();
+            sobc ??= context.query_expression().select_order_by_clause();
 
             if (sobc != null)
             {
@@ -134,8 +133,7 @@
                     Console.WriteLine($"FROM: {ftn} AS {(ftnAlias == null ? "no alias" : ftnAlias)}");
                     leftSource = ftn.ToString();
 
-                    if (selectContext.SourceTableName == null)
-                        selectContext.SourceTableName = ftn;
+                    selectContext.SourceTableName ??= ftn;
 
                     if (ftnAlias != null)
                         selectContext.DerivedTableAlias = ftnAlias.TableNameOnly;
@@ -225,10 +223,9 @@
                                     SelectContext inner = GobbleSelectStatement(joinContext.join_on().table_source().table_source_item().derived_table().subquery()[0].select_statement());
                                     Console.WriteLine($"{leftSource} {joinType} On sub-select");
 
-                                    string str = ParseHelpers.StringFromIDContext(joinContext.join_on().table_source().table_source_item().as_table_alias().table_alias().id_());
+                                    string derivedTableAlias = ParseHelpers.StringFromIDContext(joinContext.join_on().table_source().table_source_item().as_table_alias().table_alias().id_());
 
-                                    JoinContext jc = new (joinType, inner);
-                                    jc.DerivedTableAlias = str;
+                                    JoinContext jc = new (joinType, inner, derivedTableAlias);
                                     selectContext.AddJoin(jc, pcon);
                                 }
                                 else if (joinContext.join_on().table_source().table_source_item().full_table_name() != null)
