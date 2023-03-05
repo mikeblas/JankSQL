@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Expressions.Functions
 {
+    using Antlr4.Runtime;
+
     internal class FunctionDateDiff : ExpressionFunction
     {
 #pragma warning disable SA1509 // Opening braces should not be preceded by blank line
@@ -100,6 +102,14 @@
 
             ExpressionOperand result = ExpressionOperand.IntegerFromInt(ret);
             stack.Push(result);
+        }
+
+        internal override void SetFromBuiltInFunctionsContext(IList<ParserRuleContext> stack, TSqlParser.Built_in_functionsContext bifContext)
+        {
+            var c = (TSqlParser.DATEDIFFContext)bifContext;
+            stack.Add(c.datepart);
+            stack.Add(c.date_first);
+            stack.Add(c.date_second);
         }
     }
 }

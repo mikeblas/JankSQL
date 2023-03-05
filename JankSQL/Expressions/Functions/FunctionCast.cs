@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Expressions.Functions
 {
+    using Antlr4.Runtime;
+
     internal class FunctionCast : ExpressionFunction
     {
         private readonly ExpressionOperandType targetType;
@@ -34,6 +36,12 @@
             }
 
             stack.Push(result);
+        }
+
+        internal override void SetFromBuiltInFunctionsContext(IList<ParserRuleContext> stack, TSqlParser.Built_in_functionsContext bifContext)
+        {
+            var c = (TSqlParser.CASTContext)bifContext;
+            throw new NotImplementedException();
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿namespace JankSQL.Expressions
 {
+    using Antlr4.Runtime;
     using JankSQL.Expressions.Functions;
 
     internal abstract class ExpressionFunction : ExpressionNode, IEquatable<ExpressionFunction>
@@ -23,6 +24,7 @@
 
         internal abstract int ExpectedParameters { get; }
 
+        internal abstract void SetFromBuiltInFunctionsContext(IList<ParserRuleContext> stack, TSqlParser.Built_in_functionsContext bifContext);
 
         public override bool Equals(object? obj)
         {

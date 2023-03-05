@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Expressions.Functions
 {
+    using Antlr4.Runtime;
+
     internal class FunctionIIF : ExpressionFunction
     {
         internal FunctionIIF()
@@ -17,6 +19,14 @@
 
             ExpressionOperand result = condition.IsTrue() ? left : right;
             stack.Push(result);
+        }
+
+        internal override void SetFromBuiltInFunctionsContext(IList<ParserRuleContext> stack, TSqlParser.Built_in_functionsContext bifContext)
+        {
+            var c = (TSqlParser.IIFContext)bifContext;
+            stack.Add(c.cond);
+            stack.Add(c.left);
+            stack.Add(c.right);
         }
     }
 }

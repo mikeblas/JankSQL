@@ -2,10 +2,10 @@
 {
     using Antlr4.Runtime;
     using Antlr4.Runtime.Misc;
-    using Antlr4.Runtime.Tree;
 
     using JankSQL.Contexts;
     using JankSQL.Expressions;
+    using JankSQL.Expressions.Functions;
 
     public partial class JankListener : TSqlParserBaseListener
     {
@@ -81,8 +81,10 @@
             Expression x = new ();
 
             // stack of TSqlParser objects we're considering as we build out the expression
-            List<ParserRuleContext> stack = new ();
-            stack.Add(expr);
+            List<ParserRuleContext> stack = new ()
+            {
+                expr,
+            };
 
             while (stack.Count > 0)
             {
@@ -103,21 +105,21 @@
                         ExpressionNode n = new ExpressionBindOperator(bindName);
                         x.Insert(0, n);
                     }
-                    else if (primitiveContext.constant().FLOAT() != null)
+                    else if (primitiveContext.primitive_constant().FLOAT() != null)
                     {
-                        string str = primitiveContext.constant().FLOAT().GetText();
+                        string str = primitiveContext.primitive_constant().FLOAT().GetText();
                         if (!quiet)
                             Console.WriteLine($"decimal constant: '{str}'");
-                        bool isNegative = primitiveContext.constant().sign() != null;
+                        bool isNegative = primitiveContext.primitive_constant().MINUS() != null;
                         ExpressionNode n = ExpressionOperand.DecimalFromString(isNegative, str);
                         x.Insert(0, n);
                     }
-                    else if (primitiveContext.constant().DECIMAL() != null)
+                    else if (primitiveContext.primitive_constant().DECIMAL() != null)
                     {
-                        string str = primitiveContext.constant().DECIMAL().GetText();
+                        string str = primitiveContext.primitive_constant().DECIMAL().GetText();
                         if (!quiet)
                             Console.WriteLine($"integer constant: '{str}'");
-                        bool isNegative = primitiveContext.constant().sign() != null;
+                        bool isNegative = primitiveContext.primitive_constant().MINUS() != null;
 
                         ExpressionOperandType t = ExpressionOperand.IntegerOrDecimal(str);
                         ExpressionNode n;
@@ -129,21 +131,21 @@
 
                         x.Insert(0, n);
                     }
-                    else if (primitiveContext.constant().STRING() != null)
+                    else if (primitiveContext.primitive_constant().STRING() != null)
                     {
                         // up to us to decide if its NVARCHAR or not
-                        string str = primitiveContext.constant().STRING().GetText();
+                        string str = primitiveContext.primitive_constant().STRING().GetText();
                         if (str[0] == 'N')
                         {
                             if (!quiet)
-                                Console.WriteLine($"constant: '{primitiveContext.constant().STRING()}'");
+                                Console.WriteLine($"constant: '{primitiveContext.primitive_constant().STRING()}'");
                             ExpressionNode n = ExpressionOperand.VARCHARFromStringContext(str);
                             x.Insert(0, n);
                         }
                         else
                         {
                             if (!quiet)
-                                Console.WriteLine($"constant: '{primitiveContext.constant().STRING()}'");
+                                Console.WriteLine($"constant: '{primitiveContext.primitive_constant().STRING()}'");
                             ExpressionNode n = ExpressionOperand.VARCHARFromStringContext(str);
                             x.Insert(0, n);
                         }
@@ -336,16 +338,32 @@
             return ot;
         }
 
+        // here's a dictionary of functions by string name to the classes which work them
+        private static readonly Dictionary<Type, Func<ExpressionFunction>> FunctionDict = new ()
+        {
+            { typeof(TSqlParser.GETDATEContext),    () => new FunctionGetDate() },
+            { typeof(TSqlParser.LENContext),        () => new FunctionLEN()     },
+            { typeof(TSqlParser.PIContext),         () => new FunctionPI()      },
+            { typeof(TSqlParser.POWERContext),      () => new FunctionPOWER()   },
+            { typeof(TSqlParser.SQRTContext),       () => new FunctionSQRT()    },
+            { typeof(TSqlParser.ISNULLContext),     () => new FunctionIsNull()  },
+//          { typeof(TSqlParser.CASTContext),       () => new FunctionCast()    },
+            { typeof(TSqlParser.IIFContext),        () => new FunctionIIF()     },
+//          { typeof(TSqlParser.DATEADDContext),    () => new FunctionDateAdd() },
+//          { typeof(TSqlParser.DATEDIFFContext),   () => new FunctionDateDiff() },
+        };
+
+
         internal void HandleBuiltInFunction(Expression x, List<ParserRuleContext> stack, TSqlParser.Built_in_functionsContext bifContext)
         {
-            if (bifContext is TSqlParser.ISNULLContext isnullContext)
+            if (FunctionDict.ContainsKey(bifContext.GetType()))
             {
-                // ISNULL
-                ExpressionFunction f = new Expressions.Functions.FunctionIsNull();
-                x.Insert(0, f);
+                var r = FunctionDict[bifContext.GetType()].Invoke();
 
-                stack.Add(isnullContext.left);
-                stack.Add(isnullContext.right);
+                x.Insert(0, r);
+
+                r.SetFromBuiltInFunctionsContext(stack, bifContext);
+
             }
             else if (bifContext is TSqlParser.CASTContext castContext)
             {
@@ -357,20 +375,10 @@
 
                 stack.Add(castContext.expression());
             }
-            else if (bifContext is TSqlParser.IIFContext iifContext)
-            {
-                // IFF(cond, left, right)
-                ExpressionFunction f = new Expressions.Functions.FunctionIIF();
-                x.Insert(0, f);
-
-                stack.Add(iifContext.cond);
-                stack.Add(iifContext.left);
-                stack.Add(iifContext.right);
-            }
             else if (bifContext is TSqlParser.DATEADDContext dateAddContext)
             {
-                // DATEADD(datepart, number, date)
-                ExpressionFunction f = new Expressions.Functions.FunctionDateAdd(dateAddContext.datepart.Text);
+                // DATEADD(datepart_12, number, date)
+                ExpressionFunction f = new Expressions.Functions.FunctionDateAdd(dateAddContext.dateparts_12().GetText());
                 x.Insert(0, f);
 
                 stack.Add(dateAddContext.number);
@@ -378,8 +386,8 @@
             }
             else if (bifContext is TSqlParser.DATEDIFFContext dateDiffContext)
             {
-                // DATEDIFF(datepart, date_first, date_second)
-                ExpressionFunction f = new Expressions.Functions.FunctionDateDiff(dateDiffContext.ID().GetText());
+                // DATEDIFF(dateparts_12, date_first, date_second)
+                ExpressionFunction f = new Expressions.Functions.FunctionDateDiff(dateDiffContext.dateparts_12().GetText());
                 x.Insert(0, f);
 
                 stack.Add(dateDiffContext.date_first);

@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Expressions.Functions
 {
+    using Antlr4.Runtime;
+
     internal class FunctionDateAdd : ExpressionFunction
     {
 #pragma warning disable SA1509 // Opening braces should not be preceded by blank line
@@ -101,11 +103,19 @@
                 DatePart.MINUTE => startDate.AddMinutes(delta),
                 DatePart.SECOND => startDate.AddSeconds(delta),
                 DatePart.MILLISECOND => startDate.AddMilliseconds(delta),
-                _ => throw new InternalErrorException($"Can't handle datepart {datePart}"),
+                _ => throw new InternalErrorException($"Can't handle datePart {datePart}"),
             };
 
             ExpressionOperand result = ExpressionOperand.DateTimeFromDateTime(ret);
             stack.Push(result);
+        }
+
+        internal override void SetFromBuiltInFunctionsContext(IList<ParserRuleContext> stack, TSqlParser.Built_in_functionsContext bifContext)
+        {
+            var c = (TSqlParser.DATEADDContext)bifContext;
+            stack.Add(c.datepart);
+            stack.Add(c.number);
+            stack.Add(c.date);
         }
     }
 }

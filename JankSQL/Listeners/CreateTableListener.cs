@@ -21,7 +21,7 @@
             {
                 var cd = c.column_definition();
                 var dt = cd.data_type();
-                var id0 = cd.id_()[0];
+                var id0 = cd.id_();
 
                 if (dt.unscaled_type is not null)
                 {
@@ -64,13 +64,17 @@
                         Console.Write($"({dt.scale.Text}) ");
                 }
 
-                if (cd.null_notnull() == null || cd.null_notnull().NULL_() == null)
-                    Console.WriteLine("NULL");
-                else
-                    Console.WriteLine("NOT NULL");
+                if (cd.column_definition_element().Length > 0)
+                {
+                    var null_or_not = cd.column_definition_element()[0].column_constraint().null_notnull();
+                    if (null_or_not == null || null_or_not.NULL_() == null)
+                        Console.WriteLine("NULL");
+                    else
+                        Console.WriteLine("NOT NULL");
+                }
             }
 
-            CreateTableContext createContext = new CreateTableContext(tableName, columnNames, columnTypes);
+            var createContext = new CreateTableContext(tableName, columnNames, columnTypes);
 
             executionContext.ExecuteContexts.Add(createContext);
         }

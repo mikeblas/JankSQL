@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Expressions.Functions
 {
+    using Antlr4.Runtime;
+
     internal class FunctionSQRT : ExpressionFunction
     {
         internal FunctionSQRT()
@@ -23,6 +25,12 @@
             }
 
             stack.Push(result);
+        }
+
+        internal override void SetFromBuiltInFunctionsContext(IList<ParserRuleContext> stack, TSqlParser.Built_in_functionsContext bifContext)
+        {
+            var c = (TSqlParser.SQRTContext)bifContext;
+            stack.Add(c.float_expression);
         }
     }
 }
