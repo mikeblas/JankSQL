@@ -6,7 +6,8 @@
     {
 #pragma warning disable SA1509 // Opening braces should not be preceded by blank line
 #pragma warning disable SA1001 // Commas should be spaced correctly
-        private static readonly Dictionary<string, DatePart> PartMap = new (StringComparer.CurrentCultureIgnoreCase)
+        // OrdinalIgnoreCase here because names are always unaccented English
+        private static readonly Dictionary<string, DatePart> PartMap = new (StringComparer.OrdinalIgnoreCase)
         {
             { "nanosecond", DatePart.NANOSECOND },
             { "ns",    DatePart.NANOSECOND },

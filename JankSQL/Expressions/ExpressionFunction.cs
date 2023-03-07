@@ -7,7 +7,8 @@
     {
         // here's a dictionary of functions by string name to the classes which work them;
         // this is initialized from FunctionTypeDict by the static constructor.
-        private static readonly Dictionary<string, Func<ExpressionFunction>> FunctionNameDict = new (StringComparer.InvariantCultureIgnoreCase);
+        // internal functions are always unaccented English, so we use OrdinalIgnoreCase here
+        private static readonly Dictionary<string, Func<ExpressionFunction>> FunctionNameDict = new (StringComparer.OrdinalIgnoreCase);
 
         // here's a dictionary of functions by string name to the classes which work them
         private static readonly Dictionary<Type, Func<ExpressionFunction>> FunctionTypeDict = new ()

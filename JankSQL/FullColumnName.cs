@@ -31,6 +31,7 @@
             if (o is not FullColumnName other)
                 return false;
 
+            // InvariantCultureIgnoreCase so that identifier names can be localized
             if (other.serverName != null && !other.serverName.Equals(this.serverName, StringComparison.InvariantCultureIgnoreCase))
                 return false;
 

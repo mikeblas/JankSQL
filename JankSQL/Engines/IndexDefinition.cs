@@ -39,7 +39,7 @@
         {
             for (int i = 0; i < this.columnInfos.Count; i++)
             {
-                if (this.columnInfos[i].columnName.Equals(columnName, StringComparison.OrdinalIgnoreCase))
+                if (this.columnInfos[i].columnName.Equals(columnName, StringComparison.InvariantCultureIgnoreCase))
                     return i;
             }
 

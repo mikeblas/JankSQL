@@ -4,6 +4,8 @@
     {
         public static bool TypeFromString(string str, out ExpressionOperandType operandType)
         {
+            //TODO: convert to dictionary
+            // types are always unaccented English, so we use OrdinalIgnoreCase
             if (str.Equals("INTEGER", StringComparison.OrdinalIgnoreCase) || str.Equals("INT", StringComparison.OrdinalIgnoreCase))
             {
                 operandType = ExpressionOperandType.INTEGER;

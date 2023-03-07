@@ -9,6 +9,7 @@
         private readonly ExecutionContext? executionContext;
         private readonly string? semanticError;
 
+        // bind variables are localizable, so we use nvariantCultureIgnoreCase
         private readonly Dictionary<string, ExpressionOperand> bindValues = new (StringComparer.InvariantCultureIgnoreCase);
 
         private ExecuteResult[]? results;

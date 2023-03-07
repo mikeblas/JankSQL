@@ -59,6 +59,7 @@
                                 continue;
 
                             // check scoped table name ...
+                            // InvariantCultureIgnoreCase here so that identifiers can be localized
                             if (tableName != null && !tableName.TableNameOnly.Equals(fcn.TableNameOnly, StringComparison.InvariantCultureIgnoreCase))
                             {
                                 Console.WriteLine($"Skipping {tableName.TableNameOnly} != {fcn.TableNameOnly}");
