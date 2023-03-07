@@ -12,19 +12,6 @@
     public class Parser
     {
         /// <summary>
-        /// case-sensitive parsing; this skips the CaseChangingCharStream and requires
-        /// all-upper SQL tokens. Mixed-case identifiers must be in [QuoteBrackets].
-        /// Eventually, I can remove this and commit to mixed-case the parsing solution.
-        /// </summary>
-        /// <param name="str">SQL File to be parsed.</param>
-        /// <returns>an ExecutableBatch that has errors, or can be executed.</returns>
-        public static ExecutableBatch ParseSQLFileFromStringCS(string str)
-        {
-            var lexer = new TSqlLexer(new AntlrInputStream(str));
-            return ParseTreeFromLexer(lexer);
-        }
-
-        /// <summary>
         /// Parse a SQL File from a string. (A File is a set of executable batches of
         /// statements, not necessarily a disk file.)
         /// </summary>
@@ -32,17 +19,14 @@
         /// <returns>ExecutableBatch object which can be executed, or which represents parsing errors.</returns>
         public static ExecutableBatch ParseSQLFileFromString(string str)
         {
-            ICharStream s = CharStreams.fromString(str);
-            CaseChangingCharStream upper = new CaseChangingCharStream(s, true);
-            var lexer = new TSqlLexer(upper);
+            var lexer = new TSqlLexer(new AntlrInputStream(str));
             return ParseTreeFromLexer(lexer);
+
         }
 
         public static ExecutableBatch QuietParseSQLFileFromString(string str)
         {
-            ICharStream s = CharStreams.fromString(str);
-            CaseChangingCharStream upper = new CaseChangingCharStream(s, true);
-            var lexer = new TSqlLexer(upper);
+            var lexer = new TSqlLexer(new AntlrInputStream(str));
             return QuietParseTreeFromLexer(lexer);
         }
 
@@ -54,9 +38,9 @@
         /// <returns>ExecutableBatch object which can be executed, or which represents parsing errors.</returns>
         public static ExecutableBatch ParseSQLFileFromTextReader(TextReader reader)
         {
+
             ICharStream s = CharStreams.fromTextReader(reader);
-            CaseChangingCharStream upper = new CaseChangingCharStream(s, true);
-            var lexer = new TSqlLexer(upper);
+            var lexer = new TSqlLexer(s);
             return ParseTreeFromLexer(lexer);
         }
 
