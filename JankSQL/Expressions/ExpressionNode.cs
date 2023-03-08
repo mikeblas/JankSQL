@@ -1,30 +1,18 @@
-﻿namespace JankSQL
+﻿namespace JankSQL.Expressions
 {
-    public enum ExpressionOperandType
-    {
-        BOOKMARK,
-        VARCHAR,
-        NVARCHAR,
-        INTEGER,
-        DECIMAL,
-        BOOLEAN,
-    }
-
-    public class ExpressionNode
+    public abstract class ExpressionNode
     {
         public static bool TypeFromString(string str, out ExpressionOperandType operandType)
         {
+            //TODO: convert to dictionary
+            // types are always unaccented English, so we use OrdinalIgnoreCase
             if (str.Equals("INTEGER", StringComparison.OrdinalIgnoreCase) || str.Equals("INT", StringComparison.OrdinalIgnoreCase))
             {
                 operandType = ExpressionOperandType.INTEGER;
             }
-            else if (str.Equals("VARCHAR", StringComparison.OrdinalIgnoreCase))
+            else if (str.Equals("VARCHAR", StringComparison.OrdinalIgnoreCase) || str.Equals("NVARCHAR", StringComparison.OrdinalIgnoreCase))
             {
                 operandType = ExpressionOperandType.VARCHAR;
-            }
-            else if (str.Equals("NVARCHAR", StringComparison.OrdinalIgnoreCase))
-            {
-                operandType = ExpressionOperandType.NVARCHAR;
             }
             else if (str.Equals("DECIMAL", StringComparison.OrdinalIgnoreCase))
             {
@@ -34,6 +22,10 @@
             {
                 operandType = ExpressionOperandType.BOOLEAN;
             }
+            else if (str.Equals("DATETIME", StringComparison.OrdinalIgnoreCase))
+            {
+                operandType = ExpressionOperandType.DATETIME;
+            }
             else
             {
                 operandType = ExpressionOperandType.INTEGER;
@@ -42,6 +34,8 @@
 
             return true;
         }
+
+        internal abstract void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues);
     }
 }
 

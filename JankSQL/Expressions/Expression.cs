@@ -1,7 +1,9 @@
 ﻿namespace JankSQL
 {
+    using System.Diagnostics;
     using JankSQL.Expressions;
 
+    [DebuggerDisplay("Expression = {ToString()}")]
     internal class Expression : List<ExpressionNode>, IEquatable<Expression>
     {
         internal Expression()
@@ -13,7 +15,17 @@
 
         public override string ToString()
         {
-            return string.Join(',', this);
+            return string.Join(", ", this);
+        }
+
+        public object Clone()
+        {
+            var clone = new Expression();
+
+            foreach (var node in this)
+                clone.Add(node);
+
+            return clone;
         }
 
         public virtual bool Equals(Expression? other)
@@ -46,49 +58,32 @@
             return base.GetHashCode();
         }
 
-        internal ExpressionOperand Evaluate(IRowValueAccessor? accessor)
+        /// <summary>
+        /// Returns a FullColumnName describing this column if it is a simple column value.
+        /// Any additional expression work will cause a null return.
+        /// </summary>
+        /// <returns>A FullColumnName for columns, null otherwise.</returns>
+        public FullColumnName? GetExpressionColumnName()
         {
-            Stack<ExpressionOperand> stack = new Stack<ExpressionOperand>();
+            // must be exactly 1 expression
+            if (this.Count != 1)
+                return null;
+
+            // and that expression must be an ExpressionOperandFromColumn
+            if (this[0] is not ExpressionOperandFromColumn fc)
+                return null;
+
+            return fc.ColumnName;
+        }
+
+        internal ExpressionOperand Evaluate(IRowValueAccessor? accessor, Engines.IEngine engine, Dictionary<string, ExpressionOperand> bindValues)
+        {
+            Stack<ExpressionOperand> stack = new ();
 
             do
             {
                 foreach (ExpressionNode n in this)
-                {
-                    if (n is ExpressionOperand expressionOperand)
-                        stack.Push(expressionOperand);
-                    else if (n is ExpressionOperator expressionOperator)
-                    {
-                        // it's an operator
-                        ExpressionOperand r = expressionOperator.Evaluate(stack);
-                        stack.Push(r);
-                    }
-                    else if (n is ExpressionFunction expressionFunction)
-                    {
-                        ExpressionOperand r = expressionFunction.Evaluate(stack);
-                        stack.Push(r);
-                    }
-                    else if (n is ExpressionOperandFromColumn columnOperand)
-                    {
-                        if (accessor == null)
-                            throw new ExecutionException("Not in a row context to evaluate {this}");
-                        stack.Push(accessor.GetValue(columnOperand.ColumnName));
-                    }
-                    else if (n is ExpressionComparisonOperator comparisonOperator)
-                    {
-                        ExpressionOperand r = comparisonOperator.Evaluate(stack);
-                        stack.Push(r);
-                    }
-                    else if (n is ExpressionBooleanOperator booleanOperator)
-                    {
-                        ExpressionOperand r = booleanOperator.Evaluate(stack);
-                        stack.Push(r);
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException($"Not prepared for ExpressionNode {n}");
-                    }
-
-                }
+                    n.Evaluate(engine, accessor, stack, bindValues);
             }
             while (stack.Count > 1);
 

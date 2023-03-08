@@ -4,12 +4,12 @@
 
     /// <summary>
     /// The IEngineTable interface provides an engine-independent contract for working with a table
-    /// in a storage engine. Tables may be implemented in any way, but should expose indexible collections
+    /// in a storage engine. Tables may be implemented in any way, but should expose indexable collections
     /// of tuples and offer a variety of mutations on those collections.
     /// </summary>
     public interface IEngineTable
     {
-        // === metadata
+        // === meta data
 
         /// <summary>
         /// Gets the number of columns in this table.
@@ -65,5 +65,9 @@
         /// <param name="bookmarksToDelete">List of bookmarks to be deleted.</param>
         /// <returns>integer count of the number of rows actually deleted.</returns>
         int DeleteRows(List<ExpressionOperandBookmark> bookmarksToDelete);
+
+        void Commit();
+
+        void Rollback();
     }
 }

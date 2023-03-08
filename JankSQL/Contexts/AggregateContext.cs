@@ -35,5 +35,18 @@
         {
             get { return aggregationOperatorType; }
         }
+
+        public object Clone()
+        {
+            AggregateContext clone = new AggregateContext(aggregationOperatorType, expression);
+            clone.expressionName = ExpressionName;
+            return clone;
+        }
+
+        internal void Dump()
+        {
+            Console.WriteLine("=====");
+            Console.WriteLine($"{aggregationOperatorType} aggregation on {expression}");
+        }
     }
 }

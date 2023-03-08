@@ -2,8 +2,8 @@
 {
     internal class ExpressionOperandInteger : ExpressionOperand, IComparable<ExpressionOperandInteger>, IEquatable<ExpressionOperandInteger>
     {
+        private readonly bool isNull;
         private int n;
-        private bool isNull;
 
         internal ExpressionOperandInteger(int n)
             : base(ExpressionOperandType.INTEGER)
@@ -38,7 +38,7 @@
         public override double AsDouble()
         {
             if (isNull)
-                throw new InvalidOperationException("can't convert null INTEGERto double");
+                throw new InvalidOperationException("can't convert null INTEGER to double");
             return (double)n;
         }
 
@@ -56,6 +56,12 @@
             return n;
         }
 
+        public override DateTime AsDateTime()
+        {
+            var dt = new DateTime(n * TimeSpan.TicksPerDay, DateTimeKind.Utc);
+            return dt;
+        }
+
         public override bool IsTrue()
         {
             throw new NotImplementedException();
@@ -70,7 +76,7 @@
             {
                 return other.AsDouble() == AsDouble();
             }
-            else if (other.NodeType == ExpressionOperandType.NVARCHAR || other.NodeType == ExpressionOperandType.VARCHAR)
+            else if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
                 return other.AsDouble() == AsDouble();
             }
@@ -87,7 +93,7 @@
             {
                 return AsDouble() > other.AsDouble();
             }
-            else if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.VARCHAR)
+            else if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
                 return AsDouble() > other.AsDouble();
             }
@@ -106,7 +112,7 @@
             {
                 return AsDouble() < other.AsDouble();
             }
-            else if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.VARCHAR)
+            else if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
                 return AsDouble() < other.AsDouble();
             }
@@ -122,15 +128,27 @@
             if (RepresentsNull || other.RepresentsNull)
                 return new ExpressionOperandInteger(0, true);
 
-            if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
+            if (other.NodeType == ExpressionOperandType.DATETIME)
+            {
+                long l = (long)(other.AsDateTime().Ticks + (n * TimeSpan.TicksPerDay));
+                var result = new DateTime(l, DateTimeKind.Utc);
+                return new ExpressionOperandDateTime(result);
+            }
+            else if (other.NodeType == ExpressionOperandType.INTEGER)
+            {
+                int result = AsInteger() + other.AsInteger();
+                return new ExpressionOperandInteger(result);
+            }
+            else if (other.NodeType == ExpressionOperandType.DECIMAL)
             {
                 double result = AsDouble() + other.AsDouble();
                 return new ExpressionOperandDecimal(result);
             }
-            else if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.NVARCHAR)
+            else if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
-                double result = AsDouble() + other.AsDouble();
-                return new ExpressionOperandDecimal(result);
+                int oint = other.AsInteger();
+                int result = AsInteger() + oint;
+                return new ExpressionOperandInteger(result);
             }
             else
             {
@@ -143,15 +161,27 @@
             if (RepresentsNull || other.RepresentsNull)
                 return new ExpressionOperandInteger(0, true);
 
-            if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
+            if (other.NodeType == ExpressionOperandType.DATETIME)
+            {
+                long l = (n * TimeSpan.TicksPerDay) - other.AsDateTime().Ticks;
+                var result = new DateTime(l, DateTimeKind.Utc);
+                return new ExpressionOperandDateTime(result);
+            }
+            else if (other.NodeType == ExpressionOperandType.INTEGER)
+            {
+                int result = AsInteger() - other.AsInteger();
+                return new ExpressionOperandInteger(result);
+            }
+            else if (other.NodeType == ExpressionOperandType.DECIMAL)
             {
                 double result = AsDouble() - other.AsDouble();
                 return new ExpressionOperandDecimal(result);
             }
-            else if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.NVARCHAR)
+            else if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
-                double result = AsDouble() - other.AsDouble();
-                return new ExpressionOperandDecimal(result);
+                int oint = other.AsInteger();
+                int result = AsInteger() - oint;
+                return new ExpressionOperandInteger(result);
             }
             else
             {
@@ -165,12 +195,17 @@
             if (RepresentsNull || other.RepresentsNull)
                 return new ExpressionOperandInteger(0, true);
 
-            if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
+            if (other.NodeType == ExpressionOperandType.INTEGER)
+            {
+                int result = AsInteger() / other.AsInteger();
+                return new ExpressionOperandInteger(result);
+            }
+            else if (other.NodeType == ExpressionOperandType.DECIMAL)
             {
                 double result = AsDouble() / other.AsDouble();
                 return new ExpressionOperandDecimal(result);
             }
-            else if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.NVARCHAR)
+            else if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
                 double result = AsDouble() / other.AsDouble();
                 return new ExpressionOperandDecimal(result);
@@ -181,17 +216,23 @@
             }
         }
 
+
         public override ExpressionOperand OperatorTimes(ExpressionOperand other)
         {
             if (RepresentsNull || other.RepresentsNull)
                 return new ExpressionOperandInteger(0, true);
 
-            if (other.NodeType == ExpressionOperandType.DECIMAL || other.NodeType == ExpressionOperandType.INTEGER)
+            if (other.NodeType == ExpressionOperandType.INTEGER)
+            {
+                int result = AsInteger() * other.AsInteger();
+                return new ExpressionOperandInteger(result);
+            }
+            else if (other.NodeType == ExpressionOperandType.DECIMAL)
             {
                 double result = AsDouble() * other.AsDouble();
                 return new ExpressionOperandDecimal(result);
             }
-            else if (other.NodeType == ExpressionOperandType.VARCHAR || other.NodeType == ExpressionOperandType.NVARCHAR)
+            else if (other.NodeType == ExpressionOperandType.VARCHAR)
             {
                 double result = AsDouble() * other.AsDouble();
                 return new ExpressionOperandDecimal(result);
@@ -202,11 +243,60 @@
             }
         }
 
+        public override ExpressionOperand OperatorModulo(ExpressionOperand other)
+        {
+            if (RepresentsNull || other.RepresentsNull)
+                return new ExpressionOperandInteger(0, true);
+
+            if (other.NodeType == ExpressionOperandType.INTEGER)
+            {
+                int result = AsInteger() % other.AsInteger();
+                return new ExpressionOperandInteger(result);
+            }
+            else if (other.NodeType == ExpressionOperandType.DECIMAL)
+            {
+                double result = AsDouble() % other.AsDouble();
+                return new ExpressionOperandDecimal(result);
+            }
+            else if (other.NodeType == ExpressionOperandType.VARCHAR)
+            {
+                int oint = other.AsInteger();
+                int result = AsInteger() % oint;
+                return new ExpressionOperandInteger(result);
+            }
+            else
+            {
+                throw new InvalidOperationException("OperatorModulo Integer");
+            }
+        }
+
+
         public override void AddToSelf(ExpressionOperand other)
         {
             if (RepresentsNull)
                 throw new InvalidOperationException("Can't increment NULL");
             n += other.AsInteger();
+        }
+
+        public override ExpressionOperand OperatorUnaryMinus()
+        {
+            if (RepresentsNull)
+                return this;
+            return new ExpressionOperandInteger(-n, false);
+        }
+
+        public override ExpressionOperand OperatorUnaryPlus()
+        {
+            if (RepresentsNull)
+                return this;
+            return new ExpressionOperandInteger(n, false);
+        }
+
+        public override ExpressionOperand OperatorUnaryTilde()
+        {
+            if (RepresentsNull)
+                return this;
+            return new ExpressionOperandInteger(~n, false);
         }
 
         public int CompareTo(ExpressionOperandInteger? other)
@@ -241,8 +331,7 @@
 
         public override bool Equals(object? o)
         {
-            ExpressionOperandInteger? other = o as ExpressionOperandInteger;
-            if (other == null)
+            if (o is not ExpressionOperandInteger other)
                 return false;
             return this.Equals(other);
         }
@@ -252,6 +341,24 @@
             if (isNull)
                 return 8675309;
             return n.GetHashCode();
+        }
+
+        internal static ExpressionOperandInteger FromByteStream(Stream stream)
+        {
+            byte[] rep = new byte[4];
+            stream.Read(rep, 0, rep.Length);
+
+            int n = BitConverter.ToInt32(rep, 0);
+            return new ExpressionOperandInteger(n);
+        }
+
+        internal override void WriteToByteStream(Stream stream)
+        {
+            WriteTypeAndNullness(stream);
+
+            // then ourselves
+            byte[] rep = BitConverter.GetBytes(n);
+            stream.Write(rep);
         }
     }
 }

@@ -3,25 +3,73 @@
     public class ExecuteResult
     {
         private ResultSet? resultSet;
+        private int rowsAffected;
 
-        public ExecuteResult(ExecuteStatus status, string message)
-        {
-            this.ErrorMessage = message;
-            this.ExecuteStatus = status;
-        }
-
-        internal ExecuteResult()
+        private ExecuteResult()
         {
             this.ExecuteStatus = ExecuteStatus.NOT_EXECUTED;
         }
 
-        public ResultSet? ResultSet
+        public ResultSet ResultSet
         {
-            get { return resultSet; } set { resultSet = value; }
+            get
+            {
+                if (resultSet == null)
+                    throw new InvalidOperationException("no row set is available");
+                return resultSet;
+            }
+
+            set
+            {
+                resultSet = value;
+            }
         }
 
         public ExecuteStatus ExecuteStatus { get; set; }
 
         public string? ErrorMessage { get; set; }
+
+        public int RowsAffected
+        {
+            get
+            {
+                return rowsAffected;
+            }
+        }
+
+        internal static ExecuteResult SuccessWithRowsAffected(int rowsaffected)
+        {
+            ExecuteResult result = new ();
+            result.ExecuteStatus = ExecuteStatus.SUCCESSFUL;
+            result.rowsAffected = rowsaffected;
+
+            return result;
+        }
+
+        internal static ExecuteResult SuccessWithMessage(string message)
+        {
+            ExecuteResult result = new ();
+            result.ExecuteStatus = ExecuteStatus.SUCCESSFUL_WITH_MESSAGE;
+            result.ErrorMessage = message;
+            return result;
+        }
+
+        internal static ExecuteResult SuccessWithResultSet(ResultSet resultSet)
+        {
+            ExecuteResult result = new ();
+            result.ExecuteStatus = ExecuteStatus.SUCCESSFUL;
+            result.resultSet = resultSet;
+
+            return result;
+        }
+
+        internal static ExecuteResult FailureWithError(string message)
+        {
+            ExecuteResult result = new ();
+            result.ErrorMessage = message;
+            result.ExecuteStatus = ExecuteStatus.FAILED;
+
+            return result;
+        }
     }
 }

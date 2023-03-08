@@ -3,12 +3,14 @@
     using System.Collections;
     using CSharpTest.Net;
     using CSharpTest.Net.Collections;
+
     using JankSQL.Expressions;
 
-    internal class BTreeTable : IEngineTable, IEnumerable, IEnumerable<RowWithBookmark>
+
+    internal class BTreeTable : IEngineTable, IEnumerable, IEnumerable<RowWithBookmark>, IDisposable
     {
-        private readonly List<FullColumnName> keyColumnNames;
-        private readonly List<FullColumnName> valueColumnNames;
+        private readonly FullColumnName[] keyColumnNames;
+        private readonly FullColumnName[] valueColumnNames;
         private readonly Dictionary<string, int> columnNameIndexes;
         private readonly string tableName;
         private readonly bool hasUniqueKey;
@@ -22,80 +24,110 @@
 
         private int nextBookmark = 1337;
 
-        internal BTreeTable(string tableName, ExpressionOperandType[] keyTypes, List<FullColumnName> keyNames, ExpressionOperandType[] valueTypes, List<FullColumnName> valueNames)
+        private bool isDisposed = false;
+
+        internal BTreeTable(string tableName, ExpressionOperandType[] keyTypes, IEnumerable<FullColumnName> keyNames, ExpressionOperandType[] valueTypes, IEnumerable<FullColumnName> valueNames, BPlusTree<Tuple, Tuple>.OptionsV2? options)
         {
-            myTree = new BPlusTree<Tuple, Tuple>(new IExpressionOperandComparer());
+            if (keyTypes.Length != keyNames.Count())
+                throw new ArgumentException("keyTypes length doesn't match keyNames length");
+            if (valueTypes.Length != valueNames.Count())
+                throw new ArgumentException("valueTypes length doesn't match valueNames length");
+
+            if (options == null)
+            {
+                myTree = new BPlusTree<Tuple, Tuple>(new IExpressionOperandComparer());
+            }
+            else
+            {
+                options.KeyComparer = new IExpressionOperandComparer();
+                myTree = new BPlusTree<Tuple, Tuple>(options);
+            }
+
             hasUniqueKey = true;
 
             this.keyTypes = keyTypes;
             this.valueTypes = valueTypes;
             this.tableName = tableName;
 
-            keyColumnNames = new ();
-            valueColumnNames = new ();
+            keyColumnNames = new FullColumnName[keyNames.Count()];
+            valueColumnNames = new FullColumnName[valueNames.Count()];
 
             columnNameIndexes = new Dictionary<string, int>();
+
             int n = 0;
-            for (int i = 0; i < valueNames.Count; i++)
+            int keyIndex = 0;
+            int valueIndex = 0;
+            foreach (var valueName in valueNames)
             {
-                FullColumnName fcn = FullColumnName.FromTableColumnName(tableName, valueNames[i].ColumnNameOnly());
-                valueColumnNames.Add(fcn);
+                FullColumnName fcn = FullColumnName.FromTableColumnName(tableName, valueName.ColumnNameOnly());
                 columnNameIndexes.Add(fcn.ColumnNameOnly(), n++);
+                valueColumnNames[valueIndex++] = fcn;
             }
 
-            for (int i = 0; i < keyNames.Count; i++)
+            foreach (var keyName in keyNames)
             {
-                FullColumnName fcn = FullColumnName.FromTableColumnName(tableName, keyNames[i].ColumnNameOnly());
-                keyColumnNames.Add(fcn);
+                FullColumnName fcn = FullColumnName.FromTableColumnName(tableName, keyName.ColumnNameOnly());
                 columnNameIndexes.Add(fcn.ColumnNameOnly(), n++);
+                keyColumnNames[keyIndex++] = fcn;
             }
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BTreeTable"/> class as a heap.
         /// Creates a "heap" table with no unique index. Our approach to this is a table that has a fake
-        /// "uniquifier" key as its bookmar_key. That single-column bookmark key maps to the values,
+        /// "uniquifier" key as its bookmark_key. That single-column bookmark key maps to the values,
         /// which are all the columns given.
         /// </summary>
         /// <param name="tableName">string with the name of our table.</param>
         /// <param name="valueTypes">array containing the value types for each of our columns.</param>
-        /// <param name="valueNames">array containing the names of each of the values in our columns.</param>
-        internal BTreeTable(string tableName, ExpressionOperandType[] valueTypes, List<FullColumnName> valueNames)
+        /// <param name="valueNames">list containing the names of each of the values in our columns.</param>
+        internal BTreeTable(string tableName, ExpressionOperandType[] valueTypes, IEnumerable<FullColumnName> valueNames, BPlusTree<Tuple, Tuple>.OptionsV2? options)
         {
-            myTree = new BPlusTree<Tuple, Tuple>(new IExpressionOperandComparer());
+            int countValueNames = valueNames.Count();
+            if (valueTypes.Length != countValueNames)
+                throw new ArgumentException("valueTypes length doesn't match valueNames length");
+
+            if (options == null)
+            {
+                myTree = new BPlusTree<Tuple, Tuple>(new IExpressionOperandComparer());
+            }
+            else
+            {
+                options.KeyComparer = new IExpressionOperandComparer();
+                myTree = new BPlusTree<Tuple, Tuple>(options);
+            }
+
             hasUniqueKey = false;
 
             this.keyTypes = new ExpressionOperandType[] { ExpressionOperandType.INTEGER };
             this.valueTypes = valueTypes;
             this.tableName = tableName;
 
-            keyColumnNames = new ();
-            valueColumnNames = new ();
+            valueColumnNames = new FullColumnName[countValueNames];
 
             columnNameIndexes = new Dictionary<string, int>();
             int n = 0;
-            for (int i = 0; i < valueNames.Count; i++)
+            foreach (var valueName in valueNames)
             {
-                FullColumnName fcn = FullColumnName.FromTableColumnName(tableName, valueNames[i].ColumnNameOnly());
-                valueColumnNames.Add(fcn);
+                FullColumnName fcn = FullColumnName.FromTableColumnName(tableName, valueName.ColumnNameOnly());
+                valueColumnNames[n] = fcn;
                 columnNameIndexes.Add(fcn.ColumnNameOnly(), n++);
             }
 
             // just the bookmark key
             FullColumnName fcnBookmark = FullColumnName.FromTableColumnName(tableName, "bookmark_key");
-            keyColumnNames.Add(fcnBookmark);
+            keyColumnNames = new FullColumnName[] { fcnBookmark };
             columnNameIndexes.Add(fcnBookmark.ColumnNameOnly(), n++);
         }
-
 
         public int ColumnCount
         {
             get
             {
                 if (hasUniqueKey)
-                    return keyColumnNames.Count + valueColumnNames.Count;
+                    return keyColumnNames.Length + valueColumnNames.Length;
                 else
-                    return valueColumnNames.Count;
+                    return valueColumnNames.Length;
             }
         }
 
@@ -103,8 +135,7 @@
         {
             FullColumnName probe = FullColumnName.FromColumnName(columnName);
 
-            int index;
-            if (columnNameIndexes.TryGetValue(probe.ColumnNameOnly(), out index))
+            if (columnNameIndexes.TryGetValue(probe.ColumnNameOnly(), out int index))
                 return index;
             else
                 return -1;
@@ -112,10 +143,10 @@
 
         public FullColumnName ColumnName(int n)
         {
-            if (n < valueColumnNames.Count)
+            if (n < valueColumnNames.Length)
                 return valueColumnNames[n];
 
-            int m = n - valueColumnNames.Count;
+            int m = n - valueColumnNames.Length;
             return keyColumnNames[m];
         }
 
@@ -138,8 +169,8 @@
             if (bookmarksToDelete.Count == 0)
                 return 0;
 
-            if (bookmarksToDelete[0].Tuple.Length != keyColumnNames.Count)
-                throw new ArgumentException($"bookmark key should be {keyColumnNames.Count} columns, received {bookmarksToDelete[0].Tuple.Length} columns");
+            if (bookmarksToDelete[0].Tuple.Length != keyColumnNames.Length)
+                throw new ArgumentException($"bookmark key should be {keyColumnNames.Length} columns, received {bookmarksToDelete[0].Tuple.Length} columns");
 
             int deletedCount = 0;
             foreach (var bookmark in bookmarksToDelete)
@@ -198,8 +229,8 @@
             }
             else
             {
-                heapKey = Tuple.CreateFromRange(row, 0, keyColumnNames.Count);
-                Tuple value = Tuple.CreateFromRange(row, keyColumnNames.Count, valueColumnNames.Count);
+                heapKey = Tuple.CreateFromRange(row, 0, keyColumnNames.Length);
+                Tuple value = Tuple.CreateFromRange(row, keyColumnNames.Length, valueColumnNames.Length);
 
                 myTree.Add(heapKey, value);
             }
@@ -220,12 +251,22 @@
             myTree.Clear();
         }
 
+        public void Commit()
+        {
+            myTree.Commit();
+        }
+
+        public void Rollback()
+        {
+            myTree.Rollback();
+        }
+
         public void Dump()
         {
             Console.WriteLine("===========");
             Console.WriteLine($"BTree Table {tableName}, hasUniqueKey == {hasUniqueKey}");
-            Console.WriteLine($" Keys  : {string.Join(",", keyColumnNames)}");
-            Console.WriteLine($" Values: {string.Join(",", valueColumnNames)}");
+            Console.WriteLine($" Keys  : {string.Join(",", (object[])keyColumnNames)}");
+            Console.WriteLine($" Values: {string.Join(",", (object[])valueColumnNames)}");
             foreach (var row in myTree)
                 Console.WriteLine($"    {row.Key} ==> {row.Value}");
 
@@ -237,6 +278,15 @@
             }
         }
 
+        public void Dispose()
+        {
+            if (!isDisposed)
+            {
+                isDisposed = true;
+                myTree.Dispose();
+            }
+        }
+
         /// <summary>
         /// Adds a new index to this table.
         /// </summary>
@@ -244,7 +294,7 @@
         /// <param name="isUnique">boolean that's true if this new index is meant to be unique.</param>
         /// <param name="columnInfos">descriptions of the columns involved in this index.</param>
         /// <exception cref="ExecutionException">Thrown if an error is encountered when building the index.</exception>
-        internal void AddIndex(string indexName, bool isUnique, List<(string columnName, bool isDescending)> columnInfos)
+        internal void AddIndex(string indexName, bool isUnique, IEnumerable<(string columnName, bool isDescending)> columnInfos)
         {
             if (indexes.ContainsKey(indexName))
                 throw new ExecutionException($"Index definition {indexName} already exists");

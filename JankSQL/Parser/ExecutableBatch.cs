@@ -7,13 +7,19 @@
         private readonly List<string> tokenErrors;
         private readonly List<string> syntaxErrors;
         private readonly ExecutionContext? executionContext;
+        private readonly string? semanticError;
+
+        // bind variables are localizable, so we use nvariantCultureIgnoreCase
+        private readonly Dictionary<string, ExpressionOperand> bindValues = new (StringComparer.InvariantCultureIgnoreCase);
+
         private ExecuteResult[]? results;
 
-        internal ExecutableBatch(List<string> tokenErrors, List<string> syntaxErrors, ExecutionContext? ec)
+        internal ExecutableBatch(List<string> tokenErrors, List<string> syntaxErrors, string? semanticError, ExecutionContext? ec)
         {
             this.tokenErrors = tokenErrors;
             this.syntaxErrors = syntaxErrors;
-            this.executionContext = ec;
+            this.semanticError = semanticError;
+            executionContext = ec;
         }
 
         /// <summary>
@@ -21,7 +27,7 @@
         /// </summary>
         public int TotalErrors
         {
-            get { return NumberOfSyntaxErrors + NumberOfTokenErrors; }
+            get { return NumberOfSyntaxErrors + NumberOfTokenErrors + (semanticError == null ? 0 : 1); }
         }
 
         /// <summary>
@@ -41,6 +47,22 @@
         }
 
         /// <summary>
+        /// Gets a value indicating whether there was a semantic error.
+        /// </summary>
+        public bool HadSemanticError
+        {
+            get { return semanticError != null; }
+        }
+
+        /// <summary>
+        /// Gets the semantic error string, if one was encountered.
+        /// </summary>
+        public string? SemanticError
+        {
+            get { return semanticError; }
+        }
+
+        /// <summary>
         /// Dumps diagnostic and tracing information about this ExecutableBatch. Useful for
         /// showing the execution plan and state of the executable objects within.
         /// </summary>
@@ -56,12 +78,12 @@
         /// Executes this batch and gets an array of ExecuteResult objects, one for each batch.
         /// </summary>
         /// <returns>array of ExecuteResults object.</returns>
-        /// <exception cref="InvalidOperationException">If never successfully pasred.</exception>
+        /// <exception cref="InvalidOperationException">If never successfully parsed.</exception>
         public ExecuteResult[] Execute(Engines.IEngine engine)
         {
             if (executionContext is null)
                 throw new InvalidOperationException("No valid execution context");
-            results = executionContext.Execute(engine);
+            results = executionContext.Execute(engine, bindValues);
             return results;
         }
 
@@ -74,20 +96,28 @@
         {
             if (executionContext is null)
                 throw new InvalidOperationException("No valid execution context");
-            results = executionContext.Execute(engine);
+            results = executionContext.Execute(engine, bindValues);
             return results[0];
         }
 
-        // remove these
-        [Obsolete("ExecuteSingle() is obsolete; Work towards invoking a specific engine.")]
-        public ExecuteResult ExecuteSingle()
+        public void SetBindValue(string bindTargetName, ExpressionOperand bindValue)
         {
-            if (executionContext is null)
-                throw new InvalidOperationException("No valid execution context");
+            bindValues[bindTargetName] = bindValue;
+        }
 
-            Engines.IEngine engine2 = Engines.DynamicCSVEngine.OpenExistingOnly("F:\\JankTests\\Progress");
-            results = executionContext.Execute(engine2);
-            return results[0];
+        public void SetBindValue(string bindTargetName, int bindValue)
+        {
+            SetBindValue(bindTargetName, ExpressionOperand.IntegerFromInt(bindValue));
+        }
+
+        public void SetBindValue(string bindTargetName, string bindValue)
+        {
+            SetBindValue(bindTargetName, ExpressionOperand.VARCHARFromString(bindValue));
+        }
+
+        public void SetBindValue(string bindTargetName, double bindValue)
+        {
+            SetBindValue(bindTargetName, ExpressionOperand.DecimalFromDouble(bindValue));
         }
     }
 }

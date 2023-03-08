@@ -1,13 +1,14 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using Engines = JankSQL.Engines;
-
+﻿
 namespace Tests
 {
-    [TestClass]
+    using NUnit.Framework;
+
+    using Engines = JankSQL.Engines;
+
+    [TestFixture]
     public class InsertDeleteCSVTests : InsertDeleteTests
     {
-        [TestInitialize]
+        [SetUp]
         public void ClassInitialize()
         {
             mode = "CSV";

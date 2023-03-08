@@ -1,11 +1,13 @@
 ﻿namespace JankSQL.Engines
 {
+    using System.Collections.Immutable;
+
     /// <summary>
-    /// The IEngine interface commjunicates with a modular storage engine. There
-    /// are a couple of implementations of the engine, mainly for simplication
+    /// The IEngine interface communicates with a modular storage engine. There
+    /// are a couple of implementations of the engine, mainly for simplification
     /// of testing.
     /// </summary>
-    public interface IEngine
+    public interface IEngine : IDisposable
     {
         /// <summary>
         /// Drop a table. This removes the table and deletes all data, and
@@ -24,7 +26,7 @@
         /// <param name="tableName">FullTableName with the name of this table.</param>
         /// <param name="columnNames">List of FullColumnNames for naming the columns.</param>
         /// <param name="columnTypes">Data type of each column, correlate to the columnNames parameter.</param>
-        public void CreateTable(FullTableName tableName, List<FullColumnName> columnNames, List<ExpressionOperandType> columnTypes);
+        public void CreateTable(FullTableName tableName, IImmutableList<FullColumnName> columnNames, IImmutableList<ExpressionOperandType> columnTypes);
 
 
         /// <summary>
@@ -34,10 +36,10 @@
         /// <param name="indexName">string with a name of this index.</param>
         /// <param name="isUnique">true if this index is meant to be unique, false otherwise.</param>
         /// <param name="columnInfos">list of column infos for this index.</param>
-        public void CreateIndex(FullTableName tableName, string indexName, bool isUnique, List<(string columnName, bool isDescending)> columnInfos);
+        public void CreateIndex(FullTableName tableName, string indexName, bool isUnique, IEnumerable<(string columnName, bool isDescending)> columnInfos);
 
         /// <summary>
-        /// Gets an object that implements IEngineTable to talk to a table. The talbe is identified by name.
+        /// Gets an object that implements IEngineTable to talk to a table. The table is identified by name.
         /// The returned interface can be used for operations on the individual table.
         /// </summary>
         /// <param name="tableName">Name of the table to retrieve.</param>
@@ -74,6 +76,17 @@
         /// appear in the system tables. Intended for tests and not applied usage.
         /// </summary>
         /// <param name="testTable">TestTable with the definition of this table.</param>
-        public void InjectTestTable(TestTable testTable);
+        /// <returns>Object implementing IEngineTable for the new table.</returns>
+        public IEngineTable InjectTestTable(TestTable testTable);
+
+        /// <summary>
+        /// Commit all outstanding changes in this engine.
+        /// </summary>
+        public void Commit();
+
+        /// <summary>
+        /// Rollback all outstanding changes in this engine.
+        /// </summary>
+        public void Rollback();
     }
 }

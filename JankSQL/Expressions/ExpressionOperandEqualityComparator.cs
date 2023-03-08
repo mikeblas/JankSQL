@@ -1,6 +1,6 @@
 ﻿/// <summary>
 /// This class implements IEqualityComparer for Tuples so that
-/// such arrayts can be used as keys in hashed containers, like Dictionary<> in
+/// such arrays can be used as keys in hashed containers, like Dictionary<> in
 /// the implementation of the Aggregation operator.
 /// </summary>
 namespace JankSQL.Expressions

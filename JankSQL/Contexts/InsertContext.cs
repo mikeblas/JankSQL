@@ -1,5 +1,6 @@
 ﻿namespace JankSQL.Contexts
 {
+    using JankSQL.Expressions;
     using JankSQL.Operators;
 
     internal class InsertContext : IExecutableContext
@@ -14,20 +15,31 @@
             this.TableName = tableName;
         }
 
-        internal List<FullColumnName> TargetColumns
+        internal IList<FullColumnName> TargetColumns
         {
             get { return targetColumns!; }
-            set { targetColumns = value; }
+            set { targetColumns = value.ToList(); }
         }
 
         internal FullTableName TableName { get; set; }
 
-        public ExecuteResult Execute(Engines.IEngine engine)
+        public object Clone()
+        {
+            InsertContext clone = new (context, TableName);
+
+            if (targetColumns != null)
+                clone.TargetColumns = TargetColumns;
+
+            if (constructors != null)
+                clone.AddExpressionLists(constructors);
+
+            return clone;
+        }
+
+        public ExecuteResult Execute(Engines.IEngine engine, IRowValueAccessor? accessor, Dictionary<string, ExpressionOperand> bindValues)
         {
             if (constructors == null)
                 throw new InternalErrorException("Expected a list of constructors");
-
-            ExecuteResult results = new ExecuteResult();
 
             Engines.IEngineTable? engineTarget = engine.GetEngineTable(TableName);
 
@@ -35,29 +47,30 @@
                 throw new ExecutionException($"Table {TableName} does not exist");
             else
             {
-                if (engineTarget.ColumnCount != constructors[0].Count)
-                    throw new ExecutionException($"InsertContext expected {engineTarget.ColumnCount} columns, got {constructors[0].Count}");
+                // no target column names list means we implicitly use the list from the target table, in order
+                if (targetColumns == null)
+                {
+                    targetColumns = new List<FullColumnName>();
+                    for (int i = 0; i < engineTarget.ColumnCount; i++)
+                        targetColumns.Add(engineTarget.ColumnName(i));
+                }
+
+                if (targetColumns.Count != constructors[0].Count)
+                    throw new ExecutionException($"InsertContext expected {targetColumns.Count} columns, got {constructors[0].Count}");
 
                 ConstantRowSource source = new (TargetColumns, constructors);
                 Insert inserter = new (engineTarget, TargetColumns, source);
 
-                ResultSet? resultSet = null;
-
                 while (true)
                 {
-                    ResultSet? batch = inserter.GetRows(5);
-                    if (batch == null)
+                    ResultSet batch = inserter.GetRows(engine, accessor, 5, bindValues);
+                    if (batch.IsEOF)
                         break;
-                    if (resultSet == null)
-                        resultSet = ResultSet.NewWithShape(batch);
-                    resultSet.Append(batch);
                 }
 
-                results.ResultSet = resultSet;
-                results.ExecuteStatus = ExecuteStatus.SUCCESSFUL;
+                ExecuteResult result = ExecuteResult.SuccessWithRowsAffected(inserter.RowsAffected);
+                return result;
             }
-
-            return results;
         }
 
         public void Dump()
@@ -73,12 +86,12 @@
             }
 
             /*
-            str = String.Join(',',
+            name = String.Join(',',
                 constructors.Select(x => "{" +
                     String.Join(',',
                             x.Select(y => "[" + y + "]"))
                         + "}"));
-            Console.WriteLine($"   Expressions: {str}");
+            Console.WriteLine($"   Expressions: {name}");
             */
 
             if (constructors == null || constructors.Count == 0)

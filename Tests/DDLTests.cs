@@ -1,17 +1,17 @@
-﻿
-namespace Tests
+﻿namespace Tests
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using JankSQL;
     using Engines = JankSQL.Engines;
 
-    public class DDLTests
+    abstract public class DDLTests
     {
         internal string mode = "base";
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         internal Engines.IEngine engine;
 
-        [TestMethod]
+        [Test]
         public void TestCreateInsertTruncateDropTable()
         {
             // create a table
@@ -20,19 +20,21 @@ namespace Tests
             Assert.IsNotNull(ecCreate);
             Assert.AreEqual(0, ecCreate.TotalErrors);
 
-            ExecuteResult resultsCreate = ecCreate.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsCreate.ExecuteStatus, resultsCreate.ErrorMessage);
-            Assert.IsNull(resultsCreate.ResultSet);
+            ExecuteResult resultCreate = ecCreate.ExecuteSingle(engine);
+            JankAssert.SuccessfulWithMessageNoResultSet(resultCreate);
 
             // insert some rows
-            var ecInsert = Parser.ParseSQLFileFromString("INSERT INTO TransientTestTable (SomeInteger, SomeString, AnotherOne) VALUES(1, 'moe', 100), (2, 'larry', 200), (3, 'curly', 300);");
+            var ecInsert = Parser.ParseSQLFileFromString(
+                "INSERT INTO TransientTestTable (SomeInteger, SomeString, AnotherOne) VALUES " +
+                "(1, 'Moe', 100),   " +
+                "(2, 'Larry', 200), " + 
+                "(3, 'Curly', 300); ");
 
             Assert.IsNotNull(ecInsert);
             Assert.AreEqual(0, ecInsert.TotalErrors);
 
-            ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsInsert.ExecuteStatus, resultsInsert.ErrorMessage);
-            Assert.IsNotNull(resultsInsert.ResultSet);
+            ExecuteResult resultInsert = ecInsert.ExecuteSingle(engine);
+            JankAssert.SuccessfulRowsAffected(resultInsert, 3);
 
             // truncate the table
             var ecTruncate = Parser.ParseSQLFileFromString("TRUNCATE TABLE [TransientTestTable];");
@@ -40,11 +42,8 @@ namespace Tests
             Assert.IsNotNull(ecTruncate);
             Assert.AreEqual(0, ecTruncate.TotalErrors);
 
-            ExecuteResult results = ecTruncate.ExecuteSingle(engine);
-
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, results.ExecuteStatus, results.ErrorMessage);
-            Assert.IsNull(results.ResultSet);
-
+            ExecuteResult resultTruncate = ecTruncate.ExecuteSingle(engine);
+            JankAssert.SuccessfulWithMessageNoResultSet(resultTruncate);
 
             // drop the table
             var ecDrop = Parser.ParseSQLFileFromString("DROP TABLE TransientTestTable;");
@@ -52,14 +51,13 @@ namespace Tests
             Assert.IsNotNull(ecDrop);
             Assert.AreEqual(0, ecDrop.TotalErrors);
 
-            ExecuteResult resultsDrop = ecDrop.ExecuteSingle(engine);
+            ExecuteResult resultDrop = ecDrop.ExecuteSingle(engine);
 
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsDrop.ExecuteStatus, resultsDrop.ErrorMessage);
-            Assert.IsNull(resultsDrop.ResultSet);
+            JankAssert.SuccessfulWithMessageNoResultSet(resultDrop);
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestTruncateTableBadName()
         {
             var ec = Parser.ParseSQLFileFromString("TRUNCATE TABLE [BadTableName];");
@@ -67,34 +65,27 @@ namespace Tests
             Assert.IsNotNull(ec);
             Assert.AreEqual(0, ec.TotalErrors);
 
-            ExecuteResult[] results = ec.Execute(engine);
-            Assert.AreEqual(1, results.Length, "result count mismatch");
+            ExecuteResult result = ec.ExecuteSingle(engine);
 
-            Assert.AreEqual(ExecuteStatus.FAILED, results[0].ExecuteStatus);
-            Assert.IsNotNull(results[0].ErrorMessage);
-
-            Assert.IsNull(results[0].ResultSet);
+            JankAssert.FailureWithMessage(result);
         }
 
 
-        [TestMethod, Timeout(1000)]
-        public void TestDropTableBadName()
+        [Test]
+        public void TestFailDropTableBadName()
         {
             var ec = Parser.ParseSQLFileFromString("DROP TABLE [BadTableName];");
 
             Assert.IsNotNull(ec);
             Assert.AreEqual(0, ec.TotalErrors);
 
-            ExecuteResult results = ec.ExecuteSingle(engine);
+            ExecuteResult result = ec.ExecuteSingle(engine);
 
-            Assert.AreEqual(ExecuteStatus.FAILED, results.ExecuteStatus);
-            Assert.IsNotNull(results.ErrorMessage);
-
-            Assert.IsNull(results.ResultSet);
+            JankAssert.FailureWithMessage(result);
         }
 
 
-        [TestMethod, Timeout(1000)]
+        [Test]
         public void TestCreateDropTable()
         {
             var ecCreate = Parser.ParseSQLFileFromString("CREATE TABLE TransientTestTable (SomeInteger INTEGER, SomeString VARCHAR(100));");
@@ -102,20 +93,38 @@ namespace Tests
             Assert.IsNotNull(ecCreate);
             Assert.AreEqual(0, ecCreate.TotalErrors);
 
-            ExecuteResult resultsCreate = ecCreate.ExecuteSingle(engine);
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsCreate.ExecuteStatus);
-            Assert.IsNull(resultsCreate.ResultSet);
+            ExecuteResult resultCreate = ecCreate.ExecuteSingle(engine);
+            JankAssert.SuccessfulWithMessageNoResultSet(resultCreate);
 
             var ecDrop = Parser.ParseSQLFileFromString("DROP TABLE TransientTestTable;");
 
             Assert.IsNotNull(ecDrop);
             Assert.AreEqual(0, ecDrop.TotalErrors);
 
-            ExecuteResult resultsDrop = ecDrop.ExecuteSingle(engine);
-
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultsDrop.ExecuteStatus);
-            Assert.IsNull(resultsDrop.ResultSet);
+            ExecuteResult resultDrop = ecDrop.ExecuteSingle(engine);
+            JankAssert.SuccessfulWithMessageNoResultSet(resultDrop);
         }
+
+        [Test]
+        public void TestCreateIDNames()
+        {
+            var ecCreate = Parser.ParseSQLFileFromString("CREATE TABLE \"monkey\" ([name] \"INTEGER\", integer [INTEGER]);");
+
+            Assert.IsNotNull(ecCreate);
+            Assert.AreEqual(0, ecCreate.TotalErrors);
+
+            ExecuteResult resultCreate = ecCreate.ExecuteSingle(engine);
+            JankAssert.SuccessfulWithMessageNoResultSet(resultCreate);
+
+            var ecDrop = Parser.ParseSQLFileFromString("DROP TABLE \"monkey\";");
+
+            Assert.IsNotNull(ecDrop);
+            Assert.AreEqual(0, ecDrop.TotalErrors);
+
+            ExecuteResult resultDrop = ecDrop.ExecuteSingle(engine);
+            JankAssert.SuccessfulWithMessageNoResultSet(resultDrop);
+        }
+
     }
 }
 

@@ -4,11 +4,11 @@
  *    install, and setup Antlr (now, just setantlr.bat in c:\bin)
  *         https://github.com/antlr/antlr4/blob/master/doc/getting-started.md
  *
- *    walkthrough of TSQL grammar in Antlr:
+ *    walk-through of TSQL grammar in Antlr:
  *         https://dskrzypiec.dev/parsing-tsql/
  *
  *    TSQL Grammar in Antlr:
- *         just this directory; this contains many many grammars
+ *         just this directory; this contains many grammars
  *         https://github.com/antlr/grammars-v4/tree/master/sql/tsql
  *
  *    build the grammar over in the $/grammar directory:
@@ -22,86 +22,48 @@
 
 namespace JankSQL
 {
+    // using JankSQL.Expressions;
+
     internal class Program
     {
         public static void Main()
         {
+            Test2();
+        }
+
+
+        public static void Test2()
+        {
             string str;
 
-            // str = "SELECT [city_name],  [population], [population]*2 FROM [mytable];";
-            // str = "SELECT [mytable].[city_name], [mytable].[population], [population]*2 FROM [mytable];";
-            // str = "SELECT * FROM [mytable];";
-            // str = "SELECT * FROM [mytable] WHERE [population] = 37000 OR [keycolumn] = 1;";
-            // str = "SELECT* FROM[mytable] WHERE[population] != 37000;";
-            // str = "SELECT * FROM [mytable] WHERE [population] = 25000 AND [keycolumn] = 5-4;";
-            // str = "SELECT* FROM [mytable] WHERE NOT [population] = 37000;";
-            // str = "select * from mytable WHERE NOT population = 37000;";
-            // str = "SELECT * FROM [mytable] WHERE NOT(NOT(NOT ([population] = 37000)));";
-            // str = "SELECT * FROM [mytable] JOIN [states] ON [mytable].[state_code] = [states].[state_code]";
-            // str = "SELECT * FROM [mytable] CROSS JOIN [states]";
-            /*
-            str = "SELECT [three].[number_id], [ten].[number_id], [three].[number_id] + 10 * [ten].[number_id] FROM [Three] CROSS JOIN [Ten] CROSS JOIN [MyTable]" +
-                " WHERE [three].[number_id] + 10 * [ten].[number_id] > 30;";
-            */
 
-            // str = "SELECT N'hello', 'goodbye', 'Bob''s Burgers';";
-
-            // str = "SELECT 'Hello' + ', world';";
-
-            // str = "SELECT -32;";
-
-            // str = "SELECT 'This'; SELECT 'That';";
-
-            // str = "TRUNCATE TABLE [TargetTasdfasdfaable];";
-            // str = "SELECT city_name FROM mytable;";
-            //     012345678901
-
-            // str = "INSERT INTO [Mytable] ([keycolumn], [city_name], [state_code], [population]) VALUES (92, 'Tacoma', 'WA', 520000);";
-            // str = "INSERT INTO [Mytable] ([keycolumn], [city_name], [state_code], [population]) VALUES (92, 'Tacoma', 'WA', 520000), (101, 'Chehalis', 'WA', 12000);";
-            // str = "INSERT INTO [Mytable] ([keycolumn], [city_name], [state_code], [population]) VALUES (92, 'Tacoma', 'WA', 520000), (101, 'Chehalis', 'WA', 12000), (3*5, 'Exponent', 'PA', POWER(10, 2));";
-            // str = "SELECT SQRT(2) FROM [mytable];";
-
-            // str = "SELECT [population] / [keycolumn] FROM [mytable];";
-
-            str = "SELECT * FROM [mytable] WHERE [population] > POWER(2500, 2);";
-
-            // -- these need tests --
-            // str = "DROP TABLE emytable";
-            // str = "CREATE TABLE [Schema].[NewTable] (keycolumn INTEGER, city_name VARCHAR(30), state_code VARCHAR, population DECIMAL);";
-            // str = "DELETE FROM Mytable WHERE keycolumn = 2; SELECT * FROM MyTable;";
-            // -- those need tests --
-
-            // str = "UPDATE MyTable SET population = population * 1.12 WHERE keycolumn = 2;";
-            // str = "SELECT [city_name], [population]*2, [population] FROM [mytable];";
-            // str = "SELECT POWER((10/2), 15/5) FROM [mytable];";
-
-            // str = "SELECT SUM(number_id) FROM ten";
-            // str = "SELECT SUM(number_id), COUNT(number_id) FROM ten";
-            str = "SELECT 10* SUM(number_id), COUNT(number_id) * 100 FROM ten";
-            // str = "SELECT 23 * SUM(number_id), COUNT(number_id) FROM ten GROUP BY Polarity";
-
-            // str = "SELECT MIN(number_name), MAX(number_name) FROM ten";
-
-            // str = "SELECT MIN(number_name), MAX(number_name) FROM ten GROUP BY is_even";
-            // str = "SELECT is_even, MIN(number_name), MAX(number_name) FROM ten GROUP BY is_even";
-            // str = "SELECT number_name, MIN(number_name), MAX(number_name) FROM ten GROUP BY is_even";
-
-            // str = "SELECT state_code FROM mytable GROUP BY state_code ORDER BY state_code";
-            // str = "SELECT number_name FROM ten ORDER BY number_name";
-            // str = "SELECT number_name FROM ten ORDER BY number_name DESC";
-
-            // -- needs tests
-            // str = "CREATE INDEX MyIndex ON MyTable (number_id ASC, something, something_Else DESC)";
-            str = "CREATE UNIQUE INDEX TenUnique ON ten (number_id ASC)";
-
-            str = "CREATE INDEX TenNotUnique ON ten (is_even ASC)";
-
-            str = "SELECT 3 + NULL;";
-            str = "SELECT SQRT(NULL);";
-            str = "SELECT -200, 300, NULL, 5, 0;";
+            str = "SELECT number_id FROM ten WHERE number_id < (SELECT MAX(keycolumn) FROM mytable);";
 
 
-            // Engines.DynamicCSVEngine engine = Engines.DynamicCSVEngine.OpenAlways("F:\\JankTests\\Test33");
+            str = "SELECT number_id FROM ten WHERE number_id < (SELECT MAX(keycolumn) FROM mytable WHERE ten.is_even = 0)";
+
+            str = "SELECT number_id FROM ten WHERE number_id < (SELECT MAX(keycolumn) FROM mytable WHERE ten.is_even = 1 AND keycolumn = 3)";
+
+            str = "SELECT keycolumn FROM mytable WHERE keycolumn IN (SELECT number_id FROM ten);";
+
+            str = "SELECT number_id FROM ten WHERE number_id IN (SELECT keycolumn FROM mytable)";
+
+
+            str = "select number_id, keycolumn " +
+                  " from ten " +
+                  " join mytable on numbeR_id = keycolumn; ";
+
+            str = "select number_id, keycolumn " +
+                  " from ten " +
+                  " RIGHT OUTER JOIN mytable on numbeR_id = keycolumn; ";
+
+
+            str = "INSERT INTO ten(number_id, number_name, is_even) VALUES(@P1, @P2, @P3)";
+
+            // name = "SELECT * FROM ten WHERE number_id IN (3, 5, 7, number_id);";
+
+
+            // name = "SELECT LEN(city_name) FROM mytable;";
 
             var btreeEngine = Engines.BTreeEngine.CreateInMemory();
 
@@ -132,9 +94,9 @@ namespace JankSQL
                 .WithTableName("mytable")
                 .WithColumnNames(new string[] { "keycolumn", "city_name", "state_code", "population" })
                 .WithColumnTypes(new ExpressionOperandType[] { ExpressionOperandType.INTEGER, ExpressionOperandType.VARCHAR, ExpressionOperandType.VARCHAR, ExpressionOperandType.INTEGER })
-                .WithRow(new object[] { 1, "Monroeville", "PA", 25000 })
-                .WithRow(new object[] { 2, "Sammamish", "WA", 37000 })
-                .WithRow(new object[] { 3, "New York", "NY", 11500000 })
+                .WithRow(new object[] { 1, "Monroeville", "PA",     25_000 })
+                .WithRow(new object[] { 2, "Sammamish",   "WA",     37_000 })
+                .WithRow(new object[] { 3, "New York",    "NY", 11_500_000 })
                 .Build();
 
             csvEngine.InjectTestTable(tt);
@@ -148,7 +110,41 @@ namespace JankSQL
             {
                 batch.Dump();
 
+                batch.SetBindValue("@P1", ExpressionOperand.IntegerFromInt(301));
+                batch.SetBindValue("@P2", ExpressionOperand.VARCHARFromString("three hundred one"));
+                batch.SetBindValue("@P3", ExpressionOperand.IntegerFromInt(0));
+
                 ExecuteResult[] sets = batch.Execute(engine);
+                for (int i = 0; i < sets.Length; i++)
+                {
+                    Console.WriteLine($"ExecuteResult #{i} =====");
+                    ResultSet? rs = sets[i].ResultSet;
+                    if (rs != null)
+                    {
+                        rs.Dump();
+                        Console.WriteLine($"{rs.RowCount} total rows");
+                    }
+                    else
+                    {
+                        Console.WriteLine("(no result set)");
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine($"{batch.TotalErrors} Errors!");
+                if (batch.HadSemanticError)
+                    Console.WriteLine($"Semantic error: {batch.SemanticError}");
+            }
+
+
+            string str3 = "SELECT * FROM ten";
+            ExecutableBatch batch3 = Parser.ParseSQLFileFromString(str3);
+            if (batch3.TotalErrors == 0)
+            {
+                batch3.Dump();
+
+                ExecuteResult[] sets = batch3.Execute(engine);
                 for (int i = 0; i < sets.Length; i++)
                 {
                     Console.WriteLine($"ExecuteResult #{i} =====");
@@ -169,6 +165,8 @@ namespace JankSQL
                 Console.WriteLine("Errors!");
             }
 
+
+            /*
             string str2 = "INSERT INTO Ten (numbeR_id, numbeR_name, is_even) VALUES (11, 'Eleven', 0)";
             ExecutableBatch batch2 = Parser.ParseSQLFileFromString(str2);
             if (batch2.TotalErrors == 0)
@@ -195,7 +193,7 @@ namespace JankSQL
             {
                 Console.WriteLine("Errors!");
             }
-
+            */
 
             Engines.DynamicCSVEngine.RemoveDatabase(tempPath);
         }

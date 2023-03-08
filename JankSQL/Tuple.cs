@@ -1,6 +1,7 @@
 ﻿namespace JankSQL
 {
     using System.Collections;
+    using JankSQL.Expressions;
 
     public class Tuple : IEnumerable<ExpressionOperand>, IEnumerable
     {
@@ -47,17 +48,17 @@
 
         public IEnumerator<ExpressionOperand> GetEnumerator()
         {
-            return new Enumerator(this);
+            return values.Cast<ExpressionOperand>().GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return new Enumerator(this);
+            return values.GetEnumerator();
         }
 
         public override string ToString()
         {
-            return string.Join(",", values.Select(x => $"[{x}]"));
+            return string.Join(", ", values.Select(x => $"[{x}]"));
         }
 
         internal static Tuple CreateEmpty(int count)
@@ -115,12 +116,10 @@
         {
             var tuple = new Tuple(1);
 
-            if (t == ExpressionOperandType.NVARCHAR)
-                tuple[0] = ExpressionOperand.NVARCHARFromString(str);
-            else if (t == ExpressionOperandType.VARCHAR)
+            if (t == ExpressionOperandType.VARCHAR)
                 tuple[0] = ExpressionOperand.VARCHARFromString(str);
             else
-                throw new ArgumentException($"{nameof(t)} must by NVARCHAR or VARCHAR");
+                throw new ArgumentException($"{nameof(t)} must be VARCHAR");
 
             return tuple;
         }
@@ -132,62 +131,5 @@
                 t[i] = ops[i];
             return t;
         }
-
-        internal class Enumerator : IEnumerator<ExpressionOperand>, System.Collections.IEnumerator
-        {
-            private readonly Tuple tuple;
-            private int index;
-            private ExpressionOperand? current;
-
-            internal Enumerator(Tuple tuple)
-            {
-                index = 0;
-                this.tuple = tuple;
-                current = null;
-            }
-
-            public ExpressionOperand Current
-            {
-                get
-                {
-                    return tuple.values[index];
-                }
-            }
-
-            object IEnumerator.Current
-            {
-                get
-                {
-                    if (current == null)
-                        throw new InvalidOperationException("past the end");
-
-                    return current;
-                }
-            }
-
-            public void Dispose()
-            {
-            }
-
-            public bool MoveNext()
-            {
-                if (index < tuple.values.Length)
-                {
-                    current = tuple.values[index];
-                    index++;
-                    return true;
-                }
-
-                current = null;
-                index = tuple.values.Length + 1;
-                return false;
-            }
-
-            public void Reset()
-            {
-                current = null;
-                index = 0;
-            }
-        }
-    }
+     }
 }

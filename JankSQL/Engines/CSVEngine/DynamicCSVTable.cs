@@ -5,6 +5,12 @@
 
     /// <summary>
     /// represents a table in a CSV engine.
+    ///
+    /// Handling of data types here is a bit weak:
+    ///
+    /// 1) Strings aren't escaped, so a string containing a comma will break the format.
+    /// 2) Null values are stored as an empty field (,,) for any data type. This is indiscernible from an empty string.
+    ///
     /// </summary>
     public class DynamicCSVTable : IEngineTable
     {
@@ -72,26 +78,31 @@
 
                     for (int i = 0; i < fileFields.Length; i++)
                     {
-                        switch (columnTypes[i])
+                        if (fileFields[i].Length == 0)
+                            newRow[i] = ExpressionOperand.NullLiteral();
+                        else
                         {
-                            case ExpressionOperandType.DECIMAL:
-                                newRow[i] = new ExpressionOperandDecimal(double.Parse(fileFields[i]));
-                                break;
+                            switch (columnTypes[i])
+                            {
+                                case ExpressionOperandType.DECIMAL:
+                                    newRow[i] = new ExpressionOperandDecimal(double.Parse(fileFields[i]));
+                                    break;
 
-                            case ExpressionOperandType.VARCHAR:
-                                newRow[i] = new ExpressionOperandVARCHAR(fileFields[i]);
-                                break;
+                                case ExpressionOperandType.VARCHAR:
+                                    newRow[i] = new ExpressionOperandVARCHAR(fileFields[i]);
+                                    break;
 
-                            case ExpressionOperandType.NVARCHAR:
-                                newRow[i] = new ExpressionOperandNVARCHAR(fileFields[i]);
-                                break;
+                                case ExpressionOperandType.INTEGER:
+                                    newRow[i] = new ExpressionOperandInteger(int.Parse(fileFields[i]));
+                                    break;
 
-                            case ExpressionOperandType.INTEGER:
-                                newRow[i] = new ExpressionOperandInteger(int.Parse(fileFields[i]));
-                                break;
+                                case ExpressionOperandType.DATETIME:
+                                    newRow[i] = new ExpressionOperandDateTime(DateTime.Parse(fileFields[i]).ToUniversalTime());
+                                    break;
 
-                            default:
-                                throw new NotImplementedException();
+                                default:
+                                    throw new NotImplementedException($"Can't support type {columnTypes[i]}");
+                            }
                         }
                     }
 
@@ -161,14 +172,14 @@
             if (row.Length != columnNames!.Length)
                 throw new ExecutionException($"table {tableName}: can't insert row with {row.Length} columns, need {columnNames.Length} columns");
 
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new ();
 
             for (int i = 0; i < row.Length; i++)
             {
                 //TODO: make a good representation of NULL in CSV
                 string col;
                 if (row[i].RepresentsNull)
-                    col = "NULL";
+                    col = string.Empty;
                 else
                     col = row[i].AsString();
                 if (i > 0)
@@ -183,6 +194,9 @@
 
         public int DeleteRows(List<ExpressionOperandBookmark> bookmarksToDelete)
         {
+            if (bookmarksToDelete.Count == 0)
+                return 0;
+
             if (bookmarksToDelete[0].Tuple.Length != 1)
                 throw new ArgumentException("CSV bookmarks have a single field");
             if (bookmarksToDelete[0].Tuple[0].NodeType != ExpressionOperandType.INTEGER)
@@ -242,8 +256,18 @@
 
         public IEnumerator<RowWithBookmark> GetEnumerator()
         {
-            DynamicCSVRowEnumerator e = new DynamicCSVRowEnumerator(values.GetEnumerator(), bookmarks.GetEnumerator());
+            DynamicCSVRowEnumerator e = new (values.GetEnumerator(), bookmarks.GetEnumerator());
             return e;
+        }
+
+        public void Commit()
+        {
+            // nothing here, since the implementation auto-commits
+        }
+
+        public void Rollback()
+        {
+            // nothing here, since the implementation auto-commits
         }
 
         private ExpressionOperandType[] GetColumnTypes(FullTableName tableName)
@@ -251,7 +275,7 @@
             ExpressionOperandType[] ret;
 
             // we'd infinitely recurse if we had to look up columns for sys_columns by looking up sys_columns ...
-            if (tableName.TableName.Equals("sys_columns", StringComparison.InvariantCultureIgnoreCase))
+            if (tableName.TableNameOnly.Equals("sys_columns", StringComparison.InvariantCultureIgnoreCase))
             {
                 List<ExpressionOperandType> types = new ();
 
@@ -282,7 +306,7 @@
                 int matchCount = 0;
                 foreach (var row in sysColumns)
                 {
-                    if (row.RowData[tableNameIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
+                    if (row.RowData[tableNameIndex].AsString().Equals(tableName.TableNameOnly, StringComparison.InvariantCultureIgnoreCase))
                         matchCount++;
                 }
 
@@ -290,16 +314,12 @@
 
                 foreach (var row in sysColumns)
                 {
-                    if (row.RowData[tableNameIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
+                    if (row.RowData[tableNameIndex].AsString().Equals(tableName.TableNameOnly, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        ExpressionOperandType operandType;
-                        if (!ExpressionNode.TypeFromString(row.RowData[typeIndex].AsString(), out operandType))
-                        {
-                            throw new ExecutionException($"unknown type {row.RowData[typeIndex].AsString()} in table {tableName.TableName}");
-                        }
+                        if (!ExpressionNode.TypeFromString(row.RowData[typeIndex].AsString(), out ExpressionOperandType operandType))
+                            throw new ExecutionException($"unknown type {row.RowData[typeIndex].AsString()} in table {tableName.TableNameOnly}");
 
                         int index = row.RowData[indexIndex].AsInteger();
-
                         ret[index] = operandType;
                     }
                 }

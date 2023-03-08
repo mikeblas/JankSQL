@@ -1,18 +1,22 @@
 ﻿namespace JankSQL.Engines
 {
+    using System.Collections.Immutable;
+
+    using JankSQL.Expressions;
+
     public class TestTable
     {
-        private readonly List<Tuple> rows;
-        private readonly List<FullColumnName> columnNames;
-        private readonly List<ExpressionOperandType> columnTypes;
+        private readonly Tuple[] rows;
+        private readonly FullColumnName[] columnNames;
+        private readonly ExpressionOperandType[] columnTypes;
         private readonly FullTableName tableName;
 
-        internal TestTable(FullTableName tableName, List<FullColumnName> columnNames, List<ExpressionOperandType> columnTypes, List<Tuple> rows)
+        internal TestTable(FullTableName tableName, IList<FullColumnName> columnNames, IList<ExpressionOperandType> columnTypes, List<Tuple> rows)
         {
             this.tableName = tableName;
-            this.rows = rows;
-            this.columnNames = columnNames;
-            this.columnTypes = columnTypes;
+            this.rows = rows.ToArray();
+            this.columnNames = columnNames.ToArray();
+            this.columnTypes = columnTypes.ToArray();
         }
 
         internal FullTableName TableName
@@ -20,19 +24,19 @@
             get { return tableName; }
         }
 
-        internal List<ExpressionOperandType> ColumnTypes
+        internal IImmutableList<ExpressionOperandType> ColumnTypes
         {
-            get { return columnTypes; }
+            get { return columnTypes.ToImmutableList(); }
         }
 
-        internal List<FullColumnName> ColumnNames
+        internal IImmutableList<FullColumnName> ColumnNames
         {
-            get { return columnNames; }
+            get { return columnNames.ToImmutableList(); }
         }
 
-        internal List<Tuple> Rows
+        internal IImmutableList<Tuple> Rows
         {
-            get { return rows; }
+            get { return rows.ToImmutableList(); }
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿namespace JankSQL.Contexts
 {
     using JankSQL.Engines;
+    using JankSQL.Expressions;
 
     internal class CreateIndexContext : IExecutableContext
     {
@@ -32,14 +33,20 @@
             get { return isUnique; }
         }
 
-        public ExecuteResult Execute(IEngine engine)
+        public object Clone()
+        {
+            var clone = new CreateIndexContext(tableName, indexName, isUnique);
+            foreach (var t in columnInfo)
+                clone.columnInfo.Add(t);
+            return clone;
+        }
+
+        public ExecuteResult Execute(IEngine engine, IRowValueAccessor? accessor, Dictionary<string, ExpressionOperand> bindValues)
         {
             engine.CreateIndex(tableName, indexName, isUnique, columnInfo);
 
-            ExecuteResult ret = new ()
-            {
-                ExecuteStatus = ExecuteStatus.SUCCESSFUL,
-            };
+            //TODO: can we get row count here?
+            ExecuteResult ret = ExecuteResult.SuccessWithRowsAffected(0);
             return ret;
         }
 
@@ -55,6 +62,5 @@
         {
             columnInfo.Add((columnName, isDescending));
         }
-
     }
 }

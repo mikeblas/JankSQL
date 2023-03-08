@@ -1,18 +1,20 @@
 ﻿
 namespace Tests
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
+
     using JankSQL;
     using JankSQL.Expressions;
 
-    [TestClass]
+    [TestFixture]
     public class ExpressionTests
     {
 
         /// <summary>
-        /// We expect Expression.Equals to compare two expressions, in order, by value
+        /// We expect Expression.Equals to compare two expressions, in order, by value.
+        /// Prove that "SomeColumn+3" is the same as "SomeColumn+3".
         /// </summary>
-        [TestMethod]
+        [Test]
         public void TestExpressionObjectEqualsMethod()
         {
             Expression exp1 = new ();
@@ -30,9 +32,9 @@ namespace Tests
 
 
         /// <summary>
-        /// Some expressions aren't equal
+        /// Some expressions aren't equal; "3+SomeColumn" is not the same as "SomeColumn+3"
         /// </summary>
-        [TestMethod]
+        [Test]
         public void TestExpressionObjectEqualsNotMethod()
         {
             Expression exp1 = new ();

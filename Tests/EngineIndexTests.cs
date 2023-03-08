@@ -1,15 +1,17 @@
 ﻿namespace Tests
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
+
     using JankSQL;
     using Engines = JankSQL.Engines;
 
-    public class EngineIndexTests
+    abstract public class EngineIndexTests
     {
         internal string mode = "base";
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         internal Engines.IEngine engine;
 
-        [TestMethod]
+        [Test]
         public void TestCreateIndex()
         {
             // create a non-unique index on a test table
@@ -24,10 +26,10 @@
             Engines.IEngineTable? t = engine.GetEngineTable(FullTableName.FromTableName("ten"));
             Assert.IsNotNull(t);
 
-            var idx = t.Index("evenIndex");
+            var idx = t!.Index("evenIndex");
             Assert.IsNotNull(idx);
 
-            idx.Dump();
+            idx!.Dump();
 
             int oddCount = 0;
             int evenCount = 0;
@@ -53,7 +55,7 @@
             Assert.AreEqual(5, oddCount);
         }
 
-        [TestMethod]
+        [Test]
         public void TestCreateDescIndex()
         {
             // create a non-unique index on a test table
@@ -68,9 +70,9 @@
             Engines.IEngineTable? t = engine.GetEngineTable(FullTableName.FromTableName("ten"));
             Assert.IsNotNull(t);
 
-            var idx = t.Index("evenIndex");
+            var idx = t!.Index("evenIndex");
             Assert.IsNotNull(idx);
-            idx.Dump();
+            idx!.Dump();
 
             int oddCount = 0;
             int evenCount = 0;
@@ -97,7 +99,7 @@
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestCreateInsertIndex()
         {
             // create a non-unique index on a test table
@@ -117,11 +119,11 @@
             newRow[1] = ExpressionOperand.VARCHARFromString("eleven");
             newRow[2] = ExpressionOperand.IntegerFromInt(0);
 
-            t.InsertRow(newRow);
+            t!.InsertRow(newRow);
 
             var idx = t.Index("evenIndex");
             Assert.IsNotNull(idx);
-            idx.Dump();
+            idx!.Dump();
 
             int oddCount = 0;
             int evenCount = 0;
@@ -148,7 +150,7 @@
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestCreateInsertDescIndex()
         {
             // create a non-unique index on a test table
@@ -168,11 +170,11 @@
             newRow[1] = ExpressionOperand.VARCHARFromString("eleven");
             newRow[2] = ExpressionOperand.IntegerFromInt(0);
 
-            t.InsertRow(newRow);
+            t!.InsertRow(newRow);
 
             var idx = t.Index("evenIndex");
             Assert.IsNotNull(idx);
-            idx.Dump();
+            idx!.Dump();
 
             int oddCount = 0;
             int evenCount = 0;
@@ -199,7 +201,7 @@
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestCreateInsertTwoIndex()
         {
             // create a non-unique index on a test table
@@ -220,11 +222,11 @@
             newRow[1] = ExpressionOperand.VARCHARFromString("eleven");
             newRow[2] = ExpressionOperand.IntegerFromInt(0);
 
-            t.InsertRow(newRow);
+            t!.InsertRow(newRow);
 
             var idx = t.Index("evenIndex");
             Assert.IsNotNull(idx);
-            idx.Dump();
+            idx!.Dump();
 
             int oddCount = 0;
             int evenCount = 0;
@@ -266,8 +268,7 @@
         }
 
 
-        [TestMethod]
-        [ExpectedException(typeof(ExecutionException), "Expected error from duplicate key")]
+        [Test]
         public void TestFailCreateUniqueIndex()
         {
             // create a unique index on a test table, expecting failure
@@ -276,12 +277,11 @@
                 ("is_even", false),
             };
 
-            engine.CreateIndex(FullTableName.FromTableName("ten"), "evenIndex", true, columnInfos);
+            Assert.Throws<ExecutionException>(() => engine.CreateIndex(FullTableName.FromTableName("ten"), "evenIndex", true, columnInfos));
         }
 
 
-        [TestMethod]
-        [ExpectedException(typeof(ExecutionException), "Expected error from duplicate key")]
+        [Test]
         public void TestFailCreateUniqueTwoIndex()
         {
             // get our table
@@ -294,7 +294,7 @@
             newRow[1] = ExpressionOperand.VARCHARFromString("zero");
             newRow[2] = ExpressionOperand.IntegerFromInt(1);
 
-            t.InsertRow(newRow);
+            t!.InsertRow(newRow);
 
             // create a unique index on a test table, expecting failure
             List<(string columnName, bool isDescending)> columnInfos = new()
@@ -303,11 +303,11 @@
                 ("number_name", false),
             };
 
-            engine.CreateIndex(FullTableName.FromTableName("ten"), "evenIndex", true, columnInfos);
+            Assert.Throws<ExecutionException>(() => engine.CreateIndex(FullTableName.FromTableName("ten"), "evenIndex", true, columnInfos));
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestCreateUniqueTwoIndex()
         {
             // create a non-unique index on a test table
@@ -323,10 +323,10 @@
             Engines.IEngineTable? t = engine.GetEngineTable(FullTableName.FromTableName("ten"));
             Assert.IsNotNull(t);
 
-            var idx = t.Index("evenNameIndex");
+            var idx = t!.Index("evenNameIndex");
             Assert.IsNotNull(idx);
             Console.WriteLine("Here");
-            idx.Dump();
+            idx!.Dump();
 
             int oddCount = 0;
             int evenCount = 0;
@@ -368,7 +368,7 @@
         }
 
 
-        [TestMethod]
+        [Test]
         public void TestCreateTwoIndex()
         {
             // create a non-unique index on a test table
@@ -384,10 +384,10 @@
             Engines.IEngineTable? t = engine.GetEngineTable(FullTableName.FromTableName("ten"));
             Assert.IsNotNull(t);
 
-            var idx = t.Index("evenNameIndex");
+            var idx = t!.Index("evenNameIndex");
             Assert.IsNotNull(idx);
             Console.WriteLine("Here");
-            idx.Dump();
+            idx!.Dump();
 
             int oddCount = 0;
             int evenCount = 0;
@@ -429,8 +429,7 @@
         }
 
 
-        [TestMethod]
-        [ExpectedException(typeof(ExecutionException), "Expected error from duplicate key")]
+        [Test]
         public void TestFailCreateSameNameTwoIndex()
         {
             // create a non-unique index on a test table
@@ -451,7 +450,7 @@
             }
 
             // create it again, should fail
-            engine.CreateIndex(FullTableName.FromTableName("ten"), "evenNameIndex", false, columnInfos);
+            Assert.Throws<ExecutionException>(() => engine.CreateIndex(FullTableName.FromTableName("ten"), "evenNameIndex", false, columnInfos));
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿namespace JankSQL
 {
+    using System.Collections.Immutable;
+
     internal class ColumnNameList
     {
         private FullColumnName[] names;
@@ -63,18 +65,16 @@
         private readonly List<Tuple> rows;
         private readonly ColumnNameList columnNames;
 
-        internal ResultSet(List<FullColumnName> columnNames)
+        private bool isEOF;
+
+        internal ResultSet(IEnumerable<FullColumnName> columnNames)
         {
             rows = new List<Tuple>();
             this.columnNames = new ColumnNameList(columnNames);
+            isEOF = false;
         }
 
-        internal ResultSet(ColumnNameList columnNames)
-        {
-            rows = new List<Tuple>();
-            this.columnNames = columnNames;
-        }
-
+ 
         public int RowCount
         {
             get { return rows.Count; }
@@ -83,6 +83,11 @@
         public int ColumnCount
         {
             get { return columnNames.Count; }
+        }
+
+        internal bool IsEOF
+        {
+            get { return isEOF; }
         }
 
         public int ColumnIndex(FullColumnName name)
@@ -97,10 +102,19 @@
 
         public void Dump()
         {
-            Console.WriteLine($"{string.Join(",", columnNames)}");
+            Console.WriteLine($"ResultSet: {string.Join(",", (object[])columnNames)}");
+            if (isEOF)
+                Console.WriteLine("   *** EOF ***");
+            else
+            {
+                foreach (var row in rows)
+                    Console.WriteLine($"   {row}");
+            }
+        }
 
-            foreach (var row in rows)
-                Console.WriteLine($"{row}");
+        public ImmutableList<FullColumnName> GetColumnNames()
+        {
+            return columnNames.ToImmutableList();
         }
 
         internal static ResultSet NewWithShape(ResultSet other)
@@ -111,13 +125,19 @@
 
         internal void Append(ResultSet other)
         {
+            if (isEOF)
+                throw new InvalidOperationException();
+
             if (rows == null)
                 throw new InvalidOperationException();
+
+            if (other.RowCount == 0)
+                return;
 
             if (rows.Count > 0 && rows[0].Length != other.rows[0].Length)
                 throw new InvalidOperationException();
 
-            if (columnNames != null && other.columnNames != null && other.columnNames.Count != columnNames.Count)
+            if (columnNames != null && other.columnNames != null && other.columnNames.Length != columnNames.Length)
                 throw new InvalidOperationException();
 
             rows.AddRange(other.rows);
@@ -135,18 +155,17 @@
 
         internal void AddRow(Tuple row)
         {
+            if (isEOF)
+                throw new InvalidOperationException();
+
             if (rows.Count > 0)
             {
                 if (row.Length != rows[0].Length)
-                {
                     throw new InvalidOperationException();
-                }
             }
 
-            if (columnNames != null && columnNames.Count != row.Length)
-            {
-                throw new InvalidOperationException($"Can't add row: expected {columnNames.Count} columns, got {row.Length} columns");
-            }
+            if (columnNames != null && columnNames.Length != row.Length)
+                throw new InvalidOperationException($"Can't add row: expected {columnNames.Length} columns, got {row.Length} columns");
 
             rows.Add(row);
         }
@@ -159,6 +178,14 @@
         internal void Sort(IComparer<Tuple> ic)
         {
             rows.Sort(ic);
+        }
+
+        internal void MarkEOF()
+        {
+            if (rows.Count != 0)
+                throw new InvalidOperationException();
+
+            isEOF = true;
         }
     }
 }

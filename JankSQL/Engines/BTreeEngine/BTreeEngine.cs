@@ -1,22 +1,79 @@
 ﻿namespace JankSQL.Engines
 {
+    using System.Collections.Immutable;
+    using CSharpTest.Net.Collections;
     using JankSQL.Expressions;
 
     public class BTreeEngine : IEngine
     {
+        // InvariantCultureIgnoreCase here so we can have localized table names
+        private readonly Dictionary<string, BTreeTable> inMemoryTables = new (StringComparer.InvariantCultureIgnoreCase);
+
         private readonly BTreeTable sysColumns;
         private readonly BTreeTable sysTables;
         private readonly BTreeTable sysIndexes;
         private readonly BTreeTable sysIndexColumns;
 
-        private readonly Dictionary<string, BTreeTable> inMemoryTables = new (StringComparer.InvariantCultureIgnoreCase);
+        // not null if we are on-disk; otherwise, we're in-memory
+        private readonly string? basePath;
+
+        // are we disposed?
+        private bool disposed = false;
 
         protected BTreeEngine()
         {
-            sysColumns = CreateSysColumns();
-            sysTables = CreateSysTables();
-            sysIndexes = CreateSysIndexes();
-            sysIndexColumns = CreateSysIndexColumns();
+            sysColumns = CreateSysColumns(null);
+            InitializeSysColumns(sysColumns);
+
+            sysTables = CreateSysTables(null);
+            InitializeSysTables(sysTables, null);
+
+            sysIndexes = CreateSysIndexes(null);
+            InitializeSysIndexes(sysIndexes);
+
+            sysIndexColumns = CreateSysIndexColumns(null);
+            InitializeSysIndexColumns(sysIndexColumns);
+
+            inMemoryTables["sys_tables"] = sysTables;
+            inMemoryTables["sys_indexes"] = sysIndexes;
+            inMemoryTables["sys_indexcolumns"] = sysIndexColumns;
+            inMemoryTables["sys_columns"] = sysColumns;
+
+            sysIndexes.Dump();
+            sysIndexColumns.Dump();
+
+            this.basePath = null;
+        }
+
+        protected BTreeEngine(string basePath, Dictionary<string, string> catalogPath)
+        {
+            this.basePath = basePath;
+
+            BPlusTree<Tuple, Tuple>.OptionsV2? sysColumnsOptions = new (new TupleSerializer(), new TupleSerializer());
+            sysColumnsOptions.FileName = catalogPath["sys_columns"];
+            sysColumnsOptions.CreateFile = CreatePolicy.Never;
+            sysColumns = CreateSysColumns(sysColumnsOptions);
+            sysColumns.Commit();
+
+            BPlusTree<Tuple, Tuple>.OptionsV2? sysTablesOptions = new (new TupleSerializer(), new TupleSerializer());
+            sysTablesOptions.FileName = catalogPath["sys_tables"];
+            sysTablesOptions.CreateFile = CreatePolicy.Never;
+            sysTables = CreateSysTables(sysTablesOptions);
+
+            BPlusTree<Tuple, Tuple>.OptionsV2? sysIndexesOptions = new (new TupleSerializer(), new TupleSerializer());
+            sysIndexesOptions.FileName = catalogPath["sys_indexes"];
+            sysIndexesOptions.CreateFile = CreatePolicy.Never;
+            sysIndexes = CreateSysIndexes(sysIndexesOptions);
+
+            BPlusTree<Tuple, Tuple>.OptionsV2? sysIndexColumnsOptions = new (new TupleSerializer(), new TupleSerializer());
+            sysIndexColumnsOptions.FileName = catalogPath["sys_indexcolumns"];
+            sysIndexColumnsOptions.CreateFile = CreatePolicy.Never;
+            sysIndexColumns = CreateSysIndexColumns(sysIndexColumnsOptions);
+
+            inMemoryTables["sys_tables"] = sysTables;
+            inMemoryTables["sys_indexes"] = sysIndexes;
+            inMemoryTables["sys_indexcolumns"] = sysIndexColumns;
+            inMemoryTables["sys_columns"] = sysColumns;
 
             sysIndexes.Dump();
             sysIndexColumns.Dump();
@@ -27,43 +84,132 @@
             return new BTreeEngine();
         }
 
-        public void CreateTable(FullTableName tableName, List<FullColumnName> columnNames, List<ExpressionOperandType> columnTypes)
+        public static BTreeEngine OpenDiskBased(string basePath, OpenPolicy policy)
         {
+            BTreeEngine engine;
+            switch (policy)
+            {
+                case OpenPolicy.ExistingOnly:
+                    engine = OpenExistingOnly(basePath);
+                    break;
+
+                case OpenPolicy.Always:
+                    engine = OpenExistingOnly(basePath);
+                    break;
+
+                case OpenPolicy.Obliterate:
+                    engine = OpenObliterate(basePath);
+                    break;
+
+                default:
+                    throw new ArgumentException($"can't handle OpenPolicy {policy}");
+            }
+
+            return engine;
+        }
+
+        public void Dispose()
+        {
+            if (disposed)
+                return;
+
+            try
+            {
+                foreach (var table in inMemoryTables.Values)
+                    table.Dispose();
+                inMemoryTables.Clear();
+            }
+            finally
+            {
+                disposed = true;
+            }
+        }
+
+        public void Commit()
+        {
+            CheckNotDisposed();
+
+            foreach (var table in inMemoryTables.Values)
+                table.Commit();
+        }
+
+        public void Rollback()
+        {
+            CheckNotDisposed();
+
+            foreach (var table in inMemoryTables.Values)
+                table.Rollback();
+        }
+
+        public void CreateTable(FullTableName tableName, IImmutableList<FullColumnName> columnNames, IImmutableList<ExpressionOperandType> columnTypes)
+        {
+            CheckNotDisposed();
+
             if (columnNames.Count == 0)
                 throw new ArgumentException("Must have at least one column name");
             if (columnNames.Count != columnTypes.Count)
                 throw new ArgumentException($"Must have at types for each column; got {columnNames.Count} names and {columnTypes.Count} types");
 
             // create the table
-            BTreeTable table = new (tableName.TableName, columnTypes.ToArray(), columnNames);
+
+            BTreeTable table;
+            string? fileName = null;
+            if (basePath == null)
+                table = new (tableName.TableNameOnly, columnTypes.ToArray(), columnNames, null);
+            else
+            {
+                BPlusTree<Tuple, Tuple>.OptionsV2? options = new (new TupleSerializer(), new TupleSerializer());
+                options.CreateFile = CreatePolicy.Always;
+                //TODO: make a safe file name from the table name
+                fileName = Path.Combine(basePath, $"{tableName.TableNameOnly}.jankdb");
+                options.FileName = fileName;
+                table = new (tableName.TableNameOnly, columnTypes.ToArray(), columnNames, options);
+            }
 
             // add a row to sys_tables
             Tuple tablesRow = new ()
             {
-                ExpressionOperand.NVARCHARFromString(tableName.TableName),
-                ExpressionOperand.NVARCHARFromString(string.Empty),
+                ExpressionOperand.VARCHARFromString(tableName.TableNameOnly),   // table name
+                ExpressionOperand.VARCHARFromString(fileName ?? string.Empty),  // file name
             };
             sysTables.InsertRow(tablesRow);
 
             // add rows for the sys_columns
-            for (int i = 0; i < columnNames.Count; i++)
+            for (int nameIndex = 0; nameIndex < columnNames.Count; nameIndex++)
             {
                 Tuple columnRow = new ()
                 {
-                    ExpressionOperand.NVARCHARFromString(tableName.TableName),
-                    ExpressionOperand.NVARCHARFromString(columnNames[i].ColumnNameOnly()),
-                    ExpressionOperand.NVARCHARFromString(columnTypes[i].ToString()), // type
-                    ExpressionOperand.IntegerFromInt(i), // ordinal
+                    ExpressionOperand.VARCHARFromString(tableName.TableNameOnly),
+                    ExpressionOperand.VARCHARFromString(columnNames[nameIndex].ColumnNameOnly()),
+                    ExpressionOperand.VARCHARFromString(columnTypes[nameIndex].ToString()), // type
+                    ExpressionOperand.IntegerFromInt(nameIndex), // ordinal
                 };
+
                 sysColumns.InsertRow(columnRow);
             }
 
-            inMemoryTables.Add(tableName.TableName, table);
+            table.Commit();
+            sysTables.Commit();
+            sysColumns.Commit();
+
+            inMemoryTables.Add(tableName.TableNameOnly, table);
         }
 
-        public void CreateIndex(FullTableName tableName, string indexName, bool isUnique, List<(string columnName, bool isDescending)> columnInfos)
+        public void CreateIndex(FullTableName tableName, string indexName, bool isUnique, IEnumerable<(string columnName, bool isDescending)> columnInfos)
         {
-            if (columnInfos.Count == 0)
+            CheckNotDisposed();
+
+            // make sure no duplicate columns in the index
+            HashSet<string> columnNames = new ();
+            foreach (var (columnName, isDescending) in columnInfos)
+            {
+                if (columnNames.Contains(columnName))
+                    throw new ArgumentException($"repeated index column {columnName}");
+                columnNames.Add(columnName);
+            }
+
+            // we did get a non-empty list, right?
+            if (columnNames.Count == 0)
                 throw new ArgumentException("Must have at least one column in this index");
 
             // make sure the table exists
@@ -76,20 +222,11 @@
             int indexNameIndex = sysIndexes.ColumnIndex("index_name");
             foreach (var row in sysIndexes)
             {
-                if (row.RowData[tableNameIndex].AsString().Equals(tableName.TableName, StringComparison.OrdinalIgnoreCase) &&
-                    row.RowData[indexNameIndex].AsString().Equals(indexName, StringComparison.OrdinalIgnoreCase))
+                if (row.RowData[tableNameIndex].AsString().Equals(tableName.TableNameOnly, StringComparison.InvariantCultureIgnoreCase) &&
+                    row.RowData[indexNameIndex].AsString().Equals(indexName, StringComparison.InvariantCultureIgnoreCase))
                 {
                     throw new ExecutionException($"index {indexName} already exists on table {tableName}");
                 }
-            }
-
-            // make sure no duplicate columns in the table
-            HashSet<string> columnNames = new ();
-            for (int i = 0; i < columnInfos.Count; i++)
-            {
-                if (columnNames.Contains(columnInfos[i].columnName))
-                    throw new ArgumentException($"repeated index column {columnInfos[i].columnName}");
-                columnNames.Add(columnInfos[i].columnName);
             }
 
             // make sure those columns exist in the table
@@ -99,7 +236,7 @@
             Dictionary<string, int> columnNameToIndex = new (StringComparer.InvariantCultureIgnoreCase);
             foreach (var row in sysColumns)
             {
-                if (row.RowData[columnsTableNameIndex].AsString().Equals(tableName.TableName, StringComparison.OrdinalIgnoreCase))
+                if (row.RowData[columnsTableNameIndex].AsString().Equals(tableName.TableNameOnly, StringComparison.InvariantCultureIgnoreCase))
                     columnNameToIndex.Add(row.RowData[columnsColumnNameIndex].AsString(), row.RowData[columnsIndexIndex].AsInteger());
             }
 
@@ -110,17 +247,17 @@
             }
 
             // actually create the index
+            //TODO: needs options for persistence
             table.AddIndex(indexName, isUnique, columnInfos);
 
             // a new row for Sysindexes about this index
             Tuple indexesRow = new ()
             {
-                ExpressionOperand.NVARCHARFromString(tableName.TableName),
-                ExpressionOperand.NVARCHARFromString(indexName),
-                ExpressionOperand.NVARCHARFromString(isUnique ? "U" : "N"),
+                ExpressionOperand.VARCHARFromString(tableName.TableNameOnly),
+                ExpressionOperand.VARCHARFromString(indexName),
+                ExpressionOperand.VARCHARFromString(isUnique ? "U" : "N"),
             };
             GetSysIndexes().InsertRow(indexesRow);
-            sysIndexes.Dump();
 
             Tuple indexColumnsRow;
             int index = 0;
@@ -128,10 +265,10 @@
             {
                 indexColumnsRow = new ()
                 {
-                    ExpressionOperand.NVARCHARFromString(tableName.TableName),
-                    ExpressionOperand.NVARCHARFromString(indexName),
+                    ExpressionOperand.VARCHARFromString(tableName.TableNameOnly),
+                    ExpressionOperand.VARCHARFromString(indexName),
                     ExpressionOperand.IntegerFromInt(index),
-                    ExpressionOperand.NVARCHARFromString(columnName),
+                    ExpressionOperand.VARCHARFromString(columnName),
                 };
                 GetSysIndexColumns().InsertRow(indexColumnsRow);
                 index++;
@@ -139,19 +276,25 @@
 
             sysIndexes.Dump();
             sysIndexColumns.Dump();
+            sysIndexes.Commit();
+            sysIndexColumns.Commit();
         }
 
 
         public void DropTable(FullTableName tableName)
         {
+            CheckNotDisposed();
+
             // delete the file (remove from map)
-            if (!inMemoryTables.ContainsKey(tableName.TableName))
+            if (!inMemoryTables.TryGetValue(tableName.TableNameOnly, out BTreeTable? table))
                 throw new ExecutionException($"table {tableName} does not exist");
 
-            inMemoryTables.Remove(tableName.TableName);
+            table.Commit();
+            table.Dispose();
+            inMemoryTables.Remove(tableName.TableNameOnly);
 
             // delete from sys_tables
-            ExpressionOperandBookmark tableBookmark = new ExpressionOperandBookmark(Tuple.FromSingleValue(tableName.TableName, ExpressionOperandType.NVARCHAR));
+            ExpressionOperandBookmark tableBookmark = new (Tuple.FromSingleValue(tableName.TableNameOnly, ExpressionOperandType.VARCHAR));
             List<ExpressionOperandBookmark> tableMark = new () { tableBookmark };
             sysTables.DeleteRows(tableMark);
 
@@ -162,7 +305,7 @@
 
             foreach (var row in sysColumns)
             {
-                if (row.RowData[tableIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
+                if (row.RowData[tableIndex].AsString().Equals(tableName.TableNameOnly, StringComparison.InvariantCultureIgnoreCase))
                 {
                     var k = Tuple.FromOperands(row.RowData[tableIndex], row.RowData[columnIndex]);
                     ExpressionOperandBookmark columnMark = new (k);
@@ -178,31 +321,38 @@
 
         public IEngineTable? GetEngineTable(FullTableName tableName)
         {
+            CheckNotDisposed();
             return GetEngineBTreeTable(tableName);
         }
 
         public IEngineTable GetSysColumns()
         {
+            CheckNotDisposed();
             return sysColumns;
         }
 
         public IEngineTable GetSysTables()
         {
+            CheckNotDisposed();
             return sysTables;
         }
 
         public IEngineTable GetSysIndexes()
         {
+            CheckNotDisposed();
             return sysIndexes;
         }
 
         public IEngineTable GetSysIndexColumns()
         {
+            CheckNotDisposed();
             return sysIndexColumns;
         }
 
-        public void InjectTestTable(TestTable testTable)
+        public IEngineTable InjectTestTable(TestTable testTable)
         {
+            CheckNotDisposed();
+
             // create the table as a heap ...
             CreateTable(testTable.TableName, testTable.ColumnNames, testTable.ColumnTypes);
 
@@ -210,53 +360,167 @@
             // get the file name for our table
             IEngineTable? table = GetEngineTable(testTable.TableName);
             if (table == null)
-            {
                 throw new InvalidOperationException();
-            }
 
             foreach (var row in testTable.Rows)
-            {
                 table.InsertRow(row);
-            }
+
+            table.Commit();
+            return table;
         }
 
         internal BTreeTable? GetEngineBTreeTable(FullTableName tableName)
         {
-            inMemoryTables.TryGetValue(tableName.TableName, out BTreeTable? table);
+            CheckNotDisposed();
+            inMemoryTables.TryGetValue(tableName.TableNameOnly, out BTreeTable? table);
             return table;
         }
 
-        private static BTreeTable CreateSysColumns()
+        protected static BTreeEngine OpenExistingOnly(string basePath)
         {
-            ExpressionOperandType[] keyTypes = new[] { ExpressionOperandType.NVARCHAR, ExpressionOperandType.NVARCHAR };
-            ExpressionOperandType[] valueTypes = new[] { ExpressionOperandType.NVARCHAR, ExpressionOperandType.INTEGER };
+            if (!Directory.Exists(basePath))
+                throw new FileNotFoundException($"database directory {basePath} not found");
 
-            List<FullColumnName> keyNames = new ();
-            List<FullColumnName> valueNames = new ();
+            Dictionary<string, string> catalogPath = GetCatalogPaths(basePath);
 
-            keyNames.Add(FullColumnName.FromColumnName("table_name"));
-            keyNames.Add(FullColumnName.FromColumnName("column_name"));
-            valueNames.Add(FullColumnName.FromColumnName("column_type"));
-            valueNames.Add(FullColumnName.FromColumnName("index"));
+            if (!File.Exists(catalogPath["sys_columns"]))
+                throw new FileNotFoundException($"SysColumns file {catalogPath["sys_columns"]} not found");
 
-            BTreeTable table = new ("sys_columns", keyTypes, keyNames, valueTypes, valueNames);
+            if (!File.Exists(catalogPath["sys_tables"]))
+                throw new FileNotFoundException($"SysTables file {catalogPath["sys_tables"]} not found");
+
+            if (!File.Exists(catalogPath["sys_indexes"]))
+                throw new FileNotFoundException($"SysIndexes file {catalogPath["sys_indexes"]} not found");
+
+            if (!File.Exists(catalogPath["sys_indexcolumns"]))
+                throw new FileNotFoundException($"SysIndexColumns file {catalogPath["sys_indexcolumns"]} not found");
+
+            return new BTreeEngine(basePath, catalogPath);
+        }
+
+        protected static BTreeEngine OpenAlways(string basePath)
+        {
+            BTreeEngine? engine = null;
+            try
+            {
+                engine = OpenExistingOnly(basePath);
+            }
+            catch (FileNotFoundException)
+            {
+                // it's okay, we're meant to handle this
+            }
+
+            if (engine == null)
+                engine = OpenObliterate(basePath);
+
+            return engine;
+        }
+
+        protected static BTreeEngine OpenObliterate(string basePath)
+        {
+            RemoveDatabase(basePath);
+            CreateDatabase(basePath);
+            return OpenExistingOnly(basePath);
+        }
+
+
+        protected static void RemoveDatabase(string basePath)
+        {
+            try
+            {
+                Directory.Delete(basePath, true);
+            }
+            catch (DirectoryNotFoundException)
+            {
+                // that's OK -- already gone!
+            }
+        }
+
+        protected static void CreateDatabase(string basePath)
+        {
+            Directory.CreateDirectory(basePath);
+            CreateSystemCatalog(basePath);
+        }
+
+        protected static void CreateSystemCatalog(string basePath)
+        {
+            Dictionary<string, string> catalogPath = GetCatalogPaths(basePath);
+
+            BPlusTree<Tuple, Tuple>.OptionsV2? sysColumnsOptions = new (new TupleSerializer(), new TupleSerializer());
+            sysColumnsOptions.FileName = catalogPath["sys_columns"];
+            sysColumnsOptions.CreateFile = CreatePolicy.Always;
+            using BTreeTable sysColumns = CreateSysColumns(sysColumnsOptions);
+            InitializeSysColumns(sysColumns);
+            sysColumns.Commit();
+
+            BPlusTree<Tuple, Tuple>.OptionsV2? sysTablesOptions = new (new TupleSerializer(), new TupleSerializer());
+            sysTablesOptions.FileName = catalogPath["sys_tables"];
+            sysTablesOptions.CreateFile = CreatePolicy.Always;
+            using BTreeTable sysTables = CreateSysTables(sysTablesOptions);
+            InitializeSysTables(sysTables, catalogPath);
+            sysTables.Commit();
+
+            BPlusTree<Tuple, Tuple>.OptionsV2? sysIndexesOptions = new (new TupleSerializer(), new TupleSerializer());
+            sysIndexesOptions.FileName = catalogPath["sys_indexes"];
+            sysIndexesOptions.CreateFile = CreatePolicy.Always;
+            using BTreeTable sysIndexes = CreateSysIndexes(sysIndexesOptions);
+            InitializeSysIndexes(sysIndexes);
+            sysIndexes.Commit();
+
+            BPlusTree<Tuple, Tuple>.OptionsV2? sysIndexColumnsOptions = new (new TupleSerializer(), new TupleSerializer());
+            sysIndexColumnsOptions.FileName = catalogPath["sys_indexcolumns"];
+            sysIndexColumnsOptions.CreateFile = CreatePolicy.Always;
+            using BTreeTable sysIndexColumns = CreateSysIndexColumns(sysIndexColumnsOptions);
+            InitializeSysIndexColumns(sysIndexColumns);
+            sysIndexColumns.Commit();
+        }
+
+        protected static Dictionary<string, string> GetCatalogPaths(string basePath)
+        {
+            // InvariantCultureIgnoreCase so we can have localized names
+            Dictionary<string, string> pathDict = new (StringComparer.InvariantCultureIgnoreCase)
+            {
+                { "sys_tables",       Path.Combine(basePath, "sys_tables.jankdb") },
+                { "sys_columns",      Path.Combine(basePath, "sys_columns.jankdb") },
+                { "sys_indexes",      Path.Combine(basePath, "sys_indexes.jankdb") },
+                { "sys_indexcolumns", Path.Combine(basePath, "sys_indexcolumns.jankdb") },
+            };
+
+            return pathDict;
+        }
+
+        private static BTreeTable CreateSysColumns(BPlusTree<Tuple, Tuple>.OptionsV2? options)
+        {
+            ExpressionOperandType[] keyTypes = new[] { ExpressionOperandType.VARCHAR, ExpressionOperandType.VARCHAR };
+            ExpressionOperandType[] valueTypes = new[] { ExpressionOperandType.VARCHAR, ExpressionOperandType.INTEGER };
+
+            FullColumnName[] keyNames = new[] { FullColumnName.FromColumnName("table_name"), FullColumnName.FromColumnName("column_name") };
+            FullColumnName[] valueNames = new[] { FullColumnName.FromColumnName("column_type"), FullColumnName.FromColumnName("index") };
+
+            BTreeTable table = new ("sys_columns", keyTypes, keyNames, valueTypes, valueNames, options);
+
+            return table;
+        }
+
+        private static void InitializeSysColumns(BTreeTable table)
+        {
             Tuple row;
 
             // --- columns for sys_tables
             row = new Tuple()
             {
-                ExpressionOperand.NVARCHARFromString("sys_tables"),
-                ExpressionOperand.NVARCHARFromString("table_name"),
-                ExpressionOperand.NVARCHARFromString("NVARCHAR"),
+                ExpressionOperand.VARCHARFromString("sys_tables"),
+                ExpressionOperand.VARCHARFromString("table_name"),
+                ExpressionOperand.VARCHARFromString("VARCHAR"),
                 ExpressionOperand.IntegerFromInt(1),
             };
             table.InsertRow(row);
 
             row = new Tuple()
             {
-                ExpressionOperand.NVARCHARFromString("sys_tables"),
-                ExpressionOperand.NVARCHARFromString("file_name"),
-                ExpressionOperand.NVARCHARFromString("NVARCHAR"),
+                ExpressionOperand.VARCHARFromString("sys_tables"),
+                ExpressionOperand.VARCHARFromString("file_name"),
+                ExpressionOperand.VARCHARFromString("VARCHAR"),
                 ExpressionOperand.IntegerFromInt(2),
             };
             table.InsertRow(row);
@@ -264,233 +528,255 @@
             // -- columns for sys_columns
             row = new Tuple()
             {
-                ExpressionOperand.NVARCHARFromString("sys_columns"),
-                ExpressionOperand.NVARCHARFromString("table_name"),
-                ExpressionOperand.NVARCHARFromString("NVARCHAR"),
+                ExpressionOperand.VARCHARFromString("sys_columns"),
+                ExpressionOperand.VARCHARFromString("table_name"),
+                ExpressionOperand.VARCHARFromString("VARCHAR"),
                 ExpressionOperand.IntegerFromInt(1),
             };
             table.InsertRow(row);
 
             row = new Tuple()
             {
-                ExpressionOperand.NVARCHARFromString("sys_columns"),
-                ExpressionOperand.NVARCHARFromString("column_name"),
-                ExpressionOperand.NVARCHARFromString("NVARCHAR"),
+                ExpressionOperand.VARCHARFromString("sys_columns"),
+                ExpressionOperand.VARCHARFromString("column_name"),
+                ExpressionOperand.VARCHARFromString("VARCHAR"),
                 ExpressionOperand.IntegerFromInt(2),
             };
             table.InsertRow(row);
 
             row = new Tuple()
             {
-                ExpressionOperand.NVARCHARFromString("sys_columns"),
-                ExpressionOperand.NVARCHARFromString("column_type"),
-                ExpressionOperand.NVARCHARFromString("NVARCHAR"),
+                ExpressionOperand.VARCHARFromString("sys_columns"),
+                ExpressionOperand.VARCHARFromString("column_type"),
+                ExpressionOperand.VARCHARFromString("VARCHAR"),
                 ExpressionOperand.IntegerFromInt(3),
             };
             table.InsertRow(row);
 
             row = new Tuple()
             {
-                ExpressionOperand.NVARCHARFromString("sys_columns"),
-                ExpressionOperand.NVARCHARFromString("index"),
-                ExpressionOperand.NVARCHARFromString("INTEGER"),
+                ExpressionOperand.VARCHARFromString("sys_columns"),
+                ExpressionOperand.VARCHARFromString("index"),
+                ExpressionOperand.VARCHARFromString("INTEGER"),
                 ExpressionOperand.IntegerFromInt(4),
             };
             table.InsertRow(row);
+        }
 
+        private static BTreeTable CreateSysTables(BPlusTree<Tuple, Tuple>.OptionsV2? options)
+        {
+            ExpressionOperandType[] keyTypes = new[] { ExpressionOperandType.VARCHAR };
+            ExpressionOperandType[] valueTypes = new[] { ExpressionOperandType.VARCHAR };
+
+            FullColumnName[] keyNames = new[] { FullColumnName.FromColumnName("table_name") };
+            FullColumnName[] valueNames = new[] { FullColumnName.FromColumnName("file_name") };
+
+            BTreeTable table = new ("sys_tables", keyTypes, keyNames, valueTypes, valueNames, options);
             return table;
         }
 
-        private static BTreeTable CreateSysTables()
+        private static void InitializeSysTables(BTreeTable table, Dictionary<string, string>? catalogPath)
         {
-            ExpressionOperandType[] keyTypes = new[] { ExpressionOperandType.NVARCHAR };
-            ExpressionOperandType[] valueTypes = new[] { ExpressionOperandType.NVARCHAR };
-
-            List<FullColumnName> keyNames = new ();
-            List<FullColumnName> valueNames = new ();
-
-            keyNames.Add(FullColumnName.FromColumnName("table_name"));
-            valueNames.Add(FullColumnName.FromColumnName("file_name"));
-
-            BTreeTable table = new ("sys_tables", keyTypes, keyNames, valueTypes, valueNames);
-
             Tuple row;
 
             row = new Tuple()
             {
-                ExpressionOperand.NVARCHARFromString("sys_tables"),
-                ExpressionOperand.NVARCHARFromString(string.Empty),
+                ExpressionOperand.VARCHARFromString("sys_tables"),
+                (catalogPath == null) ? ExpressionOperand.NullLiteral() : ExpressionOperand.VARCHARFromString(catalogPath["sys_tables"]),
             };
             table.InsertRow(row);
 
             row = new Tuple()
             {
-                ExpressionOperand.NVARCHARFromString("sys_columns"),
-                ExpressionOperand.NVARCHARFromString(string.Empty),
+                ExpressionOperand.VARCHARFromString("sys_columns"),
+                (catalogPath == null) ? ExpressionOperand.NullLiteral() : ExpressionOperand.VARCHARFromString(catalogPath["sys_columns"]),
             };
             table.InsertRow(row);
 
-            return table;
+            row = new Tuple()
+            {
+                ExpressionOperand.VARCHARFromString("sys_indexes"),
+                (catalogPath == null) ? ExpressionOperand.NullLiteral() : ExpressionOperand.VARCHARFromString(catalogPath["sys_indexes"]),
+            };
+            table.InsertRow(row);
+
+            row = new Tuple()
+            {
+                ExpressionOperand.VARCHARFromString("sys_indexcolumns"),
+                (catalogPath == null) ? ExpressionOperand.NullLiteral() : ExpressionOperand.VARCHARFromString(catalogPath["sys_indexcolumns"]),
+            };
+            table.InsertRow(row);
         }
 
-        private static BTreeTable CreateSysIndexes()
+        private static BTreeTable CreateSysIndexes(BPlusTree<Tuple, Tuple>.OptionsV2? options)
         {
             // key is: table_name, index_name
-            ExpressionOperandType[] keyTypes = new[] { ExpressionOperandType.NVARCHAR, ExpressionOperandType.NVARCHAR };
+            ExpressionOperandType[] keyTypes = new[] { ExpressionOperandType.VARCHAR, ExpressionOperandType.VARCHAR };
 
             // values are: index_type
-            ExpressionOperandType[] valueTypes = new[] { ExpressionOperandType.NVARCHAR };
+            ExpressionOperandType[] valueTypes = new[] { ExpressionOperandType.VARCHAR };
 
-            List<FullColumnName> keyNames = new ()
+            FullColumnName[] keyNames = new[]
             {
                 FullColumnName.FromColumnName("table_name"),
                 FullColumnName.FromColumnName("index_name"),
             };
-            List<FullColumnName> valueNames = new ()
+            FullColumnName[] valueNames = new[]
             {
                 FullColumnName.FromColumnName("index_type"),
             };
 
-            BTreeTable table = new ("sys_indexes", keyTypes, keyNames, valueTypes, valueNames);
+            BTreeTable table = new ("sys_indexes", keyTypes, keyNames, valueTypes, valueNames, options);
+            return table;
+        }
 
+        private static void InitializeSysIndexes(BTreeTable table)
+        {
             Tuple row;
 
             // --- for sys_tables
             row = new Tuple()
             {
-                ExpressionOperand.NVARCHARFromString("sys_tables"),
-                ExpressionOperand.NVARCHARFromString("sys_tables_pk"),
-                ExpressionOperand.NVARCHARFromString("U"),
+                ExpressionOperand.VARCHARFromString("sys_tables"),
+                ExpressionOperand.VARCHARFromString("sys_tables_pk"),
+                ExpressionOperand.VARCHARFromString("U"),
             };
             table.InsertRow(row);
 
             // --- for sys_columns
             row = new Tuple()
             {
-                ExpressionOperand.NVARCHARFromString("sys_columns"),
-                ExpressionOperand.NVARCHARFromString("sys_columns_pk"),
-                ExpressionOperand.NVARCHARFromString("U"),
+                ExpressionOperand.VARCHARFromString("sys_columns"),
+                ExpressionOperand.VARCHARFromString("sys_columns_pk"),
+                ExpressionOperand.VARCHARFromString("U"),
             };
             table.InsertRow(row);
 
             // --- for sys_indexes
             row = new Tuple()
             {
-                ExpressionOperand.NVARCHARFromString("sys_indexes"),
-                ExpressionOperand.NVARCHARFromString("sys_indexes_pk"),
-                ExpressionOperand.NVARCHARFromString("U"),
+                ExpressionOperand.VARCHARFromString("sys_indexes"),
+                ExpressionOperand.VARCHARFromString("sys_indexes_pk"),
+                ExpressionOperand.VARCHARFromString("U"),
             };
             table.InsertRow(row);
 
             // --- for sys_columns
             row = new Tuple()
             {
-                ExpressionOperand.NVARCHARFromString("sys_indexcolumns"),
-                ExpressionOperand.NVARCHARFromString("sys_indexcolumns_pk"),
-                ExpressionOperand.NVARCHARFromString("U"),
+                ExpressionOperand.VARCHARFromString("sys_indexcolumns"),
+                ExpressionOperand.VARCHARFromString("sys_indexcolumns_pk"),
+                ExpressionOperand.VARCHARFromString("U"),
             };
             table.InsertRow(row);
-
-            return table;
         }
 
-        private static BTreeTable CreateSysIndexColumns()
+        private static BTreeTable CreateSysIndexColumns(BPlusTree<Tuple, Tuple>.OptionsV2? options)
         {
             // key is: table_name, index_name, index
-            ExpressionOperandType[] keyTypes = new[] { ExpressionOperandType.NVARCHAR, ExpressionOperandType.NVARCHAR, ExpressionOperandType.INTEGER };
+            ExpressionOperandType[] keyTypes = new[] { ExpressionOperandType.VARCHAR, ExpressionOperandType.VARCHAR, ExpressionOperandType.INTEGER };
 
             // values are: column_name
-            ExpressionOperandType[] valueTypes = new[] { ExpressionOperandType.NVARCHAR };
+            ExpressionOperandType[] valueTypes = new[] { ExpressionOperandType.VARCHAR };
 
-            List<FullColumnName> keyNames = new ()
+            FullColumnName[] keyNames = new[]
             {
                 FullColumnName.FromColumnName("table_name"),
                 FullColumnName.FromColumnName("index_name"),
                 FullColumnName.FromColumnName("index"),
             };
-            List<FullColumnName> valueNames = new ()
+
+            FullColumnName[] valueNames = new[]
             {
                 FullColumnName.FromColumnName("column_name"),
             };
 
-            BTreeTable table = new ("sys_indexcolumns", keyTypes, keyNames, valueTypes, valueNames);
+            BTreeTable table = new ("sys_indexcolumns", keyTypes, keyNames, valueTypes, valueNames, options);
+            return table;
+        }
 
+        private static void InitializeSysIndexColumns(BTreeTable table)
+        {
             Tuple row;
 
             // --- for sys_tables, the key is just the table name
             row = new Tuple()
             {
-                ExpressionOperand.NVARCHARFromString("sys_tables"),
-                ExpressionOperand.NVARCHARFromString("sys_tables_pk"),
+                ExpressionOperand.VARCHARFromString("sys_tables"),
+                ExpressionOperand.VARCHARFromString("sys_tables_pk"),
                 ExpressionOperand.IntegerFromInt(1),
-                ExpressionOperand.NVARCHARFromString("table_name"),
+                ExpressionOperand.VARCHARFromString("table_name"),
             };
             table.InsertRow(row);
 
             // --- for sys_columns, the key is (table_name, column_name)
             row = new Tuple()
             {
-                ExpressionOperand.NVARCHARFromString("sys_columns"),
-                ExpressionOperand.NVARCHARFromString("sys_columns_pk"),
+                ExpressionOperand.VARCHARFromString("sys_columns"),
+                ExpressionOperand.VARCHARFromString("sys_columns_pk"),
                 ExpressionOperand.IntegerFromInt(1),
-                ExpressionOperand.NVARCHARFromString("table_name"),
+                ExpressionOperand.VARCHARFromString("table_name"),
             };
             table.InsertRow(row);
             row = new Tuple()
             {
-                ExpressionOperand.NVARCHARFromString("sys_columns"),
-                ExpressionOperand.NVARCHARFromString("sys_columns_pk"),
+                ExpressionOperand.VARCHARFromString("sys_columns"),
+                ExpressionOperand.VARCHARFromString("sys_columns_pk"),
                 ExpressionOperand.IntegerFromInt(2),
-                ExpressionOperand.NVARCHARFromString("column_name"),
+                ExpressionOperand.VARCHARFromString("column_name"),
             };
             table.InsertRow(row);
 
             // --- for sys_indexes, the key is the table name and the index name
             row = new Tuple()
             {
-                ExpressionOperand.NVARCHARFromString("sys_indexes"),
-                ExpressionOperand.NVARCHARFromString("sys_indexes_pk"),
+                ExpressionOperand.VARCHARFromString("sys_indexes"),
+                ExpressionOperand.VARCHARFromString("sys_indexes_pk"),
                 ExpressionOperand.IntegerFromInt(1),
-                ExpressionOperand.NVARCHARFromString("table_name"),
+                ExpressionOperand.VARCHARFromString("table_name"),
             };
             table.InsertRow(row);
             row = new Tuple()
             {
-                ExpressionOperand.NVARCHARFromString("sys_indexes"),
-                ExpressionOperand.NVARCHARFromString("sys_indexes_pk"),
+                ExpressionOperand.VARCHARFromString("sys_indexes"),
+                ExpressionOperand.VARCHARFromString("sys_indexes_pk"),
                 ExpressionOperand.IntegerFromInt(2),
-                ExpressionOperand.NVARCHARFromString("index_name"),
+                ExpressionOperand.VARCHARFromString("index_name"),
             };
             table.InsertRow(row);
 
 
-            // --- for sys_indexcolumns, the key is the tablename, index name, and index
+            // --- for sys_indexcolumns, the key is the table name, index name, and index
             row = new Tuple()
             {
-                ExpressionOperand.NVARCHARFromString("sys_indexcolumns"),
-                ExpressionOperand.NVARCHARFromString("sys_indexcolumns_pk"),
+                ExpressionOperand.VARCHARFromString("sys_indexcolumns"),
+                ExpressionOperand.VARCHARFromString("sys_indexcolumns_pk"),
                 ExpressionOperand.IntegerFromInt(1),
-                ExpressionOperand.NVARCHARFromString("table_name"),
+                ExpressionOperand.VARCHARFromString("table_name"),
             };
             table.InsertRow(row);
             row = new Tuple()
             {
-                ExpressionOperand.NVARCHARFromString("sys_indexcolumns"),
-                ExpressionOperand.NVARCHARFromString("sys_indexcolumns_pk"),
+                ExpressionOperand.VARCHARFromString("sys_indexcolumns"),
+                ExpressionOperand.VARCHARFromString("sys_indexcolumns_pk"),
                 ExpressionOperand.IntegerFromInt(2),
-                ExpressionOperand.NVARCHARFromString("index_name"),
+                ExpressionOperand.VARCHARFromString("index_name"),
             };
             table.InsertRow(row);
             row = new Tuple()
             {
-                ExpressionOperand.NVARCHARFromString("sys_indexcolumns"),
-                ExpressionOperand.NVARCHARFromString("sys_indexcolumns_pk"),
+                ExpressionOperand.VARCHARFromString("sys_indexcolumns"),
+                ExpressionOperand.VARCHARFromString("sys_indexcolumns_pk"),
                 ExpressionOperand.IntegerFromInt(3),
-                ExpressionOperand.NVARCHARFromString("index"),
+                ExpressionOperand.VARCHARFromString("index"),
             };
             table.InsertRow(row);
+        }
 
-            return table;
+        private void CheckNotDisposed()
+        {
+            if (disposed)
+                throw new ObjectDisposedException(GetType().FullName);
         }
     }
 }

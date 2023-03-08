@@ -1,5 +1,8 @@
 ﻿namespace JankSQL.Contexts
 {
+    using JankSQL.Engines;
+    using JankSQL.Expressions;
+
     internal class DropTableContext : IExecutableContext
     {
         private readonly FullTableName tableName;
@@ -14,15 +17,20 @@
             Console.WriteLine($"Drop table {tableName}");
         }
 
-        public ExecuteResult Execute(Engines.IEngine engine)
+#pragma warning disable IDE0060 // Remove unused parameter
+        public ExecuteResult Execute(IEngine engine, IRowValueAccessor? accessor, Dictionary<string, ExpressionOperand> bindValues)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             engine.DropTable(tableName);
 
-            ExecuteResult ret = new ()
-            {
-                ExecuteStatus = ExecuteStatus.SUCCESSFUL,
-            };
+            ExecuteResult ret = ExecuteResult.SuccessWithMessage($"table {tableName} dropped");
             return ret;
+        }
+
+        public object Clone()
+        {
+            DropTableContext clone = new DropTableContext(tableName);
+            return clone;
         }
     }
 }

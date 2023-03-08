@@ -2,6 +2,7 @@
 {
     using JankSQL.Expressions;
 
+    //REVIEW: maybe this should be an operator and not an Engine
     public class DualSource : IEngineTable
     {
         public int ColumnCount => 0;
@@ -44,6 +45,16 @@
         }
 
         public IndexAccessor Index(string indexName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Commit()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Rollback()
         {
             throw new NotImplementedException();
         }

@@ -4,35 +4,26 @@
     {
         private readonly string columnName;
 
-        private string? serverName;
-        private string? schemaName;
-        private string? tableName;
+        private readonly string? serverName;
+        private readonly string? schemaName;
+        private readonly string? tableName;
 
         private FullColumnName(string columnName)
         {
             this.columnName = columnName;
         }
 
-        public static FullColumnName FromContext(TSqlParser.Full_column_nameContext context)
+        private FullColumnName(string? serverName, string? schemaName, string? tableName, string columnName)
         {
-            var r = new FullColumnName(GetEffectiveName(context.column_name.GetText()));
-            r.serverName = (context.server != null) ? GetEffectiveName(context.server.GetText()) : null;
-            r.schemaName = (context.schema != null) ? GetEffectiveName(context.schema.GetText()) : null;
-            r.tableName = (context.tablename != null) ? GetEffectiveName(context.tablename.GetText()) : null;
-            return r;
+            this.serverName = serverName;
+            this.schemaName = schemaName;
+            this.tableName = tableName;
+            this.columnName = columnName;
         }
 
-        public static FullColumnName FromColumnName(string columnName)
+        public string? TableNameOnly
         {
-            var r = new FullColumnName(GetEffectiveName(columnName));
-            return r;
-        }
-
-        public static FullColumnName FromTableColumnName(string tableName, string columnName)
-        {
-            var r = new FullColumnName(GetEffectiveName(columnName));
-            r.tableName = GetEffectiveName(tableName);
-            return r;
+            get { return tableName; }
         }
 
         public override bool Equals(object? o)
@@ -40,6 +31,7 @@
             if (o is not FullColumnName other)
                 return false;
 
+            // InvariantCultureIgnoreCase so that identifier names can be localized
             if (other.serverName != null && !other.serverName.Equals(this.serverName, StringComparison.InvariantCultureIgnoreCase))
                 return false;
 
@@ -100,13 +92,47 @@
             return ret;
         }
 
-        private static string GetEffectiveName(string objectName)
-        {
-            // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/proposals/csharp-8.0/ranges
-            if (objectName[0] != '[' || objectName[^1] != ']')
-                return objectName;
 
-            return objectName[1..^1];
+        internal static FullColumnName FromContext(TSqlParser.Full_column_nameContext context)
+        {
+            string columnName = ParseHelpers.StringFromIDContext(context.id_());
+
+            string? serverName = null;
+            string? schemaName = null;
+            string? tableName = null;
+
+            if (context.full_table_name() != null)
+            {
+                serverName = ParseHelpers.PossibleStringFromIDContext(context.full_table_name().server);
+                schemaName = ParseHelpers.PossibleStringFromIDContext(context.full_table_name().schema);
+                tableName = ParseHelpers.PossibleStringFromIDContext(context.full_table_name().table);
+            }
+
+            return new FullColumnName(serverName, schemaName, tableName, columnName);
+        }
+
+        internal static FullColumnName FromIDContext(TSqlParser.Id_Context context)
+        {
+            var r = new FullColumnName(ParseHelpers.StringFromIDContext(context));
+            return r;
+        }
+
+        internal static FullColumnName FromColumnName(string columnName)
+        {
+            var r = new FullColumnName(columnName);
+            return r;
+        }
+
+        internal static FullColumnName FromTableColumnName(string tableName, string columnName)
+        {
+            var r = new FullColumnName(null, null, tableName, columnName);
+            return r;
+        }
+
+        internal FullColumnName ApplyTableAlias(string newTableName)
+        {
+            FullColumnName fcnNew = new FullColumnName(serverName, schemaName, newTableName, columnName);
+            return fcnNew;
         }
 
         public int CompareTo(object? obj)

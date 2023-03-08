@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Engines
 {
+    using System.Collections.Immutable;
+
     using JankSQL.Expressions;
 
     public enum OpenPolicy
@@ -40,7 +42,7 @@
                     break;
 
                 default:
-                    throw new ArgumentException();
+                    throw new ArgumentException($"can't handle OpenPolicy {policy}");
             }
 
             return engine;
@@ -114,16 +116,32 @@
             }
         }
 
-        public void CreateTable(FullTableName tableName, List<FullColumnName> columnNames, List<ExpressionOperandType> columnTypes)
+        public void Dispose()
+        {
+            // nothing to dispose
+            GC.SuppressFinalize(this);
+        }
+
+        public void Commit()
+        {
+            // nothing to commit
+        }
+
+        public void Rollback()
+        {
+            // nothing to rollback
+        }
+
+        public void CreateTable(FullTableName tableName, IImmutableList<FullColumnName> columnNames, IImmutableList<ExpressionOperandType> columnTypes)
         {
             // guess file name
-            string fileName = tableName.TableName.Replace("[", string.Empty).Replace("]", string.Empty) + ".csv";
+            string fileName = tableName.TableNameOnly.Replace("[", string.Empty).Replace("]", string.Empty) + ".csv";
             string fullPath = Path.Combine(basePath, fileName);
 
             // see if table doesn't exist
             IEngineTable sysTables = GetSysTables();
 
-            string? foundFileName = FileFromSysTables(sysTables, tableName.TableName);
+            string? foundFileName = FileFromSysTables(sysTables, tableName.TableNameOnly);
             if (foundFileName != null)
             {
                 throw new ExecutionException($"Table named {tableName} already exists");
@@ -150,8 +168,8 @@
 
             // add row to sys_tables
             Tuple newRow = Tuple.CreateEmpty(sysTables.ColumnCount);
-            newRow[idxFile] = ExpressionOperand.NVARCHARFromString(fullPath);
-            newRow[idxName] = ExpressionOperand.NVARCHARFromString(tableName.TableName);
+            newRow[idxFile] = ExpressionOperand.VARCHARFromString(fullPath);
+            newRow[idxName] = ExpressionOperand.VARCHARFromString(tableName.TableNameOnly);
 
             sysTables.InsertRow(newRow);
 
@@ -163,34 +181,39 @@
             int idxTableName = sysColumns.ColumnIndex("table_name");
             int idxType = sysColumns.ColumnIndex("column_type");
 
-            for (int i = 0; i < columnNames.Count; i++)
+            int columnNameIndex = 0;
+            IEnumerator<ExpressionOperandType> columnTypeEnumerator = columnTypes.GetEnumerator();
+            foreach (var columnName in columnNames)
             {
+                columnTypeEnumerator.MoveNext();
                 Tuple columnRow = Tuple.CreateEmpty(sysColumns.ColumnCount);
 
-                columnRow[idxIdx] = ExpressionOperand.IntegerFromInt(i);
-                columnRow[idxTableName] = ExpressionOperand.NVARCHARFromString(tableName.TableName);
-                columnRow[idxColumnName] = ExpressionOperand.NVARCHARFromString(columnNames[i].ColumnNameOnly());
-                columnRow[idxType] = ExpressionOperand.VARCHARFromString(columnTypes[i].ToString());
+                columnRow[idxIdx] = ExpressionOperand.IntegerFromInt(columnNameIndex);
+                columnRow[idxTableName] = ExpressionOperand.VARCHARFromString(tableName.TableNameOnly);
+                columnRow[idxColumnName] = ExpressionOperand.VARCHARFromString(columnName.ColumnNameOnly());
+                columnRow[idxType] = ExpressionOperand.VARCHARFromString(columnTypeEnumerator.Current.ToString());
 
                 sysColumns.InsertRow(columnRow);
+
+                columnNameIndex++;
             }
         }
 
-        public void CreateIndex(FullTableName tableName, string indexName, bool isUnique, List<(string columnName, bool isDescending)> columnInfos)
+        public void CreateIndex(FullTableName tableName, string indexName, bool isUnique, IEnumerable<(string columnName, bool isDescending)> columnInfos)
         {
             throw new NotImplementedException();
         }
 
         public IEngineTable GetSysTables()
         {
-            DynamicCSVTable sysTables = new DynamicCSVTable(sysTablesPath, "sys_tables", this);
+            DynamicCSVTable sysTables = new (sysTablesPath, "sys_tables", this);
             sysTables.Load();
             return sysTables;
         }
 
         public IEngineTable GetSysColumns()
         {
-            DynamicCSVTable sysColumns = new DynamicCSVTable(sysColumnsPath, "sys_columns", this);
+            DynamicCSVTable sysColumns = new (sysColumnsPath, "sys_columns", this);
             sysColumns.Load();
             return sysColumns;
         }
@@ -210,7 +233,7 @@
             // delete the file
             IEngineTable sysTables = GetSysTables();
 
-            string? fileName = DynamicCSVEngine.FileFromSysTables(sysTables, tableName.TableName);
+            string? fileName = DynamicCSVEngine.FileFromSysTables(sysTables, tableName.TableNameOnly);
             if (fileName == null)
                 throw new ExecutionException($"Table {tableName} does not exist");
 
@@ -223,7 +246,7 @@
             List<ExpressionOperandBookmark> rowIndexesToDelete = new ();
             foreach (var row in sysColumns)
             {
-                if (row.RowData[tableNameIndex].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
+                if (row.RowData[tableNameIndex].AsString().Equals(tableName.TableNameOnly, StringComparison.InvariantCultureIgnoreCase))
                 {
                     rowIndexesToDelete.Add(row.Bookmark);
                 }
@@ -237,7 +260,7 @@
 
             foreach (var row in sysTables)
             {
-                if (row.RowData[idxName].AsString().Equals(tableName.TableName, StringComparison.InvariantCultureIgnoreCase))
+                if (row.RowData[idxName].AsString().Equals(tableName.TableNameOnly, StringComparison.InvariantCultureIgnoreCase))
                 {
                     rowIndexesToDelete.Add(row.Bookmark);
                 }
@@ -252,22 +275,20 @@
             IEngineTable sysTables = GetSysTables();
 
             // get the file name for our table
-            string? effectiveTableFileName = FileFromSysTables(sysTables, tableName.TableName);
+            string? effectiveTableFileName = FileFromSysTables(sysTables, tableName.TableNameOnly);
 
             if (effectiveTableFileName == null)
-            {
                 return null;
-            }
             else
             {
                 // found the source table, so load it
-                DynamicCSVTable table = new DynamicCSVTable(effectiveTableFileName, tableName.TableName, this);
+                DynamicCSVTable table = new (effectiveTableFileName, tableName.TableNameOnly, this);
                 table.Load();
                 return table;
             }
         }
 
-        public void InjectTestTable(TestTable testTable)
+        public IEngineTable InjectTestTable(TestTable testTable)
         {
             // create the table ...
             CreateTable(testTable.TableName, testTable.ColumnNames, testTable.ColumnTypes);
@@ -275,19 +296,17 @@
             // then insert each of the given rows
             // get the file name for our table
             IEngineTable sysTables = GetSysTables();
-            string? effectiveTableFileName = FileFromSysTables(sysTables, testTable.TableName.TableName);
+            string? effectiveTableFileName = FileFromSysTables(sysTables, testTable.TableName.TableNameOnly);
             if (effectiveTableFileName == null)
-            {
                 throw new InvalidOperationException();
-            }
 
-            DynamicCSVTable table = new DynamicCSVTable(effectiveTableFileName, testTable.TableName.TableName, this);
+            DynamicCSVTable table = new (effectiveTableFileName, testTable.TableName.TableNameOnly, this);
             table.Load();
 
             foreach (var row in testTable.Rows)
-            {
                 table.InsertRow(row);
-            }
+
+            return table;
         }
 
         protected static void CreateDatabase(string basePath)
@@ -318,11 +337,11 @@
             string[] sysColsStrings = new string[]
             {
                 "table_name,column_name,column_type,index",
-                "sys_tables, table_name,NVARCHAR,0",
-                "sys_tables,file_name,NVARCHAR,1",
-                "sys_columns,table_name,NVARCHAR,0",
-                "sys_columns,column_name,NVARCHAR,1",
-                "sys_columns,column_type,NVARCHAR,2",
+                "sys_tables, table_name,VARCHAR,0",
+                "sys_tables,file_name,VARCHAR,1",
+                "sys_columns,table_name,VARCHAR,0",
+                "sys_columns,column_name,VARCHAR,1",
+                "sys_columns,column_type,VARCHAR,2",
                 "sys_columns,index,INTEGER,3",
             };
 

@@ -1,26 +1,40 @@
 ﻿namespace JankSQL.Contexts
 {
+    using JankSQL.Expressions;
     using JankSQL.Operators;
 
-    public class SelectContext : IExecutableContext
+    internal class SelectContext : IExecutableContext
     {
         private readonly TSqlParser.Select_statementContext statementContext;
 
         private readonly List<JoinContext> joinContexts = new ();
         private readonly List<AggregateContext> aggregateContexts = new ();
         private readonly List<Expression> groupByExpressions = new ();
+        private readonly SelectListContext selectListContext;
+
+        // InvariantCultureIgnoreCase here so we can have localized table names
+        private readonly HashSet<string> tableNames = new (StringComparer.InvariantCultureIgnoreCase);
+
+        // for WHERE clauses
+        private readonly PredicateContext? predicateContext;
+
+        private FullTableName? sourceTableName;
+
+        private SelectContext? inputContext;
 
         private OrderByContext? orderByContext;
 
-        private SelectListContext? selectListContext;
-
-        // for WHERE clauses
-        private PredicateContext? predicateContext;
+        private string? derivedTableAlias;
 
         internal SelectContext(TSqlParser.Select_statementContext context, PredicateContext? predicateContext)
         {
             statementContext = context;
             this.predicateContext = predicateContext;
+            selectListContext = new SelectListContext(context.query_expression().query_specification().select_list());
+
+            sourceTableName = null;
+            orderByContext = null;
+            inputContext = null;
         }
 
         internal OrderByContext? OrderByContext
@@ -32,57 +46,191 @@
         internal SelectListContext SelectListContext
         {
             get { return selectListContext!; }
-            set { selectListContext = value; }
         }
 
-        public ExecuteResult Execute(Engines.IEngine engine)
+        internal FullTableName? SourceTableName
+        {
+            get { return sourceTableName; }
+            set { sourceTableName = value; }
+        }
+
+        internal string? DerivedTableAlias
+        {
+            get { return derivedTableAlias; }
+            set { derivedTableAlias = value; }
+        }
+
+        internal SelectContext? InputContext
+        {
+            get { return inputContext; }
+            set { inputContext = value; }
+        }
+
+        public object Clone()
+        {
+            SelectContext clone = new (statementContext, predicateContext);
+
+            clone.inputContext = inputContext != null ? (SelectContext)inputContext.Clone() : null;
+            clone.orderByContext = orderByContext != null ? (OrderByContext)orderByContext.Clone() : null;
+            clone.sourceTableName = sourceTableName;
+            clone.derivedTableAlias = derivedTableAlias;
+
+            foreach (var groupBy in groupByExpressions)
+                clone.groupByExpressions.Add(groupBy);
+            foreach (var aggregate in aggregateContexts)
+                clone.aggregateContexts.Add((AggregateContext)aggregate.Clone());
+
+            foreach (var expr in selectListContext.SelectExpressions)
+                clone.AddSelectListExpressionList(expr);
+
+            for (int i = 0; i < selectListContext.RowsetColumnNameCount; i++)
+                clone.SelectListContext.AddRowsetColumnName(selectListContext.RowsetColumnName(i));
+
+            foreach (var jc in joinContexts)
+                clone.joinContexts.Add((JoinContext)jc.Clone());
+
+            return clone;
+        }
+
+        public ExecuteResult Execute(Engines.IEngine engine, IRowValueAccessor? outerAccessor, Dictionary<string, ExpressionOperand> bindValues)
+        {
+            Select select = BuildSelectObject(engine);
+            ResultSet? resultSet = null;
+
+            while (true)
+            {
+                ResultSet batch = select.GetRows(engine, outerAccessor, 5, bindValues);
+                if (resultSet == null)
+                    resultSet = ResultSet.NewWithShape(batch);
+
+                if (batch.IsEOF)
+                    break;
+
+                resultSet.Append(batch);
+            }
+
+            ExecuteResult results = ExecuteResult.SuccessWithResultSet(resultSet);
+            return results;
+        }
+
+        public void Dump()
+        {
+            Console.WriteLine("=====");
+            Console.WriteLine("SELECT");
+            if (selectListContext == null)
+                Console.WriteLine("No select list found");
+            else
+                selectListContext.Dump();
+
+            Console.WriteLine("PredicateExpressions:");
+            if (predicateContext == null)
+                Console.WriteLine("  No predicate context");
+            else
+            {
+                for (int i = 0; i < predicateContext.PredicateExpressionListCount; i++)
+                    Console.WriteLine($"  #{i}: {predicateContext.PredicateExpressions[i]}");
+            }
+
+            Console.WriteLine("Joins:");
+            if (joinContexts.Count == 0)
+                Console.WriteLine("  No join contexts");
+            else
+            {
+                foreach (var join in joinContexts)
+                    join.Dump();
+            }
+
+            Console.WriteLine("Aggregations:");
+            if (aggregateContexts.Count == 0)
+                Console.WriteLine("  No aggregations");
+            else
+            {
+                foreach (var aggregate in aggregateContexts)
+                    aggregate.Dump();
+            }
+        }
+
+        internal void Reset()
+        {
+            tableNames.Clear();
+        }
+
+        internal Select BuildSelectObject(Engines.IEngine engine)
         {
             if (selectListContext == null)
                 throw new InternalErrorException("Expected a SelectList");
 
-            ExecuteResult results = new ExecuteResult();
-
             var expressions = statementContext.query_expression();
             var querySpecs = expressions.query_specification();
 
-            // the table itself
-            TableSource tableSource;
+            // the top most output in this tree of objects
             IComponentOutput lastLeftOutput;
 
-            if (querySpecs.table_sources() == null)
+            if (SourceTableName == null && inputContext == null)
             {
-                // no source table!
-                tableSource = new TableSource(new Engines.DualSource(), FullTableName.FromTableName("DualSource"));
-                lastLeftOutput = tableSource;
+                // no inputs -- it's just the "dual" source
+                lastLeftOutput = new TableSource(new Engines.DualSource());
             }
             else
             {
-                FullTableName sourceTableName = FullTableName.FromTableNameContext(querySpecs.table_sources().table_source().First().table_source_item_joined().table_source_item().table_name_with_hint().table_name());
-                Console.WriteLine($"ExitSelect_Statement: {sourceTableName}");
-
-                Engines.IEngineTable? engineSource = engine.GetEngineTable(sourceTableName);
-                if (engineSource == null)
-                    throw new ExecutionException($"Table {sourceTableName} does not exist");
+                if (inputContext != null)
+                {
+                    lastLeftOutput = inputContext.BuildSelectObject(engine);
+                }
                 else
                 {
-                    // found the source table, so hook it up
-                    tableSource = new TableSource(engineSource, sourceTableName);
-                    lastLeftOutput = tableSource;
+                    if (SourceTableName == null)
+                        throw new InternalErrorException("Expected valid SourceTableName");
 
-                    // any joins?
-                    foreach (var j in joinContexts)
+                    Engines.IEngineTable? engineSource = engine.GetEngineTable(SourceTableName);
+                    if (engineSource == null)
+                        throw new ExecutionException($"Table {SourceTableName} does not exist");
+
+                    // found the source table, so hook it up
+                    lastLeftOutput = new TableSource(engineSource, DerivedTableAlias);
+
+                    AccumulateTableNames(SourceTableName, DerivedTableAlias);
+                }
+
+                // any joins?
+                foreach (var j in joinContexts)
+                {
+                    IComponentOutput joinSource;
+                    if (j.SelectSource != null)
+                    {
+                        Select selectJoinSource = j.SelectSource.BuildSelectObject(engine);
+                        if (j.DerivedTableAlias != null)
+                            selectJoinSource.DerivedTableAlias = j.DerivedTableAlias;
+                        joinSource = selectJoinSource;
+
+                        AccumulateTableNames(j.SelectSource.tableNames, j.DerivedTableAlias);
+                    }
+                    else if (j.OtherTableName != null)
                     {
                         // find the other table
                         Engines.IEngineTable? otherTableSource = engine.GetEngineTable(j.OtherTableName);
                         if (otherTableSource == null)
                             throw new ExecutionException($"Joined table {j.OtherTableName} does not exist");
 
+<<<<<<< HEAD
                         // build a join operator with it
                         TableSource joinSource = new TableSource(otherTableSource, j.OtherTableName);
                         Join oper = new Join(j.JoinType, lastLeftOutput, joinSource, j.PredicateExpressions);
+=======
+                        joinSource = new TableSource(otherTableSource);
+>>>>>>> main
 
-                        lastLeftOutput = oper;
+                        AccumulateTableNames(j.OtherTableName, j.DerivedTableAlias);
                     }
+                    else
+                    {
+                        throw new InternalErrorException("incorrectly prepared Joincontext");
+                    }
+
+                    // build a join operator with it
+                    Join oper = new (j.JoinType, lastLeftOutput, joinSource, j.PredicateExpressions, j.DerivedTableAlias);
+
+                    lastLeftOutput = oper;
                 }
             }
 
@@ -97,10 +245,10 @@
             if (aggregateContexts.Count > 0)
             {
                 // get names for all the expressions
-                List<string> groupByExpressionBindNames = new ();
+                List<FullColumnName> groupByExpressionBindNames = new ();
                 foreach (var gbe in groupByExpressions)
                 {
-                    string? bindName = selectListContext.BindNameForExpression(gbe);
+                    FullColumnName? bindName = selectListContext.BindNameForExpression(gbe);
                     if (bindName != null)
                         groupByExpressionBindNames.Add(bindName);
                 }
@@ -112,7 +260,7 @@
                     if (expr.ContainsAggregate)
                         continue;
 
-                    // otherwise, it needs a match in the group expressoins
+                    // otherwise, it needs a match in the group expressions
                     bool found = false;
                     foreach (var gbe in groupByExpressions)
                     {
@@ -127,57 +275,21 @@
                         throw new ExecutionException($"non-aggregate {expr} in select list is not covered in GROUP BY");
                 }
 
-                Aggregation agger = new Aggregation(lastLeftOutput, aggregateContexts, groupByExpressions, groupByExpressionBindNames);
+                Aggregation agger = new (lastLeftOutput, aggregateContexts, groupByExpressions, groupByExpressionBindNames);
                 lastLeftOutput = agger;
             }
 
             // and check for an order by
             if (orderByContext != null)
             {
-                Sort sort = new Sort(lastLeftOutput, orderByContext.ExpressionList, orderByContext.IsAscendingList);
+                Sort sort = new (lastLeftOutput, orderByContext.ExpressionList, orderByContext.IsAscendingList);
 
                 lastLeftOutput = sort;
             }
 
             // then the select
-            Select select = new Select(lastLeftOutput, querySpecs.select_list().select_list_elem(), selectListContext);
-            ResultSet? resultSet = null;
-
-            while (true)
-            {
-                ResultSet? batch = select.GetRows(5);
-                if (batch == null)
-                    break;
-                if (resultSet == null)
-                    resultSet = ResultSet.NewWithShape(batch);
-                resultSet.Append(batch);
-            }
-
-            results.ResultSet = resultSet;
-            return results;
-        }
-
-        public void Dump()
-        {
-            if (selectListContext == null)
-                Console.WriteLine("No select list found");
-            else
-                selectListContext.Dump();
-
-            Console.WriteLine("PredicateExpressions:");
-            if (predicateContext == null)
-                Console.WriteLine("  No predicate context");
-            else
-            {
-                for (int i = 0; i < predicateContext.PredicateExpressionListCount; i++)
-                {
-                    Console.Write($"  #{i}: ");
-                    foreach (var x in predicateContext.PredicateExpressions[i])
-                        Console.Write($"{x} ");
-
-                    Console.WriteLine();
-                }
-            }
+            Select select = new (lastLeftOutput, querySpecs.select_list().select_list_elem(), selectListContext, null /* derivedTableAlias */);
+            return select;
         }
 
         internal void AddJoin(JoinContext jc, PredicateContext predicateContext)
@@ -185,7 +297,6 @@
             joinContexts.Add(jc);
             if (predicateContext != null)
                 jc.PredicateExpressions = predicateContext.PredicateExpressions;
-            predicateContext = new PredicateContext();
         }
 
         internal void AddAggregate(AggregateContext ac)
@@ -207,5 +318,31 @@
             selectListContext.AddSelectListExpressionList(expression);
         }
 
+        internal void AccumulateTableNames(FullTableName ftn, string? aliasName)
+        {
+            string effectiveName = aliasName ?? ftn.TableNameOnly;
+
+            AccumulateTableName(effectiveName);
+        }
+
+        internal void AccumulateTableNames(IEnumerable<string> others, string? aliasName)
+        {
+            if (aliasName != null)
+                AccumulateTableName(aliasName);
+            else
+            {
+                foreach (var other in others)
+                    AccumulateTableName(other);
+            }
+        }
+
+        internal void AccumulateTableName(string name)
+        {
+            if (tableNames.Contains(name))
+                throw new ExecutionException($"object name {name} is ambiguous");
+            tableNames.Add(name);
+        }
     }
 }
+
+

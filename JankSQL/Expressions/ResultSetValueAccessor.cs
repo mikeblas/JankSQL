@@ -1,12 +1,11 @@
 ﻿namespace JankSQL.Expressions
 {
     /// <summary>
-    /// Wraps a Rowset and accepts a row index so an individual row
+    /// Wraps a row set and accepts a row index so an individual row
     /// can be accessed by Expression.Evaluate().
     /// </summary>
     internal class ResultSetValueAccessor : IRowValueAccessor
     {
-        //TODO: refactor this into Operators namespace
         private readonly ResultSet resultSet;
         private readonly int rowIndex;
 

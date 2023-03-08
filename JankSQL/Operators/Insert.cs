@@ -1,23 +1,19 @@
 ﻿namespace JankSQL.Operators
 {
+    using JankSQL.Expressions;
+
     internal class Insert : IComponentOutput
     {
         private readonly IComponentOutput myInput;
         private readonly Engines.IEngineTable engineTable;
         private readonly Dictionary<int, int> targetIndexToInputIndex;
 
-        internal Insert(Engines.IEngineTable destTable, List<FullColumnName>? targetColumns, IComponentOutput input)
+        private int rowsAffected;
+
+        internal Insert(Engines.IEngineTable destTable, IList<FullColumnName> targetColumns, IComponentOutput input)
         {
             myInput = input;
             engineTable = destTable;
-
-            // no target column names list means we implicitly use the list from the target table, in order
-            if (targetColumns == null)
-            {
-                targetColumns = new List<FullColumnName>();
-                for (int i = 0; i < destTable.ColumnCount; i++)
-                    targetColumns.Add(destTable.ColumnName(i));
-            }
 
             targetIndexToInputIndex = new Dictionary<int, int>();
 
@@ -30,11 +26,20 @@
             }
         }
 
-        public ResultSet? GetRows(int max)
+        internal int RowsAffected
         {
-            ResultSet? rsInput = myInput.GetRows(max);
-            if (rsInput == null)
-                return null;
+            get { return rowsAffected; }
+        }
+
+        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues)
+        {
+            ResultSet rsInput = myInput.GetRows(engine, outerAccessor, max, bindValues);
+            if (rsInput.IsEOF)
+            {
+                ResultSet eof = new (new List<FullColumnName>());
+                eof.MarkEOF();
+                return eof;
+            }
 
             for (int i = 0; i < rsInput.RowCount; i++)
             {
@@ -50,6 +55,7 @@
                 }
 
                 engineTable.InsertRow(targetRow);
+                rowsAffected += 1;
             }
 
             return rsInput;

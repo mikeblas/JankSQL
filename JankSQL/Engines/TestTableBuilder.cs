@@ -1,9 +1,11 @@
 ﻿namespace JankSQL.Engines
 {
+    using JankSQL.Expressions;
+
     public class TestTableBuilder
     {
         private readonly List<FullColumnName> columnNames = new ();
-        private List<object[]>? rows;
+        private List<object?[]>? rows;
         private List<ExpressionOperandType>? columnTypes;
 
         private FullTableName? tableName;
@@ -32,17 +34,17 @@
             return this;
         }
 
-        public TestTableBuilder WithRow(object[] row)
+        public TestTableBuilder WithRow(object?[] row)
         {
             if (rows == null)
-                rows = new List<object[]>();
+                rows = new List<object?[]>();
             rows.Add(row);
             return this;
         }
 
         public TestTable Build()
         {
-            List<Tuple> convertedRows = new List<Tuple>();
+            var convertedRows = new List<Tuple>();
 
             if (columnTypes == null)
                 throw new InvalidOperationException("no column types provided");

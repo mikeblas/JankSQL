@@ -6,24 +6,11 @@
 
     /// <summary>
     /// Parses a File of SQL commands into an ExecutableBatch object.  The ExecutableBatch might indicate
-    /// errors in parsing. If it does, it can't be executed. If it has no errors, it may be ex ecuted to
+    /// errors in parsing. If it does, it can't be executed. If it has no errors, it may be executed to
     /// return actual results (or effect changes to the database.)
     /// </summary>
     public class Parser
     {
-        /// <summary>
-        /// case-sensitive parsing; this wkips the CaseChangingCharStream and requires
-        /// all-upper SQL tokens. Mixed-case identifiers must be in [QuoteBrackets].
-        /// Eventually, I can remove this and commit to mixed-case the parsing solution.
-        /// </summary>
-        /// <param name="str">SQL File to be parsed.</param>
-        /// <returns>an ExecutableBatch that has errors, or can be executed.</returns>
-        public static ExecutableBatch ParseSQLFileFromStringCS(string str)
-        {
-            var lexer = new TSqlLexer(new AntlrInputStream(str));
-            return ParseTreeFromLexer(lexer);
-        }
-
         /// <summary>
         /// Parse a SQL File from a string. (A File is a set of executable batches of
         /// statements, not necessarily a disk file.)
@@ -32,17 +19,14 @@
         /// <returns>ExecutableBatch object which can be executed, or which represents parsing errors.</returns>
         public static ExecutableBatch ParseSQLFileFromString(string str)
         {
-            ICharStream s = CharStreams.fromString(str);
-            CaseChangingCharStream upper = new CaseChangingCharStream(s, true);
-            var lexer = new TSqlLexer(upper);
+            var lexer = new TSqlLexer(new AntlrInputStream(str));
             return ParseTreeFromLexer(lexer);
+
         }
 
         public static ExecutableBatch QuietParseSQLFileFromString(string str)
         {
-            ICharStream s = CharStreams.fromString(str);
-            CaseChangingCharStream upper = new CaseChangingCharStream(s, true);
-            var lexer = new TSqlLexer(upper);
+            var lexer = new TSqlLexer(new AntlrInputStream(str));
             return QuietParseTreeFromLexer(lexer);
         }
 
@@ -54,9 +38,9 @@
         /// <returns>ExecutableBatch object which can be executed, or which represents parsing errors.</returns>
         public static ExecutableBatch ParseSQLFileFromTextReader(TextReader reader)
         {
+
             ICharStream s = CharStreams.fromTextReader(reader);
-            CaseChangingCharStream upper = new CaseChangingCharStream(s, true);
-            var lexer = new TSqlLexer(upper);
+            var lexer = new TSqlLexer(s);
             return ParseTreeFromLexer(lexer);
         }
 
@@ -103,15 +87,23 @@
             var tree = parser.tsql_file();
 
             ExecutionContext? context = null;
+            string? semanticErrorMessage = null;
 
             if (parser.NumberOfSyntaxErrors == 0)
             {
-                var ml = new JankListener(quiet);
-                ParseTreeWalker.Default.Walk(ml, tree);
-                context = ml.ExecutionContext;
+                try
+                {
+                    var ml = new JankListener(quiet);
+                    ParseTreeWalker.Default.Walk(ml, tree);
+                    context = ml.ExecutionContext;
+                }
+                catch (SemanticErrorException e)
+                {
+                   semanticErrorMessage = e.Message;
+                }
             }
 
-            ExecutableBatch batch = new (errorListener.ErrorList, tokenErrorListener.ErrorList, context);
+            ExecutableBatch batch = new (errorListener.ErrorList, tokenErrorListener.ErrorList, semanticErrorMessage, context);
             return batch;
         }
     }

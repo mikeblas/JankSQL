@@ -19,15 +19,19 @@
             isAscending = isAscendingList.ToArray();
         }
 
-        public ResultSet? GetRows(int max)
+        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues)
         {
             if (outputExhausted)
-                return null;
+            {
+                ResultSet endSet = ResultSet.NewWithShape(totalResults!);
+                endSet.MarkEOF();
+                return endSet;
+            }
 
             while (!inputExhausted)
             {
-                ResultSet? rs = myInput.GetRows(5);
-                if (rs == null)
+                ResultSet rs = myInput.GetRows(engine, outerAccessor, 5, bindValues);
+                if (rs.IsEOF)
                 {
                     inputExhausted = true;
                     break;
@@ -39,15 +43,16 @@
                 totalResults.Append(rs);
             }
 
-            // if totalResults is null at this point, it means we had no input at all.
-            if (totalResults != null)
-            {
-                //TODO: honor max
-                // we've completely built totalResults, so sort it
-                var evaluatingComparer = new EvaluatingComparer(sortExpressions, isAscending, totalResults.GetColumnNameList());
-                totalResults.Sort(evaluatingComparer);
-                Console.WriteLine($"Sorted! {evaluatingComparer.KeyComparisons} key comparisons, {evaluatingComparer.RowComparisons} row comparisons");
-            }
+            // if we had no input at all, we still have a totalResults because we had at least one zero-length ResultSet on our input
+            // before seeing the IsEOF ResultSet object.
+            if (totalResults == null)
+                throw new InternalErrorException("didn't expect null ResultSet");
+
+            //TODO: honor max
+            // we've completely built totalResults, so sort it
+            var evaluatingComparer = new EvaluatingComparer(engine, sortExpressions, isAscending, totalResults.GetColumnNames(), bindValues);
+            totalResults.Sort(evaluatingComparer);
+            Console.WriteLine($"Sorted! {evaluatingComparer.KeyComparisons} key comparisons, {evaluatingComparer.RowComparisons} row comparisons");
 
             // and send it off
             outputExhausted = true;

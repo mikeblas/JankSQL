@@ -34,7 +34,7 @@
             for (int i = 0; i < columns.Count; i++)
             {
                 if (names.Contains(columns[i]))
-                    throw new ExecutionException($"column {columns[i]} appears in insert list more than once");
+                    throw new SemanticErrorException($"column {columns[i]} appears in insert list more than once");
                 names.Add(columns[i]);
             }
         }
@@ -50,9 +50,9 @@
         }
 
 
-        public override void ExitInsert_with_table_hints([NotNull] TSqlParser.Insert_with_table_hintsContext context)
+        public override void ExitWith_table_hints([NotNull] TSqlParser.With_table_hintsContext context)
         {
-            base.ExitInsert_with_table_hints(context);
+            base.ExitWith_table_hints(context);
         }
 
 
@@ -66,6 +66,8 @@
 
             List<List<Expression>> total = new ();
 
+            int? constructorColumns = null;
+
             foreach (var expressionList in context.expression_list())
             {
                 List<Expression> constructor = new ();
@@ -73,6 +75,14 @@
                 {
                     Expression x = GobbleExpression(expr);
                     constructor.Add(x);
+                }
+
+                if (constructorColumns == null)
+                    constructorColumns = constructor.Count;
+                else
+                {
+                    if (constructorColumns != constructor.Count)
+                        throw new SemanticErrorException($"constructors should have {constructorColumns} columns, found {constructor.Count}");
                 }
 
                 total.Add(constructor);

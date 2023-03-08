@@ -1,12 +1,12 @@
 ﻿namespace Tests
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
     using Engines = JankSQL.Engines;
 
-    [TestClass]
+    [TestFixture]
     public class UpdateBTreeTests : UpdateTests
     {
-        [TestInitialize]
+        [SetUp]
         public void ClassInitialize()
         {
             mode = "BTree";
@@ -16,6 +16,13 @@
 
             TestHelpers.InjectTableMyTable(engine);
             TestHelpers.InjectTableTen(engine);
+        }
+
+        [TearDown]
+        public void ClassShutdown()
+        {
+            if (engine != null)
+                engine.Dispose();
         }
     }
 }

@@ -1,16 +1,15 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using Engines = JankSQL.Engines;
-
-
-namespace Tests
+﻿namespace Tests
 {
-    [TestClass]
+    using NUnit.Framework;
+
+    using Engines = JankSQL.Engines;
+
+    [TestFixture]
 
     public class OrderByBTreeTests : OrderByTests
     {
-        [TestInitialize]
-        public void ClassInitialize()
+        [SetUp]
+        public override void ClassInitialize()
         {
             mode = "BTree";
             Console.WriteLine($"Test mode is {mode}");
@@ -19,6 +18,12 @@ namespace Tests
             TestHelpers.InjectTableTen(engine);
         }
 
+        [TearDown]
+        public void ClassShutdown()
+        {
+            if (engine != null)
+                engine.Dispose();
+        }
     }
 }
 

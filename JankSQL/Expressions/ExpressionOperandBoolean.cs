@@ -8,9 +8,7 @@
             : base(ExpressionOperandType.BOOLEAN)
         {
             this.b = b;
-            // isNull = false;
         }
-
 
         public override bool RepresentsNull
         {
@@ -44,6 +42,11 @@
         }
 
         public override int AsInteger()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override DateTime AsDateTime()
         {
             throw new NotImplementedException();
         }
@@ -83,7 +86,27 @@
             throw new NotImplementedException();
         }
 
+        public override ExpressionOperand OperatorModulo(ExpressionOperand other)
+        {
+            throw new NotImplementedException();
+        }
+
         public override void AddToSelf(ExpressionOperand other)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ExpressionOperand OperatorUnaryMinus()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ExpressionOperand OperatorUnaryPlus()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ExpressionOperand OperatorUnaryTilde()
         {
             throw new NotImplementedException();
         }
@@ -122,6 +145,20 @@
         public override int GetHashCode()
         {
             return b.GetHashCode();
+        }
+
+        internal static ExpressionOperandBoolean FromByteStream(Stream stream)
+        {
+            int bInt = stream.ReadByte();
+            return new ExpressionOperandBoolean(bInt != 0);
+        }
+
+        internal override void WriteToByteStream(Stream stream)
+        {
+            WriteTypeAndNullness(stream);
+
+            // then ourselves
+            stream.WriteByte((byte)(b ? 1 : 0));
         }
     }
 }

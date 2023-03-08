@@ -25,7 +25,7 @@
         private readonly List<string> expressionNames;
         private readonly List<Expression>? groupByExpressions;
         private readonly Dictionary<Tuple, List<IAggregateAccumulator>> dictKeyToAggs;
-        private readonly List<string>? groupByExpressionBindNames;
+        private readonly List<FullColumnName>? groupByExpressionBindNames;
 
         private readonly List<FullColumnName> outputNames = new ();
 
@@ -33,7 +33,7 @@
         private bool inputExhausted;
         private bool outputExhausted;
 
-        internal Aggregation(IComponentOutput input, List<AggregateContext> contexts, List<Expression>? groupByExpressions, List<string>? groupByExpressionBindNames)
+        internal Aggregation(IComponentOutput input, List<AggregateContext> contexts, List<Expression>? groupByExpressions, List<FullColumnName>? groupByExpressionBindNames)
         {
             expressionNames = new List<string>();
             expressions = new List<Expression>();
@@ -58,26 +58,30 @@
         }
 
         #region IComponentOutput implementation
-        public ResultSet? GetRows(int max)
+        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues)
         {
             if (outputExhausted)
-                return null;
+            {
+                ResultSet endSet = new (outputNames);
+                endSet.MarkEOF();
+                return endSet;
+            }
 
             if (!inputExhausted)
             {
-                ReadInput();
+                ReadInput(engine, outerAccessor, bindValues);
                 BuildOutputColumnNames();
             }
 
             foreach (var kv in dictKeyToAggs)
-                Console.WriteLine($"Aggregated key: {kv.Key}: {kv.Value}");
+                Console.WriteLine($"Aggregated key: {kv.Key}: [{string.Join(",", kv.Value)}]");
 
             ResultSet resultSet = new (outputNames);
 
             if (groupByExpressions == null || groupByExpressions.Count == 0)
             {
                 // with no group by, we should have exactly one row with
-                // the number of columns equal to the number of aggregaton expressions
+                // the number of columns equal to the number of aggregation expressions
                 Tuple outputRow = Tuple.CreateEmpty(expressions.Count);
 
                 if (dictKeyToAggs.Count == 0)
@@ -104,7 +108,7 @@
             }
             else
             {
-                // with group bys, we'll hvae a row for each value that's in the keys to aggs dictionary
+                // with group by objects, we'll have a row for each value that's in the dictKeyToAggs dictionary
                 foreach (var kv in dictKeyToAggs)
                 {
                     // expressions.Count + groupByExpressions.Count
@@ -135,7 +139,7 @@
 
         public void Rewind()
         {
-            throw new NotImplementedException();
+            outputExhausted = false;
         }
         #endregion
 
@@ -169,7 +173,8 @@
             {
                 foreach (var x in groupByExpressionBindNames)
                 {
-                    outputNames.Add(FullColumnName.FromColumnName(x));
+                    outputNames.Add(x);
+                    // outputNames.Add(FullColumnName.FromColumnName(x));
                     n++;
                 }
             }
@@ -178,12 +183,12 @@
                 outputNames.Add(FullColumnName.FromColumnName(expressionName));
         }
 
-        protected void ReadInput()
+        protected void ReadInput(Engines.IEngine engine, IRowValueAccessor? outerAccessor, Dictionary<string, ExpressionOperand> bindValues)
         {
             while (!inputExhausted)
             {
-                ResultSet? rs = myInput.GetRows(5);
-                if (rs == null)
+                ResultSet rs = myInput.GetRows(engine, outerAccessor, 5, bindValues);
+                if (rs.IsEOF)
                 {
                     inputExhausted = true;
                     break;
@@ -193,8 +198,8 @@
                 for (int i = 0; i < rs.RowCount; i++)
                 {
                     // first, evaluate groupByExpressions
-                    var accessor = new ResultSetValueAccessor(rs, i);
-                    Tuple groupByKey = EvaluateGroupByKey(accessor);
+                    var accessor = new CombinedValueAccessor(new ResultSetValueAccessor(rs, i), outerAccessor);
+                    Tuple groupByKey = EvaluateGroupByKey(accessor, engine, bindValues);
 
                     // get a rack of accumulators for this key
                     List<IAggregateAccumulator> aggs;
@@ -212,14 +217,14 @@
                     // evaluate each expression and offer it for them
                     for (int j = 0; j < expressions.Count; j++)
                     {
-                        ExpressionOperand result = expressions[j].Evaluate(accessor);
+                        ExpressionOperand result = expressions[j].Evaluate(accessor, engine, bindValues);
                         aggs[j].Accumulate(result);
                     }
                 }
             }
         }
 
-        protected Tuple EvaluateGroupByKey(ResultSetValueAccessor accessor)
+        protected Tuple EvaluateGroupByKey(IRowValueAccessor accessor, Engines.IEngine engine, Dictionary<string, ExpressionOperand> bindValues)
         {
             // this key is used as an identity for non-grouped expressions
             if (groupByExpressions == null || groupByExpressions.Count == 0)
@@ -227,7 +232,16 @@
 
             Tuple result = Tuple.CreateEmpty(groupByExpressions.Count);
             for (int i = 0; i < groupByExpressions.Count; i++)
-                result[i] = groupByExpressions[i].Evaluate(accessor);
+            {
+                try
+                {
+                    result[i] = groupByExpressions[i].Evaluate(accessor, engine, bindValues);
+                }
+                catch (ExecutionException ex)
+                {
+                    throw new ExecutionException($"Error evaluating GROUP BY expression {groupByExpressions[i]} due to: {ex.Message}");
+                }
+            }
 
             return result;
         }

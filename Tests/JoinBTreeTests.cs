@@ -1,13 +1,12 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using Engines = JankSQL.Engines;
-
-namespace Tests
+﻿namespace Tests
 {
-    [TestClass]
-    public class JoinCBTreeTests : JoinTests
+    using NUnit.Framework;
+
+    using Engines = JankSQL.Engines;
+    [TestFixture]
+    public class JoinBTreeDiskTests : JoinTests
     {
-        [TestInitialize]
+        [SetUp]
         public void ClassInitialize()
         {
             mode = "BTree";
@@ -15,12 +14,16 @@ namespace Tests
 
             engine = Engines.BTreeEngine.CreateInMemory();
             TestHelpers.InjectTableMyTable(engine);
-
             TestHelpers.InjectTableTen(engine);
-
             TestHelpers.InjectTableStates(engine);
-
             TestHelpers.InjectTableThree(engine);
+        }
+
+        [TearDown]
+        public void ClassShutdown()
+        {
+            if (engine != null)
+                engine.Dispose();
         }
     }
 }

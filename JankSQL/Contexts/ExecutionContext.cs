@@ -6,7 +6,8 @@
 
         public List<IExecutableContext> ExecuteContexts
         {
-            get { return executeContexts; } set { executeContexts = value; }
+            get { return executeContexts; }
+            set { executeContexts = value; }
         }
 
         public void Dump()
@@ -15,19 +16,23 @@
                 context.Dump();
         }
 
-        public ExecuteResult[] Execute(Engines.IEngine engine)
+        public ExecuteResult[] Execute(Engines.IEngine engine, Dictionary<string, ExpressionOperand> bindValues)
         {
+            var clonedContexts = new List<IExecutableContext>();
+            foreach (var item in executeContexts)
+                clonedContexts.Add((IExecutableContext)item.Clone());
+
             List<ExecuteResult> results = new ();
-            foreach (IExecutableContext context in executeContexts)
+            foreach (IExecutableContext context in clonedContexts)
             {
                 try
                 {
-                    ExecuteResult result = context.Execute(engine);
+                    ExecuteResult result = context.Execute(engine, null, bindValues);
                     results.Add(result);
                 }
                 catch (ExecutionException ex)
                 {
-                    ExecuteResult result = new ExecuteResult(ExecuteStatus.FAILED, ex.Message);
+                    ExecuteResult result = ExecuteResult.FailureWithError(ex.Message);
                     Console.WriteLine($"Execute exception: {ex.Message}");
                     results.Add(result);
                 }
@@ -36,16 +41,19 @@
             return results.ToArray();
         }
 
-        public ExecuteResult ExecuteSingle(Engines.IEngine engine)
+        public ExecuteResult ExecuteSingle(Engines.IEngine engine, Dictionary<string, ExpressionOperand> bindValues)
         {
             ExecuteResult result;
+
             if (executeContexts.Count != 1)
-                result = new ExecuteResult(ExecuteStatus.FAILED, "ExecuteSingle() called on multiple-context batch");
+                result = ExecuteResult.FailureWithError("ExecuteSingle() called on multiple-context batch");
             else
-                result = executeContexts[0].Execute(engine);
+            {
+                IExecutableContext clonedContext = (IExecutableContext)executeContexts[0].Clone();
+                result = clonedContext.Execute(engine, null, bindValues);
+            }
 
             return result;
         }
-
     }
 }

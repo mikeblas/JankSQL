@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Expressions.Functions
 {
+    using Antlr4.Runtime;
+
     internal class FunctionSQRT : ExpressionFunction
     {
         internal FunctionSQRT()
@@ -9,15 +11,26 @@
 
         internal override int ExpectedParameters => 1;
 
-        internal override ExpressionOperand Evaluate(Stack<ExpressionOperand> stack)
+        internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
         {
             ExpressionOperand op1 = stack.Pop();
-            if (op1.RepresentsNull)
-                return ExpressionOperand.NullLiteral();
+            ExpressionOperand result;
 
-            double d = Math.Sqrt(op1.AsDouble());
-            ExpressionOperand result = ExpressionOperand.DecimalFromDouble(d);
-            return result;
+            if (op1.RepresentsNull)
+                result = ExpressionOperand.NullLiteral();
+            else
+            {
+                double d = Math.Sqrt(op1.AsDouble());
+                result = ExpressionOperand.DecimalFromDouble(d);
+            }
+
+            stack.Push(result);
+        }
+
+        internal override void SetFromBuiltInFunctionsContext(IList<ParserRuleContext> stack, TSqlParser.Built_in_functionsContext bifContext)
+        {
+            var c = (TSqlParser.SQRTContext)bifContext;
+            stack.Add(c.float_expression);
         }
     }
 }

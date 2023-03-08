@@ -1,14 +1,13 @@
 ﻿namespace Tests
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using Engines = JankSQL.Engines;
 
-
-    [TestClass]
+    [TestFixture]
     public class BareSelectCSVTests : BareSelectTests
     {
-        [TestInitialize]
+        [SetUp]
         public void ClassInitialize()
         {
             mode = "CSV";

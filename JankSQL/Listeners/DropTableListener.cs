@@ -9,8 +9,9 @@
         {
             base.ExitDrop_table(context);
 
-            FullTableName tableName = FullTableName.FromTableNameContext(context.table_name());
-            DropTableContext dtc = new DropTableContext(tableName);
+            //TODO: handle list of tables
+            FullTableName tableName = FullTableName.FromTableNameContext(context.table_name()[0]);
+            var dtc = new DropTableContext(tableName);
 
             executionContext.ExecuteContexts.Add(dtc);
         }

@@ -1,12 +1,13 @@
 ﻿namespace Tests
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
+
     using Engines = JankSQL.Engines;
 
-    [TestClass]
+    [TestFixture]
     public class DDLBTreeTests : DDLTests
     {
-        [TestInitialize]
+        [SetUp]
         public void ClassInitialize()
         {
             mode = "BTree";
@@ -14,6 +15,13 @@
 
             engine = Engines.BTreeEngine.CreateInMemory();
             TestHelpers.InjectTableMyTable(engine);
+        }
+
+        [TearDown]
+        public void ClassShutdown()
+        {
+            if (engine != null)
+                engine.Dispose();
         }
     }
 }

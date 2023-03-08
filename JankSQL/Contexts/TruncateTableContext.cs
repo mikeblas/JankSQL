@@ -1,5 +1,8 @@
 ﻿namespace JankSQL.Contexts
 {
+    using JankSQL.Engines;
+    using JankSQL.Expressions;
+
     internal class TruncateTableContext : IExecutableContext
     {
         private readonly FullTableName tableName;
@@ -9,27 +12,27 @@
             this.tableName = tableName;
         }
 
-        public ExecuteResult Execute(Engines.IEngine engine)
+        public ExecuteResult Execute(IEngine engine, IRowValueAccessor? accessor, Dictionary<string, ExpressionOperand> bindValues)
         {
-            ExecuteResult result = new ExecuteResult();
-
-
             Engines.IEngineTable? engineSource = engine.GetEngineTable(tableName);
             if (engineSource == null)
-            {
-                result.ExecuteStatus = ExecuteStatus.FAILED;
                 throw new ExecutionException($"Table {tableName} does not exist");
-            }
 
             engineSource.TruncateTable();
 
-            result.ExecuteStatus = ExecuteStatus.SUCCESSFUL;
+            ExecuteResult result = ExecuteResult.SuccessWithMessage($"table {tableName} truncated");
             return result;
         }
 
         public void Dump()
         {
             Console.WriteLine("TRUNCATE TABLE of ${tableName}");
+        }
+
+        public object Clone()
+        {
+            TruncateTableContext clone = new TruncateTableContext(tableName);
+            return clone;
         }
     }
 }
