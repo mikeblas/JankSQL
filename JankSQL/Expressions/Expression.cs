@@ -58,6 +58,24 @@
             return base.GetHashCode();
         }
 
+        /// <summary>
+        /// Returns a FullColumnName describing this column if it is a simple column value.
+        /// Any additional expression work will cause a null return.
+        /// </summary>
+        /// <returns>A FullColumnName for columns, null otherwise.</returns>
+        public FullColumnName? GetExpressionColumnName()
+        {
+            // must be exactly 1 expression
+            if (this.Count != 1)
+                return null;
+
+            // and that expression must be an ExpressionOperandFromColumn
+            if (this[0] is not ExpressionOperandFromColumn fc)
+                return null;
+
+            return fc.ColumnName;
+        }
+
         internal ExpressionOperand Evaluate(IRowValueAccessor? accessor, Engines.IEngine engine, Dictionary<string, ExpressionOperand> bindValues)
         {
             Stack<ExpressionOperand> stack = new ();

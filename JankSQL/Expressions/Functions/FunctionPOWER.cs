@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Expressions.Functions
 {
+    using Antlr4.Runtime;
+
     internal class FunctionPOWER : ExpressionFunction
     {
         internal FunctionPOWER()
@@ -34,6 +36,14 @@
 
             stack.Push(result);
         }
+
+        internal override void SetFromBuiltInFunctionsContext(IList<ParserRuleContext> stack, TSqlParser.Built_in_functionsContext bifContext)
+        {
+            var c = (TSqlParser.POWERContext)bifContext;
+            stack.Add(c.float_expression);
+            stack.Add(c.y);
+        }
+
     }
 }
 

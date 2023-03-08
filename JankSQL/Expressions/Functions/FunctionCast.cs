@@ -1,13 +1,15 @@
 ﻿namespace JankSQL.Expressions.Functions
 {
+    using Antlr4.Runtime;
+    using static TSqlParser;
+
     internal class FunctionCast : ExpressionFunction
     {
-        private readonly ExpressionOperandType targetType;
+        private ExpressionOperandType targetType;
 
-        internal FunctionCast(ExpressionOperandType targetType)
+        internal FunctionCast()
             : base("CAST")
         {
-            this.targetType = targetType;
         }
 
         internal override int ExpectedParameters => 2;
@@ -34,6 +36,14 @@
             }
 
             stack.Push(result);
+        }
+
+        internal override void SetFromBuiltInFunctionsContext(IList<ParserRuleContext> stack, TSqlParser.Built_in_functionsContext bifContext)
+        {
+            var c = (TSqlParser.CASTContext)bifContext;
+
+            targetType = JankListener.GobbleDataType(c.data_type());
+            stack.Add(c.expression());
         }
     }
 }

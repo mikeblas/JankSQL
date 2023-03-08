@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Expressions.Functions
 {
+    using Antlr4.Runtime;
+
     internal class FunctionDateDiff : ExpressionFunction
     {
 #pragma warning disable SA1509 // Opening braces should not be preceded by blank line
@@ -46,16 +48,11 @@
 #pragma warning restore SA1001 // Commas should be spaced correctly
 #pragma warning restore SA1509 // Opening braces should not be preceded by blank line
 
-        private readonly DatePart datePart;
+        private DatePart datePart;
 
-        internal FunctionDateDiff(string datePartName)
+        internal FunctionDateDiff()
             : base("DATEDIFF")
         {
-            if (!PartMap.TryGetValue(datePartName, out datePart))
-                throw new SemanticErrorException($"Unknown date part {datePartName}");
-
-            if (datePart == DatePart.MICROSECOND || datePart == DatePart.NANOSECOND || datePart == DatePart.QUARTER)
-                throw new SemanticErrorException($"Unsupported date part {datePartName}");
         }
 
         private enum DatePart
@@ -100,6 +97,21 @@
 
             ExpressionOperand result = ExpressionOperand.IntegerFromInt(ret);
             stack.Push(result);
+        }
+
+        internal override void SetFromBuiltInFunctionsContext(IList<ParserRuleContext> stack, TSqlParser.Built_in_functionsContext bifContext)
+        {
+            var c = (TSqlParser.DATEDIFFContext)bifContext;
+
+            string datePartName = c.dateparts_12().GetText();
+
+            if (!PartMap.TryGetValue(datePartName, out datePart))
+                throw new SemanticErrorException($"Unknown date part {datePartName}");
+            if (datePart == DatePart.MICROSECOND || datePart == DatePart.NANOSECOND || datePart == DatePart.QUARTER)
+                throw new SemanticErrorException($"Unsupported date part {datePartName}");
+
+            stack.Add(c.date_first);
+            stack.Add(c.date_second);
         }
     }
 }
