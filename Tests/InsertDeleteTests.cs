@@ -138,8 +138,11 @@
             JankAssert.RowsetExistsWithShape(resultSelect, 3, 1);
             resultSelect.ResultSet.Dump();
 
-            int someIntegerIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("someinteger"));
-            int anotherIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("anotherone"));
+            // int someIntegerIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("someinteger"));
+            // int anotherIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("anotherone"));
+            int someIntegerIndex = resultSelect.ResultSet.ColumnNameIndex("someinteger");
+            int anotherIndex = resultSelect.ResultSet.ColumnNameIndex("anotherone");
+
             List<int> someIntegers = new ();
             List<int> moreIntegers = new ();
             for (int i = 0; i < resultSelect.ResultSet.RowCount; i++)

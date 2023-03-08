@@ -1,6 +1,6 @@
 ﻿namespace JankSQL
 {
-    public class FullColumnName
+    public class FullColumnName: IComparable, IComparable<FullColumnName>
     {
         private readonly string columnName;
 
@@ -133,6 +133,59 @@
         {
             FullColumnName fcnNew = new FullColumnName(serverName, schemaName, newTableName, columnName);
             return fcnNew;
+        }
+
+        public int CompareTo(object? obj)
+        {
+            if (obj == null)
+                throw new ArgumentNullException(nameof(obj));
+
+            FullColumnName other = obj as FullColumnName;
+            if (other == null)
+                throw new ArgumentException("Can't compare to other type");
+
+            if (this == other)
+                return 0;
+
+            return CompareTo(other);
+        }
+
+        public int CompareTo(FullColumnName? other)
+        {
+            if (other == null)
+                throw new ArgumentNullException(nameof(other));
+
+            if (this == other)
+                return 0;
+
+            int r;
+            r = SafeStringCompare(other.serverName, this.serverName);
+            if (r != 0)
+                return r;
+
+            r = SafeStringCompare(other.schemaName, this.schemaName);
+            if (r != 0)
+                return r;
+
+            r = SafeStringCompare(other.tableName, this.tableName);
+            if (r != 0)
+                return r;
+
+            r = SafeStringCompare(other.columnName, this.columnName);
+            return r;
+        }
+
+        protected static int SafeStringCompare(string? left, string? right)
+        {
+            if (left == null && right == null)
+                return 0;
+
+            if (left == null)
+                return 1;
+            if (right == null)
+                return -1;
+
+            return string.Compare(left, right, StringComparison.InvariantCultureIgnoreCase);
         }
     }
 }
