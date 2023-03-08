@@ -1,5 +1,6 @@
 ﻿namespace JankSQL
 {
+    using JankSQL.Engines;
     using System.Collections.Immutable;
 
     internal class ColumnNameList
@@ -7,10 +8,11 @@
         private FullColumnName[] names;
         private SortedList<FullColumnName, int> nameIndex;
 
-        internal ColumnNameList(List<FullColumnName> names)
+        internal ColumnNameList(IList<FullColumnName> names)
         {
             this.names = new FullColumnName[names.Count];
             nameIndex = new SortedList<FullColumnName, int>();
+
             for (int i = 0; i < names.Count; i++)
             {
                 this.names[i] = names[i];
@@ -22,6 +24,18 @@
         {
             names = (FullColumnName[])other.names.Clone();
             nameIndex = new SortedList<FullColumnName, int>(other.nameIndex);
+        }
+
+        internal ColumnNameList(IEngineTable table)
+        {
+            this.names = new FullColumnName[table.ColumnCount];
+            nameIndex = new SortedList<FullColumnName, int>();
+
+            for (int i = 0; i <  table.ColumnCount; i++)
+            {
+                this.names[i] = table.ColumnName(i);
+                nameIndex.Add(names[i], i);
+            }
         }
 
         internal FullColumnName[] GetColumnNames()
@@ -58,6 +72,11 @@
         {
             return names[index];
         }
+
+        public override string ToString()
+        {
+            return string.Join(",", (object[])names);
+        }
     }
 
     public class ResultSet
@@ -67,14 +86,21 @@
 
         private bool isEOF;
 
-        internal ResultSet(IEnumerable<FullColumnName> columnNames)
+        internal ResultSet(IList<FullColumnName> columnNames)
         {
             rows = new List<Tuple>();
             this.columnNames = new ColumnNameList(columnNames);
             isEOF = false;
         }
 
- 
+        internal ResultSet(ColumnNameList columnNames)
+        {
+            rows = new List<Tuple>();
+            this.columnNames = columnNames;
+            isEOF = false;
+        }
+
+
         public int RowCount
         {
             get { return rows.Count; }
@@ -83,6 +109,11 @@
         public int ColumnCount
         {
             get { return columnNames.Count; }
+        }
+
+        internal ColumnNameList ColumnNameList
+        {
+            get { return columnNames; }
         }
 
         internal bool IsEOF
@@ -102,7 +133,7 @@
 
         public void Dump()
         {
-            Console.WriteLine($"ResultSet: {string.Join(",", (object[])columnNames)}");
+            Console.WriteLine($"ResultSet: {columnNames}");
             if (isEOF)
                 Console.WriteLine("   *** EOF ***");
             else
@@ -114,7 +145,7 @@
 
         public ImmutableList<FullColumnName> GetColumnNames()
         {
-            return columnNames.ToImmutableList();
+            return columnNames.GetColumnNames().ToImmutableList();
         }
 
         internal static ResultSet NewWithShape(ResultSet other)
@@ -137,7 +168,7 @@
             if (rows.Count > 0 && rows[0].Length != other.rows[0].Length)
                 throw new InvalidOperationException();
 
-            if (columnNames != null && other.columnNames != null && other.columnNames.Length != columnNames.Length)
+            if (columnNames != null && other.columnNames != null && other.columnNames.Count != columnNames.Count)
                 throw new InvalidOperationException();
 
             rows.AddRange(other.rows);
@@ -164,8 +195,8 @@
                     throw new InvalidOperationException();
             }
 
-            if (columnNames != null && columnNames.Length != row.Length)
-                throw new InvalidOperationException($"Can't add row: expected {columnNames.Length} columns, got {row.Length} columns");
+            if (columnNames != null && columnNames.Count != row.Length)
+                throw new InvalidOperationException($"Can't add row: expected {columnNames.Count} columns, got {row.Count} columns");
 
             rows.Add(row);
         }

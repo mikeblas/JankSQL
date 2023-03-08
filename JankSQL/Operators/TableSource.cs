@@ -8,29 +8,27 @@
 
         private readonly IEnumerator<Engines.RowWithBookmark> rowEnumerator;
         private readonly string? alias;
+        ColumnNameList? allColumnNames;
 
         private bool enumeratorExhausted;
-        private FullTableName tableName;
 
-        internal TableSource(Engines.IEngineTable source, FullTableName tableName)
+        internal TableSource(Engines.IEngineTable source)
         {
             this.source = source;
-            this.tableName = tableName;
             rowEnumerator = this.source.GetEnumerator();
             enumeratorExhausted = false;
             this.alias = null;
+            this.allColumnNames = null;
         }
 
-        /*
         internal TableSource(Engines.IEngineTable source, string? alias)
         {
             this.source = source;
-            allColumnNames = null;
             rowEnumerator = this.source.GetEnumerator();
             enumeratorExhausted = false;
             this.alias = alias;
+            this.allColumnNames = null;
         }
-        */
 
 
         public void Rewind()
@@ -41,13 +39,7 @@
 
         public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues)
         {
-            //REVIEW: only do this once
-            List<FullColumnName> columnNames = new ();
-            for (int n = 0; n < source.ColumnCount; n++)
-                columnNames.Add(source.ColumnName(n));
-            columnNames.Add(FullColumnName.FromTableColumnName(tableName.TableNameOnly, "bookmark_key"));
-
-            ResultSet rs = new (columnNames);
+            ResultSet rs = new (GetAllColumnNames());
 
             if (enumeratorExhausted)
                 return null;
@@ -75,26 +67,15 @@
             return rs;
         }
 
-        /*
-        protected List<FullColumnName> GetAllColumnNames()
+        protected ColumnNameList GetAllColumnNames()
         {
             if (allColumnNames == null)
             {
-                allColumnNames = new ();
-                for (int n = 0; n < source.ColumnCount; n++)
-                {
-                    FullColumnName fcn = source.ColumnName(n);
-                    if (alias != null)
-                        fcn = fcn.ApplyTableAlias(alias);
-                    allColumnNames.Add(fcn);
-                }
-
-                allColumnNames.Add(FullColumnName.FromColumnName("bookmark_key"));
+                allColumnNames = new ColumnNameList(source);
             }
 
             return allColumnNames;
         }
-        */
     }
 }
 

@@ -212,13 +212,12 @@
                         if (otherTableSource == null)
                             throw new ExecutionException($"Joined table {j.OtherTableName} does not exist");
 
-<<<<<<< HEAD
+/*
                         // build a join operator with it
                         TableSource joinSource = new TableSource(otherTableSource, j.OtherTableName);
                         Join oper = new Join(j.JoinType, lastLeftOutput, joinSource, j.PredicateExpressions);
-=======
+*/
                         joinSource = new TableSource(otherTableSource);
->>>>>>> main
 
                         AccumulateTableNames(j.OtherTableName, j.DerivedTableAlias);
                     }

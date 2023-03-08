@@ -80,7 +80,7 @@
                 foreach (var set in setList)
                 {
                     var accessor = new CombinedValueAccessor(new ResultSetValueAccessor(batch, i), outerAccessor);
-                    set.Execute(engine, new TemporaryRowValueAccessor(modified, batch.GetColumnNames()), accessor, bindValues);
+                    set.Execute(engine, new TemporaryRowValueAccessor(modified, batch.ColumnNameList), accessor, bindValues);
                 }
 
                 rowsToInsert.Add(modified);

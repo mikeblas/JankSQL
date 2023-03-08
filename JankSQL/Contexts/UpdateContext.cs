@@ -75,7 +75,7 @@
             else
             {
                 // found the source table, so build ourselves up
-                TableSource source = new (engineSource, tableName);
+                TableSource source = new (engineSource, tableName.TableNameOnly);
                 Update update = new (engineSource, source, predicateExpression, setList);
 
                 while (true)

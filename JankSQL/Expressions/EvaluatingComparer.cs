@@ -4,18 +4,18 @@
     {
         private readonly Expression[] keyExpressions;
         private readonly bool[] isAscending;
-        private readonly FullColumnName[] columnNames;
+        private readonly ColumnNameList columnNames;
         private readonly Engines.IEngine engine;
         private readonly Dictionary<string, ExpressionOperand> bindValues;
 
         private int keyComparisons = 0;
         private int rowComparisons = 0;
 
-        internal EvaluatingComparer(Engines.IEngine engine, Expression[] keyExpressions, bool[] isAscending, IEnumerable<FullColumnName> columnNames, Dictionary<string, ExpressionOperand> bindValues)
+        internal EvaluatingComparer(Engines.IEngine engine, Expression[] keyExpressions, bool[] isAscending, IList<FullColumnName> columnNames, Dictionary<string, ExpressionOperand> bindValues)
         {
             this.keyExpressions = keyExpressions;
             this.isAscending = isAscending;
-            this.columnNames = columnNames.ToArray();
+            this.columnNames = new ColumnNameList(columnNames);
             this.engine = engine;
             this.bindValues = bindValues;
         }
