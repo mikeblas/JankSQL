@@ -125,5 +125,40 @@
             JankAssert.IntegerColumnMatchesSet(result.ResultSet, 0, new HashSet<int>() { 0, 4, 5, 6, 7, 8, 9 });
         }
 
+        [Test]
+        public void TestNestedSevenTimes()
+        {
+            var ec = Parser.ParseSQLFileFromString(
+                "SELECT * FROM " +
+                "( " +
+                "    SELECT * FROM " +
+                "    ( " +
+                "        SELECT * FROM " +
+                "        ( " +
+                "            SELECT * FROM " +
+                "            ( " +
+                "                SELECT * FROM " +
+                "                ( " +
+                "                    SELECT * FROM " +
+                "                    ( " +
+                "                        SELECT * FROM " +
+                "                        ( " +
+                "                            SELECT number_id " +
+                "                            FROM ten " +
+                "                            ORDER BY number_id DESC " +
+                "                        ) AS T1 " +
+                "                    ) AS T2 " +
+                "                ) AS T3 " +
+                "            ) AS T4 " +
+                "        ) AS T5 " +
+                "    ) AS T6 " +
+                ") AS T7");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 1, 10);
+            result.ResultSet.Dump();
+
+            JankAssert.IntegerColumnMatchesSet(result.ResultSet, 0, new HashSet<int>() { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
+        }
     }
 }
