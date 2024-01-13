@@ -127,7 +127,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
+            Assert.That(result.ResultSet.Row(0)[0].RepresentsNull, Is.False);
             JankAssert.ValueMatchesInteger(result.ResultSet, 0, 0, -32 * -133);
         }
 
@@ -309,7 +309,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
+            Assert.That(result.ResultSet.Row(0)[0].RepresentsNull, Is.False);
             JankAssert.ValueMatchesInteger(result.ResultSet, 0, 0, 295);
         }
 
@@ -322,7 +322,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
+            Assert.That(result.ResultSet.Row(0)[0].RepresentsNull, Is.False);
             JankAssert.ValueMatchesInteger(result.ResultSet, 0, 0, 305);
         }
 
@@ -547,7 +547,7 @@
             for (int n = 0; n < result.ResultSet.ColumnCount; n++)
             {
                 if (nums[n] == null)
-                    Assert.IsTrue(row[n].RepresentsNull);
+                    Assert.That(row[n].RepresentsNull, Is.True);
                 else
                     JankAssert.ValueMatchesInteger(result.ResultSet, n, 0, (int)nums[n]!);
             }
@@ -566,9 +566,9 @@
             double[] nums = { 200, 300.1, 5.182837, 0 };
             for (int n = 0; n < result.ResultSet.ColumnCount; n++)
             {
-                Assert.IsFalse(row[n].RepresentsNull);
-                Assert.AreEqual(ExpressionOperandType.DECIMAL, row[n].NodeType);
-                Assert.AreEqual(nums[n], row[n].AsDouble(), 0.00000001);
+                Assert.That(row[n].RepresentsNull, Is.False);
+                Assert.That(row[n].NodeType, Is.EqualTo(ExpressionOperandType.DECIMAL));
+                Assert.That(row[n].AsDouble(), Is.EqualTo(nums[n]).Within(0.00000001));
             }
         }
 
@@ -586,12 +586,12 @@
             for (int n = 0; n < result.ResultSet.ColumnCount; n++)
             {
                 if (nums[n] == null)
-                    Assert.IsTrue(row[n].RepresentsNull);
+                    Assert.That(row[n].RepresentsNull, Is.True);
                 else
                 {
-                    Assert.IsFalse(row[n].RepresentsNull);
-                    Assert.AreEqual(ExpressionOperandType.DECIMAL, row[n].NodeType);
-                    Assert.AreEqual((double) nums[n]!, row[n].AsDouble(), 0.00000001);
+                    Assert.That(row[n].RepresentsNull, Is.False);
+                    Assert.That(row[n].NodeType, Is.EqualTo(ExpressionOperandType.DECIMAL));
+                    Assert.That(row[n].AsDouble(), Is.EqualTo(nums[n]).Within(0.00000001));
                 }
             }
         }
@@ -613,7 +613,7 @@
         public void TestFailFunctionPIWithArg()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT PI(200);");
-            Assert.IsTrue(ec.HadSemanticError, "expected a semantic error");
+            Assert.That(ec.HadSemanticError, Is.True, "expected semantic error");
         }
 
         [Test]
@@ -651,7 +651,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
+            Assert.That(result.ResultSet.Row(0)[0].RepresentsNull, Is.True);
         }
 
         [Test]
@@ -663,7 +663,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
+            Assert.That(result.ResultSet.Row(0)[0].RepresentsNull, Is.True);
         }
 
         [Test]
@@ -700,7 +700,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
+            Assert.That(result.ResultSet.Row(0)[0].RepresentsNull, Is.True);
         }
 
         [Test]
@@ -743,7 +743,7 @@
         public void TestFailMissingOperator()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 3 5;");
-            Assert.IsTrue(ec.TotalErrors > 0, "Expected an error");
+            Assert.That(ec.TotalErrors, Is.GreaterThan(0), "Expected an error");
         }
 
 
@@ -751,21 +751,21 @@
         public void TestFailMissingOperand()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 3+;");
-            Assert.IsTrue(ec.TotalErrors > 0, "Expected an error");
+            Assert.That(ec.TotalErrors, Is.GreaterThan(0), "Expected an error");
         }
 
         [Test]
         public void TestFailMissingFunctionParameter()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT POWER(2)");
-            Assert.IsTrue(ec.HadSemanticError, "expected semantic error");
+            Assert.That(ec.HadSemanticError, Is.True, "expected semantic error");
         }
 
         [Test]
         public void TestFailBogusFunctionName()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT BOGUS(2)");
-            Assert.IsTrue(ec.HadSemanticError, "expected semantic error");
+            Assert.That(ec.HadSemanticError, Is.True, "expected semantic error");
         }
 
         [Test]
@@ -801,7 +801,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
+            Assert.That(result.ResultSet.Row(0)[0].RepresentsNull, Is.True);
         }
 
 
@@ -900,7 +900,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
+            Assert.That(result.ResultSet.Row(0)[0].RepresentsNull, Is.True);
         }
 
         [Test]
@@ -924,7 +924,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.IsTrue(result.ResultSet.Row(0)[0].RepresentsNull);
+            Assert.That(result.ResultSet.Row(0)[0].RepresentsNull, Is.True);
         }
 
         [Test]
@@ -1008,7 +1008,7 @@
             JankAssert.RowsetExistsWithShape(result, 1, 1);
             result.ResultSet.Dump();
 
-            Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
+            Assert.That(result.ResultSet.Row(0)[0].RepresentsNull, Is.False);
             JankAssert.ValueMatchesInteger(result.ResultSet, 0, 0, 5);
         }
 

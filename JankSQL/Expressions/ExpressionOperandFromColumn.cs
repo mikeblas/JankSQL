@@ -27,6 +27,8 @@
 
         public override bool Equals(object? o)
         {
+            if ((o == null) || !this.GetType().Equals(o.GetType()))
+                return false;
             return Equals((ExpressionOperandFromColumn?)o);
         }
 

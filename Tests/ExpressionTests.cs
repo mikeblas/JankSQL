@@ -27,7 +27,8 @@ namespace Tests
             exp2.Add(ExpressionOperand.IntegerFromInt(3));
             exp2.Add(new ExpressionOperator("+"));
 
-            Assert.IsTrue(exp1.Equals(exp2));
+            Assert.That(exp1, Is.EqualTo(exp2));
+            // Assert.IsTrue(exp1.Equals(exp2));
         }
 
 
@@ -47,8 +48,9 @@ namespace Tests
             exp2.Add(ExpressionOperand.IntegerFromInt(3));
             exp2.Add(new ExpressionOperator("+"));
 
-            Assert.IsTrue(! exp1.Equals(exp2));
-        }
 
+            Assert.That(exp1, Is.Not.EqualTo(exp2));
+            // Assert.IsTrue(! exp1.Equals(exp2));
+        }
     }
 }

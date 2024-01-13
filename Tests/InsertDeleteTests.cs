@@ -4,6 +4,7 @@
 
     using JankSQL;
     using Engines = JankSQL.Engines;
+    using JankSQL.Operators;
 
     abstract public class InsertDeleteTests
     {
@@ -16,11 +17,13 @@
         {
             // delete one row
             var ecDelete = Parser.ParseSQLFileFromString("DELETE FROM [mytable] WHERE keycolumn = 2;");
+            JankAssert.SuccessfulParse(ecDelete);
 
             ExecuteResult resultDelete = ecDelete.ExecuteSingle(engine);
             JankAssert.SuccessfulRowsAffected(resultDelete, 1);
 
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM [mytable];");
+            JankAssert.SuccessfulParse(ecSelect);
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(resultSelect, 4, 2);
@@ -31,9 +34,9 @@
             for (int i = 0; i < resultSelect.ResultSet.RowCount; i++)
                 keys.Add(resultSelect.ResultSet.Row(i)[keyColIndex].AsInteger());
 
-            Assert.IsTrue(keys.Contains(1), "Wrong row deleted");
-            Assert.IsTrue(keys.Contains(3), "Wrong row deleted");
-            Assert.IsFalse(keys.Contains(2), "expected row not deleted");
+            Assert.That(keys, Has.Member(1), "Wrong row deleted");
+            Assert.That(keys, Has.Member(3), "Wrong row deleted");
+            Assert.That(keys, Has.No.Member(2), "expected row not deleted");
         }
 
         [Test]
@@ -41,9 +44,7 @@
         {
             // create a table
             var ecCreate = Parser.ParseSQLFileFromString("CREATE TABLE TransientTestTable (SomeInteger INTEGER, SomeString VARCHAR(100), AnotherOne INTEGER);");
-
-            Assert.IsNotNull(ecCreate);
-            Assert.AreEqual(0, ecCreate.TotalErrors);
+            JankAssert.SuccessfulParse(ecCreate);
 
             ExecuteResult resultCreate = ecCreate.ExecuteSingle(engine);
             JankAssert.SuccessfulWithMessageNoResultSet(resultCreate);
@@ -55,14 +56,14 @@
                 "(2, 'larry', 200), " +
                 "(3, 'curly', 300); ");
 
-            Assert.IsNotNull(ecInsert);
-            Assert.AreEqual(0, ecInsert.TotalErrors);
+            JankAssert.SuccessfulParse(ecInsert);
 
             ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
             JankAssert.SuccessfulNoResultSet(resultsInsert);
 
             // select them back
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM TransientTestTable;");
+            JankAssert.SuccessfulParse(ecCreate);
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(resultSelect, 3, 3);
@@ -78,13 +79,13 @@
                 moreIntegers.Add(resultSelect.ResultSet.Row(i)[anotherIndex].AsInteger());
             }
 
-            Assert.IsTrue(someIntegers.Contains(1));
-            Assert.IsTrue(someIntegers.Contains(2));
-            Assert.IsTrue(someIntegers.Contains(3));
+            Assert.That(someIntegers, Has.Member(1));
+            Assert.That(someIntegers, Has.Member(2));
+            Assert.That(someIntegers, Has.Member(3));
 
-            Assert.IsTrue(moreIntegers.Contains(300));
-            Assert.IsTrue(moreIntegers.Contains(200));
-            Assert.IsTrue(moreIntegers.Contains(100));
+            Assert.That(moreIntegers, Has.Member(300));
+            Assert.That(moreIntegers, Has.Member(200));
+            Assert.That(moreIntegers, Has.Member(100));
         }
 
         [Test]
@@ -92,9 +93,7 @@
         {
             // create a table
             var ecCreate = Parser.ParseSQLFileFromString("CREATE TABLE TransientTestTable (SomeInteger INTEGER, SomeString VARCHAR(100), AnotherOne INTEGER);");
-
-            Assert.IsNotNull(ecCreate);
-            Assert.AreEqual(0, ecCreate.TotalErrors);
+            JankAssert.SuccessfulParse(ecCreate);
 
             ExecuteResult resultCreate = ecCreate.ExecuteSingle(engine);
             JankAssert.SuccessfulWithMessageNoResultSet(resultCreate);
@@ -107,7 +106,7 @@
                 "(3, 'curly'); ");
 
             // should've had a semantic error
-            Assert.IsTrue(ecInsert.HadSemanticError, "expected semantic error");
+            Assert.That(ecInsert.HadSemanticError, Is.True, "expected semantic error");
         }
 
         [Test]
@@ -115,24 +114,21 @@
         {
             // create a table
             var ecCreate = Parser.ParseSQLFileFromString("CREATE TABLE TransientTestTable (SomeInteger INTEGER, SomeString VARCHAR(100), AnotherOne INTEGER);");
-
-            Assert.IsNotNull(ecCreate);
-            Assert.AreEqual(0, ecCreate.TotalErrors);
+            JankAssert.SuccessfulParse(ecCreate);
 
             ExecuteResult resultCreate = ecCreate.ExecuteSingle(engine);
             JankAssert.SuccessfulWithMessageNoResultSet(resultCreate);
 
             // insert some rows
             var ecInsert = Parser.ParseSQLFileFromString("INSERT INTO TransientTestTable (SomeInteger, SomeString, AnotherOne) VALUES(1, 'moe', 100);");
-
-            Assert.IsNotNull(ecInsert);
-            Assert.AreEqual(0, ecInsert.TotalErrors);
+            JankAssert.SuccessfulParse(ecInsert);
 
             ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
             JankAssert.SuccessfulNoResultSet(resultsInsert);
 
             // select them back
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM TransientTestTable;");
+            JankAssert.SuccessfulParse(ecSelect);
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(resultSelect, 3, 1);
@@ -148,8 +144,8 @@
                 moreIntegers.Add(resultSelect.ResultSet.Row(i)[anotherIndex].AsInteger());
             }
 
-            Assert.IsTrue(someIntegers.Contains(1));
-            Assert.IsTrue(moreIntegers.Contains(100));
+            Assert.That(someIntegers, Has.Member(1));
+            Assert.That(moreIntegers, Has.Member(100));
         }
 
         [Test]
@@ -157,15 +153,14 @@
         {
             // insert some rows
             var ecInsert = Parser.ParseSQLFileFromString("INSERT INTO MyTable (keycolumn, city_name, state_code, population) VALUES(51+2, 'West ' + 'Hartford', 'CT', SQRT(12) * POWER(10, 4));");
-
-            Assert.IsNotNull(ecInsert);
-            Assert.AreEqual(0, ecInsert.TotalErrors);
+            JankAssert.SuccessfulParse(ecInsert);
 
             ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
             JankAssert.SuccessfulNoResultSet(resultsInsert);
 
             // select it back
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM MyTable WHERE keycolumn = 53;");
+            JankAssert.SuccessfulParse(ecSelect);
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(resultSelect, 4, 1);
@@ -175,9 +170,9 @@
             int stateIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("state_code"));
             int popIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("population"));
 
-            Assert.AreEqual("West Hartford", resultSelect.ResultSet.Row(0)[cityIndex].AsString());
-            Assert.AreEqual("CT", resultSelect.ResultSet.Row(0)[stateIndex].AsString());
-            Assert.AreEqual(34641.016, resultSelect.ResultSet.Row(0)[popIndex].AsDouble(), 0.01);
+            Assert.That(resultSelect.ResultSet.Row(0)[cityIndex].AsString(), Is.EqualTo("West Hartford"));
+            Assert.That(resultSelect.ResultSet.Row(0)[stateIndex].AsString(), Is.EqualTo("CT"));
+            Assert.That(resultSelect.ResultSet.Row(0)[popIndex].AsDouble(), Is.EqualTo(34641.016).Within(0.01));
         }
 
         [Test]
@@ -185,9 +180,7 @@
         {
             // insert some rows
             var ecInsert = Parser.ParseSQLFileFromString("INSERT INTO MyTable (keycolumn, city_name, state_code, population) VALUES(51+2, 'West ' + 'Hartford', 'CT', NULL);");
-
-            Assert.IsNotNull(ecInsert);
-            Assert.AreEqual(0, ecInsert.TotalErrors);
+            JankAssert.SuccessfulParse(ecInsert);
 
             ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
             JankAssert.SuccessfulNoResultSet(resultsInsert);
@@ -203,10 +196,9 @@
             int stateIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("state_code"));
             int popIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("population"));
 
-
-            Assert.AreEqual("West Hartford", resultSelect.ResultSet.Row(0)[cityIndex].AsString());
-            Assert.AreEqual("CT", resultSelect.ResultSet.Row(0)[stateIndex].AsString());
-            Assert.IsTrue(resultSelect.ResultSet.Row(0)[popIndex].RepresentsNull);
+            Assert.That(resultSelect.ResultSet.Row(0)[cityIndex].AsString(), Is.EqualTo("West Hartford"));
+            Assert.That(resultSelect.ResultSet.Row(0)[stateIndex].AsString(), Is.EqualTo("CT"));
+            Assert.That(resultSelect.ResultSet.Row(0)[popIndex].RepresentsNull, Is.True);
         }
 
         [Test]
@@ -214,15 +206,14 @@
         {
             // insert some rows
             var ecInsert = Parser.ParseSQLFileFromString("INSERT INTO MyTable (keycolumn, city_name, state_code) VALUES (51+2, 'West ' + 'Hartford', 'CT');");
-
-            Assert.IsNotNull(ecInsert);
-            Assert.AreEqual(0, ecInsert.TotalErrors);
+            JankAssert.SuccessfulParse(ecInsert);
 
             ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
             JankAssert.SuccessfulNoResultSet(resultsInsert);
 
             // select it back
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM MyTable WHERE keycolumn = 53;");
+            JankAssert.SuccessfulParse(ecSelect);
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(resultSelect, 4, 1);
@@ -232,10 +223,9 @@
             int stateIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("state_code"));
             int popIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("population"));
 
-
-            Assert.AreEqual("West Hartford", resultSelect.ResultSet.Row(0)[cityIndex].AsString());
-            Assert.AreEqual("CT", resultSelect.ResultSet.Row(0)[stateIndex].AsString());
-            Assert.IsTrue(resultSelect.ResultSet.Row(0)[popIndex].RepresentsNull);
+            Assert.That(resultSelect.ResultSet.Row(0)[cityIndex].AsString(), Is.EqualTo("West Hartford"));
+            Assert.That(resultSelect.ResultSet.Row(0)[stateIndex].AsString(), Is.EqualTo("CT"));
+            Assert.That(resultSelect.ResultSet.Row(0)[popIndex].RepresentsNull, Is.True);
         }
 
         [Test]
@@ -243,9 +233,7 @@
         {
             // insert some rows
             var ecInsert = Parser.ParseSQLFileFromString("INSERT INTO MyTable (keycolumn, city_name, state_code) VALUES (51+2, 'West ' + 'Hartford', 'CT');");
-
-            Assert.IsNotNull(ecInsert);
-            Assert.AreEqual(0, ecInsert.TotalErrors);
+            JankAssert.SuccessfulParse(ecInsert);
 
             ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
             JankAssert.SuccessfulNoResultSet(resultsInsert);
@@ -263,15 +251,14 @@
         {
             // insert some rows
             var ecInsert = Parser.ParseSQLFileFromString("INSERT INTO MyTable (keycolumn, city_name, state_code, population) VALUES (51+2, NULL, NULL, NULL);");
-
-            Assert.IsNotNull(ecInsert);
-            Assert.AreEqual(0, ecInsert.TotalErrors);
+            JankAssert.SuccessfulParse(ecInsert);
 
             ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
             JankAssert.SuccessfulNoResultSet(resultsInsert);
 
             // select it back
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM MyTable WHERE keycolumn = 53;");
+            JankAssert.SuccessfulParse(ecSelect);
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(resultSelect, 4, 1);
@@ -281,9 +268,9 @@
             int stateIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("state_code"));
             int popIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("population"));
 
-            Assert.IsTrue(resultSelect.ResultSet.Row(0)[cityIndex].RepresentsNull);
-            Assert.IsTrue(resultSelect.ResultSet.Row(0)[stateIndex].RepresentsNull);
-            Assert.IsTrue(resultSelect.ResultSet.Row(0)[popIndex].RepresentsNull);
+            Assert.That(resultSelect.ResultSet.Row(0)[cityIndex].RepresentsNull, Is.True);
+            Assert.That(resultSelect.ResultSet.Row(0)[stateIndex].RepresentsNull, Is.True);
+            Assert.That(resultSelect.ResultSet.Row(0)[popIndex].RepresentsNull, Is.True);
         }
 
         [Test]
@@ -291,15 +278,14 @@
         {
             // insert some rows
             var ecInsert = Parser.ParseSQLFileFromString("INSERT INTO MyTable VALUES (53, 'West Hartford', 'CT', 34641);");
-
-            Assert.IsNotNull(ecInsert);
-            Assert.AreEqual(0, ecInsert.TotalErrors);
+            JankAssert.SuccessfulParse(ecInsert);
 
             ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
             JankAssert.SuccessfulNoResultSet(resultsInsert);
 
             // select it back
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM MyTable WHERE keycolumn = 53;");
+            JankAssert.SuccessfulParse(ecSelect);
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(resultSelect, 4, 1);
@@ -309,9 +295,9 @@
             int stateIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("state_code"));
             int popIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("population"));
 
-            Assert.AreEqual("West Hartford", resultSelect.ResultSet.Row(0)[cityIndex].AsString());
-            Assert.AreEqual("CT", resultSelect.ResultSet.Row(0)[stateIndex].AsString());
-            Assert.AreEqual(34641, resultSelect.ResultSet.Row(0)[popIndex].AsDouble(), 0.01);
+            Assert.That(resultSelect.ResultSet.Row(0)[cityIndex].AsString(), Is.EqualTo("West Hartford"));
+            Assert.That(resultSelect.ResultSet.Row(0)[stateIndex].AsString(), Is.EqualTo("CT"));
+            Assert.That(resultSelect.ResultSet.Row(0)[popIndex].AsDouble(), Is.EqualTo(34641).Within(0.01));
         }
 
         [Test]
@@ -319,9 +305,7 @@
         {
             // insert some rows
             var ecInsert = Parser.ParseSQLFileFromString("INSERT INTO MyTable (keycolumn, wrongcolumnName, state_code, population) VALUES(53, 'West Hartford', 'CT', 325743);");
-
-            Assert.IsNotNull(ecInsert);
-            Assert.AreEqual(0, ecInsert.TotalErrors);
+            JankAssert.SuccessfulParse(ecInsert);
 
             ExecuteResult resultInsert = ecInsert.ExecuteSingle(engine);
             JankAssert.FailureWithMessage(resultInsert);
@@ -334,7 +318,7 @@
             // insert some rows
             var ecInsert = Parser.ParseSQLFileFromString("INSERT INTO MyTable (keycolumn, state_code, state_code, population) VALUES(53, 'West Hartford', 'CT', 325743);");
 
-            Assert.IsTrue(ecInsert.HadSemanticError, "expected semantic error");
+            Assert.That(ecInsert.HadSemanticError, Is.True, "expected semantic error");
         }
 
         [Test]
@@ -342,9 +326,7 @@
         {
             // insert some rows
             var ecInsert = Parser.ParseSQLFileFromString("INSERT INTO MyTable (keycolumn, city_name, state_code, population) VALUES (53, 'West Hartford', 'CT', 325743, 'Grapefruit');");
-
-            Assert.IsNotNull(ecInsert);
-            Assert.AreEqual(0, ecInsert.TotalErrors);
+            JankAssert.SuccessfulParse(ecInsert);
 
             ExecuteResult resultInsert = ecInsert.ExecuteSingle(engine);
             JankAssert.FailureWithMessage(resultInsert);
@@ -355,9 +337,7 @@
         {
             // insert some rows
             var ecInsert = Parser.ParseSQLFileFromString("INSERT INTO MyTable (keycolumn, city_name, state_code, population) VALUES (53, 'West Hartford');");
-
-            Assert.IsNotNull(ecInsert);
-            Assert.AreEqual(0, ecInsert.TotalErrors);
+            JankAssert.SuccessfulParse(ecInsert);
 
             ExecuteResult resultInsert = ecInsert.ExecuteSingle(engine);
             JankAssert.FailureWithMessage(resultInsert);
@@ -369,13 +349,15 @@
         {
             // delete all rows (no predicate)
             var ecDelete = Parser.ParseSQLFileFromString("DELETE FROM [mytable];");
+            JankAssert.SuccessfulParse(ecDelete);
 
             ExecuteResult resultDelete = ecDelete.ExecuteSingle(engine);
             JankAssert.SuccessfulRowsAffected(resultDelete, 3);
 
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, resultDelete.ExecuteStatus, resultDelete.ErrorMessage);
+            Assert.That(resultDelete.ExecuteStatus, Is.EqualTo(ExecuteStatus.SUCCESSFUL), resultDelete.ErrorMessage);
 
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM [mytable];");
+            JankAssert.SuccessfulParse(ecSelect);
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(resultSelect, 4, 0);
@@ -386,11 +368,13 @@
         {
             // delete all rows (identity predicate)
             var ecDelete = Parser.ParseSQLFileFromString("DELETE FROM [mytable] WHERE  1=1;");
+            JankAssert.SuccessfulParse(ecDelete);
 
             ExecuteResult resultDelete = ecDelete.ExecuteSingle(engine);
             JankAssert.SuccessfulRowsAffected(resultDelete, 3);
 
             var ecSelect = Parser.ParseSQLFileFromString("SELECT * FROM [mytable];");
+            JankAssert.SuccessfulParse(ecSelect);
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(resultSelect, 4, 0);

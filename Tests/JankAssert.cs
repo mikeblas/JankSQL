@@ -35,7 +35,7 @@ namespace Tests
             if (rs.Row(row)[column].NodeType != ExpressionOperandType.VARCHAR)
                 throw new AssertionException($"expected string value at column {column}, row {row}, found {rs.Row(row)[column].NodeType}");
 
-            Assert.AreEqual(expectedValue, rs.Row(row)[column].AsString());
+            Assert.That(rs.Row(row)[column].AsString(), Is.EqualTo(expectedValue));
         }
 
         public static void ValueMatchesInteger(ResultSet rs, int column, int row, int expectedValue)
@@ -49,7 +49,7 @@ namespace Tests
             if (rs.Row(row)[column].NodeType != ExpressionOperandType.INTEGER)
                 throw new AssertionException($"expected integer value at column {column}, row {row}, found {rs.Row(row)[column].NodeType}");
 
-            Assert.AreEqual(expectedValue, rs.Row(row)[column].AsInteger());
+            Assert.That(rs.Row(row)[column].AsInteger(), Is.EqualTo(expectedValue));
         }
 
         public static void ValueMatchesDateTime(ResultSet rs, int column, int row, DateTime expectedValue)
@@ -63,7 +63,7 @@ namespace Tests
             if (rs.Row(row)[column].NodeType != ExpressionOperandType.DATETIME)
                 throw new AssertionException($"expected DateTime value at column {column}, row {row}, found {rs.Row(row)[column].NodeType}");
 
-            Assert.AreEqual(expectedValue, rs.Row(row)[column].AsDateTime());
+            Assert.That(rs.Row(row)[column].AsDateTime(), Is.EqualTo(expectedValue));
         }
 
         public static void ValueIsNull(ResultSet rs, int column, int row)
@@ -86,29 +86,35 @@ namespace Tests
             if (rs.Row(row)[column].NodeType != ExpressionOperandType.DECIMAL)
                 throw new AssertionException($"expected decimal value at column {column}, row {row}, found {rs.Row(row)[column].NodeType}");
 
-            Assert.AreEqual(expectedValue, rs.Row(row)[column].AsDouble(), tolerance);
+            Assert.That(rs.Row(row)[column].AsDouble(), Is.EqualTo(expectedValue).Within(tolerance));
+        }
+
+        public static void SuccessfulParse(ExecutableBatch ec)
+        {
+            Assert.That(ec, Is.Not.Null);
+            Assert.That(ec.TotalErrors, Is.EqualTo(0));
         }
 
 
         public static void SuccessfulNoResultSet(ExecuteResult er)
         {
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, er.ExecuteStatus);
+            Assert.That(er.ExecuteStatus, Is.EqualTo(ExecuteStatus.SUCCESSFUL));
             Assert.Throws<InvalidOperationException>(() => { var _ = er.ResultSet; });
         }
 
 
         public static void SuccessfulWithMessageNoResultSet(ExecuteResult er)
         {
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL_WITH_MESSAGE, er.ExecuteStatus);
+            Assert.That(er.ExecuteStatus, Is.EqualTo(ExecuteStatus.SUCCESSFUL_WITH_MESSAGE));
             Assert.Throws<InvalidOperationException>(() => { var _ = er.ResultSet; });
         }
 
 
         public static void SuccessfulRowsAffected(ExecuteResult er, int rowsExpected)
         {
-            Assert.AreEqual(ExecuteStatus.SUCCESSFUL, er.ExecuteStatus);
-            Assert.IsNull(er.ErrorMessage);
-            Assert.AreEqual(rowsExpected, er.RowsAffected);
+            Assert.That(er.ExecuteStatus, Is.EqualTo(ExecuteStatus.SUCCESSFUL));
+            Assert.That(er.ErrorMessage, Is.Null);
+            Assert.That(er.RowsAffected, Is.EqualTo(rowsExpected));
         }
 
 
@@ -123,13 +129,13 @@ namespace Tests
                     Assert.Fail($"unexpected value {val} returned");
             }
 
-            Assert.AreEqual(expectedSet.Count, 0, $"not all values were found in the expected set: {expectedSet} missing");
+            Assert.That(expectedSet.Count, Is.EqualTo(0), $"not all values were found in the expected set: {expectedSet} missing");
         }
 
         public static void FailureWithMessage(ExecuteResult er)
         {
-            Assert.AreEqual(ExecuteStatus.FAILED, er.ExecuteStatus);
-            Assert.IsNotNull(er.ErrorMessage);
+            Assert.That(er.ExecuteStatus, Is.EqualTo(ExecuteStatus.FAILED));
+            Assert.That(er.ErrorMessage, Is.Not.Null);
 
             // throws exception since no ResultSet is available
             Assert.Throws<InvalidOperationException>(() => { var x = er.ResultSet; });

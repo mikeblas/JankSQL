@@ -18,6 +18,7 @@
         public void TestOrderByOneStringDefault()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT number_name FROM ten ORDER BY number_name;");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 10);
@@ -28,7 +29,7 @@
             for (int i = 1; i < result.ResultSet.RowCount; i++)
             {
                 string current = result.ResultSet.Row(i)[0].AsString();
-                Assert.IsTrue(previous.CompareTo(current) <= 0, $"expected {previous} <= {current}");
+                Assert.That(previous, Is.LessThanOrEqualTo(current), $"expected {previous} <= {current}");
                 previous = current;
             }
         }
@@ -37,6 +38,7 @@
         public void TestOrderByOneStringAscending()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT number_name FROM ten ORDER BY number_name ASC;");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 10);
@@ -47,7 +49,7 @@
             for (int i = 1; i < result.ResultSet.RowCount; i++)
             {
                 string current = result.ResultSet.Row(i)[0].AsString();
-                Assert.IsTrue(previous.CompareTo(current) <= 0, $"expected {previous} <= {current}");
+                Assert.That(previous, Is.LessThanOrEqualTo(current), $"expected {previous} <= {current}");
                 previous = current;
             }
         }
@@ -56,6 +58,7 @@
         public void TestOrderByOneStringDesc()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT number_name FROM ten ORDER BY number_name desc;");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 10);
@@ -66,7 +69,7 @@
             for (int i = 1; i < result.ResultSet.RowCount; i++)
             {
                 string current = result.ResultSet.Row(i)[0].AsString();
-                Assert.IsTrue(previous.CompareTo(current) >= 0, $"expected {previous} >= {current}");
+                Assert.That(previous, Is.GreaterThanOrEqualTo(current), $"expected {previous} >= {current}");
                 previous = current;
             }
         }
@@ -76,6 +79,7 @@
         public void TestOrderByOneIntegerDefault()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT number_id FROM ten ORDER BY number_id;");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 10);
@@ -86,7 +90,7 @@
             for (int i = 1; i < result.ResultSet.RowCount; i++)
             {
                 int current = result.ResultSet.Row(i)[0].AsInteger();
-                Assert.IsTrue(previous.CompareTo(current) <= 0, $"expected {previous} <= {current}");
+                Assert.That(previous, Is.LessThanOrEqualTo(current), $"expected {previous} <= {current}");
                 previous = current;
             }
         }
@@ -96,6 +100,7 @@
         public void TestOrderByOneIntegerAscending()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT number_id FROM ten ORDER BY number_id ASC;");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 10);
@@ -106,7 +111,7 @@
             for (int i = 1; i < result.ResultSet.RowCount; i++)
             {
                 int current = result.ResultSet.Row(i)[0].AsInteger();
-                Assert.IsTrue(previous.CompareTo(current) <= 0, $"expected {previous} <= {current}");
+                Assert.That(previous, Is.LessThanOrEqualTo(current), $"expected {previous} <= {current}");
                 previous = current;
             }
         }
@@ -115,6 +120,7 @@
         public void TestOrderByOneIntegerFilterAscending()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT number_id FROM ten WHERE is_even = 1 ORDER BY number_id ASC;");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 5);
@@ -125,7 +131,7 @@
             for (int i = 1; i < result.ResultSet.RowCount; i++)
             {
                 int current = result.ResultSet.Row(i)[0].AsInteger();
-                Assert.IsTrue(previous.CompareTo(current) <= 0, $"expected {previous} <= {current}");
+                Assert.That(previous, Is.LessThanOrEqualTo(current), $"expected {previous} <= {current}");
                 previous = current;
             }
         }
@@ -134,6 +140,7 @@
         public void TestOrderByOneIntegerDesc()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT number_id FROM ten ORDER BY number_id DESC;");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 10);
@@ -144,7 +151,7 @@
             for (int i = 1; i < result.ResultSet.RowCount; i++)
             {
                 int current = result.ResultSet.Row(i)[0].AsInteger();
-                Assert.IsTrue(previous.CompareTo(current) >= 0, $"expected {previous} >= {current}");
+                Assert.That(previous, Is.GreaterThanOrEqualTo(current), $"expected {previous} >= {current}");
                 previous = current;
             }
         }
@@ -154,6 +161,7 @@
         public void TestOrderByOneIntegerFilterDesc()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT number_id FROM ten WHERE is_even = 0 ORDER BY number_id DESC;");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 5);
@@ -164,7 +172,7 @@
             for (int i = 1; i < result.ResultSet.RowCount; i++)
             {
                 int current = result.ResultSet.Row(i)[0].AsInteger();
-                Assert.IsTrue(previous.CompareTo(current) >= 0, $"expected {previous} >= {current}");
+                Assert.That(previous, Is.GreaterThanOrEqualTo(current), $"expected {previous} >= {current}");
                 previous = current;
             }
         }
@@ -174,6 +182,7 @@
         public void TestOrderByOneIntegerFilteredAllDesc()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT number_id FROM ten WHERE is_even = 35 ORDER BY number_id DESC;");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 0);
@@ -185,6 +194,7 @@
         public void TestOrderByOneIntegerFilteredAll()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT number_id FROM ten WHERE is_even = 35 ORDER BY number_id;");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 0);
@@ -199,9 +209,7 @@
 
             // create a table
             var ecCreate = Parser.ParseSQLFileFromString("CREATE TABLE TransientTestTable (SomeKey INTEGER, SomeInteger INTEGER);");
-
-            Assert.IsNotNull(ecCreate);
-            Assert.AreEqual(0, ecCreate.TotalErrors);
+            JankAssert.SuccessfulParse(ecCreate);
 
             ExecuteResult resultCreate = ecCreate.ExecuteSingle(engine);
             JankAssert.SuccessfulWithMessageNoResultSet(resultCreate);
@@ -220,8 +228,7 @@
                 var ecInsert = Parser.QuietParseSQLFileFromString(statement);
                 parsing.Stop();
 
-                Assert.IsNotNull(ecInsert);
-                Assert.AreEqual(0, ecInsert.TotalErrors);
+                JankAssert.SuccessfulParse(ecInsert);
 
                 execution.Start();
                 ExecuteResult resultsInsert = ecInsert.ExecuteSingle(engine);
@@ -235,6 +242,7 @@
 
             // select it out
             var ecSelect = Parser.ParseSQLFileFromString("SELECT SomeKey, SomeInteger FROM TransientTestTable ORDER BY SomeKey;");
+            JankAssert.SuccessfulParse(ecSelect);
 
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(resultSelect, 2, testRowCount);
@@ -245,14 +253,14 @@
             for (int i = 1; i < resultSelect.ResultSet.RowCount; i++)
             {
                 int current = resultSelect.ResultSet.Row(i)[0].AsInteger();
-                Assert.IsTrue(previous.CompareTo(current) <= 0, $"expected {previous} <= {current}");
+                Assert.That(previous, Is.LessThanOrEqualTo(current), $"expected {previous} <= {current}");
                 previous = current;
 
                 int x = resultSelect.ResultSet.Row(i)[1].AsInteger();
                 testsum += x;
             }
 
-            Assert.AreEqual(checksum, testsum);
+            Assert.That(testsum, Is.EqualTo(checksum));
         }
 
 
@@ -264,9 +272,7 @@
 
             // create a table
             var ecCreate = Parser.ParseSQLFileFromString("CREATE TABLE TransientTestTable (SomeKey INTEGER, SomeInteger INTEGER);");
-
-            Assert.IsNotNull(ecCreate);
-            Assert.AreEqual(0, ecCreate.TotalErrors);
+            JankAssert.SuccessfulParse(ecCreate);
 
             ExecuteResult resultCreate = ecCreate.ExecuteSingle(engine);
             JankAssert.SuccessfulWithMessageNoResultSet(resultCreate);
@@ -277,8 +283,7 @@
             parsing.Start();
             string statement = $"INSERT INTO TransientTestTable (SomeKey, SomeInteger) VALUES(@RowNumber, @Random);";
             var ecInsert = Parser.QuietParseSQLFileFromString(statement);
-            Assert.IsNotNull(ecInsert);
-            Assert.AreEqual(0, ecInsert.TotalErrors);
+            JankAssert.SuccessfulParse(ecInsert);
             parsing.Stop();
 
             // insert some rows
@@ -315,7 +320,7 @@
             for (int i = 1; i < resultSelect.ResultSet.RowCount; i++)
             {
                 int current = resultSelect.ResultSet.Row(i)[0].AsInteger();
-                Assert.IsTrue(previous.CompareTo(current) <= 0, $"expected {previous} <= {current}");
+                Assert.That(previous, Is.LessThanOrEqualTo(current), $"expected {previous} <= {current}");
                 previous = current;
 
 
@@ -324,8 +329,8 @@
                 // Console.WriteLine($"Read {x}");
             }
 
-            Assert.AreEqual(testRowCount, resultSelect.ResultSet.RowCount);
-            Assert.AreEqual(checksum, testsum);
+            Assert.That(resultSelect.ResultSet.RowCount, Is.EqualTo(testRowCount));
+            Assert.That(testsum, Is.EqualTo(checksum));
         }
 
     }

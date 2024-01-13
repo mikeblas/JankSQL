@@ -149,39 +149,39 @@ INSERT INTO students(StudentID, StudentName, score, class) VALUES(6, 'Rob', 802,
 
                 if (studentName == "Mark")
                 {
-                    Assert.False(sawMark);
+                    Assert.That(sawMark, Is.False);
                     sawMark = true;
-                    Assert.AreEqual(studentClass, 7);
-                    Assert.AreEqual(studentScore, 894);
+                    Assert.That(studentClass, Is.EqualTo(7));
+                    Assert.That(studentScore, Is.EqualTo(894));
                 }
                 else if (studentName == "Bill")
                 {
-                    Assert.False(sawBill);
+                    Assert.That(sawBill, Is.False);
                     sawBill = true;
-                    Assert.AreEqual(studentClass, 7);
-                    Assert.AreEqual(studentScore, 894);
+                    Assert.That(studentClass, Is.EqualTo(7));
+                    Assert.That(studentScore, Is.EqualTo(894));
                 }
                 else if (studentName == "Maria")
                 {
-                    Assert.False(sawMaria);
+                    Assert.That(sawMaria, Is.False);
                     sawMaria = true;
-                    Assert.AreEqual(studentClass, 8);
-                    Assert.AreEqual(studentScore, 678);
+                    Assert.That(studentClass, Is.EqualTo(8));
+                    Assert.That(studentScore, Is.EqualTo(678));
 
                 }
                 else if (studentName == "John")
                 {
-                    Assert.False(sawJohn);
+                    Assert.That(sawJohn, Is.False);
                     sawJohn = true;
-                    Assert.AreEqual(studentClass, 9);
-                    Assert.AreEqual(studentScore, 899);
+                    Assert.That(studentClass, Is.EqualTo(9));
+                    Assert.That(studentScore, Is.EqualTo(899));
                 }
             }
 
-            Assert.True(sawMark);
-            Assert.True(sawBill);
-            Assert.True(sawMaria);
-            Assert.True(sawJohn);
+            Assert.That(sawMark, Is.True);
+            Assert.That(sawBill, Is.True);
+            Assert.That(sawMaria, Is.True);
+            Assert.That(sawJohn, Is.True);
         }
     }
 }
