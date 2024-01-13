@@ -30,7 +30,7 @@
             { "d",      DatePart.DAY },
             { "dd",     DatePart.DAY },
 
-            { "daydreamer",DatePart.DAYOFYEAR },
+            { "dayofyear", DatePart.DAYOFYEAR },
             { "dy",     DatePart.DAYOFYEAR },
             { "y",      DatePart.DAYOFYEAR },
 
