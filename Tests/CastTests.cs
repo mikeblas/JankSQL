@@ -1,8 +1,7 @@
 ﻿namespace Tests
 {
-    using NUnit.Framework;
-
     using JankSQL;
+    using NUnit.Framework;
     using Engines = JankSQL.Engines;
 
     abstract public class CastTests
@@ -12,7 +11,7 @@
         internal Engines.IEngine engine;
 
         [Test]
-        public void TestCastStringtoDecimal()
+        public void TestCastStringToDecimal()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT CAST('33.3' AS DECIMAL)");
 
@@ -24,7 +23,7 @@
         }
 
         [Test]
-        public void TestCastStringtoInteger()
+        public void TestCastStringToInteger()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT CAST('33' AS INTEGER)");
 
@@ -86,7 +85,7 @@
         }
 
         [Test]
-        public void TestFailCastStringtoInteger()
+        public void TestFailCastStringToInteger()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT CAST('33.3' AS INTEGER)");
 

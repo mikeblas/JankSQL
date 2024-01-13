@@ -9,7 +9,7 @@
     /// Handling of data types here is a bit weak:
     ///
     /// 1) Strings aren't escaped, so a string containing a comma will break the format.
-    /// 2) Null values are stored as an empty field (,,) for any data type. This is indescernable from an empty string.
+    /// 2) Null values are stored as an empty field (,,) for any data type. This is indiscernible from an empty string.
     ///
     /// </summary>
     public class DynamicCSVTable : IEngineTable
@@ -277,12 +277,12 @@
 
         public void Commit()
         {
-            // nothing here, since the implenentation auto-commits
+            // nothing here, since the implementation auto-commits
         }
 
         public void Rollback()
         {
-            // nothing here, since the implenentation auto-commits
+            // nothing here, since the implementation auto-commits
         }
 
         private ExpressionOperandType[] GetColumnTypes(FullTableName tableName)

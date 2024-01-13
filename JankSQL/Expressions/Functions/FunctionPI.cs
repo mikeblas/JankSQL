@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Expressions.Functions
 {
+    using Antlr4.Runtime;
+
     internal class FunctionPI : ExpressionFunction
     {
         internal FunctionPI()
@@ -18,6 +20,12 @@
         {
             stack.Push(ExpressionOperand.DecimalFromDouble(Math.PI));
         }
+
+        internal override void SetFromBuiltInFunctionsContext(IList<ParserRuleContext> stack, TSqlParser.Built_in_functionsContext bifContext)
+        {
+            // no params, nothing to do
+        }
+
     }
 }
 

@@ -45,7 +45,7 @@
         {
             engine.CreateIndex(tableName, indexName, isUnique, columnInfo);
 
-            //TODO: can we get rowcount here?
+            //TODO: can we get row count here?
             ExecuteResult ret = ExecuteResult.SuccessWithRowsAffected(0);
             return ret;
         }

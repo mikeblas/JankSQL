@@ -9,6 +9,7 @@
         private readonly ExecutionContext? executionContext;
         private readonly string? semanticError;
 
+        // bind variables are localizable, so we use nvariantCultureIgnoreCase
         private readonly Dictionary<string, ExpressionOperand> bindValues = new (StringComparer.InvariantCultureIgnoreCase);
 
         private ExecuteResult[]? results;
@@ -77,7 +78,7 @@
         /// Executes this batch and gets an array of ExecuteResult objects, one for each batch.
         /// </summary>
         /// <returns>array of ExecuteResults object.</returns>
-        /// <exception cref="InvalidOperationException">If never successfully pasred.</exception>
+        /// <exception cref="InvalidOperationException">If never successfully parsed.</exception>
         public ExecuteResult[] Execute(Engines.IEngine engine)
         {
             if (executionContext is null)

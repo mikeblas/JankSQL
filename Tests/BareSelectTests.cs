@@ -82,7 +82,7 @@
 
 
         [Test]
-        public void TestJanapeseString()
+        public void TestJapaneseString()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT '〒105-0011 東京都港区芝公園４丁目２−8';");
 
@@ -94,7 +94,7 @@
         }
 
         [Test]
-        public void TestJanapeseNString()
+        public void TestJapaneseNString()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT N'〒105-0011 東京都港区芝公園４丁目２−8';");
 

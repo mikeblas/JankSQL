@@ -1,24 +1,44 @@
 ﻿namespace JankSQL.Expressions
 {
+    using Antlr4.Runtime;
     using JankSQL.Expressions.Functions;
 
     internal abstract class ExpressionFunction : ExpressionNode, IEquatable<ExpressionFunction>
     {
+        // here's a dictionary of functions by string name to the classes which work them;
+        // this is initialized from FunctionTypeDict by the static constructor.
+        // internal functions are always unaccented English, so we use OrdinalIgnoreCase here
+        private static readonly Dictionary<string, Func<ExpressionFunction>> FunctionNameDict = new (StringComparer.OrdinalIgnoreCase);
+
         // here's a dictionary of functions by string name to the classes which work them
-        private static readonly Dictionary<string, Func<ExpressionFunction>> FunctionDict = new (StringComparer.InvariantCultureIgnoreCase)
+        private static readonly Dictionary<Type, Func<ExpressionFunction>> FunctionTypeDict = new ()
         {
-            { "GETDATE",    () => new FunctionGetDate() },
-            { "LEN",        () => new FunctionLEN() },
-            { "PI",         () => new FunctionPI() },
-            { "POWER",      () => new FunctionPOWER() },
-            { "SQRT",       () => new FunctionSQRT() },
+            { typeof(TSqlParser.CASTContext),       () => new FunctionCast() },
+            { typeof(TSqlParser.DATEADDContext),    () => new FunctionDateAdd() },
+            { typeof(TSqlParser.DATEDIFFContext),   () => new FunctionDateDiff() },
+            { typeof(TSqlParser.GETDATEContext),    () => new FunctionGetDate() },
+            { typeof(TSqlParser.IIFContext),        () => new FunctionIIF() },
+            { typeof(TSqlParser.ISNULLContext),     () => new FunctionIsNull() },
+            { typeof(TSqlParser.LENContext),        () => new FunctionLEN() },
+            { typeof(TSqlParser.PIContext),         () => new FunctionPI() },
+            { typeof(TSqlParser.POWERContext),      () => new FunctionPOWER() },
+            { typeof(TSqlParser.SQRTContext),       () => new FunctionSQRT() },
         };
 
-        private readonly string str;
+        private readonly string name;
 
-        internal ExpressionFunction(string str)
+        static ExpressionFunction()
         {
-            this.str = str;
+            foreach (var func in FunctionTypeDict)
+            {
+                var f = func.Value.Invoke();
+                FunctionNameDict.Add(f.name, func.Value);
+            }
+        }
+
+        internal ExpressionFunction(string name)
+        {
+            this.name = name;
         }
 
         internal abstract int ExpectedParameters { get; }
@@ -31,12 +51,12 @@
 
         public override int GetHashCode()
         {
-            return str.GetHashCode();
+            return name.GetHashCode();
         }
 
         public override string ToString()
         {
-            return $"{str}()";
+            return $"{name}()";
         }
 
         public bool Equals(ExpressionFunction? other)
@@ -47,17 +67,34 @@
             if (ReferenceEquals(this, other))
                 return true;
 
-            return str.Equals(other.str, StringComparison.OrdinalIgnoreCase);
+            return name.Equals(other.name, StringComparison.OrdinalIgnoreCase);
         }
 
         internal static ExpressionFunction? FromFunctionName(string str)
         {
-            if (!FunctionDict.ContainsKey(str))
+            if (!FunctionNameDict.ContainsKey(str))
                 return null;
 
-            var r = FunctionDict[str].Invoke();
+            var r = FunctionNameDict[str].Invoke();
             return r;
         }
+
+        /// <summary>
+        /// Find an ExpressionFunction-derived object that will implement the language function, given
+        /// the parser type of that function.
+        /// </summary>
+        /// <param name="t">Parser type of the desired function.</param>
+        /// <returns>ExpressionFunction object, null if not known.</returns>
+        internal static ExpressionFunction? FromFunctionType(Type t)
+        {
+            if (!FunctionTypeDict.ContainsKey(t))
+                return null;
+
+            var r = FunctionTypeDict[t].Invoke();
+            return r;
+        }
+
+        internal abstract void SetFromBuiltInFunctionsContext(IList<ParserRuleContext> stack, TSqlParser.Built_in_functionsContext bifContext);
     }
 }
 

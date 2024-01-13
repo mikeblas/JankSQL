@@ -30,6 +30,13 @@
             this.joinType = joinType;
         }
 
+        internal JoinContext(JoinType joinType, SelectContext selectSource, string derivedTableAlias)
+        {
+            this.selectSource = selectSource;
+            this.joinType = joinType;
+            this.derivedTableAlias = derivedTableAlias;
+        }
+
         internal string? DerivedTableAlias
         {
             get { return derivedTableAlias; }
@@ -93,8 +100,7 @@
                     Console.WriteLine($"   #{i}: {predicateExpressions}");
             }
 
-            if (selectSource != null)
-                selectSource.Dump();
+            selectSource?.Dump();
         }
     }
 }

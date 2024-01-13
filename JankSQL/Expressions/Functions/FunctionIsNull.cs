@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Expressions.Functions
 {
+    using Antlr4.Runtime;
+
     internal class FunctionIsNull : ExpressionFunction
     {
         internal FunctionIsNull()
@@ -21,6 +23,13 @@
 
             ExpressionOperand result = left.RepresentsNull ? right : left;
             stack.Push(result);
+        }
+
+        internal override void SetFromBuiltInFunctionsContext(IList<ParserRuleContext> stack, TSqlParser.Built_in_functionsContext bifContext)
+        {
+            var c = (TSqlParser.ISNULLContext)bifContext;
+            stack.Add(c.left);
+            stack.Add(c.right);
         }
     }
 }

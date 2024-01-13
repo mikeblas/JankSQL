@@ -21,7 +21,7 @@
         public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues);
 
         /// <summary>
-        /// Rewind causes the object to rewind to the beginniing of its produced rows.
+        /// Rewind causes the object to rewind to the beginning of its produced rows.
         /// </summary>
         void Rewind();
     }

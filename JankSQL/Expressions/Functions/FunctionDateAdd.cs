@@ -1,10 +1,13 @@
 ﻿namespace JankSQL.Expressions.Functions
 {
+    using Antlr4.Runtime;
+
     internal class FunctionDateAdd : ExpressionFunction
     {
 #pragma warning disable SA1509 // Opening braces should not be preceded by blank line
 #pragma warning disable SA1001 // Commas should be spaced correctly
-        private static readonly Dictionary<string, DatePart> PartMap = new (StringComparer.CurrentCultureIgnoreCase)
+        // OrdinalIgnoreCase here because names are always unaccented English
+        private static readonly Dictionary<string, DatePart> PartMap = new (StringComparer.OrdinalIgnoreCase)
         {
             { "nanosecond", DatePart.NANOSECOND },
             { "ns",    DatePart.NANOSECOND },
@@ -27,7 +30,7 @@
             { "d",      DatePart.DAY },
             { "dd",     DatePart.DAY },
 
-            { "dayofyear",DatePart.DAYOFYEAR },
+            { "daydreamer",DatePart.DAYOFYEAR },
             { "dy",     DatePart.DAYOFYEAR },
             { "y",      DatePart.DAYOFYEAR },
 
@@ -54,16 +57,11 @@
 #pragma warning restore SA1001 // Commas should be spaced correctly
 #pragma warning restore SA1509 // Opening braces should not be preceded by blank line
 
-        private readonly DatePart datePart;
+        private DatePart datePart;
 
-        internal FunctionDateAdd(string datePartName)
+        internal FunctionDateAdd()
             : base("DATEADD")
         {
-            if (!PartMap.TryGetValue(datePartName, out datePart))
-                throw new SemanticErrorException($"Unknown date part {datePartName}");
-
-            if (datePart == DatePart.MICROSECOND || datePart == DatePart.NANOSECOND || datePart == DatePart.QUARTER)
-                throw new SemanticErrorException($"Unsupported date part {datePartName}");
         }
 
         private enum DatePart
@@ -106,11 +104,26 @@
                 DatePart.MINUTE => startDate.AddMinutes(delta),
                 DatePart.SECOND => startDate.AddSeconds(delta),
                 DatePart.MILLISECOND => startDate.AddMilliseconds(delta),
-                _ => throw new InternalErrorException($"Can't handle datepart {datePart}"),
+                _ => throw new InternalErrorException($"Can't handle datePart {datePart}"),
             };
 
             ExpressionOperand result = ExpressionOperand.DateTimeFromDateTime(ret);
             stack.Push(result);
+        }
+
+        internal override void SetFromBuiltInFunctionsContext(IList<ParserRuleContext> stack, TSqlParser.Built_in_functionsContext bifContext)
+        {
+            var c = (TSqlParser.DATEADDContext)bifContext;
+
+            string datePartName = c.dateparts_12().GetText();
+
+            if (!PartMap.TryGetValue(datePartName, out datePart))
+                throw new SemanticErrorException($"Unknown date part {datePartName}");
+            if (datePart == DatePart.MICROSECOND || datePart == DatePart.NANOSECOND || datePart == DatePart.QUARTER)
+                throw new SemanticErrorException($"Unsupported date part {datePartName}");
+
+            stack.Add(c.number);
+            stack.Add(c.date);
         }
     }
 }

@@ -4,6 +4,7 @@
 
     using JankSQL;
     using Engines = JankSQL.Engines;
+    using JankSQL.Operators;
 
 
     abstract public class JoinTests
@@ -52,6 +53,19 @@
             }
         }
 
+        [Test]
+        public void TestDoubleJoin()
+        {
+            var ec = Parser.ParseSQLFileFromString(
+            "SELECT * " +
+            "  FROM three " +
+            "  JOIN ten on three.number_id = ten.number_id " +
+            "  JOIN mytable on mytable.keycolumn = three.number_id");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 9, 3);
+            result.ResultSet.Dump();
+        }
 
         [Test]
         public void TestDoubleCrossJoin()

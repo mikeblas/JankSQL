@@ -1,5 +1,7 @@
 ﻿namespace JankSQL.Expressions.Functions
 {
+    using Antlr4.Runtime;
+
     internal class FunctionLEN : ExpressionFunction
     {
         internal FunctionLEN()
@@ -28,6 +30,12 @@
             }
 
             stack.Push(result);
+        }
+
+        internal override void SetFromBuiltInFunctionsContext(IList<ParserRuleContext> stack, TSqlParser.Built_in_functionsContext bifContext)
+        {
+            var c = (TSqlParser.LENContext)bifContext;
+            stack.Add(c.string_expression);
         }
     }
 }

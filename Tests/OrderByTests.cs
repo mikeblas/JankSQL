@@ -34,7 +34,7 @@
         }
 
         [Test]
-        public void TestOrderByOneStringAsc()
+        public void TestOrderByOneStringAscending()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT number_name FROM ten ORDER BY number_name ASC;");
 
@@ -93,7 +93,7 @@
 
 
         [Test]
-        public void TestOrderByOneIntegerAsc()
+        public void TestOrderByOneIntegerAscending()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT number_id FROM ten ORDER BY number_id ASC;");
 
@@ -112,7 +112,7 @@
         }
 
         [Test]
-        public void TestOrderByOneIntegerFilterAsc()
+        public void TestOrderByOneIntegerFilterAscending()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT number_id FROM ten WHERE is_even = 1 ORDER BY number_id ASC;");
 

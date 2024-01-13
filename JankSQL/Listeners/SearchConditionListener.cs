@@ -81,7 +81,7 @@
             if (context.IN() != null)
             {
                 // expression [NOT] IN (subquery | expression_list)
-                // throw new NotImplementedException("subqueries are not yet supported");
+                // throw new NotImplementedException("sub-queries are not yet supported");
 
                 Console.WriteLine("IN clause Predicate Expression!");
 
@@ -92,11 +92,11 @@
                 // otherwise, IN
                 bool notIn = context.NOT().Length % 2 != 0;
 
-                if (context.expression_list() != null)
+                if (context.expression_list_() != null)
                 {
                     List<Expression> expressions = new ();
 
-                    foreach (var expression in context.expression_list().expression())
+                    foreach (var expression in context.expression_list_().expression())
                     {
                         Expression expr = GobbleExpression(expression);
                         expressions.Add(expr);
@@ -113,7 +113,7 @@
                 }
                 else if (context.subquery() != null)
                 {
-                    // it's a subselect
+                    // it's a sub-select
                     SelectContext selectContext = GobbleSelectStatement(context.subquery().select_statement());
 
                     var oper = new ExpressionInOperator(notIn, selectContext);
@@ -155,7 +155,7 @@
             }
             else if (context.BETWEEN() != null)
             {
-                // expression [NOT] BETWEEN expresion AND expression
+                // expression [NOT] BETWEEN expression AND expression
 
                 Expression value = GobbleExpression(context.expression()[0]);
                 Expression left = GobbleExpression(context.expression()[1]);

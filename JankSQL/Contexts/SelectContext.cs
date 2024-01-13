@@ -11,7 +11,9 @@
         private readonly List<AggregateContext> aggregateContexts = new ();
         private readonly List<Expression> groupByExpressions = new ();
         private readonly SelectListContext selectListContext;
-        private readonly HashSet<string> tableNames = new (StringComparer.OrdinalIgnoreCase);
+
+        // InvariantCultureIgnoreCase here so we can have localized table names
+        private readonly HashSet<string> tableNames = new (StringComparer.InvariantCultureIgnoreCase);
 
         // for WHERE clauses
         private readonly PredicateContext? predicateContext;
@@ -252,7 +254,7 @@
                     if (expr.ContainsAggregate)
                         continue;
 
-                    // otherwise, it needs a match in the group expressoins
+                    // otherwise, it needs a match in the group expressions
                     bool found = false;
                     foreach (var gbe in groupByExpressions)
                     {

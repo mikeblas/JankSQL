@@ -4,11 +4,11 @@
  *    install, and setup Antlr (now, just setantlr.bat in c:\bin)
  *         https://github.com/antlr/antlr4/blob/master/doc/getting-started.md
  *
- *    walkthrough of TSQL grammar in Antlr:
+ *    walk-through of TSQL grammar in Antlr:
  *         https://dskrzypiec.dev/parsing-tsql/
  *
  *    TSQL Grammar in Antlr:
- *         just this directory; this contains many many grammars
+ *         just this directory; this contains many grammars
  *         https://github.com/antlr/grammars-v4/tree/master/sql/tsql
  *
  *    build the grammar over in the $/grammar directory:
@@ -60,10 +60,10 @@ namespace JankSQL
 
             str = "INSERT INTO ten(number_id, number_name, is_even) VALUES(@P1, @P2, @P3)";
 
-            // str = "SELECT * FROM ten WHERE number_id IN (3, 5, 7, number_id);";
+            // name = "SELECT * FROM ten WHERE number_id IN (3, 5, 7, number_id);";
 
 
-            // str = "SELECT LEN(city_name) FROM mytable;";
+            // name = "SELECT LEN(city_name) FROM mytable;";
 
             var btreeEngine = Engines.BTreeEngine.CreateInMemory();
 

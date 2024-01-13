@@ -46,7 +46,7 @@
             // if we had no input at all, we still have a totalResults because we had at least one zero-length ResultSet on our input
             // before seeing the IsEOF ResultSet object.
             if (totalResults == null)
-                throw new InternalErrorException("didn't exepct null ResultSet");
+                throw new InternalErrorException("didn't expect null ResultSet");
 
             //TODO: honor max
             // we've completely built totalResults, so sort it

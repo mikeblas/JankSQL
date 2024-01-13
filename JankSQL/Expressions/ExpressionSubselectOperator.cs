@@ -29,14 +29,14 @@
             ExecuteResult result = selectContext.Execute(engine, accessor, bindValues);
 
             if (result.ResultSet.ColumnCount != 1)
-                throw new SemanticErrorException($"subselect returned {result.ResultSet.ColumnCount} columns, must only return 1 column");
+                throw new SemanticErrorException($"sub-select returned {result.ResultSet.ColumnCount} columns, must only return 1 column");
 
             if (result.ResultSet.RowCount == 0)
                 stack.Push(ExpressionOperand.NullLiteral());
             else if (result.ResultSet.RowCount == 1)
                 stack.Push(result.ResultSet.Row(0)[0]);
             else
-                throw new NotImplementedException($"don't know how to cope with {result.ResultSet.RowCount} rows in subselect");
+                throw new NotImplementedException($"don't know how to cope with {result.ResultSet.RowCount} rows in sub-select");
         }
     }
 }

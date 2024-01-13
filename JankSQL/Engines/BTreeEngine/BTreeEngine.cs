@@ -6,6 +6,7 @@
 
     public class BTreeEngine : IEngine
     {
+        // InvariantCultureIgnoreCase here so we can have localized table names
         private readonly Dictionary<string, BTreeTable> inMemoryTables = new (StringComparer.InvariantCultureIgnoreCase);
 
         private readonly BTreeTable sysColumns;
@@ -223,8 +224,8 @@
             int indexNameIndex = sysIndexes.ColumnIndex("index_name");
             foreach (var row in sysIndexes)
             {
-                if (row.RowData[tableNameIndex].AsString().Equals(tableName.TableNameOnly, StringComparison.OrdinalIgnoreCase) &&
-                    row.RowData[indexNameIndex].AsString().Equals(indexName, StringComparison.OrdinalIgnoreCase))
+                if (row.RowData[tableNameIndex].AsString().Equals(tableName.TableNameOnly, StringComparison.InvariantCultureIgnoreCase) &&
+                    row.RowData[indexNameIndex].AsString().Equals(indexName, StringComparison.InvariantCultureIgnoreCase))
                 {
                     throw new ExecutionException($"index {indexName} already exists on table {tableName}");
                 }
@@ -237,7 +238,7 @@
             Dictionary<string, int> columnNameToIndex = new (StringComparer.InvariantCultureIgnoreCase);
             foreach (var row in sysColumns)
             {
-                if (row.RowData[columnsTableNameIndex].AsString().Equals(tableName.TableNameOnly, StringComparison.OrdinalIgnoreCase))
+                if (row.RowData[columnsTableNameIndex].AsString().Equals(tableName.TableNameOnly, StringComparison.InvariantCultureIgnoreCase))
                     columnNameToIndex.Add(row.RowData[columnsColumnNameIndex].AsString(), row.RowData[columnsIndexIndex].AsInteger());
             }
 
@@ -509,6 +510,7 @@
 
         protected static Dictionary<string, string> GetCatalogPaths(string basePath)
         {
+            // InvariantCultureIgnoreCase so we can have localized names
             Dictionary<string, string> pathDict = new (StringComparer.InvariantCultureIgnoreCase)
             {
                 { "sys_tables",       Path.Combine(basePath, "sys_tables.jankdb") },
@@ -777,7 +779,7 @@
             table.InsertRow(row);
 
 
-            // --- for sys_indexcolumns, the key is the tablename, index name, and index
+            // --- for sys_indexcolumns, the key is the table name, index name, and index
             row = new Tuple()
             {
                 ExpressionOperand.VARCHARFromString("sys_indexcolumns"),

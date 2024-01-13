@@ -11,13 +11,13 @@
             this.outer = outer;
         }
 
-        public ExpressionOperand GetValue(FullColumnName fcn)
+        public ExpressionOperand GetValue(FullColumnName fullColumnName)
         {
             if (outer != null)
             {
                 try
                 {
-                    ExpressionOperand val = outer.GetValue(fcn);
+                    ExpressionOperand val = outer.GetValue(fullColumnName);
                     return val;
                 }
                 catch (ExecutionException)
@@ -25,10 +25,10 @@
                 }
             }
 
-            return inner.GetValue(fcn);
+            return inner.GetValue(fullColumnName);
         }
 
-        public void SetValue(FullColumnName fcn, ExpressionOperand op)
+        public void SetValue(FullColumnName fullColumnName, ExpressionOperand op)
         {
             throw new NotImplementedException();
         }

@@ -31,6 +31,7 @@
             if (o is not FullColumnName other)
                 return false;
 
+            // InvariantCultureIgnoreCase so that identifier names can be localized
             if (other.serverName != null && !other.serverName.Equals(this.serverName, StringComparison.InvariantCultureIgnoreCase))
                 return false;
 
@@ -94,10 +95,18 @@
 
         internal static FullColumnName FromContext(TSqlParser.Full_column_nameContext context)
         {
-            string? serverName = ParseHelpers.PossibleStringFromIDContext(context.server);
-            string? schemaName = ParseHelpers.PossibleStringFromIDContext(context.schema);
-            string? tableName = ParseHelpers.PossibleStringFromIDContext(context.tablename);
-            string columnName = ParseHelpers.StringFromIDContext(context.column_name);
+            string columnName = ParseHelpers.StringFromIDContext(context.id_());
+
+            string? serverName = null;
+            string? schemaName = null;
+            string? tableName = null;
+
+            if (context.full_table_name() != null)
+            {
+                serverName = ParseHelpers.PossibleStringFromIDContext(context.full_table_name().server);
+                schemaName = ParseHelpers.PossibleStringFromIDContext(context.full_table_name().schema);
+                tableName = ParseHelpers.PossibleStringFromIDContext(context.full_table_name().table);
+            }
 
             return new FullColumnName(serverName, schemaName, tableName, columnName);
         }
