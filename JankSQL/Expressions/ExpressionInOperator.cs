@@ -34,7 +34,7 @@
             if (targets != null)
                 result = EvaluateTargets(engine, accessor, stack, bindValues);
             else
-                result = EvaluateSubselect(engine, accessor, stack, bindValues);
+                result = EvaluateSubSelect(engine, accessor, stack, bindValues);
 
             // return what we discovered
             ExpressionOperand r = new ExpressionOperandBoolean(result);
@@ -65,7 +65,7 @@
             return result;
         }
 
-        protected bool EvaluateSubselect(Engines.IEngine engine, IRowValueAccessor accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
+        protected bool EvaluateSubSelect(Engines.IEngine engine, IRowValueAccessor accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
         {
             selectContext!.Reset();
             ExecuteResult queryResult = selectContext.Execute(engine, accessor, bindValues);

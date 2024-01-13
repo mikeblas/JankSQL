@@ -92,11 +92,11 @@
                 // otherwise, IN
                 bool notIn = context.NOT().Length % 2 != 0;
 
-                if (context.expression_list() != null)
+                if (context.expression_list_() != null)
                 {
                     List<Expression> expressions = new ();
 
-                    foreach (var expression in context.expression_list().expression())
+                    foreach (var expression in context.expression_list_().expression())
                     {
                         Expression expr = GobbleExpression(expression);
                         expressions.Add(expr);
@@ -113,7 +113,7 @@
                 }
                 else if (context.subquery() != null)
                 {
-                    // it's a subselect
+                    // it's a sub-select
                     SelectContext selectContext = GobbleSelectStatement(context.subquery().select_statement());
 
                     var oper = new ExpressionInOperator(notIn, selectContext);

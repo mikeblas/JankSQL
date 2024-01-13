@@ -230,7 +230,7 @@
                         x.Insert(0, n);
 
                         // and its argument list
-                        if (functionCallContext.GetChild(2) is TSqlParser.Expression_listContext exprContext)
+                        if (functionCallContext.GetChild(2) is TSqlParser.Expression_list_Context exprContext)
                         {
                             if (n.ExpectedParameters != exprContext.expression().Length)
                                 throw new SemanticErrorException($"function {n} expects {n.ExpectedParameters} parameters, received {exprContext.expression().Length}");

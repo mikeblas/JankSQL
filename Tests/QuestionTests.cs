@@ -69,7 +69,7 @@
         }
 
         [Test]
-        public void TestActualStudentGradesInnerAggAliases()
+        public void TestActualStudentGradesInnerAggregateAliases()
         {
             CreateStudentsTable();
 
@@ -88,7 +88,7 @@
         }
 
         [Test]
-        public void TestActualStudentGradesInnerAggAliasDefault()
+        public void TestActualStudentGradesInnerAggregateAliasDefault()
         {
             CreateStudentsTable();
 

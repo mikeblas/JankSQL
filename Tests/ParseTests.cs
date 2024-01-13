@@ -17,7 +17,7 @@ namespace Tests
         }
 
         [Test]
-        public void TestSelectStarMyTyable()
+        public void TestSelectStarMyTable()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable];");
 
