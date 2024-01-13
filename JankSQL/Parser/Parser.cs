@@ -38,7 +38,6 @@
         /// <returns>ExecutableBatch object which can be executed, or which represents parsing errors.</returns>
         public static ExecutableBatch ParseSQLFileFromTextReader(TextReader reader)
         {
-
             ICharStream s = CharStreams.fromTextReader(reader);
             var lexer = new TSqlLexer(s);
             return ParseTreeFromLexer(lexer);

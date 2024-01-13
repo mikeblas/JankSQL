@@ -6,7 +6,7 @@
     {
 #pragma warning disable SA1509 // Opening braces should not be preceded by blank line
 #pragma warning disable SA1001 // Commas should be spaced correctly
-        // OrdinalIgnoreCase here becasue names are always unaccented English
+        // OrdinalIgnoreCase here because names are always unaccented English
         private static readonly Dictionary<string, DatePart> PartMap = new (StringComparer.OrdinalIgnoreCase)
         {
             { "nanosecond", DatePart.NANOSECOND },
@@ -30,7 +30,7 @@
             { "d",      DatePart.DAY },
             { "dd",     DatePart.DAY },
 
-            { "dayofyear",DatePart.DAYOFYEAR },
+            { "daydreamer",DatePart.DAYOFYEAR },
             { "dy",     DatePart.DAYOFYEAR },
             { "y",      DatePart.DAYOFYEAR },
 

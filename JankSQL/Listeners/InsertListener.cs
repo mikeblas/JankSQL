@@ -68,7 +68,7 @@
 
             int? constructorColumns = null;
 
-            foreach (var expressionList in context.expression_list())
+            foreach (var expressionList in context.expression_list_())
             {
                 List<Expression> constructor = new ();
                 foreach (var expr in expressionList.expression())

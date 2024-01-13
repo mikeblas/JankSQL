@@ -224,7 +224,7 @@
 
         // 
         [Test]
-        public void TestSelectWhereNOTParens()
+        public void TestSelectWhereNOTParenthesis()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE NOT ([population] = 37000);");
 
@@ -234,7 +234,7 @@
         }
 
         [Test]
-        public void TestSelectWhereNOTCompoundParens()
+        public void TestSelectWhereNOTCompoundParenthesis()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE NOT ([population] = 37000 OR [keycolumn] = 1);");
 
@@ -245,7 +245,7 @@
 
 
         [Test]
-        public void TestSelectWhereNOTMultiParens()
+        public void TestSelectWhereNOTMultiParenthesis()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] WHERE NOT(NOT(NOT ([population] = 37000)));");
 
