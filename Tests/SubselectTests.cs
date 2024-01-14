@@ -5,7 +5,6 @@
     using JankSQL;
     using Engines = JankSQL.Engines;
 
-
     abstract public class SubselectTests
     {
         internal string mode = "base";
@@ -19,6 +18,7 @@
                 "SELECT number_id " +
                 "  FROM ten " +
                 " WHERE number_id < (SELECT MAX(keycolumn) FROM mytable);");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 3);
@@ -35,6 +35,7 @@
                 "SELECT number_id " +
                 "  FROM ten " +
                 " WHERE number_id < (SELECT MAX(keycolumn) FROM mytable WHERE ten.is_even = 0);");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 1);
@@ -51,6 +52,7 @@
                 "SELECT number_id " +
                 "  FROM ten " +
                 " WHERE number_id < (SELECT MAX(keycolumn) FROM mytable WHERE ten.is_even = 0 AND keycolumn = 3);");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 1);
@@ -65,6 +67,7 @@
         {
             var ec = Parser.ParseSQLFileFromString(
                 "SELECT number_id from ten WHERE number_id IN (3, 5, 7);");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 3);
@@ -78,6 +81,7 @@
         {
             var ec = Parser.ParseSQLFileFromString(
                 "SELECT number_id from ten WHERE number_id IN (3, 5, 7, 1 + is_even);");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 5);
@@ -91,6 +95,7 @@
         {
             var ec = Parser.ParseSQLFileFromString(
                 "SELECT number_id from ten WHERE number_id NOT IN (3, 5, 7);");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 7);
@@ -104,6 +109,7 @@
         {
             var ec = Parser.ParseSQLFileFromString(
                 "SELECT number_id FROM ten WHERE number_id IN (SELECT keycolumn FROM mytable);");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 3);
@@ -117,6 +123,7 @@
         {
             var ec = Parser.ParseSQLFileFromString(
                 "SELECT number_id FROM ten WHERE number_id NOT IN (SELECT keycolumn FROM mytable);");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 7);
@@ -153,6 +160,7 @@
                 "        ) AS T5 " +
                 "    ) AS T6 " +
                 ") AS T7");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 10);
