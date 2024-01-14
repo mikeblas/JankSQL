@@ -17,9 +17,7 @@
             Console.WriteLine($"Drop table {tableName}");
         }
 
-#pragma warning disable IDE0060 // Remove unused parameter
         public ExecuteResult Execute(IEngine engine, IRowValueAccessor? accessor, Dictionary<string, ExpressionOperand> bindValues)
-#pragma warning restore IDE0060 // Remove unused parameter
         {
             engine.DropTable(tableName);
 
@@ -29,7 +27,7 @@
 
         public object Clone()
         {
-            DropTableContext clone = new DropTableContext(tableName);
+            DropTableContext clone = new (tableName);
             return clone;
         }
     }

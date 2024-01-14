@@ -95,7 +95,7 @@
             */
 
             if (constructors == null || constructors.Count == 0)
-                Console.WriteLine($"   Expressions: No constructors found");
+                Console.WriteLine("   Expressions: No constructors found");
             else
             {
                 bool first = true;
@@ -103,11 +103,11 @@
                 {
                     if (first)
                     {
-                        Console.Write($"   Expressions: ");
+                        Console.Write("   Expressions: ");
                         first = false;
                     }
                     else
-                        Console.Write($"                ");
+                        Console.Write("                ");
 
                     Console.Write($"len={expression.Count} ");
 
@@ -118,16 +118,20 @@
 
         internal void AddExpressionList(List<Expression> expressionList)
         {
+#pragma warning disable IDE0074 // Use compound assignment
             if (constructors is null)
-                constructors = new ();
+                constructors = [];
+#pragma warning restore IDE0074 // Use compound assignment
 
             this.constructors.Add(expressionList);
         }
 
         internal void AddExpressionLists(List<List<Expression>> expressionLists)
         {
+#pragma warning disable IDE0074 // Use compound assignment
             if (constructors is null)
-                constructors = new ();
+                constructors = [];
+#pragma warning restore IDE0074 // Use compound assignment
 
             this.constructors.AddRange(expressionLists);
         }

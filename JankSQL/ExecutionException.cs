@@ -11,5 +11,13 @@
             : base(description)
         {
         }
+
+        public ExecutionException() : base()
+        {
+        }
+
+        public ExecutionException(string? message, Exception? innerException) : base(message, innerException)
+        {
+        }
     }
 }
