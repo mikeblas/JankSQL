@@ -13,7 +13,7 @@
             this.elseExpression = elseExpression;
 
             if (whens.Count != thens.Count)
-                throw new SemanticErrorException($"must have the same number of expressions");
+                throw new SemanticErrorException("must have the same number of expressions");
         }
 
         public override string ToString()
@@ -55,4 +55,3 @@
         }
     }
 }
-

@@ -1,4 +1,8 @@
-﻿namespace JankSQL.Engines
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics;
+using CSharpTest.Net;
+
+namespace JankSQL.Engines
 {
     internal class IExpressionOperandComparer : IComparer<Tuple>
     {
@@ -25,10 +29,7 @@
 
         public int Compare(Tuple? x, Tuple? y)
         {
-            if (x == null)
-                throw new ArgumentNullException(nameof(x));
-            if (y == null)
-                throw new ArgumentNullException(nameof(y));
+            Debug.Assert(x != null && y != null, "don't expect to Compare() null tuples");
             if (x.Length != y.Length)
                 throw new ArgumentException($"sizes are different: {x.Length} and {y.Length}");
 

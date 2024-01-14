@@ -4,23 +4,14 @@
 
     public class RowWithBookmark
     {
-        private readonly Tuple rowData;
-        private readonly ExpressionOperandBookmark bookmark;
-
         public RowWithBookmark(Tuple rowData, ExpressionOperandBookmark bookmark)
         {
-            this.rowData = rowData;
-            this.bookmark = bookmark;
+            this.RowData = rowData;
+            this.Bookmark = bookmark;
         }
 
-        public Tuple RowData
-        {
-            get { return rowData; }
-        }
+        public Tuple RowData { get; }
 
-        public ExpressionOperandBookmark Bookmark
-        {
-            get { return bookmark; }
-        }
+        public ExpressionOperandBookmark Bookmark { get; }
     }
 }

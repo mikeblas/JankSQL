@@ -5,18 +5,12 @@
 
     public abstract class ExpressionOperand : ExpressionNode, ICloneable, IComparable<ExpressionOperand>
     {
-        private readonly ExpressionOperandType nodeType;
-
         internal ExpressionOperand(ExpressionOperandType t)
         {
-            nodeType = t;
+            NodeType = t;
         }
 
-
-        public ExpressionOperandType NodeType
-        {
-            get { return nodeType; }
-        }
+        public ExpressionOperandType NodeType { get; }
 
         public abstract bool RepresentsNull { get; }
 
@@ -150,7 +144,7 @@
 
         internal static ExpressionOperandType IntegerOrDecimal(string str)
         {
-            if (str.IndexOf('.') != -1)
+            if (str.Contains('.'))
                 return ExpressionOperandType.DECIMAL;
             else
                 return ExpressionOperandType.INTEGER;
@@ -161,7 +155,7 @@
             if (op.NodeType == ExpressionOperandType.DECIMAL || op.NodeType == ExpressionOperandType.INTEGER)
                 return op.NodeType;
 
-            if (op.AsString().IndexOf('.') != -1)
+            if (op.AsString().Contains('.'))
                 return ExpressionOperandType.DECIMAL;
             else
                 return ExpressionOperandType.INTEGER;
@@ -211,4 +205,3 @@
         }
     }
 }
-

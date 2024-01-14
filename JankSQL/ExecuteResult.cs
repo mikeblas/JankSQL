@@ -1,6 +1,6 @@
 ﻿namespace JankSQL
 {
-    public class ExecuteResult
+    public sealed class ExecuteResult
     {
         private ResultSet? resultSet;
         private int rowsAffected;
@@ -39,35 +39,43 @@
 
         internal static ExecuteResult SuccessWithRowsAffected(int rowsaffected)
         {
-            ExecuteResult result = new ();
-            result.ExecuteStatus = ExecuteStatus.SUCCESSFUL;
-            result.rowsAffected = rowsaffected;
+            ExecuteResult result = new()
+            {
+                ExecuteStatus = ExecuteStatus.SUCCESSFUL,
+                rowsAffected = rowsaffected
+            };
 
             return result;
         }
 
         internal static ExecuteResult SuccessWithMessage(string message)
         {
-            ExecuteResult result = new ();
-            result.ExecuteStatus = ExecuteStatus.SUCCESSFUL_WITH_MESSAGE;
-            result.ErrorMessage = message;
+            ExecuteResult result = new()
+            {
+                ExecuteStatus = ExecuteStatus.SUCCESSFUL_WITH_MESSAGE,
+                ErrorMessage = message
+            };
             return result;
         }
 
         internal static ExecuteResult SuccessWithResultSet(ResultSet resultSet)
         {
-            ExecuteResult result = new ();
-            result.ExecuteStatus = ExecuteStatus.SUCCESSFUL;
-            result.resultSet = resultSet;
+            ExecuteResult result = new()
+            {
+                ExecuteStatus = ExecuteStatus.SUCCESSFUL,
+                resultSet = resultSet
+            };
 
             return result;
         }
 
         internal static ExecuteResult FailureWithError(string message)
         {
-            ExecuteResult result = new ();
-            result.ErrorMessage = message;
-            result.ExecuteStatus = ExecuteStatus.FAILED;
+            ExecuteResult result = new()
+            {
+                ErrorMessage = message,
+                ExecuteStatus = ExecuteStatus.FAILED
+            };
 
             return result;
         }

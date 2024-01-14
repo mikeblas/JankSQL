@@ -38,4 +38,3 @@
         internal abstract void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues);
     }
 }
-
