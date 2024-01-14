@@ -75,7 +75,7 @@
             var ec = Parser.ParseSQLFileFromString(
                 "    SELECT * " +
                 "      FROM [three] " +
-                "CROSS JOIN [ten] " + 
+                "CROSS JOIN [ten] " +
                 "CROSS JOIN [mytable];");
             JankAssert.SuccessfulParse(ec);
 

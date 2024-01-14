@@ -11,8 +11,8 @@
         {
             Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
                 .WithTableName("mytable")
-                .WithColumnNames(new string[] { "keycolumn", "city_name", "state_code", "population" })
-                .WithColumnTypes(new ExpressionOperandType[] { INTEGER, VARCHAR, VARCHAR, DECIMAL })
+                .WithColumnNames(["keycolumn", "city_name", "state_code", "population"])
+                .WithColumnTypes([INTEGER, VARCHAR, VARCHAR, DECIMAL])
                 .WithRow(new object[] { 1, "Monroeville", "PA",     25_000 })
                 .WithRow(new object[] { 2, "Sammamish",   "WA",     37_000 })
                 .WithRow(new object[] { 3, "New York",    "NY", 11_500_000 })
@@ -26,8 +26,8 @@
         {
             Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
                 .WithTableName("ten")
-                .WithColumnNames(new string[] { "number_id", "number_name", "is_even" })
-                .WithColumnTypes(new ExpressionOperandType[] { INTEGER, VARCHAR, INTEGER })
+                .WithColumnNames(["number_id", "number_name", "is_even"])
+                .WithColumnTypes([INTEGER, VARCHAR, INTEGER])
                 .WithRow(new object[] { 1, "one",   0 })
                 .WithRow(new object[] { 2, "two",   1 })
                 .WithRow(new object[] { 3, "three", 0 })
@@ -48,8 +48,8 @@
         {
             Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
                 .WithTableName("states")
-                .WithColumnNames(new string[] { "state_code", "state_name" })
-                .WithColumnTypes(new ExpressionOperandType[] { VARCHAR, VARCHAR })
+                .WithColumnNames(["state_code", "state_name"])
+                .WithColumnTypes([VARCHAR, VARCHAR])
                 .WithRow(new object[] { "PA", "Pennsylvania" })
                 .WithRow(new object[] { "AK", "Arkansas" })
                 .WithRow(new object[] { "HI", "Hawaii" })
@@ -68,8 +68,8 @@
         {
             Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
                 .WithTableName("three")
-                .WithColumnNames(new string[] { "number_id", "number_name" })
-                .WithColumnTypes(new ExpressionOperandType[] { DECIMAL, VARCHAR })
+                .WithColumnNames(["number_id", "number_name"])
+                .WithColumnTypes([DECIMAL, VARCHAR])
                 .WithRow(new object[] { 1, "one"   })
                 .WithRow(new object[] { 2, "two"   })
                 .WithRow(new object[] { 3, "three" })
@@ -85,8 +85,8 @@
 
             Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
                 .WithTableName("three")
-                .WithColumnNames(new string[] { "K1", "K2", "K3", "Description" })
-                .WithColumnTypes(new ExpressionOperandType[] { INTEGER, INTEGER, INTEGER, VARCHAR })
+                .WithColumnNames(["K1", "K2", "K3", "Description"])
+                .WithColumnTypes([INTEGER, INTEGER, INTEGER, VARCHAR])
                 .WithRow(new object[] { 0, 0, 0, "first"   })
                 .WithRow(new object[] { 1, 0, 0, "second"  })
                 .WithRow(new object[] { 0, 0, 1, "third"   })
@@ -107,8 +107,8 @@
 
             Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
                 .WithTableName("kiloLeft")
-                .WithColumnNames(new string[] { "number_id", "number_name", "is_even" })
-                .WithColumnTypes(new ExpressionOperandType[] { INTEGER, VARCHAR, INTEGER })
+                .WithColumnNames(["number_id", "number_name", "is_even"])
+                .WithColumnTypes([INTEGER, VARCHAR, INTEGER])
                 .Build();
 
             Engines.IEngineTable kiloLeft = engine.InjectTestTable(tt);
@@ -133,8 +133,8 @@
 
             Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
                 .WithTableName("kiloRight")
-                .WithColumnNames(new string[] { "number_id", "number_name", "is_even" })
-                .WithColumnTypes(new ExpressionOperandType[] { INTEGER, VARCHAR, INTEGER })
+                .WithColumnNames(["number_id", "number_name", "is_even"])
+                .WithColumnTypes([INTEGER, VARCHAR, INTEGER])
                 .Build();
 
             Engines.IEngineTable kiloLeft = engine.InjectTestTable(tt);
@@ -154,7 +154,7 @@
 
 
         /// <summary>
-        /// Convert an integer to a roman numeral. 
+        /// Convert an integer to a roman numeral.
         /// Due to StackOverflow: https://stackoverflow.com/questions/71583420/c-sharp-convert-integer-into-roman-numeral-and-number-in-words
         /// </summary>
         /// <param name="num">integer to convert</param>
@@ -189,13 +189,13 @@
         {
             Engines.TestTable tt = Engines.TestTableBuilder.NewBuilder()
                 .WithTableName("Events")
-                .WithColumnNames(new string[] { "number_id", "when_start", "when_end" })
-                .WithColumnTypes(new ExpressionOperandType[] { INTEGER, DATETIME, DATETIME })
-                .WithRow(new object?[] { 1, "1975-03-25", "1985-09-20" })
-                .WithRow(new object?[] { 2, "2022-01-20", "2022-05-30" })
-                .WithRow(new object?[] { 3, "1999-04-10", "2019-04-10" })
-                .WithRow(new object?[] { 4, "1620-09-09", null })
-                .WithRow(new object?[] { 5, "1922-08-01", "1922-08-02" })
+                .WithColumnNames(["number_id", "when_start", "when_end"])
+                .WithColumnTypes([INTEGER, DATETIME, DATETIME])
+                .WithRow([1, "1975-03-25", "1985-09-20"])
+                .WithRow([2, "2022-01-20", "2022-05-30"])
+                .WithRow([3, "1999-04-10", "2019-04-10"])
+                .WithRow([4, "1620-09-09", null])
+                .WithRow([5, "1922-08-01", "1922-08-02"])
                 .Build();
 
             engine.InjectTestTable(tt);

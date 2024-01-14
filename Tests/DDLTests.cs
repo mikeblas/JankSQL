@@ -27,7 +27,7 @@
             var ecInsert = Parser.ParseSQLFileFromString(
                 "INSERT INTO TransientTestTable (SomeInteger, SomeString, AnotherOne) VALUES " +
                 "(1, 'Moe', 100),   " +
-                "(2, 'Larry', 200), " + 
+                "(2, 'Larry', 200), " +
                 "(3, 'Curly', 300); ");
 
             Assert.That(ecInsert, Is.Not.Null);

@@ -99,7 +99,7 @@
 
             hasUniqueKey = false;
 
-            this.keyTypes = new ExpressionOperandType[] { ExpressionOperandType.INTEGER };
+            this.keyTypes = [ExpressionOperandType.INTEGER];
             this.valueTypes = valueTypes;
             this.tableName = tableName;
 
@@ -116,7 +116,7 @@
 
             // just the bookmark key
             FullColumnName fcnBookmark = FullColumnName.FromTableColumnName(tableName, "bookmark_key");
-            keyColumnNames = new FullColumnName[] { fcnBookmark };
+            keyColumnNames = [fcnBookmark];
             columnNameIndexes.Add(fcnBookmark.ColumnNameOnly(), n++);
         }
 
@@ -175,10 +175,10 @@
             int deletedCount = 0;
             foreach (var bookmark in bookmarksToDelete)
             {
-                if (myTree.ContainsKey(bookmark.Tuple))
+                if (myTree.TryGetValue(bookmark.Tuple, out Tuple? value))
                 {
                     // delete it, but get the rest of the row first
-                    Tuple heapRow = myTree[bookmark.Tuple];
+                    Tuple heapRow = value;
 
                     bool found = myTree.Remove(bookmark.Tuple);
                     if (found)

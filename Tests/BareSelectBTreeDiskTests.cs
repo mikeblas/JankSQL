@@ -18,7 +18,7 @@
 
             engine = Engines.BTreeEngine.OpenDiskBased(tempPath, Engines.OpenPolicy.Obliterate);
         }
-        
+
         [TearDown]
         public void ClassShutdown()
         {

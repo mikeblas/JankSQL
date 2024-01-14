@@ -28,10 +28,10 @@
             JankAssert.RowsetExistsWithShape(resultSelect, 1, 3);
             resultSelect.ResultSet.Dump();
 
-            HashSet<int> expected = new ()
-            {
+            HashSet<int> expected =
+            [
                 44400, 30000, 13800000,
-            };
+            ];
 
             int popIndex = resultSelect.ResultSet.ColumnIndex(FullColumnName.FromColumnName("Population"));
             for (int i = 0; i < resultSelect.ResultSet.RowCount; i++)

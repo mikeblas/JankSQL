@@ -6,7 +6,6 @@
 
         private readonly string? serverName;
         private readonly string? schemaName;
-        private readonly string? tableName;
 
         private FullColumnName(string columnName)
         {
@@ -17,14 +16,11 @@
         {
             this.serverName = serverName;
             this.schemaName = schemaName;
-            this.tableName = tableName;
+            this.TableNameOnly = tableName;
             this.columnName = columnName;
         }
 
-        public string? TableNameOnly
-        {
-            get { return tableName; }
-        }
+        public string? TableNameOnly { get; }
 
         public override bool Equals(object? o)
         {
@@ -38,7 +34,7 @@
             if (other.schemaName != null && !other.schemaName.Equals(this.schemaName, StringComparison.InvariantCultureIgnoreCase))
                 return false;
 
-            if (other.tableName != null && !other.tableName.Equals(this.tableName, StringComparison.InvariantCultureIgnoreCase))
+            if (other.TableNameOnly != null && !other.TableNameOnly.Equals(this.TableNameOnly, StringComparison.InvariantCultureIgnoreCase))
                 return false;
 
             bool ret = other.columnName.Equals(this.columnName, StringComparison.InvariantCultureIgnoreCase);
@@ -53,8 +49,8 @@
                 hash = (hash * 31) + serverName.GetHashCode();
             if (schemaName != null)
                 hash = (hash * 31) + schemaName.GetHashCode();
-            if (tableName != null)
-                hash = (hash * 31) + tableName.GetHashCode();
+            if (TableNameOnly != null)
+                hash = (hash * 31) + TableNameOnly.GetHashCode();
             hash = (hash * 31) + columnName.GetHashCode();
 
             return hash;
@@ -78,11 +74,11 @@
                 ret += $"[{schemaName}]";
             }
 
-            if (tableName != null)
+            if (TableNameOnly != null)
             {
                 if (ret.Length > 0)
                     ret += ".";
-                ret += $"[{tableName}]";
+                ret += $"[{TableNameOnly}]";
             }
 
             if (ret.Length > 0)
@@ -131,7 +127,7 @@
 
         internal FullColumnName ApplyTableAlias(string newTableName)
         {
-            FullColumnName fcnNew = new FullColumnName(serverName, schemaName, newTableName, columnName);
+            FullColumnName fcnNew = new (serverName, schemaName, newTableName, columnName);
             return fcnNew;
         }
     }

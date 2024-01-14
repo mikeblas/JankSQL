@@ -29,6 +29,7 @@
             int t = 0;
             while (t < max && currentRow < columnValues.Count)
             {
+                //REVIEW: t isn't used, so this isn't paging correctly
                 Tuple generatedValues = Tuple.CreateEmpty(columnValues[0].Count);
 
                 for (int i = 0; i < columnValues[currentRow].Count; i++)

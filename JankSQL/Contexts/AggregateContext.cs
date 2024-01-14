@@ -4,49 +4,37 @@
 
     internal class AggregateContext
     {
-        private readonly AggregationOperatorType aggregationOperatorType;
-        private readonly Expression expression;
-        private string? expressionName;
 
         internal AggregateContext(AggregationOperatorType aggregationType, Expression expression, int expressionID)
         {
-            this.expression = expression;
-            this.aggregationOperatorType = aggregationType;
-            expressionName = $"EXPR{expressionID}";
+            this.Expression = expression;
+            this.AggregationOperatorType = aggregationType;
+            ExpressionName = $"EXPR{expressionID}";
         }
 
-        internal AggregateContext(AggregationOperatorType aggregationType, Expression expression)
+        internal AggregateContext(AggregationOperatorType aggregationType, Expression expression, string expressionName)
         {
-            this.expression = expression;
-            this.aggregationOperatorType = aggregationType;
+            this.Expression = expression;
+            this.AggregationOperatorType = aggregationType;
+            this.ExpressionName = expressionName;
         }
 
-        internal string? ExpressionName
-        {
-            get { return expressionName; } set { expressionName = value; }
-        }
+        internal string? ExpressionName { get; set; }
 
-        internal Expression Expression
-        {
-            get { return expression; }
-        }
+        internal Expression Expression { get; }
 
-        internal AggregationOperatorType AggregationOperatorType
-        {
-            get { return aggregationOperatorType; }
-        }
+        internal AggregationOperatorType AggregationOperatorType { get; }
 
         public object Clone()
         {
-            AggregateContext clone = new AggregateContext(aggregationOperatorType, expression);
-            clone.expressionName = ExpressionName;
+            AggregateContext clone = new(AggregationOperatorType, Expression, ExpressionName);
             return clone;
         }
 
         internal void Dump()
         {
             Console.WriteLine("=====");
-            Console.WriteLine($"{aggregationOperatorType} aggregation on {expression}");
+            Console.WriteLine($"{AggregationOperatorType} aggregation on {Expression}");
         }
     }
 }

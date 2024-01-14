@@ -1,16 +1,14 @@
 ﻿namespace JankSQL
 {
-    public class FullTableName
+    public sealed class FullTableName
     {
         private readonly string? linkedServerName;
         private readonly string? databaseName;
         private readonly string? schemaName;
 
-        private readonly string tableName;
-
         private FullTableName(string tableName)
         {
-            this.tableName = tableName;
+            this.TableNameOnly = tableName;
         }
 
         private FullTableName(string? linkedServerName, string? databaseName, string? schemaName, string tableName)
@@ -19,13 +17,10 @@
             this.databaseName = databaseName;
             this.schemaName = schemaName;
 
-            this.tableName = tableName;
+            this.TableNameOnly = tableName;
         }
 
-        internal string TableNameOnly
-        {
-            get { return tableName; }
-        }
+        internal string TableNameOnly { get; }
 
         public override int GetHashCode()
         {
@@ -37,8 +32,8 @@
                 hash = (hash * 31) + databaseName.GetHashCode();
             if (schemaName != null)
                 hash = (hash * 31) + schemaName.GetHashCode();
-            if (tableName != null)
-                hash = (hash * 31) + tableName.GetHashCode();
+            if (TableNameOnly != null)
+                hash = (hash * 31) + TableNameOnly.GetHashCode();
 
             return hash;
         }
@@ -64,11 +59,11 @@
                 ret += $"[{schemaName}]";
             }
 
-            if (tableName != null)
+            if (TableNameOnly != null)
             {
                 if (ret.Length > 0)
                     ret += ".";
-                ret += $"[{tableName}]";
+                ret += $"[{TableNameOnly}]";
             }
 
             return ret;

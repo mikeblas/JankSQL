@@ -27,7 +27,7 @@ namespace Tests
         public static void ValueMatchesString(ResultSet rs, int column, int row, string expectedValue)
         {
             if (rs == null)
-                throw new AssertionException($"expected a non-null result set");
+                throw new AssertionException("expected a non-null result set");
 
             if (rs.Row(row)[column].RepresentsNull)
                 throw new AssertionException($"expected non-null string value at column {column}, row {row}");
@@ -41,7 +41,7 @@ namespace Tests
         public static void ValueMatchesInteger(ResultSet rs, int column, int row, int expectedValue)
         {
             if (rs == null)
-                throw new AssertionException($"expected a non-null result set");
+                throw new AssertionException("expected a non-null result set");
 
             if (rs.Row(row)[column].RepresentsNull)
                 throw new AssertionException($"expected non-null integer value at column {column}, row {row}");
@@ -55,7 +55,7 @@ namespace Tests
         public static void ValueMatchesDateTime(ResultSet rs, int column, int row, DateTime expectedValue)
         {
             if (rs == null)
-                throw new AssertionException($"expected a non-null result set");
+                throw new AssertionException("expected a non-null result set");
 
             if (rs.Row(row)[column].RepresentsNull)
                 throw new AssertionException($"expected non-null DateTime value at column {column}, row {row}");
@@ -69,7 +69,7 @@ namespace Tests
         public static void ValueIsNull(ResultSet rs, int column, int row)
         {
             if (rs == null)
-                throw new AssertionException($"expected a non-null result set");
+                throw new AssertionException("expected a non-null result set");
 
             if (!rs.Row(row)[column].RepresentsNull)
                 throw new AssertionException($"expected null at column {column}, row {row}; instead found {rs.Row(row)[column]}");
@@ -78,7 +78,7 @@ namespace Tests
         public static void ValueMatchesDecimal(ResultSet rs, int column, int row, double expectedValue, double tolerance)
         {
             if (rs == null)
-                throw new AssertionException($"expected a non-null result set");
+                throw new AssertionException("expected a non-null result set");
 
             if (rs.Row(row)[column].RepresentsNull)
                 throw new AssertionException($"expected non-null integer value at column {column}, row {row}");
@@ -123,9 +123,7 @@ namespace Tests
             for (int i = 0; i < rs.RowCount; i++)
             {
                 int val = rs.Row(i)[columnIndex].AsInteger();
-                if (expectedSet.Contains(val))
-                    expectedSet.Remove(val);
-                else
+                if (!expectedSet.Remove(val))
                     Assert.Fail($"unexpected value {val} returned");
             }
 

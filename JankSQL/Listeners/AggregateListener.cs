@@ -35,7 +35,7 @@
             }
 
             AggregationOperatorType aot2 = aot ?? throw new NotImplementedException($"Don't know that aggregation {context.GetText()}");
-            var ac = new AggregateContext(aot2, x);
+            var ac = new AggregateContext(aot2, x, "AggregationExpression");
             return ac;
         }
     }

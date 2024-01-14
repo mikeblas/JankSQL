@@ -15,10 +15,10 @@
         public void TestCreateIndex()
         {
             // create a non-unique index on a test table
-            List<(string columnName, bool isDescending)> columnInfos = new()
-            {
+            List<(string columnName, bool isDescending)> columnInfos =
+            [
                 ("is_even", false)
-            };
+            ];
 
             engine.CreateIndex(FullTableName.FromTableName("ten"), "evenIndex", false, columnInfos);
 
@@ -59,10 +59,10 @@
         public void TestCreateDescIndex()
         {
             // create a non-unique index on a test table
-            List<(string columnName, bool isDescending)> columnInfos = new()
-            {
+            List<(string columnName, bool isDescending)> columnInfos =
+            [
                 ("is_even", true)
-            };
+            ];
 
             engine.CreateIndex(FullTableName.FromTableName("ten"), "evenIndex", false, columnInfos);
 
@@ -103,10 +103,10 @@
         public void TestCreateInsertIndex()
         {
             // create a non-unique index on a test table
-            List<(string columnName, bool isDescending)> columnInfos = new()
-            {
+            List<(string columnName, bool isDescending)> columnInfos =
+            [
                 ("is_even", false)
-            };
+            ];
 
             engine.CreateIndex(FullTableName.FromTableName("ten"), "evenIndex", false, columnInfos);
 
@@ -154,10 +154,10 @@
         public void TestCreateInsertDescIndex()
         {
             // create a non-unique index on a test table
-            List<(string columnName, bool isDescending)> columnInfos = new()
-            {
+            List<(string columnName, bool isDescending)> columnInfos =
+            [
                 ("is_even", true)
-            };
+            ];
 
             engine.CreateIndex(FullTableName.FromTableName("ten"), "evenIndex", false, columnInfos);
 
@@ -205,11 +205,11 @@
         public void TestCreateInsertTwoIndex()
         {
             // create a non-unique index on a test table
-            List<(string columnName, bool isDescending)> columnInfos = new()
-            {
+            List<(string columnName, bool isDescending)> columnInfos =
+            [
                 ("is_even", false),
                 ("number_name", false),
-            };
+            ];
 
             engine.CreateIndex(FullTableName.FromTableName("ten"), "evenIndex", false, columnInfos);
 
@@ -272,10 +272,10 @@
         public void TestFailCreateUniqueIndex()
         {
             // create a unique index on a test table, expecting failure
-            List<(string columnName, bool isDescending)> columnInfos = new()
-            {
+            List<(string columnName, bool isDescending)> columnInfos =
+            [
                 ("is_even", false),
-            };
+            ];
 
             Assert.Throws<ExecutionException>(() => engine.CreateIndex(FullTableName.FromTableName("ten"), "evenIndex", true, columnInfos));
         }
@@ -297,11 +297,11 @@
             t!.InsertRow(newRow);
 
             // create a unique index on a test table, expecting failure
-            List<(string columnName, bool isDescending)> columnInfos = new()
-            {
+            List<(string columnName, bool isDescending)> columnInfos =
+            [
                 ("is_even", false),
                 ("number_name", false),
-            };
+            ];
 
             Assert.Throws<ExecutionException>(() => engine.CreateIndex(FullTableName.FromTableName("ten"), "evenIndex", true, columnInfos));
         }
@@ -311,11 +311,11 @@
         public void TestCreateUniqueTwoIndex()
         {
             // create a non-unique index on a test table
-            List<(string columnName, bool isDescending)> columnInfos = new()
-            {
+            List<(string columnName, bool isDescending)> columnInfos =
+            [
                 ("is_even", false),
                 ("number_name", false),
-            };
+            ];
 
             engine.CreateIndex(FullTableName.FromTableName("ten"), "evenNameIndex", true, columnInfos);
 
@@ -372,11 +372,11 @@
         public void TestCreateTwoIndex()
         {
             // create a non-unique index on a test table
-            List<(string columnName, bool isDescending)> columnInfos = new()
-            {
+            List<(string columnName, bool isDescending)> columnInfos =
+            [
                 ("is_even", false),
                 ("number_name", false),
-            };
+            ];
 
             engine.CreateIndex(FullTableName.FromTableName("ten"), "evenNameIndex", false, columnInfos);
 
@@ -433,11 +433,11 @@
         public void TestFailCreateSameNameTwoIndex()
         {
             // create a non-unique index on a test table
-            List<(string columnName, bool isDescending)> columnInfos = new()
-            {
+            List<(string columnName, bool isDescending)> columnInfos =
+            [
                 ("is_even", false),
                 ("number_name", false),
-            };
+            ];
 
             // create it once
             try
