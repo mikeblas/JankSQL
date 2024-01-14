@@ -1,4 +1,6 @@
-﻿namespace JankSQL.Expressions
+﻿using System.Diagnostics;
+
+namespace JankSQL.Expressions
 {
     internal class ExpressionOperandBoolean : ExpressionOperand
     {
@@ -113,8 +115,7 @@
 
         public int CompareTo(ExpressionOperandBoolean? other)
         {
-            if (other == null)
-                throw new ArgumentNullException(nameof(other));
+            Debug.Assert(other != null, "Don't expect to compare null ExpressionOperandBoolean objetcs");
 
             int result = b.CompareTo(other.b);
             return result;
@@ -122,8 +123,7 @@
 
         public override int CompareTo(ExpressionOperand? other)
         {
-            if (other == null)
-                throw new ArgumentNullException(nameof(other));
+            Debug.Assert(other != null, "Don't expect to compare null ExpressionOperands");
             ExpressionOperandBoolean o = (ExpressionOperandBoolean)other;
             int result = b.CompareTo(o.b);
             return result;
@@ -136,8 +136,7 @@
 
         public override bool Equals(object? obj)
         {
-            ExpressionOperandDecimal? o = obj as ExpressionOperandDecimal;
-            if (o == null)
+            if (obj is not ExpressionOperandDecimal o)
                 return false;
             return Equals(o);
         }
@@ -162,4 +161,3 @@
         }
     }
 }
-

@@ -4,12 +4,12 @@
     using JankSQL.Expressions;
 
     /// <summary>
-    /// represents a table in a CSV engine.
-    ///
-    /// Handling of data types here is a bit weak:
-    ///
+    /// <para>represents a table in a CSV engine.</para>
+    /// <para>Handling of data types here is a bit weak:</para>
+    /// <para>
     /// 1) Strings aren't escaped, so a string containing a comma will break the format.
     /// 2) Null values are stored as an empty field (,,) for any data type. This is indiscernible from an empty string.
+    /// </para>
     ///
     /// </summary>
     public class DynamicCSVTable : IEngineTable
@@ -82,27 +82,14 @@
                             newRow[i] = ExpressionOperand.NullLiteral();
                         else
                         {
-                            switch (columnTypes[i])
+                            newRow[i] = columnTypes[i] switch
                             {
-                                case ExpressionOperandType.DECIMAL:
-                                    newRow[i] = new ExpressionOperandDecimal(double.Parse(fileFields[i]));
-                                    break;
-
-                                case ExpressionOperandType.VARCHAR:
-                                    newRow[i] = new ExpressionOperandVARCHAR(fileFields[i]);
-                                    break;
-
-                                case ExpressionOperandType.INTEGER:
-                                    newRow[i] = new ExpressionOperandInteger(int.Parse(fileFields[i]));
-                                    break;
-
-                                case ExpressionOperandType.DATETIME:
-                                    newRow[i] = new ExpressionOperandDateTime(DateTime.Parse(fileFields[i]).ToUniversalTime());
-                                    break;
-
-                                default:
-                                    throw new NotImplementedException($"Can't support type {columnTypes[i]}");
-                            }
+                                ExpressionOperandType.DECIMAL => new ExpressionOperandDecimal(double.Parse(fileFields[i])),
+                                ExpressionOperandType.VARCHAR => new ExpressionOperandVARCHAR(fileFields[i]),
+                                ExpressionOperandType.INTEGER => new ExpressionOperandInteger(int.Parse(fileFields[i])),
+                                ExpressionOperandType.DATETIME => new ExpressionOperandDateTime(DateTime.Parse(fileFields[i]).ToUniversalTime()),
+                                _ => throw new NotImplementedException($"Can't support type {columnTypes[i]}"),
+                            };
                         }
                     }
 
@@ -190,7 +177,6 @@
             using StreamWriter sw = File.AppendText(this.filename);
             sw.WriteLine(sb.ToString());
         }
-
 
         public int DeleteRows(List<ExpressionOperandBookmark> bookmarksToDelete)
         {
@@ -299,7 +285,7 @@
 
                 // table_name,column_name,column_type,index
                 int tableNameIndex = sysColumns.ColumnIndex("table_name");
-                int columnNameIndex = sysColumns.ColumnIndex("column_name");
+                // int columnNameIndex = sysColumns.ColumnIndex("column_name");
                 int typeIndex = sysColumns.ColumnIndex("column_type");
                 int indexIndex = sysColumns.ColumnIndex("index");
 
@@ -329,4 +315,3 @@
         }
     }
 }
-

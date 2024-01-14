@@ -1,6 +1,6 @@
 ﻿namespace JankSQL
 {
-    internal class ParseHelpers
+    internal static class ParseHelpers
     {
         internal static string GetEffectiveName(string objectName)
         {
@@ -14,8 +14,10 @@
         internal static string StringFromIDContext(TSqlParser.Id_Context idContext)
         {
             string? str = PossibleStringFromIDContext(idContext);
+#pragma warning disable IDE0270 // Use coalesce expression
             if (str == null)
                 throw new ArgumentException("idContext was null");
+#pragma warning restore IDE0270 // Use coalesce expression
 
             return str!;
         }
@@ -39,6 +41,5 @@
 
             throw new InvalidOperationException("Unimaginable id_ context");
         }
-
     }
 }

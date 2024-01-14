@@ -15,19 +15,19 @@
         public void TestCreateIndex()
         {
             // create a non-unique index on a test table
-            List<(string columnName, bool isDescending)> columnInfos = new()
-            {
+            List<(string columnName, bool isDescending)> columnInfos =
+            [
                 ("is_even", false)
-            };
+            ];
 
             engine.CreateIndex(FullTableName.FromTableName("ten"), "evenIndex", false, columnInfos);
 
             // get our table
             Engines.IEngineTable? t = engine.GetEngineTable(FullTableName.FromTableName("ten"));
-            Assert.IsNotNull(t);
+            Assert.That(t, Is.Not.Null);
 
             var idx = t!.Index("evenIndex");
-            Assert.IsNotNull(idx);
+            Assert.That(idx, Is.Not.Null);
 
             idx!.Dump();
 
@@ -40,38 +40,38 @@
                 if (p == 0)
                 {
                     oddCount += 1;
-                    Assert.AreEqual(0, evenCount, "Odds must come before any even");
+                    Assert.That(evenCount, Is.Zero, "Odds must come before any even");
                 }
                 else if (p == 1)
                 {
                     evenCount += 1;
-                    Assert.AreEqual(5, oddCount, "Evens must come after all odds");
+                    Assert.That(oddCount, Is.EqualTo(5), "Evens must come after all odds");
                 }
                 else
                     Assert.Fail($"Didn't expect is_even value {p}");
             }
 
-            Assert.AreEqual(5, evenCount);
-            Assert.AreEqual(5, oddCount);
+            Assert.That(oddCount, Is.EqualTo(5));
+            Assert.That(evenCount, Is.EqualTo(5));
         }
 
         [Test]
         public void TestCreateDescIndex()
         {
             // create a non-unique index on a test table
-            List<(string columnName, bool isDescending)> columnInfos = new()
-            {
+            List<(string columnName, bool isDescending)> columnInfos =
+            [
                 ("is_even", true)
-            };
+            ];
 
             engine.CreateIndex(FullTableName.FromTableName("ten"), "evenIndex", false, columnInfos);
 
             // get our table
             Engines.IEngineTable? t = engine.GetEngineTable(FullTableName.FromTableName("ten"));
-            Assert.IsNotNull(t);
+            Assert.That(t, Is.Not.Null);
 
             var idx = t!.Index("evenIndex");
-            Assert.IsNotNull(idx);
+            Assert.That(idx, Is.Not.Null);
             idx!.Dump();
 
             int oddCount = 0;
@@ -83,19 +83,19 @@
                 if (p == 0)
                 {
                     oddCount += 1;
-                    Assert.AreEqual(5, evenCount, "Odds must come before all evens");
+                    Assert.That(evenCount, Is.EqualTo(5), "Odds must come before any even");
                 }
                 else if (p == 1)
                 {
                     evenCount += 1;
-                    Assert.AreEqual(0, oddCount, "Evens must come before all odds");
+                    Assert.That(oddCount, Is.Zero, "Evens must come before any even");
                 }
                 else
                     Assert.Fail($"Didn't expect is_even value {p}");
             }
 
-            Assert.AreEqual(5, evenCount);
-            Assert.AreEqual(5, oddCount);
+            Assert.That(oddCount, Is.EqualTo(5));
+            Assert.That(evenCount, Is.EqualTo(5));
         }
 
 
@@ -103,16 +103,16 @@
         public void TestCreateInsertIndex()
         {
             // create a non-unique index on a test table
-            List<(string columnName, bool isDescending)> columnInfos = new()
-            {
+            List<(string columnName, bool isDescending)> columnInfos =
+            [
                 ("is_even", false)
-            };
+            ];
 
             engine.CreateIndex(FullTableName.FromTableName("ten"), "evenIndex", false, columnInfos);
 
             // get our table
             Engines.IEngineTable? t = engine.GetEngineTable(FullTableName.FromTableName("ten"));
-            Assert.IsNotNull(t);
+            Assert.That(t, Is.Not.Null);
 
             Tuple newRow = Tuple.CreateEmpty(3);
             newRow[0] = ExpressionOperand.IntegerFromInt(11);
@@ -122,7 +122,7 @@
             t!.InsertRow(newRow);
 
             var idx = t.Index("evenIndex");
-            Assert.IsNotNull(idx);
+            Assert.That(idx, Is.Not.Null);
             idx!.Dump();
 
             int oddCount = 0;
@@ -134,19 +134,19 @@
                 if (p == 0)
                 {
                     oddCount += 1;
-                    Assert.AreEqual(0, evenCount, "Odds must come before any even");
+                    Assert.That(evenCount, Is.Zero, "Odds must come before any even");
                 }
                 else if (p == 1)
                 {
                     evenCount += 1;
-                    Assert.AreEqual(6, oddCount, "Evens must come after all odds");
+                    Assert.That(oddCount, Is.EqualTo(6), "Evens must come after all odds");
                 }
                 else
                     Assert.Fail($"Didn't expect is_even value {p}");
             }
 
-            Assert.AreEqual(6, oddCount);
-            Assert.AreEqual(5, evenCount);
+            Assert.That(oddCount, Is.EqualTo(6));
+            Assert.That(evenCount, Is.EqualTo(5));
         }
 
 
@@ -154,16 +154,16 @@
         public void TestCreateInsertDescIndex()
         {
             // create a non-unique index on a test table
-            List<(string columnName, bool isDescending)> columnInfos = new()
-            {
+            List<(string columnName, bool isDescending)> columnInfos =
+            [
                 ("is_even", true)
-            };
+            ];
 
             engine.CreateIndex(FullTableName.FromTableName("ten"), "evenIndex", false, columnInfos);
 
             // get our table
             Engines.IEngineTable? t = engine.GetEngineTable(FullTableName.FromTableName("ten"));
-            Assert.IsNotNull(t);
+            Assert.That(t, Is.Not.Null);
 
             Tuple newRow = Tuple.CreateEmpty(3);
             newRow[0] = ExpressionOperand.IntegerFromInt(11);
@@ -173,7 +173,7 @@
             t!.InsertRow(newRow);
 
             var idx = t.Index("evenIndex");
-            Assert.IsNotNull(idx);
+            Assert.That(idx, Is.Not.Null);
             idx!.Dump();
 
             int oddCount = 0;
@@ -185,19 +185,19 @@
                 if (p == 0)
                 {
                     oddCount += 1;
-                    Assert.AreEqual(5, evenCount, "Odds must come before all evens");
+                    Assert.That(evenCount, Is.EqualTo(5), "Odds must come before all evens");
                 }
                 else if (p == 1)
                 {
                     evenCount += 1;
-                    Assert.AreEqual(0, oddCount, "Evens must come before all odds");
+                    Assert.That(oddCount, Is.Zero, "Evens must come before all odds");
                 }
                 else
                     Assert.Fail($"Didn't expect is_even value {p}");
             }
 
-            Assert.AreEqual(6, oddCount);
-            Assert.AreEqual(5, evenCount);
+            Assert.That(oddCount, Is.EqualTo(6));
+            Assert.That(evenCount, Is.EqualTo(5));
         }
 
 
@@ -205,17 +205,17 @@
         public void TestCreateInsertTwoIndex()
         {
             // create a non-unique index on a test table
-            List<(string columnName, bool isDescending)> columnInfos = new()
-            {
+            List<(string columnName, bool isDescending)> columnInfos =
+            [
                 ("is_even", false),
                 ("number_name", false),
-            };
+            ];
 
             engine.CreateIndex(FullTableName.FromTableName("ten"), "evenIndex", false, columnInfos);
 
             // get our table
             Engines.IEngineTable? t = engine.GetEngineTable(FullTableName.FromTableName("ten"));
-            Assert.IsNotNull(t);
+            Assert.That(t, Is.Not.Null);
 
             Tuple newRow = Tuple.CreateEmpty(3);
             newRow[0] = ExpressionOperand.IntegerFromInt(11);
@@ -225,7 +225,7 @@
             t!.InsertRow(newRow);
 
             var idx = t.Index("evenIndex");
-            Assert.IsNotNull(idx);
+            Assert.That(idx, Is.Not.Null);
             idx!.Dump();
 
             int oddCount = 0;
@@ -240,12 +240,12 @@
                 if (p == 0)
                 {
                     oddCount += 1;
-                    Assert.AreEqual(0, evenCount, "Odds must come before any even");
+                    Assert.That(evenCount, Is.Zero, "Odds must come before any even");
                 }
                 else if (p == 1)
                 {
                     evenCount += 1;
-                    Assert.AreEqual(6, oddCount, "Evens must come after all odds");
+                    Assert.That(oddCount, Is.EqualTo(6), "Evens must come after all odds");
                 }
                 else
                     Assert.Fail($"Didn't expect is_even value {p}");
@@ -255,16 +255,16 @@
                 {
                     int diff = lastName.CompareTo(thisName);
                     if (lastP == p)
-                        Assert.IsTrue(diff < 0);
+                        Assert.That(diff, Is.LessThan(0));
                     else
-                        Assert.IsTrue(diff > 0);
+                        Assert.That(diff, Is.GreaterThan(0));
                 }
                 lastName = thisName;
                 lastP = p;
             }
 
-            Assert.AreEqual(6, oddCount);
-            Assert.AreEqual(5, evenCount);
+            Assert.That(oddCount, Is.EqualTo(6));
+            Assert.That(evenCount, Is.EqualTo(5));
         }
 
 
@@ -272,10 +272,10 @@
         public void TestFailCreateUniqueIndex()
         {
             // create a unique index on a test table, expecting failure
-            List<(string columnName, bool isDescending)> columnInfos = new()
-            {
+            List<(string columnName, bool isDescending)> columnInfos =
+            [
                 ("is_even", false),
-            };
+            ];
 
             Assert.Throws<ExecutionException>(() => engine.CreateIndex(FullTableName.FromTableName("ten"), "evenIndex", true, columnInfos));
         }
@@ -286,7 +286,7 @@
         {
             // get our table
             Engines.IEngineTable? t = engine.GetEngineTable(FullTableName.FromTableName("ten"));
-            Assert.IsNotNull(t);
+            Assert.That(t, Is.Not.Null);
 
             // ... and add two-key duplicate row to our test table
             Tuple newRow = Tuple.CreateEmpty(3);
@@ -297,11 +297,11 @@
             t!.InsertRow(newRow);
 
             // create a unique index on a test table, expecting failure
-            List<(string columnName, bool isDescending)> columnInfos = new()
-            {
+            List<(string columnName, bool isDescending)> columnInfos =
+            [
                 ("is_even", false),
                 ("number_name", false),
-            };
+            ];
 
             Assert.Throws<ExecutionException>(() => engine.CreateIndex(FullTableName.FromTableName("ten"), "evenIndex", true, columnInfos));
         }
@@ -311,20 +311,20 @@
         public void TestCreateUniqueTwoIndex()
         {
             // create a non-unique index on a test table
-            List<(string columnName, bool isDescending)> columnInfos = new()
-            {
+            List<(string columnName, bool isDescending)> columnInfos =
+            [
                 ("is_even", false),
                 ("number_name", false),
-            };
+            ];
 
             engine.CreateIndex(FullTableName.FromTableName("ten"), "evenNameIndex", true, columnInfos);
 
             // get our table
             Engines.IEngineTable? t = engine.GetEngineTable(FullTableName.FromTableName("ten"));
-            Assert.IsNotNull(t);
+            Assert.That(t, Is.Not.Null);
 
             var idx = t!.Index("evenNameIndex");
-            Assert.IsNotNull(idx);
+            Assert.That(idx, Is.Not.Null);
             Console.WriteLine("Here");
             idx!.Dump();
 
@@ -340,12 +340,12 @@
                 if (p == 0)
                 {
                     oddCount += 1;
-                    Assert.AreEqual(0, evenCount, "Odds must come before any even");
+                    Assert.That(evenCount, Is.Zero, "Odds must come before any even");
                 }
                 else if (p == 1)
                 {
                     evenCount += 1;
-                    Assert.AreEqual(5, oddCount, "Evens must come after all odds");
+                    Assert.That(oddCount, Is.EqualTo(5), "Evens must come after all odds");
                 }
                 else
                     Assert.Fail($"Didn't expect is_even value {p}");
@@ -355,16 +355,16 @@
                 {
                     int diff = lastName.CompareTo(thisName);
                     if (lastP == p)
-                        Assert.IsTrue(diff < 0);
+                        Assert.That(diff, Is.LessThan(0));
                     else
-                        Assert.IsTrue(diff > 0);
+                        Assert.That(diff, Is.GreaterThan(0));
                 }
                 lastName = thisName;
                 lastP = p;
             }
 
-            Assert.AreEqual(5, oddCount);
-            Assert.AreEqual(5, evenCount);
+            Assert.That(oddCount, Is.EqualTo(5));
+            Assert.That(evenCount, Is.EqualTo(5));
         }
 
 
@@ -372,20 +372,20 @@
         public void TestCreateTwoIndex()
         {
             // create a non-unique index on a test table
-            List<(string columnName, bool isDescending)> columnInfos = new()
-            {
+            List<(string columnName, bool isDescending)> columnInfos =
+            [
                 ("is_even", false),
                 ("number_name", false),
-            };
+            ];
 
             engine.CreateIndex(FullTableName.FromTableName("ten"), "evenNameIndex", false, columnInfos);
 
             // get our table
             Engines.IEngineTable? t = engine.GetEngineTable(FullTableName.FromTableName("ten"));
-            Assert.IsNotNull(t);
+            Assert.That(t, Is.Not.Null);
 
             var idx = t!.Index("evenNameIndex");
-            Assert.IsNotNull(idx);
+            Assert.That(idx, Is.Not.Null);
             Console.WriteLine("Here");
             idx!.Dump();
 
@@ -401,12 +401,12 @@
                 if (p == 0)
                 {
                     oddCount += 1;
-                    Assert.AreEqual(0, evenCount, "Odds must come before any even");
+                    Assert.That(evenCount, Is.Zero, "Odds must come before any even");
                 }
                 else if (p == 1)
                 {
                     evenCount += 1;
-                    Assert.AreEqual(5, oddCount, "Evens must come after all odds");
+                    Assert.That(oddCount, Is.EqualTo(5), "Evens must come after all odds");
                 }
                 else
                     Assert.Fail($"Didn't expect is_even value {p}");
@@ -416,16 +416,16 @@
                 {
                     int diff = lastName.CompareTo(thisName);
                     if (lastP == p)
-                        Assert.IsTrue(diff < 0);
+                        Assert.That(diff, Is.LessThan(0));
                     else
-                        Assert.IsTrue(diff > 0);
+                        Assert.That(diff, Is.GreaterThan(0));
                 }
                 lastName = thisName;
                 lastP = p;
             }
 
-            Assert.AreEqual(5, oddCount);
-            Assert.AreEqual(5, evenCount);
+            Assert.That(oddCount, Is.EqualTo(5));
+            Assert.That(evenCount, Is.EqualTo(5));
         }
 
 
@@ -433,11 +433,11 @@
         public void TestFailCreateSameNameTwoIndex()
         {
             // create a non-unique index on a test table
-            List<(string columnName, bool isDescending)> columnInfos = new()
-            {
+            List<(string columnName, bool isDescending)> columnInfos =
+            [
                 ("is_even", false),
                 ("number_name", false),
-            };
+            ];
 
             // create it once
             try

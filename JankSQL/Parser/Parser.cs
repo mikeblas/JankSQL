@@ -9,7 +9,7 @@
     /// errors in parsing. If it does, it can't be executed. If it has no errors, it may be executed to
     /// return actual results (or effect changes to the database.)
     /// </summary>
-    public class Parser
+    public static class Parser
     {
         /// <summary>
         /// Parse a SQL File from a string. (A File is a set of executable batches of
@@ -21,7 +21,6 @@
         {
             var lexer = new TSqlLexer(new AntlrInputStream(str));
             return ParseTreeFromLexer(lexer);
-
         }
 
         public static ExecutableBatch QuietParseSQLFileFromString(string str)

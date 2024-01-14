@@ -58,11 +58,11 @@
                 string second = result.ResultSet.Row(i)[1].AsString();
 
                 if (num == 2)
-                    Assert.AreEqual("ni", second);
+                    Assert.That(second, Is.EqualTo("ni"));
                 else if (num == 1)
-                    Assert.AreEqual("ichi", second);
+                    Assert.That(second, Is.EqualTo("ichi"));
                 else
-                    Assert.AreEqual("unknown", second);
+                    Assert.That(second, Is.EqualTo("unknown"));
             }
         }
 
@@ -146,11 +146,11 @@
                 int secondColumn = result.ResultSet.Row(i)[1].AsInteger();
 
                 if (num == 0)
-                    Assert.AreEqual(25 * 33, secondColumn);
+                    Assert.That(secondColumn, Is.EqualTo(25 * 33));
                 else if (num == 1)
-                    Assert.AreEqual(25 * 627, secondColumn);
+                    Assert.That(secondColumn, Is.EqualTo(25 * 627));
                 else
-                    Assert.AreEqual(25 * (867 - 5309), secondColumn);
+                    Assert.That(secondColumn, Is.EqualTo(25 * (867 - 5309)));
             }
         }
     }

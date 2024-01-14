@@ -36,9 +36,7 @@
 
         public TestTableBuilder WithRow(object?[] row)
         {
-            if (rows == null)
-                rows = new List<object?[]>();
-            rows.Add(row);
+            (rows ??= new List<object?[]>()).Add(row);
             return this;
         }
 
@@ -70,7 +68,7 @@
                 }
             }
 
-            TestTable table = new TestTable(tableName, columnNames, columnTypes, convertedRows);
+            TestTable table = new (tableName, columnNames, columnTypes, convertedRows);
             return table;
         }
     }

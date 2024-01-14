@@ -5,35 +5,31 @@
 
     public class IndexAccessor : IEnumerable, IEnumerable<RowWithBookmark>
     {
-        private readonly IndexDefinition def;
         private readonly BPlusTree<Tuple, Tuple> indexTree;
 
         internal IndexAccessor(IndexDefinition indexDefinition, BPlusTree<Tuple, Tuple> index)
         {
-            def = indexDefinition;
+            IndexDefinition = indexDefinition;
             indexTree = index;
         }
 
-        public IndexDefinition IndexDefinition
-        {
-            get { return def; }
-        }
+        public IndexDefinition IndexDefinition { get; }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return new BTreeIndexRowEnumerator(indexTree, def);
+            return new BTreeIndexRowEnumerator(indexTree, IndexDefinition);
         }
 
         IEnumerator<RowWithBookmark> IEnumerable<RowWithBookmark>.GetEnumerator()
         {
-            return new BTreeIndexRowEnumerator(indexTree, def);
+            return new BTreeIndexRowEnumerator(indexTree, IndexDefinition);
         }
 
         internal void Dump()
         {
-            Console.WriteLine($"=====");
-            Console.WriteLine($"index {def.IndexName}");
-            string s = string.Join(",", def.ColumnInfos.Select(x => $"[{x.columnName}, {(x.isDescending ? "DESC" : "ASC")}]"));
+            Console.WriteLine("=====");
+            Console.WriteLine("index {IndexDefinition.IndexName}");
+            string s = string.Join(",", IndexDefinition.ColumnInfos.Select(x => $"[{x.columnName}, {(x.isDescending ? "DESC" : "ASC")}]"));
             Console.WriteLine($"   {s}");
 
             foreach (var r in this)
@@ -41,4 +37,3 @@
         }
     }
 }
-

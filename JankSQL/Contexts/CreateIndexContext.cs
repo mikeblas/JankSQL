@@ -5,45 +5,32 @@
 
     internal class CreateIndexContext : IExecutableContext
     {
-        private readonly FullTableName tableName;
-        private readonly string indexName;
-        private readonly bool isUnique;
         private readonly List<(string columnName, bool isDescending)> columnInfo;
 
         internal CreateIndexContext(FullTableName tableName, string indexName, bool isUnique)
         {
-            this.tableName = tableName;
-            this.indexName = indexName;
-            this.isUnique = isUnique;
+            this.TableName = tableName;
+            this.IndexName = indexName;
+            this.IsUnique = isUnique;
             columnInfo = new List<(string, bool)>();
         }
 
-        internal FullTableName TableName
-        {
-            get { return tableName; }
-        }
+        internal FullTableName TableName { get; }
 
-        internal string IndexName
-        {
-            get { return indexName; }
-        }
+        internal string IndexName { get; }
 
-        internal bool IsUnique
-        {
-            get { return isUnique; }
-        }
+        internal bool IsUnique { get; }
 
         public object Clone()
         {
-            var clone = new CreateIndexContext(tableName, indexName, isUnique);
-            foreach (var t in columnInfo)
-                clone.columnInfo.Add(t);
+            var clone = new CreateIndexContext(TableName, IndexName, IsUnique);
+            clone.columnInfo.AddRange(columnInfo);
             return clone;
         }
 
         public ExecuteResult Execute(IEngine engine, IRowValueAccessor? accessor, Dictionary<string, ExpressionOperand> bindValues)
         {
-            engine.CreateIndex(tableName, indexName, isUnique, columnInfo);
+            engine.CreateIndex(TableName, IndexName, IsUnique, columnInfo);
 
             //TODO: can we get row count here?
             ExecuteResult ret = ExecuteResult.SuccessWithRowsAffected(0);
@@ -52,10 +39,10 @@
 
         public void Dump()
         {
-            Console.WriteLine($"Create {(isUnique ? "UNIQUE" : "non-Unique")} on table {tableName}");
+            Console.WriteLine($"Create {(IsUnique ? "UNIQUE" : "non-Unique")} on table {TableName}");
 
-            foreach (var t in columnInfo)
-                Console.WriteLine($"   {t.columnName}: {(t.isDescending ? "DESCENDING" : "ASCENDING")}");
+            foreach (var (columnName, isDescending) in columnInfo)
+                Console.WriteLine($"   {columnName}: {(isDescending ? "DESCENDING" : "ASCENDING")}");
         }
 
         internal void AddColumn(string columnName, bool isDescending)

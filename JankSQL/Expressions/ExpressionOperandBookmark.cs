@@ -1,27 +1,27 @@
-﻿namespace JankSQL.Expressions
+﻿using System.Diagnostics;
+
+namespace JankSQL.Expressions
 {
     public class ExpressionOperandBookmark : ExpressionOperand
     {
-        private readonly Tuple tuple;
-
         internal ExpressionOperandBookmark(Tuple tuple)
             : base(ExpressionOperandType.BOOKMARK)
         {
-            this.tuple = tuple;
+            this.Tuple = tuple;
         }
 
         public override bool RepresentsNull => false;
 
-        public Tuple Tuple => tuple;
+        public Tuple Tuple { get; }
 
         public override object Clone()
         {
-            return new ExpressionOperandBookmark(tuple);
+            return new ExpressionOperandBookmark(Tuple);
         }
 
         public override string ToString()
         {
-            return $"Bookmark({tuple})";
+            return $"Bookmark({Tuple})";
         }
 
         public override double AsDouble()
@@ -111,16 +111,16 @@
 
         public int CompareTo(ExpressionOperandBookmark? other)
         {
-            if (other == null)
-                throw new ArgumentNullException(nameof(other));
-            if (other.tuple.Length != tuple.Length)
-                throw new ArgumentException($"can't compare bookmarks of different lengths; this is {tuple.Length} other is {other.tuple.Length}");
+            Debug.Assert(other != null, "Don't expect to compare null ExpressionOperandBookmarks");
+            if (other.Tuple.Length != Tuple.Length)
+                throw new ArgumentException($"can't compare bookmarks of different lengths; this is {Tuple.Length} other is {other.Tuple.Length}");
 
             int index = 0;
             int ret = 0;
-            while (ret == 0 && index < tuple.Length)
+            while (ret == 0 && index < Tuple.Length)
             {
-                ret = tuple[index].CompareTo(other.tuple[index]);
+                ret = Tuple[index].CompareTo(other.Tuple[index]);
+                index++;
             }
 
             return ret;
@@ -128,18 +128,18 @@
 
         public override int CompareTo(ExpressionOperand? other)
         {
-            if (other == null)
-                throw new ArgumentNullException(nameof(other));
+            Debug.Assert(other != null, "Don't expect to compare null ExpressionOPerands");
 
             ExpressionOperandBookmark o = (ExpressionOperandBookmark)other;
-            if (o.tuple.Length != tuple.Length)
-                throw new ArgumentException($"can't compare bookmarks of different lengths; this is {tuple.Length} other is {o.tuple.Length}");
+            if (o.Tuple.Length != Tuple.Length)
+                throw new ArgumentException($"can't compare bookmarks of different lengths; this is {Tuple.Length} other is {o.Tuple.Length}");
 
             int index = 0;
             int ret = 0;
-            while (ret == 0 && index < tuple.Length)
+            while (ret == 0 && index < Tuple.Length)
             {
-                ret = tuple[index].CompareTo(o.tuple[index]);
+                ret = Tuple[index].CompareTo(o.Tuple[index]);
+                index++;
             }
 
             return ret;
@@ -164,8 +164,7 @@
             WriteTypeAndNullness(stream);
 
             var ts = new Engines.TupleSerializer();
-            ts.WriteTo(tuple, stream);
+            ts.WriteTo(Tuple, stream);
         }
     }
 }
-

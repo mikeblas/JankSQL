@@ -11,5 +11,13 @@
             : base(description)
         {
         }
+
+        public SemanticErrorException() : base()
+        {
+        }
+
+        public SemanticErrorException(string? message, Exception? innerException) : base(message, innerException)
+        {
+        }
     }
 }

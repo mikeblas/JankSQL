@@ -22,9 +22,10 @@
 
             for (int i = 0; i < result.ResultSet.RowCount; i++)
             {
-                Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
-                Assert.IsFalse(result.ResultSet.Row(0)[1].RepresentsNull);
-                Assert.IsFalse(result.ResultSet.Row(0)[2].RepresentsNull);
+                Assert.That(result.ResultSet.Row(0)[0].RepresentsNull, Is.False);
+                Assert.That(result.ResultSet.Row(0)[0].RepresentsNull, Is.False);
+                Assert.That(result.ResultSet.Row(0)[1].RepresentsNull, Is.False);
+                Assert.That(result.ResultSet.Row(0)[2].RepresentsNull, Is.False);
 
                 string lowestName = result.ResultSet.Row(i)[1].AsString();
                 string highestName = result.ResultSet.Row(i)[2].AsString();
@@ -32,13 +33,13 @@
 
                 if (is_even == 0)
                 {
-                    Assert.AreEqual("five", lowestName);
-                    Assert.AreEqual("three", highestName);
+                    Assert.That(lowestName, Is.EqualTo("five"));
+                    Assert.That(highestName, Is.EqualTo("three"));
                 }
                 else if (is_even == 1)
                 {
-                    Assert.AreEqual("eight", lowestName);
-                    Assert.AreEqual("zero", highestName);
+                    Assert.That(lowestName, Is.EqualTo("eight"));
+                    Assert.That(highestName, Is.EqualTo("zero"));
                 }
                 else
                     Assert.Fail($"Bogus value for is_even: {is_even}");
@@ -71,8 +72,8 @@
             {
                 string lowestName = result.ResultSet.Row(i)[0].AsString();
                 string highestName = result.ResultSet.Row(i)[1].AsString();
-                Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
-                Assert.IsFalse(result.ResultSet.Row(0)[1].RepresentsNull);
+                Assert.That(result.ResultSet.Row(0)[0].RepresentsNull, Is.False);
+                Assert.That(result.ResultSet.Row(0)[1].RepresentsNull, Is.False);
 
                 if (lowestName.Equals("five") && highestName.Equals("three"))
                     matchedOdd = true;
@@ -82,7 +83,7 @@
                     Assert.Fail("Bogus row found: {lowestName}, {highestName}");
             }
 
-            Assert.IsTrue(matchedEven && matchedOdd);
+            Assert.That(matchedEven && matchedOdd, Is.True);
         }
 
         [Test]
@@ -251,9 +252,9 @@
 
             for (int i = 0; i < result.ResultSet.RowCount; i++)
             {
-                Assert.IsFalse(result.ResultSet.Row(0)[0].RepresentsNull);
-                Assert.IsFalse(result.ResultSet.Row(0)[1].RepresentsNull);
-                Assert.IsFalse(result.ResultSet.Row(0)[2].RepresentsNull);
+                Assert.That(result.ResultSet.Row(0)[0].RepresentsNull, Is.False);
+                Assert.That(result.ResultSet.Row(0)[1].RepresentsNull, Is.False);
+                Assert.That(result.ResultSet.Row(0)[2].RepresentsNull, Is.False);
 
                 int sumColumn = result.ResultSet.Row(i)[1].AsInteger();
                 int countColumn = result.ResultSet.Row(i)[2].AsInteger();
@@ -261,13 +262,13 @@
 
                 if (is_even == 0)
                 {
-                    Assert.AreEqual(5, countColumn);
-                    Assert.AreEqual(250, sumColumn);
+                    Assert.That(countColumn, Is.EqualTo(5));
+                    Assert.That(sumColumn, Is.EqualTo(250));
                 }
                 else if (is_even == 1)
                 {
-                    Assert.AreEqual(5, countColumn);
-                    Assert.AreEqual(200, sumColumn);
+                    Assert.That(countColumn, Is.EqualTo(5));
+                    Assert.That(sumColumn, Is.EqualTo(200));
                 }
                 else
                     Assert.Fail($"Bogus value for is_even: {is_even}");

@@ -22,15 +22,12 @@
 
 namespace JankSQL
 {
-    // using JankSQL.Expressions;
-
-    internal class Program
+    internal static class Program
     {
         public static void Main()
         {
             Test2();
         }
-
 
         public static void Test2()
         {
@@ -138,7 +135,7 @@ namespace JankSQL
             }
 
 
-            string str3 = "SELECT * FROM ten";
+            const string str3 = "SELECT * FROM ten";
             ExecutableBatch batch3 = Parser.ParseSQLFileFromString(str3);
             if (batch3.TotalErrors == 0)
             {

@@ -2,44 +2,32 @@
 {
     public class IndexDefinition
     {
-        private readonly string indexName;
-        private readonly bool isUnique;
-        private readonly List<(string columnName, bool isDescending, int heapColumnIndex)> columnInfos;
         private int nextUniquifer = 1;
 
         internal IndexDefinition(string indexName, bool isUnique, IEnumerable<(string columnName, bool isDescending)> columnInfos, IEngineTable heap)
         {
-            this.indexName = indexName;
-            this.isUnique = isUnique;
+            this.IndexName = indexName;
+            this.IsUnique = isUnique;
 
-            this.columnInfos = new List<(string columnName, bool isDescending, int heapColumnIndex)>();
-            foreach (var columnInfo in columnInfos)
+            this.ColumnInfos = new List<(string columnName, bool isDescending, int heapColumnIndex)>();
+            foreach (var (columnName, isDescending) in columnInfos)
             {
-                int idx = heap.ColumnIndex(columnInfo.columnName);
-                this.columnInfos.Add((columnInfo.columnName, columnInfo.isDescending, idx));
+                int idx = heap.ColumnIndex(columnName);
+                this.ColumnInfos.Add((columnName, isDescending, idx));
             }
         }
 
-        internal List<(string columnName, bool isDescending, int heapColumnIndex)> ColumnInfos
-        {
-            get { return columnInfos; }
-        }
+        internal List<(string columnName, bool isDescending, int heapColumnIndex)> ColumnInfos { get; }
 
-        internal bool IsUnique
-        {
-            get { return isUnique; }
-        }
+        internal bool IsUnique { get; }
 
-        internal string IndexName
-        {
-            get { return indexName; }
-        }
+        internal string IndexName { get; }
 
         public int ColumnIndex(string columnName)
         {
-            for (int i = 0; i < this.columnInfos.Count; i++)
+            for (int i = 0; i < this.ColumnInfos.Count; i++)
             {
-                if (this.columnInfos[i].columnName.Equals(columnName, StringComparison.InvariantCultureIgnoreCase))
+                if (this.ColumnInfos[i].columnName.Equals(columnName, StringComparison.InvariantCultureIgnoreCase))
                     return i;
             }
 

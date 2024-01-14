@@ -17,17 +17,17 @@
         public void DropTable(FullTableName tableName);
 
         /// <summary>
+        /// <para>
         /// Create a new table. This creates a table with the given column names
         /// and data types, at the given table name. Updates the system catalogs
         /// with the new columns and tables.
-        ///
-        /// Note that there are no constraints here.
+        /// </para>
+        /// <para>Note that there are no constraints here.</para>
         /// </summary>
         /// <param name="tableName">FullTableName with the name of this table.</param>
         /// <param name="columnNames">List of FullColumnNames for naming the columns.</param>
         /// <param name="columnTypes">Data type of each column, correlate to the columnNames parameter.</param>
         public void CreateTable(FullTableName tableName, IImmutableList<FullColumnName> columnNames, IImmutableList<ExpressionOperandType> columnTypes);
-
 
         /// <summary>
         /// Creates an index on the given table.

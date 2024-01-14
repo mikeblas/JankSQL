@@ -11,48 +11,32 @@
 
     internal class JoinContext : ICloneable
     {
-        private readonly FullTableName? tableName;
-        private readonly SelectContext? selectSource;
-        private readonly JoinType joinType;
         private List<Expression>? predicateExpressions;
-
-        private string? derivedTableAlias;
 
         internal JoinContext(JoinType joinType, FullTableName tableName)
         {
-            this.tableName = tableName;
-            this.joinType = joinType;
+            this.OtherTableName = tableName;
+            this.JoinType = joinType;
         }
 
         internal JoinContext(JoinType joinType, SelectContext selectSource)
         {
-            this.selectSource = selectSource;
-            this.joinType = joinType;
+            this.SelectSource = selectSource;
+            this.JoinType = joinType;
         }
 
         internal JoinContext(JoinType joinType, SelectContext selectSource, string derivedTableAlias)
         {
-            this.selectSource = selectSource;
-            this.joinType = joinType;
-            this.derivedTableAlias = derivedTableAlias;
+            this.SelectSource = selectSource;
+            this.JoinType = joinType;
+            this.DerivedTableAlias = derivedTableAlias;
         }
 
-        internal string? DerivedTableAlias
-        {
-            get { return derivedTableAlias; }
-            set { derivedTableAlias = value; }
-        }
+        internal string? DerivedTableAlias { get; set; }
 
-        internal FullTableName? OtherTableName
-        {
-            get { return tableName; }
-        }
+        internal FullTableName? OtherTableName { get; }
 
-        internal SelectContext? SelectSource
-        {
-            get { return selectSource; }
-        }
-
+        internal SelectContext? SelectSource { get; }
 
         internal List<Expression> PredicateExpressions
         {
@@ -60,47 +44,42 @@
             set { predicateExpressions = value; }
         }
 
-        internal JoinType JoinType
-        {
-            get { return joinType; }
-        }
+        internal JoinType JoinType { get; }
 
         public object Clone()
         {
             JoinContext clone;
-            if (selectSource != null)
-                clone = new JoinContext(joinType, (SelectContext)selectSource.Clone());
-            else if (tableName != null)
-                clone = new JoinContext(joinType, tableName);
+            if (SelectSource != null)
+                clone = new JoinContext(JoinType, (SelectContext)SelectSource.Clone());
+            else if (OtherTableName != null)
+                clone = new JoinContext(JoinType, OtherTableName);
             else
                 throw new InternalErrorException("join clone needs table name or selectSource");
 
-            clone.derivedTableAlias = derivedTableAlias;
+            clone.DerivedTableAlias = DerivedTableAlias;
 
             if (predicateExpressions != null)
             {
                 clone.predicateExpressions = new List<Expression>();
-                foreach (var pe in predicateExpressions)
-                    clone.predicateExpressions.Add(pe);
+                clone.predicateExpressions.AddRange(predicateExpressions);
             }
 
             return clone;
         }
 
-
         internal void Dump()
         {
             string source = OtherTableName != null ? OtherTableName.ToString() : "DerivedSelect";
-            bool hasPredicates = predicateExpressions != null && predicateExpressions.Any();
+            bool hasPredicates = predicateExpressions?.Count > 0;
 
-            Console.WriteLine($"{joinType} join {source} {(hasPredicates ? "on:" : "with no predicate")}");
+            Console.WriteLine($"{JoinType} join {source} {(hasPredicates ? "on:" : "with no predicate")}");
             if (hasPredicates)
             {
                 for (int i = 0; i < predicateExpressions!.Count; i++)
                     Console.WriteLine($"   #{i}: {predicateExpressions}");
             }
 
-            selectSource?.Dump();
+            SelectSource?.Dump();
         }
     }
 }

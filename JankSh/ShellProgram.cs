@@ -23,13 +23,12 @@
                 if (line.Equals("go", StringComparison.OrdinalIgnoreCase))
                 {
                     Console.WriteLine($"Command is {command}");
- 
+
                     var ec = Parser.QuietParseSQLFileFromString(command.ToString());
 
                     ExecuteResult results = ec.ExecuteSingle(engine);
                     if (results.ExecuteStatus != ExecuteStatus.SUCCESSFUL)
                         Console.WriteLine($"JankSh: ERROR: {results.ErrorMessage}");
-                    
                     else
                     {
                         if (results.ResultSet == null)

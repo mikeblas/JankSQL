@@ -37,7 +37,7 @@
             List<RowWithBookmark> xl = new ();
 
             Tuple x = Tuple.CreateEmpty();
-            ExpressionOperandBookmark bm = new ExpressionOperandBookmark(Tuple.CreateEmpty());
+            ExpressionOperandBookmark bm = new (Tuple.CreateEmpty());
 
             xl.Add(new RowWithBookmark(x, bm));
 
@@ -60,4 +60,3 @@
         }
     }
 }
-

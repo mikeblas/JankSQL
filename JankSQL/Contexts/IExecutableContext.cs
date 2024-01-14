@@ -3,13 +3,16 @@
     using JankSQL.Expressions;
 
     /// <summary>
+    /// <para>
     /// IExecutableContext is the interface to an executable context class. Contexts are
     /// built from the walker, containing the context they need to cause execution of a
     /// statement.
-    ///
+    /// </para>
+    /// <para>
     /// Generally, DML contexts will build operator trees to actually execute (with a data
     /// flow) while DDL contexts will be executed directly and ask the involved Engine to
     /// implement the desired mutations.
+    /// </para>
     /// </summary>
     public interface IExecutableContext : ICloneable
     {
@@ -28,4 +31,3 @@
         void Dump();
     }
 }
-

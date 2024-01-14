@@ -9,20 +9,16 @@
         private readonly Tuple[] rows;
         private readonly FullColumnName[] columnNames;
         private readonly ExpressionOperandType[] columnTypes;
-        private readonly FullTableName tableName;
 
         internal TestTable(FullTableName tableName, IList<FullColumnName> columnNames, IList<ExpressionOperandType> columnTypes, List<Tuple> rows)
         {
-            this.tableName = tableName;
+            this.TableName = tableName;
             this.rows = rows.ToArray();
             this.columnNames = columnNames.ToArray();
             this.columnTypes = columnTypes.ToArray();
         }
 
-        internal FullTableName TableName
-        {
-            get { return tableName; }
-        }
+        internal FullTableName TableName { get; }
 
         internal IImmutableList<ExpressionOperandType> ColumnTypes
         {

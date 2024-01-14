@@ -43,7 +43,6 @@
 
         internal abstract int ExpectedParameters { get; }
 
-
         public override bool Equals(object? obj)
         {
             return Equals(obj as ExpressionOperator);
@@ -62,7 +61,7 @@
         public bool Equals(ExpressionFunction? other)
         {
             if (other == null)
-                throw new ArgumentNullException(nameof(other));
+                return false;
 
             if (ReferenceEquals(this, other))
                 return true;
@@ -72,11 +71,13 @@
 
         internal static ExpressionFunction? FromFunctionName(string str)
         {
-            if (!FunctionNameDict.ContainsKey(str))
-                return null;
+            if (FunctionNameDict.TryGetValue(str, out Func<ExpressionFunction>? value))
+            {
+                var r = value.Invoke();
+                return r;
+            }
 
-            var r = FunctionNameDict[str].Invoke();
-            return r;
+            return null;
         }
 
         /// <summary>
@@ -87,14 +88,13 @@
         /// <returns>ExpressionFunction object, null if not known.</returns>
         internal static ExpressionFunction? FromFunctionType(Type t)
         {
-            if (!FunctionTypeDict.ContainsKey(t))
+            if (!FunctionTypeDict.TryGetValue(t, out Func<ExpressionFunction>? value))
                 return null;
 
-            var r = FunctionTypeDict[t].Invoke();
+            var r = value.Invoke();
             return r;
         }
 
         internal abstract void SetFromBuiltInFunctionsContext(IList<ParserRuleContext> stack, TSqlParser.Built_in_functionsContext bifContext);
     }
 }
-

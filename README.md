@@ -38,11 +38,11 @@ Tests are implemented with [NUnit](https://github.com/nunit/nunit).
 
 ### Style
 
-The project uses [StyleCop](https://github.com/StyleCop) for static analysis. I've tweaked away some of the rules that I find more annoying or counter-productive 
+The project uses [Roslynator](https://josefpihrt.github.io/docs/roslynator/) for static analysis.
 
 # Setup 
 
-This project uses .Net 6.0 and therefore requires Visual Studio 2022.
+This project uses .Net86.0 and therefore requires Visual Studio 2022.
 
 After that, the project has just two prerequisites: the Antlr tool and the external T-SQL grammar for Antlr.
 
