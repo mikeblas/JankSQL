@@ -528,7 +528,7 @@
             JankAssert.RowsetExistsWithShape(result, 4, 1);
             result.ResultSet.Dump();
 
-            int[] nums = { -200, 300, 5, 0 };
+            int[] nums = [-200, 300, 5, 0];
             for (int n = 0; n < result.ResultSet.ColumnCount; n++)
                 JankAssert.ValueMatchesInteger(result.ResultSet, n, 0, nums[n]);
         }
@@ -543,7 +543,7 @@
             result.ResultSet.Dump();
 
             Tuple row = result.ResultSet.Row(0);
-            int?[] nums = { -200, 300, null, 5, 0 };
+            int?[] nums = [-200, 300, null, 5, 0];
             for (int n = 0; n < result.ResultSet.ColumnCount; n++)
             {
                 if (nums[n] == null)
@@ -563,7 +563,7 @@
             result.ResultSet.Dump();
 
             Tuple row = result.ResultSet.Row(0);
-            double[] nums = { 200, 300.1, 5.182837, 0 };
+            double[] nums = [200, 300.1, 5.182837, 0];
             for (int n = 0; n < result.ResultSet.ColumnCount; n++)
             {
                 Assert.That(row[n].RepresentsNull, Is.False);
@@ -582,7 +582,7 @@
             result.ResultSet.Dump();
 
             Tuple row = result.ResultSet.Row(0);
-            double?[] nums = { 200, 300.1,  null, 5.182837, 0 };
+            double?[] nums = [200, 300.1,  null, 5.182837, 0];
             for (int n = 0; n < result.ResultSet.ColumnCount; n++)
             {
                 if (nums[n] == null)
