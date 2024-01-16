@@ -15,6 +15,7 @@
         public void TestMinMaxGroupByOutput()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT is_even, MIN(number_name), MAX(number_name) FROM ten GROUP BY is_even");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 3, 2);
@@ -50,6 +51,7 @@
         public void TestMinMaxGroupByOutputNoRows()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT is_even, MIN(number_name), MAX(number_name) FROM ten WHERE 1 = 0 GROUP BY is_even");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 3, 0);
@@ -60,6 +62,7 @@
         public void TestMinMaxGroupByNoOutput()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT MIN(number_name), MAX(number_name) FROM ten GROUP BY is_even");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 2, 2);
@@ -90,6 +93,7 @@
         public void TestMinMaxGroupByNoOutputNoRows()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT MIN(number_name), MAX(number_name) FROM ten WHERE 1 = 0 GROUP BY is_even");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 2, 0);
@@ -101,6 +105,7 @@
         public void TestSimpleSum()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT SUM(number_id) FROM ten");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 1);
@@ -113,6 +118,7 @@
         public void TestSimpleSumNoRows()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT SUM(number_id) FROM ten WHERE 1 = 0;");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 1);
@@ -125,6 +131,7 @@
         public void TestSimpleSumCount()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT SUM(number_id), COUNT(number_id) FROM kiloLeft");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 2, 1);
@@ -138,6 +145,7 @@
         public void TestSumCountNoRows()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT SUM(number_id), COUNT(number_id) FROM ten WHERE 1 = 0");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 2, 1);
@@ -152,6 +160,7 @@
         public void TestMinMax()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT MIN(number_id), MAX(number_id) FROM ten ");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 2, 1);
@@ -166,6 +175,7 @@
         public void TestMinMaxFiltered()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT MIN(number_id), MAX(number_id) FROM ten WHERE is_even = 1");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 2, 1);
@@ -179,6 +189,7 @@
         public void TestMinMaxNoRows()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT MIN(number_id), MAX(number_id) FROM ten WHERE 1 = 0");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 2, 1);
@@ -192,6 +203,7 @@
         public void TestOneExpressionSumCount()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 23 * SUM(number_id), COUNT(number_id) FROM ten");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 2, 1);
@@ -205,6 +217,7 @@
         public void TestOneExpressionSumCountNoRows()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 23 * SUM(number_id), COUNT(number_id) FROM ten WHERE 1 = 0");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 2, 1);
@@ -218,6 +231,7 @@
         public void TestTwoExpressionSumCount()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT 10* SUM(number_id), COUNT(number_id) * 100 FROM ten");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 2, 1);
@@ -232,6 +246,7 @@
         public void TestTwoSumExpressionCountExpression()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT SUM(number_id * 10), COUNT(number_id * 100) FROM ten");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 2, 1);
@@ -245,6 +260,7 @@
         public void TestTwoSumGroupByOutputGrouped()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT is_even, SUM(number_id * 10), COUNT(number_id * 100) FROM ten GROUP BY is_even");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 3, 2);
@@ -280,6 +296,7 @@
         public void TestIntegerSimpleAverage()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT AVG(number_id) FROM ten");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 1);
@@ -294,6 +311,7 @@
         public void TestIntegerSimpleAverageNoRows()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT AVG(number_id) FROM ten WHERE 1 = 0");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 1);
@@ -306,6 +324,7 @@
         public void TestDecimalSimpleAverage()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT AVG(population) FROM myTable;");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 1);
@@ -318,6 +337,7 @@
         public void TestDecimalSimpleAverageNoRows()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT AVG(population) FROM myTable WHERE 1=0;");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 1);
@@ -331,6 +351,7 @@
         public void TestDecimalSimpleAverageNull()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT AVG(population + NULL) FROM myTable;");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 1);
@@ -344,6 +365,7 @@
         public void TestDecimalSimpleSumNull()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT SUM(population + NULL) FROM myTable;");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 1);
@@ -356,6 +378,7 @@
         public void TestDecimalSimpleCountNull()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT COUNT(population + NULL) FROM myTable;");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 1);
@@ -368,6 +391,7 @@
         public void TestIntegerCastAverage()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT AVG(CAST(number_id AS DECIMAL)) FROM ten");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 1);
@@ -382,6 +406,7 @@
         public void TestIntegerCastAverageNoRows()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT AVG(CAST(number_id AS DECIMAL)) FROM ten WHERE 1 = 0");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(result, 1, 1);
@@ -394,6 +419,7 @@
         public void TestNotCoveredGroupingSelect()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT number_name, MIN(number_name), MAX(number_name) FROM ten GROUP BY is_even");
+            JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
             JankAssert.FailureWithMessage(result);

@@ -23,6 +23,72 @@
         }
 
         [Test]
+        public void TestCrossJoinSelfJoin()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] A CROSS JOIN [mytable] B;");
+            JankAssert.SuccessfulParse(ec);
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 8, 9);
+            result.ResultSet.Dump();
+        }
+
+        public void TestCrossJoinSelfJoinSpecific()
+        {
+            // get two columns, they are not ambiguous
+            var ec = Parser.ParseSQLFileFromString("SELECT A.keycolumn, B.keycolumn FROM [mytable] A CROSS JOIN [mytable] B;");
+            JankAssert.SuccessfulParse(ec);
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 2, 9);
+            result.ResultSet.Dump();
+        }
+
+
+        [Test]
+        public void TestCrossJoinSelfJoinAmbiguous()
+        {
+            // should fail because both A.keycolumn and B.keycolumn exist and keycolumn is ambiguous
+            var ec = Parser.ParseSQLFileFromString("SELECT keycolumn FROM [mytable] A CROSS JOIN [mytable] B;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.FailureWithMessage(result);
+        }
+
+
+        [Test]
+        public void TestCrossJoinSelfJoinAmbiguousWhere()
+        {
+            // should fail because both A.keycolumn and B.keycolumn exist and keycolumn is ambiguous
+            var ec = Parser.ParseSQLFileFromString("SELECT keycolumn FROM [mytable] A CROSS JOIN [mytable] B WHERE keycolumn = 2;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.FailureWithMessage(result);
+        }
+
+        [Test]
+        public void TestCrossJoinSelfJoinAmbiguousOrder()
+        {
+            // should fail because both A.keycolumn and B.keycolumn exist and keycolumn is ambiguous
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] A CROSS JOIN [mytable] B ORDER BY keycolumn;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.FailureWithMessage(result);
+        }
+
+
+        [Test]
+        public void TestCrossJoinSelfJoinSpecificOrder()
+        {
+            // should fail because both A.keycolumn and B.keycolumn exist and keycolumn is ambiguous
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] A CROSS JOIN [mytable] B ORDER BY B.keycolumn;");
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 8, 9);
+            result.ResultSet.Dump();
+        }
+
+        [Test]
         public void TestCrossJoinDerived()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM (SELECT * FROM [mytable] CROSS JOIN [states]);");
@@ -154,7 +220,7 @@
                 "CROSS JOIN [Ten] " +
                 "CROSS JOIN [MyTable] " +
                 "     WHERE [three].[number_id] + 10 * [ten].[number_id] > 30 " +
-                "  ORDER BY number_name DESC");
+                "  ORDER BY three.number_name DESC");
             JankAssert.SuccessfulParse(ec);
 
             ExecuteResult result = ec.ExecuteSingle(engine);
@@ -162,7 +228,7 @@
             Assert.That(result.ResultSet, Is.Not.Null, result.ErrorMessage);
             result.ResultSet.Dump();
 
-            int nameIndex = result.ResultSet.ColumnIndex(FullColumnName.FromColumnName("number_name"));
+            int nameIndex = result.ResultSet.ColumnIndex(FullColumnName.FromTableColumnName("three", "number_name"));
             string previous = result.ResultSet.Row(0)[nameIndex].AsString();
 
             for (int i = 1; i < result.ResultSet.RowCount; i++)

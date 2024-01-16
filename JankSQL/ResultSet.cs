@@ -1,6 +1,7 @@
 ﻿namespace JankSQL
 {
     using System.Collections.Immutable;
+    using System.Xml;
 
     public class ResultSet
     {
@@ -33,7 +34,18 @@
 
         public int ColumnIndex(FullColumnName name)
         {
-            return Array.IndexOf(columnNames, name);
+            int ret = -1;
+            for (int i = 0; i < columnNames.Length; i++)
+            {
+                if (columnNames[i].Equals(name))
+                {
+                    if (ret != -1)
+                        throw new ExecutionException($"column name {name} is ambiguous because it matches both {columnNames[ret]} and {columnNames[i]}");
+                    ret = i;
+                }
+            }
+
+            return ret;
         }
 
         public Tuple Row(int index)

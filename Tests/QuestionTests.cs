@@ -20,7 +20,7 @@
                 "SELECT Students.StudentName, Students.Score, Students.Class " +
                 "  FROM Students " +
                 "  JOIN ( SELECT Class, MAX(Score) TopScore FROM Students GROUP BY Class) X " +
-                "    ON X.Class = Class AND X.TopScore = Score; ";
+                "    ON X.Class = Students.Class AND X.TopScore = Score; ";
 
             var ecSelect = Parser.ParseSQLFileFromString(select);
 
@@ -28,6 +28,25 @@
             CheckStudentResults(resultSelect);
         }
 
+        [Test]
+        public void TestActualStudentGradesAmbiguous()
+        {
+            // this is expected to fail because "Class" in "X.Class = Class" is ambiguous;
+            // there is also "Sutdents.Class".
+
+            CreateStudentsTable();
+
+            string select =
+                "SELECT Students.StudentName, Students.Score, Students.Class " +
+                "  FROM Students " +
+                "  JOIN ( SELECT Class, MAX(Score) TopScore FROM Students GROUP BY Class) X " +
+                "    ON X.Class = Class AND X.TopScore = Score; ";
+
+            var ecSelect = Parser.ParseSQLFileFromString(select);
+
+            ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
+            JankAssert.FailureWithMessage(resultSelect);
+        }
 
         [Test]
         public void TestActualStudentGradesAliases()

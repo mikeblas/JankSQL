@@ -1,7 +1,7 @@
 ﻿namespace JankSQL.Expressions
 {
     /// <summary>
-    /// Wraps a row set and accepts a row index so an individual row
+    /// Wraps a ResultSet and accepts a row index so an individual row
     /// can be accessed by Expression.Evaluate().
     /// </summary>
     internal class ResultSetValueAccessor : IRowValueAccessor
@@ -19,7 +19,7 @@
         {
             int idx = resultSet.ColumnIndex(fcn);
             if (idx == -1)
-                throw new ExecutionException($"Invalid column name {fcn}; valid names are {string.Join(",", resultSet.GetColumnNames())}");
+                throw new ExecutionException($"Invalid column name {fcn}; valid names are {string.Join(", ", resultSet.GetColumnNames())}");
 
             Tuple thisRow = resultSet.Row(rowIndex);
             ExpressionOperand val = thisRow[idx];
