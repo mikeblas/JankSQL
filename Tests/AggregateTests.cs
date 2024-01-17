@@ -416,7 +416,7 @@
         }
 
         [Test]
-        public void TestNotCoveredGroupingSelect()
+        public void TestFailNotCoveredGroupingSelect()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT number_name, MIN(number_name), MAX(number_name) FROM ten GROUP BY is_even");
             JankAssert.SuccessfulParse(ec);

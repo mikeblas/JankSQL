@@ -343,6 +343,16 @@
             JankAssert.FailureWithMessage(resultInsert);
         }
 
+        [Test]
+        public void TestFailInsertBadTableName()
+        {
+            // insert some rows
+            var ecInsert = Parser.ParseSQLFileFromString("INSERT INTO BadTableName (keycolumn, city_name) VALUES (53, 'West Hartford');");
+            JankAssert.SuccessfulParse(ecInsert);
+
+            ExecuteResult resultInsert = ecInsert.ExecuteSingle(engine);
+            JankAssert.FailureWithMessage(resultInsert);
+        }
 
         [Test]
         public void TestDeleteNoPredicate()

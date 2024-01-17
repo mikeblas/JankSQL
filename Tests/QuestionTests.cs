@@ -29,7 +29,7 @@
         }
 
         [Test]
-        public void TestActualStudentGradesAmbiguous()
+        public void TestFailActualStudentGradesAmbiguous()
         {
             // this is expected to fail because "Class" in "X.Class = Class" is ambiguous;
             // there is also "Sutdents.Class".

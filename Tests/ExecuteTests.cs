@@ -71,6 +71,28 @@
             result.ResultSet.Dump();
         }
 
+
+        [Test]
+        public void TestFailSelectBadTableName()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM [BadTableName];");
+            JankAssert.SuccessfulParse(ec);
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.FailureWithMessage(result);
+        }
+
+
+        [Test]
+        public void TestFailSelectBadColumnName()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT city_name, badcolumnname FROM [mytable];");
+            JankAssert.SuccessfulParse(ec);
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.FailureWithMessage(result);
+        }
+
         [Test]
         public void TestSelectStarIsNotNull()
         {

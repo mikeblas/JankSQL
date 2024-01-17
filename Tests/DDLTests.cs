@@ -58,7 +58,7 @@
 
 
         [Test]
-        public void TestTruncateTableBadName()
+        public void TestFailTruncateTableBadName()
         {
             var ec = Parser.ParseSQLFileFromString("TRUNCATE TABLE [BadTableName];");
 

@@ -46,7 +46,7 @@
 
 
         [Test]
-        public void TestCrossJoinSelfJoinAmbiguous()
+        public void TestFailCrossJoinSelfJoinAmbiguous()
         {
             // should fail because both A.keycolumn and B.keycolumn exist and keycolumn is ambiguous
             var ec = Parser.ParseSQLFileFromString("SELECT keycolumn FROM [mytable] A CROSS JOIN [mytable] B;");
@@ -57,7 +57,7 @@
 
 
         [Test]
-        public void TestCrossJoinSelfJoinAmbiguousWhere()
+        public void TestFailCrossJoinSelfJoinAmbiguousWhere()
         {
             // should fail because both A.keycolumn and B.keycolumn exist and keycolumn is ambiguous
             var ec = Parser.ParseSQLFileFromString("SELECT keycolumn FROM [mytable] A CROSS JOIN [mytable] B WHERE keycolumn = 2;");
@@ -67,7 +67,7 @@
         }
 
         [Test]
-        public void TestCrossJoinSelfJoinAmbiguousOrder()
+        public void TestFailCrossJoinSelfJoinAmbiguousOrder()
         {
             // should fail because both A.keycolumn and B.keycolumn exist and keycolumn is ambiguous
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] A CROSS JOIN [mytable] B ORDER BY keycolumn;");
