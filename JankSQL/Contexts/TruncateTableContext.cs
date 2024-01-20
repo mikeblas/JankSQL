@@ -12,6 +12,12 @@
             this.tableName = tableName;
         }
 
+        public BindResult Bind(Engines.IEngine engine, IList<FullColumnName> outerColumnNames, IDictionary<string, ExpressionOperand> bindValues)
+        {
+            Console.WriteLine("WARNING: Bind() not implemented for TruncateTableContext");
+            return new(BindStatus.SUCCESSFUL);
+        }
+
         public ExecuteResult Execute(IEngine engine, IRowValueAccessor? accessor, Dictionary<string, ExpressionOperand> bindValues)
         {
             Engines.IEngineTable? engineSource = engine.GetEngineTable(tableName);
@@ -31,7 +37,7 @@
 
         public object Clone()
         {
-            TruncateTableContext clone = new TruncateTableContext(tableName);
+            TruncateTableContext clone = new (tableName);
             return clone;
         }
     }

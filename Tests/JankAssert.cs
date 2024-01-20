@@ -5,7 +5,7 @@ namespace Tests
 
     using NUnit.Framework;
 
-    public class JankAssert
+    public static class JankAssert
     {
         public static void RowsetExistsWithShape(ExecuteResult executeResult, int expectedColumns, int expectedRows)
         {
@@ -21,7 +21,10 @@ namespace Tests
                 messages.Add($"expected {expectedRows} rows, found {executeResult.ResultSet.RowCount}");
 
             if (messages.Count > 0)
+            {
+                executeResult.ResultSet.Dump();
                 throw new AssertionException(string.Join(';', messages));
+            }
         }
 
         public static void ValueMatchesString(ResultSet rs, int column, int row, string expectedValue)

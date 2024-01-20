@@ -15,6 +15,11 @@
             Console.WriteLine("CommitContext");
         }
 
+        public BindResult Bind(Engines.IEngine engine, IList<FullColumnName> outerColumnNames, IDictionary<string, ExpressionOperand> bindValues)
+        {
+            return BindResult.Success();
+        }
+
         public ExecuteResult Execute(IEngine engine, IRowValueAccessor? accessor, Dictionary<string, ExpressionOperand> bindValues)
         {
             engine.Commit();

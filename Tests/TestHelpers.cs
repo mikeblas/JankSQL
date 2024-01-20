@@ -5,7 +5,7 @@
     using static JankSQL.ExpressionOperandType;
     using System.Diagnostics;
 
-    public class TestHelpers
+    public static class TestHelpers
     {
         static public void InjectTableMyTable(Engines.IEngine engine)
         {

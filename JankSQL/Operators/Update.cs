@@ -1,11 +1,12 @@
 ﻿namespace JankSQL.Operators
 {
     using JankSQL.Contexts;
+    using JankSQL.Engines;
     using JankSQL.Expressions;
 
-    internal class Update : IComponentOutput
+    internal class Update : IOperatorOutput
     {
-        private readonly IComponentOutput myInput;
+        private readonly IOperatorOutput myInput;
         private readonly Engines.IEngineTable engineTable;
         private readonly Expression? predicateExpression;
         private readonly List<ExpressionOperandBookmark> bookmarksToDelete = new ();
@@ -14,7 +15,7 @@
 
         private int rowsAffected;
 
-        internal Update(Engines.IEngineTable targetTable, IComponentOutput input, Expression? predicateExpression, List<UpdateSetOperation> setList)
+        internal Update(Engines.IEngineTable targetTable, IOperatorOutput input, Expression? predicateExpression, List<UpdateSetOperation> setList)
         {
             myInput = input;
             engineTable = targetTable;
@@ -31,6 +32,17 @@
         {
             throw new NotImplementedException();
         }
+
+        public FullColumnName[] GetOutputColumnNames()
+        {
+            return myInput.GetOutputColumnNames();
+        }
+
+        public BindResult Bind(IEngine engine, IList<FullColumnName> outerColumnNames, IDictionary<string, ExpressionOperand> bindValues)
+        {
+            return BindResult.Success();
+        }
+
 
         public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues)
         {

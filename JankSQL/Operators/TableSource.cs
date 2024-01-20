@@ -1,8 +1,9 @@
 ﻿namespace JankSQL.Operators
 {
+    using JankSQL.Engines;
     using JankSQL.Expressions;
 
-    internal class TableSource : IComponentOutput
+    internal class TableSource : IOperatorOutput
     {
         private readonly Engines.IEngineTable source;
 
@@ -37,6 +38,18 @@
             enumeratorExhausted = false;
             rowEnumerator.Reset();
         }
+
+        public FullColumnName[] GetOutputColumnNames()
+        {
+            FullColumnName[] fcn = GetAllColumnNames().ToArray();
+            return fcn;
+        }
+
+        public BindResult Bind(IEngine engine, IList<FullColumnName> outerColumnNames, IDictionary<string, ExpressionOperand> bindValues)
+        {
+            return BindResult.Success();
+        }
+
 
         public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues)
         {

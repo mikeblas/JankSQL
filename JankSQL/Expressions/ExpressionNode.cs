@@ -36,5 +36,11 @@
         }
 
         internal abstract void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues);
+
+        internal virtual BindResult Bind(Engines.IEngine engine, IList<FullColumnName> columns, IList<FullColumnName> outerColumnNames, IDictionary<string, ExpressionOperand> bindValues)
+        {
+            // most expressions don't need to do bind, so this default implementation is always successful.
+            return BindResult.Success();
+        }
     }
 }

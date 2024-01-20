@@ -17,6 +17,13 @@
             Console.WriteLine($"Drop table {tableName}");
         }
 
+        public BindResult Bind(Engines.IEngine engine, IList<FullColumnName> outerColumnNames, IDictionary<string, ExpressionOperand> bindValues)
+        {
+            Console.WriteLine("WARNING: Bind() not implemented for DropTableContext");
+            return new(BindStatus.SUCCESSFUL);
+        }
+
+
         public ExecuteResult Execute(IEngine engine, IRowValueAccessor? accessor, Dictionary<string, ExpressionOperand> bindValues)
         {
             engine.DropTable(tableName);

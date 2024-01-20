@@ -1,4 +1,5 @@
-﻿namespace JankSQL.Expressions
+﻿
+namespace JankSQL.Expressions
 {
     internal class ExpressionOperandInteger : ExpressionOperand, IComparable<ExpressionOperandInteger>, IEquatable<ExpressionOperandInteger>
     {

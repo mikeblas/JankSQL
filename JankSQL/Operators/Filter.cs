@@ -1,22 +1,19 @@
 ﻿namespace JankSQL.Operators
 {
+    using JankSQL.Engines;
     using JankSQL.Expressions;
 
-    internal class Filter : IComponentOutput
+    internal class Filter : IOperatorOutput
     {
-        private IComponentOutput myInput;
         private List<Expression> predicateExpressionLists;
 
-        internal Filter(IComponentOutput input, List<Expression> predicateExpressionLists)
+        internal Filter(IOperatorOutput input, List<Expression> predicateExpressionLists)
         {
-            myInput = input;
+            Input = input;
             this.predicateExpressionLists = predicateExpressionLists;
         }
 
-        internal IComponentOutput Input
-        {
-            get { return myInput; } set { myInput = value; }
-        }
+        internal IOperatorOutput Input { get; set; }
 
         internal List<Expression> Predicates
         {
@@ -25,12 +22,36 @@
 
         public void Rewind()
         {
-            myInput.Rewind();
+            Input.Rewind();
         }
+
+        public FullColumnName[] GetOutputColumnNames()
+        {
+            return Input.GetOutputColumnNames();
+        }
+
+        public BindResult Bind(IEngine engine, IList<FullColumnName> outerColumnNames, IDictionary<string, ExpressionOperand> bindValues)
+        {
+            BindResult br = Input.Bind(engine, outerColumnNames, bindValues);
+            if (!br.IsSuccessful)
+                return br;
+
+            FullColumnName[] inputColumnNames = Input.GetOutputColumnNames();
+
+            foreach (var expr in predicateExpressionLists)
+            {
+                br = expr.Bind(engine, inputColumnNames, outerColumnNames, bindValues);
+                if (!br.IsSuccessful)
+                    return br;
+            }
+
+            return br;
+        }
+
 
         public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues)
         {
-            ResultSet rsInput = myInput.GetRows(engine, outerAccessor, max, bindValues);
+            ResultSet rsInput = Input.GetRows(engine, outerAccessor, max, bindValues);
             ResultSet rsOutput = ResultSet.NewWithShape(rsInput);
 
             if (rsInput.IsEOF)

@@ -1,14 +1,35 @@
 ﻿
 namespace JankSQL
 {
-
     using Tests;
 
     internal class ScratchWork
     {
         public static void Main()
         {
-            Test2();
+            Test3();
+        }
+
+        public static void Test3()
+        {
+            var engine = Engines.BTreeEngine.CreateInMemory();
+            TestHelpers.InjectTableTen(engine);
+            TestHelpers.InjectTableMyTable(engine);
+
+
+            var ec = Parser.ParseSQLFileFromString(
+                "SELECT number_id " +
+                "  FROM ten " +
+                " WHERE number_id < (SELECT MAX(keycolumn) FROM mytable WHERE ten.is_even = 0);");
+            JankAssert.SuccessfulParse(ec);
+
+            ec.Dump();
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 1, 7);
+            result.ResultSet.Dump();
+
+            JankAssert.IntegerColumnMatchesSet(result.ResultSet, 0, new HashSet<int>() { 0, 4, 5, 6, 7, 8, 9 });
         }
 
         public static void Test2()

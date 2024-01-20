@@ -24,6 +24,9 @@
         /// <returns>An ExecuteResult indicating the outcome.</returns>
         ExecuteResult Execute(Engines.IEngine engine, IRowValueAccessor? accessor, Dictionary<string, ExpressionOperand> bindValues);
 
+
+        BindResult Bind(Engines.IEngine engine, IList<FullColumnName> outerColumnNames, IDictionary<string, ExpressionOperand> bindValues);
+
         /// <summary>
         /// Dump information about this executable context. This call will effectively show
         /// an "execution plan".

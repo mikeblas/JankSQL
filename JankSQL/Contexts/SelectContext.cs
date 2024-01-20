@@ -18,13 +18,8 @@
         // for WHERE clauses
         private readonly PredicateContext? predicateContext;
 
-        private FullTableName? sourceTableName;
-
-        private SelectContext? inputContext;
-
-        private OrderByContext? orderByContext;
-
-        private string? derivedTableAlias;
+        // once bound, we have our operator ready to go
+        private Select? selectOperator = null;
 
         internal SelectContext(TSqlParser.Select_statementContext context, PredicateContext? predicateContext)
         {
@@ -32,51 +27,34 @@
             this.predicateContext = predicateContext;
             selectListContext = new SelectListContext(context.query_expression().query_specification().select_list());
 
-            sourceTableName = null;
-            orderByContext = null;
-            inputContext = null;
+            SourceTableName = null;
+            OrderByContext = null;
+            InputContext = null;
         }
 
-        internal OrderByContext? OrderByContext
-        {
-            get { return orderByContext; }
-            set { orderByContext = value; }
-        }
+        internal OrderByContext? OrderByContext { get; set; }
 
         internal SelectListContext SelectListContext
         {
             get { return selectListContext!; }
         }
 
-        internal FullTableName? SourceTableName
-        {
-            get { return sourceTableName; }
-            set { sourceTableName = value; }
-        }
+        internal FullTableName? SourceTableName { get; set; }
 
-        internal string? DerivedTableAlias
-        {
-            get { return derivedTableAlias; }
-            set { derivedTableAlias = value; }
-        }
+        internal string? DerivedTableAlias { get; set; }
 
-        internal SelectContext? InputContext
-        {
-            get { return inputContext; }
-            set { inputContext = value; }
-        }
+        internal SelectContext? InputContext { get; set; }
 
         public object Clone()
         {
             SelectContext clone = new (statementContext, predicateContext);
 
-            clone.inputContext = inputContext != null ? (SelectContext)inputContext.Clone() : null;
-            clone.orderByContext = orderByContext != null ? (OrderByContext)orderByContext.Clone() : null;
-            clone.sourceTableName = sourceTableName;
-            clone.derivedTableAlias = derivedTableAlias;
+            clone.InputContext = InputContext != null ? (SelectContext)InputContext.Clone() : null;
+            clone.OrderByContext = OrderByContext != null ? (OrderByContext)OrderByContext.Clone() : null;
+            clone.SourceTableName = SourceTableName;
+            clone.DerivedTableAlias = DerivedTableAlias;
 
-            foreach (var groupBy in groupByExpressions)
-                clone.groupByExpressions.Add(groupBy);
+            clone.groupByExpressions.AddRange(groupByExpressions);
             foreach (var aggregate in aggregateContexts)
                 clone.aggregateContexts.Add((AggregateContext)aggregate.Clone());
 
@@ -92,14 +70,19 @@
             return clone;
         }
 
+        public BindResult Bind(Engines.IEngine engine, IList<FullColumnName> outerColumnNames, IDictionary<string, ExpressionOperand> bindValues)
+        {
+            selectOperator = BuildSelectObject(engine);
+            return selectOperator.Bind(engine, outerColumnNames, bindValues);
+        }
+
         public ExecuteResult Execute(Engines.IEngine engine, IRowValueAccessor? outerAccessor, Dictionary<string, ExpressionOperand> bindValues)
         {
-            Select select = BuildSelectObject(engine);
             ResultSet? resultSet = null;
 
             while (true)
             {
-                ResultSet batch = select.GetRows(engine, outerAccessor, 5, bindValues);
+                ResultSet batch = selectOperator.GetRows(engine, outerAccessor, 5, bindValues);
                 if (resultSet == null)
                     resultSet = ResultSet.NewWithShape(batch);
 
@@ -127,6 +110,7 @@
                 Console.WriteLine("  No predicate context");
             else
             {
+                //TODO: how to dump expressions with complex ExpressionNode objects (like IN operator)?
                 for (int i = 0; i < predicateContext.PredicateExpressionListCount; i++)
                     Console.WriteLine($"  #{i}: {predicateContext.PredicateExpressions[i]}");
             }
@@ -164,18 +148,18 @@
             var querySpecs = expressions.query_specification();
 
             // the top most output in this tree of objects
-            IComponentOutput lastLeftOutput;
+            IOperatorOutput lastLeftOutput;
 
-            if (SourceTableName == null && inputContext == null)
+            if (SourceTableName == null && InputContext == null)
             {
                 // no inputs -- it's just the "dual" source
                 lastLeftOutput = new TableSource(new Engines.DualSource());
             }
             else
             {
-                if (inputContext != null)
+                if (InputContext != null)
                 {
-                    lastLeftOutput = inputContext.BuildSelectObject(engine);
+                    lastLeftOutput = InputContext.BuildSelectObject(engine);
                 }
                 else
                 {
@@ -195,7 +179,7 @@
                 // any joins?
                 foreach (var j in joinContexts)
                 {
-                    IComponentOutput joinSource;
+                    IOperatorOutput joinSource;
                     if (j.SelectSource != null)
                     {
                         Select selectJoinSource = j.SelectSource.BuildSelectObject(engine);
@@ -274,9 +258,9 @@
             }
 
             // and check for an order by
-            if (orderByContext != null)
+            if (OrderByContext != null)
             {
-                Sort sort = new (lastLeftOutput, orderByContext.ExpressionList, orderByContext.IsAscendingList);
+                Sort sort = new (lastLeftOutput, OrderByContext.ExpressionList, OrderByContext.IsAscendingList);
 
                 lastLeftOutput = sort;
             }

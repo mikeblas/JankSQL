@@ -1,4 +1,5 @@
-﻿namespace JankSQL.Expressions
+﻿
+namespace JankSQL.Expressions
 {
     internal class ExpressionBindOperator : ExpressionNode
     {
@@ -21,6 +22,14 @@
                 throw new SemanticErrorException($"Bind target {targetName} was not bound");
 
             stack.Push(bindValue);
+        }
+
+        internal override BindResult Bind(Engines.IEngine engine, IList<FullColumnName> columns, IList<FullColumnName> outerColumns, IDictionary<string, ExpressionOperand> bindValues)
+        {
+            if (!bindValues.ContainsKey(targetName))
+                return BindResult.Failed($"Bind target {targetName} was not bound");
+
+            return BindResult.Success();
         }
     }
 }

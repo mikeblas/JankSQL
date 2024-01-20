@@ -15,18 +15,32 @@
             this.rowIndex = rowIndex;
         }
 
-        public ExpressionOperand GetValue(FullColumnName fcn)
+        public ExpressionOperand GetValue(FullColumnName fullColumnName)
         {
-            int idx = resultSet.ColumnIndex(fcn);
+            int idx = resultSet.ColumnIndex(fullColumnName);
             if (idx == -1)
-                throw new ExecutionException($"Invalid column name {fcn}; valid names are {string.Join(", ", resultSet.GetColumnNames())}");
+                throw new ExecutionException($"Invalid column name {fullColumnName}; valid names are {string.Join(", ", resultSet.GetColumnNames())}");
 
             Tuple thisRow = resultSet.Row(rowIndex);
             ExpressionOperand val = thisRow[idx];
             return val;
         }
 
-        public void SetValue(FullColumnName fcn, ExpressionOperand op)
+        public bool TryGetValue(FullColumnName fullColumnName, out ExpressionOperand? value)
+        {
+            int idx = resultSet.ColumnIndex(fullColumnName);
+            if (idx == -1)
+            {
+                value = null;
+                return false;
+            }
+
+            Tuple thisRow = resultSet.Row(rowIndex);
+            value = thisRow[idx];
+            return true;
+        }
+
+        public void SetValue(FullColumnName fullColumnName, ExpressionOperand op)
         {
             throw new NotImplementedException();
         }

@@ -15,17 +15,23 @@
         {
             if (outer != null)
             {
-                try
-                {
-                    ExpressionOperand val = outer.GetValue(fullColumnName);
-                    return val;
-                }
-                catch (ExecutionException)
-                {
-                }
+                ExpressionOperand? value;
+                if (outer.TryGetValue(fullColumnName, out value))
+                    return value!;
             }
 
             return inner.GetValue(fullColumnName);
+        }
+
+        public bool TryGetValue(FullColumnName fullColumnName, out ExpressionOperand? value)
+        {
+            if (outer != null)
+            {
+                if (outer.TryGetValue(fullColumnName, out value))
+                    return true;
+            }
+
+            return inner.TryGetValue(fullColumnName, out value);
         }
 
         public void SetValue(FullColumnName fullColumnName, ExpressionOperand op)

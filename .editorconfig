@@ -1,0 +1,5 @@
+[*]
+# VSSPELL: Spell checker settings for all files
+vsspell_section_id = f3072efff769410d89867fda3123d044
+vsspell_ignored_words_f3072efff769410d89867fda3123d044 = Accessor|Subselect|Rowset|Equi
+

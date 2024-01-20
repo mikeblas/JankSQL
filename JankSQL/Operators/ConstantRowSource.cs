@@ -1,8 +1,9 @@
 ﻿namespace JankSQL.Operators
 {
+    using JankSQL.Engines;
     using JankSQL.Expressions;
 
-    internal class ConstantRowSource : IComponentOutput
+    internal class ConstantRowSource : IOperatorOutput
     {
         private readonly List<List<Expression>> columnValues;
         private readonly IList<FullColumnName> columnNames;
@@ -15,6 +16,17 @@
             this.columnValues = columnValues;
             this.columnNames = columnNames;
         }
+
+        public FullColumnName[] GetOutputColumnNames()
+        {
+            return columnNames.ToArray();
+        }
+
+        public BindResult Bind(IEngine engine, IList<FullColumnName> outerColumns, IDictionary<string, ExpressionOperand> bindValues)
+        {
+            return BindResult.Success();
+        }
+
 
         public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues)
         {

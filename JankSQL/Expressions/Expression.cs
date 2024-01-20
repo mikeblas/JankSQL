@@ -93,5 +93,17 @@
 
             return result;
         }
+
+        internal BindResult Bind(Engines.IEngine engine, IList<FullColumnName> fullColumnNames, IList<FullColumnName> outerColumnNames, IDictionary<string, ExpressionOperand> bindValues)
+        {
+            BindResult br = new(BindStatus.SUCCESSFUL);
+            foreach (var node in this)
+            {
+                br = node.Bind(engine, fullColumnNames, outerColumnNames, bindValues);
+                if (!br.IsSuccessful)
+                    break;
+            }
+            return br;
+        }
     }
 }

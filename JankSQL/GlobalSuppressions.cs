@@ -4,6 +4,7 @@
 // a specific target and scoped to a namespace, type, member, etc.
 
 using System.Diagnostics.CodeAnalysis;
+using static System.Formats.Asn1.AsnWriter;
 
 #pragma warning disable IDE0077 // Avoid legacy format target in 'SuppressMessageAttribute'
 
@@ -35,6 +36,11 @@ using System.Diagnostics.CodeAnalysis;
     Justification = "Nobody tells me where to put whitespace",
     Scope = "namespaceanddescendants",
     Target = "JankSQL.Operators.Aggregations")]
+[assembly: SuppressMessage("Roslynator",
+    "RCS1036:Remove unnecessary blank line",
+    Justification = "Nobody tells me where to put whitespace",
+    Scope = "namespaceanddescendants",
+    Target = "JankSQL.Operators")]
 
 // I like to use += 1 (for example)
 [assembly: SuppressMessage("Roslynator",
@@ -46,7 +52,7 @@ using System.Diagnostics.CodeAnalysis;
     "RCS1089:Use --/++ operator instead of assignment",
     Justification = "This is my style",
     Scope = "namespaceanddescendants",
-    Target = "JankSQL.Expressions")]
+    Target = "JankSQL.Operators")]
 [assembly: SuppressMessage("Roslynator",
     "RCS1089:Use --/++ operator instead of assignment",
     Justification = "This is my style",
@@ -59,5 +65,35 @@ using System.Diagnostics.CodeAnalysis;
     Justification = "Mixing brackets is preferred",
     Scope = "namespaceanddescendants",
     Target = "JankSQL")]
+
+[assembly: SuppressMessage("Style",
+    "IDE0028:Simplify collection initialization",
+    Justification = "<Pending>",
+    Scope = "namespaceanddescendants",
+    Target = "JankSQL.Contexts")]
+
+[assembly: SuppressMessage("Style",
+    "IDE0028:Simplify collection initialization",
+    Justification = "<Pending>",
+    Scope = "namespaceanddescendants",
+    Target = "JankSQL")]
+
+[assembly: SuppressMessage("Style",
+    "IDE0028:Simplify collection initialization",
+    Justification = "<Pending>",
+    Scope = "namespaceanddescendants",
+    Target = "JankSQL.Operators")]
+
+[assembly: SuppressMessage("Style",
+    "IDE0028:Simplify collection initialization",
+    Justification = "<Pending>",
+    Scope = "namespaceanddescendants",
+    Target = "JankSQL.Contexts")]
+
+[assembly: SuppressMessage("Style",
+    "IDE0305:Simplify collection initialization",
+    Justification = "<Pending>",
+    Scope = "namespaceanddescendants",
+    Target = "JankSQL.Contexts")]
 
 #pragma warning restore IDE0077 // Avoid legacy format target in 'SuppressMessageAttribute'

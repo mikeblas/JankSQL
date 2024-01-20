@@ -1,6 +1,7 @@
 ﻿namespace JankSQL.Operators
 {
     using JankSQL.Contexts;
+    using JankSQL.Engines;
     using JankSQL.Expressions;
     using JankSQL.Operators.Aggregations;
 
@@ -18,7 +19,7 @@
         COUNT_BIG,
     }
 
-    internal class Aggregation : IComponentOutput
+    internal class Aggregation : IOperatorOutput
     {
         private readonly List<AggregationOperatorType> operatorTypes;
         private readonly List<Expression> expressions;
@@ -27,13 +28,13 @@
         private readonly Dictionary<Tuple, List<IAggregateAccumulator>> dictKeyToAggs;
         private readonly List<FullColumnName>? groupByExpressionBindNames;
 
-        private readonly List<FullColumnName> outputNames = new ();
-
-        private readonly IComponentOutput myInput;
+        private readonly IOperatorOutput myInput;
         private bool inputExhausted;
         private bool outputExhausted;
 
-        internal Aggregation(IComponentOutput input, List<AggregateContext> contexts, List<Expression>? groupByExpressions, List<FullColumnName>? groupByExpressionBindNames)
+        private List<FullColumnName>? outputNames = null;
+
+        internal Aggregation(IOperatorOutput input, List<AggregateContext> contexts, List<Expression>? groupByExpressions, List<FullColumnName>? groupByExpressionBindNames)
         {
             expressionNames = new List<string>();
             expressions = new List<Expression>();
@@ -57,7 +58,20 @@
             outputExhausted = false;
         }
 
-        #region IComponentOutput implementation
+        #region IOperatorOutput implementation
+
+        public FullColumnName[] GetOutputColumnNames()
+        {
+            BuildOutputColumnNames();
+            return outputNames.ToArray();
+        }
+
+        public BindResult Bind(IEngine engine, IList<FullColumnName> outerColumnNames, IDictionary<string, ExpressionOperand> bindValues)
+        {
+            BindResult br = myInput.Bind(engine, outerColumnNames, bindValues);
+            return br;
+        }
+
         public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues)
         {
             if (outputExhausted)
@@ -149,7 +163,7 @@
 
             foreach (var operatorType in operatorTypes)
             {
-                IAggregateAccumulator? accum = null;
+                IAggregateAccumulator? accum;
                 accum = operatorType switch
                 {
                     AggregationOperatorType.SUM => new SumAccumulator(),
@@ -168,6 +182,10 @@
 
         protected void BuildOutputColumnNames()
         {
+            if (outputNames != null)
+                return;
+
+            outputNames = new List<FullColumnName>();
             int n = 0;
             if (groupByExpressionBindNames != null)
             {
@@ -203,7 +221,7 @@
 
                     // get a rack of accumulators for this key
                     List<IAggregateAccumulator> aggs;
-                    if (!dictKeyToAggs.ContainsKey(groupByKey))
+                    if (!dictKeyToAggs.TryGetValue(groupByKey, out List<IAggregateAccumulator>? value))
                     {
                         // new one!
                         aggs = GetAccumulatorRow();
@@ -211,7 +229,7 @@
                     }
                     else
                     {
-                        aggs = dictKeyToAggs[groupByKey];
+                        aggs = value;
                     }
 
                     // evaluate each expression and offer it for them

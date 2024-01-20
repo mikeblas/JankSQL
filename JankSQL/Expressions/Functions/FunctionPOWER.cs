@@ -43,7 +43,6 @@
             stack.Add(c.float_expression);
             stack.Add(c.y);
         }
-
     }
 }
 

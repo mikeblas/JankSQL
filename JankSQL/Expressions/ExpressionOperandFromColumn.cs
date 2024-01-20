@@ -1,4 +1,5 @@
-﻿namespace JankSQL.Expressions
+﻿
+namespace JankSQL.Expressions
 {
     internal class ExpressionOperandFromColumn : ExpressionNode, IEquatable<ExpressionOperandFromColumn>
     {
@@ -49,6 +50,34 @@
                 throw new ExecutionException($"Not in a row context to evaluate {this}");
             ExpressionOperand ret = accessor.GetValue(ColumnName);
             stack.Push(ret);
+        }
+
+        internal override BindResult Bind(Engines.IEngine engine, IList<FullColumnName> columns, IList<FullColumnName> outerColumnNames, IDictionary<string, ExpressionOperand> bindValues)
+        {
+            FullColumnName? found = null;
+            List<FullColumnName> allColumns = new(columns);
+            allColumns.AddRange(outerColumnNames);
+
+            foreach (FullColumnName column in allColumns)
+            {
+                if (column.Equals(columnName))
+                {
+                    if (found != null)
+                    {
+                        return BindResult.Failed($"{columnName} is ambiguous because it could be {column} or {found}");
+                    }
+
+                    found = column;
+                }
+            }
+
+            if (found == null)
+            {
+                Console.WriteLine($"********** BY PASSING Bind() in ExpressionOperandFromColumn: {columnName} from {string.Join(", ", allColumns)}");
+                // return BindResult.Failed($"{columnName} is not known; valid column names are {string.Join(", ", allColumns)}");
+            }
+
+            return BindResult.Success();
         }
     }
 }

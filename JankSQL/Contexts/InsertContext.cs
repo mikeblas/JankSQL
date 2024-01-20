@@ -36,6 +36,13 @@
             return clone;
         }
 
+        public BindResult Bind(Engines.IEngine engine, IList<FullColumnName> outerColumnNames, IDictionary<string, ExpressionOperand> bindValues)
+        {
+            Console.WriteLine("WARNING: Bind() not implemented for InsertContext");
+            return new(BindStatus.SUCCESSFUL);
+        }
+
+
         public ExecuteResult Execute(Engines.IEngine engine, IRowValueAccessor? accessor, Dictionary<string, ExpressionOperand> bindValues)
         {
             if (constructors == null)

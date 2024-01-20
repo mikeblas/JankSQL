@@ -49,20 +49,26 @@
         {
             this.basePath = basePath;
 
-            BPlusTree<Tuple, Tuple>.OptionsV2? sysColumnsOptions = new (new TupleSerializer(), new TupleSerializer());
-            sysColumnsOptions.FileName = catalogPath["sys_columns"];
-            sysColumnsOptions.CreateFile = CreatePolicy.Never;
+            BPlusTree<Tuple, Tuple>.OptionsV2? sysColumnsOptions = new(new TupleSerializer(), new TupleSerializer())
+            {
+                FileName = catalogPath["sys_columns"],
+                CreateFile = CreatePolicy.Never
+            };
             sysColumns = CreateSysColumns(sysColumnsOptions);
             sysColumns.Commit();
 
-            BPlusTree<Tuple, Tuple>.OptionsV2? sysTablesOptions = new (new TupleSerializer(), new TupleSerializer());
-            sysTablesOptions.FileName = catalogPath["sys_tables"];
-            sysTablesOptions.CreateFile = CreatePolicy.Never;
+            BPlusTree<Tuple, Tuple>.OptionsV2? sysTablesOptions = new(new TupleSerializer(), new TupleSerializer())
+            {
+                FileName = catalogPath["sys_tables"],
+                CreateFile = CreatePolicy.Never
+            };
             sysTables = CreateSysTables(sysTablesOptions);
 
-            BPlusTree<Tuple, Tuple>.OptionsV2? sysIndexesOptions = new (new TupleSerializer(), new TupleSerializer());
-            sysIndexesOptions.FileName = catalogPath["sys_indexes"];
-            sysIndexesOptions.CreateFile = CreatePolicy.Never;
+            BPlusTree<Tuple, Tuple>.OptionsV2? sysIndexesOptions = new(new TupleSerializer(), new TupleSerializer())
+            {
+                FileName = catalogPath["sys_indexes"],
+                CreateFile = CreatePolicy.Never
+            };
             sysIndexes = CreateSysIndexes(sysIndexesOptions);
 
             BPlusTree<Tuple, Tuple>.OptionsV2? sysIndexColumnsOptions = new (new TupleSerializer(), new TupleSerializer());
@@ -146,8 +152,10 @@
                 table = new (tableName.TableNameOnly, columnTypes.ToArray(), columnNames, null);
             else
             {
-                BPlusTree<Tuple, Tuple>.OptionsV2? options = new (new TupleSerializer(), new TupleSerializer());
-                options.CreateFile = CreatePolicy.Always;
+                BPlusTree<Tuple, Tuple>.OptionsV2? options = new(new TupleSerializer(), new TupleSerializer())
+                {
+                    CreateFile = CreatePolicy.Always
+                };
                 //TODO: make a safe file name from the table name
                 fileName = Path.Combine(basePath, $"{tableName.TableNameOnly}.jankdb");
                 options.FileName = fileName;
@@ -434,30 +442,39 @@
         {
             Dictionary<string, string> catalogPath = GetCatalogPaths(basePath);
 
-            BPlusTree<Tuple, Tuple>.OptionsV2? sysColumnsOptions = new (new TupleSerializer(), new TupleSerializer());
-            sysColumnsOptions.FileName = catalogPath["sys_columns"];
-            sysColumnsOptions.CreateFile = CreatePolicy.Always;
+            BPlusTree<Tuple, Tuple>.OptionsV2? sysColumnsOptions = new(new TupleSerializer(), new TupleSerializer())
+            {
+                FileName = catalogPath["sys_columns"],
+                CreateFile = CreatePolicy.Always
+            };
             using BTreeTable sysColumns = CreateSysColumns(sysColumnsOptions);
             InitializeSysColumns(sysColumns);
             sysColumns.Commit();
 
-            BPlusTree<Tuple, Tuple>.OptionsV2? sysTablesOptions = new (new TupleSerializer(), new TupleSerializer());
-            sysTablesOptions.FileName = catalogPath["sys_tables"];
-            sysTablesOptions.CreateFile = CreatePolicy.Always;
+            BPlusTree<Tuple, Tuple>.OptionsV2? sysTablesOptions = new(new TupleSerializer(), new TupleSerializer())
+            {
+                FileName = catalogPath["sys_tables"],
+                CreateFile = CreatePolicy.Always
+            };
             using BTreeTable sysTables = CreateSysTables(sysTablesOptions);
             InitializeSysTables(sysTables, catalogPath);
             sysTables.Commit();
 
-            BPlusTree<Tuple, Tuple>.OptionsV2? sysIndexesOptions = new (new TupleSerializer(), new TupleSerializer());
-            sysIndexesOptions.FileName = catalogPath["sys_indexes"];
-            sysIndexesOptions.CreateFile = CreatePolicy.Always;
+            BPlusTree<Tuple, Tuple>.OptionsV2 optionsV2 = new(new TupleSerializer(), new TupleSerializer())
+            {
+                FileName = catalogPath["sys_indexes"],
+                CreateFile = CreatePolicy.Always
+            };
+            BPlusTree<Tuple, Tuple>.OptionsV2? sysIndexesOptions = optionsV2;
             using BTreeTable sysIndexes = CreateSysIndexes(sysIndexesOptions);
             InitializeSysIndexes(sysIndexes);
             sysIndexes.Commit();
 
-            BPlusTree<Tuple, Tuple>.OptionsV2? sysIndexColumnsOptions = new (new TupleSerializer(), new TupleSerializer());
-            sysIndexColumnsOptions.FileName = catalogPath["sys_indexcolumns"];
-            sysIndexColumnsOptions.CreateFile = CreatePolicy.Always;
+            BPlusTree<Tuple, Tuple>.OptionsV2? sysIndexColumnsOptions = new(new TupleSerializer(), new TupleSerializer())
+            {
+                FileName = catalogPath["sys_indexcolumns"],
+                CreateFile = CreatePolicy.Always
+            };
             using BTreeTable sysIndexColumns = CreateSysIndexColumns(sysIndexColumnsOptions);
             InitializeSysIndexColumns(sysIndexColumns);
             sysIndexColumns.Commit();

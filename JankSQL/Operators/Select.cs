@@ -1,60 +1,74 @@
 ﻿namespace JankSQL.Operators
 {
     using JankSQL.Contexts;
+    using JankSQL.Engines;
     using JankSQL.Expressions;
 
-    internal class Select : IComponentOutput
+    internal class Select : IOperatorOutput
     {
-        private readonly IComponentOutput myInput;
+        private readonly IOperatorOutput myInput;
         private readonly SelectListContext selectList;
         private readonly TSqlParser.Select_list_elemContext[] selectListContexts;
 
-        private string? derivedTableAlias;
-
         private List<FullColumnName>? effectiveColumns;
 
-        // internal IComponentOutput Input { get { return myInput; } set { myInput = value; } }
+        // internal IOperatorOutput Input { get { return myInput; } set { myInput = value; } }
 
-        internal Select(IComponentOutput input, TSqlParser.Select_list_elemContext[] selectListContexts, SelectListContext selectList, string? derivedTableAlias)
+        internal Select(IOperatorOutput input, TSqlParser.Select_list_elemContext[] selectListContexts, SelectListContext selectList, string? derivedTableAlias)
         {
             myInput = input;
             this.selectListContexts = selectListContexts;
             this.selectList = selectList;
-            this.derivedTableAlias = derivedTableAlias;
+            this.DerivedTableAlias = derivedTableAlias;
         }
 
-        internal string? DerivedTableAlias
-        {
-            get { return derivedTableAlias; }
-            set { derivedTableAlias = value; }
-        }
+        internal string? DerivedTableAlias { get; set; }
 
         public void Rewind()
         {
             myInput.Rewind();
         }
 
-        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues)
+        public FullColumnName[] GetOutputColumnNames()
         {
-            ResultSet rsInput = myInput.GetRows(engine, outerAccessor, max, bindValues);
+            return effectiveColumns.ToArray();
+        }
+
+        public BindResult Bind(IEngine engine, IList<FullColumnName> outerColumnNames, IDictionary<string, ExpressionOperand> bindValues)
+        {
+
+            /*
+            List<FullColumnName> allColumnNames = new(inputColumnNames);
+            allColumnNames.AddRange(outerColumnNames);
+            */
+
+            BindResult br = myInput.Bind(engine, outerColumnNames, bindValues);
+            if (!br.IsSuccessful)
+                return br;
+
+            //~~~~~
+            // what columns are coming in?
+            FullColumnName[] inputColumnNames = myInput.GetOutputColumnNames();
+
 
             // get an effective column list ...
             if (effectiveColumns == null)
             {
-                effectiveColumns = new ();
+                effectiveColumns = new();
                 int resultSetColumnIndex = 0;
                 foreach (var c in selectListContexts)
                 {
                     if (c.asterisk() != null)
                     {
+                        // got an asterisk in the select list, so we add all of the columns we have from the input
                         FullTableName? tableName = FullTableName.FromPossibleTableNameContext(c.asterisk().table_name());
 
-                        Console.WriteLine($"Asterisk!: {(tableName == null ? "no qualifier" : tableName)}");
-                        for (int i = 0; i < rsInput.ColumnCount; i++)
+                        Console.WriteLine($"Asterisk!: {(object?)tableName ?? "no qualifier"}");
+                        foreach (var inputFCN in inputColumnNames)
                         {
-                            FullColumnName fcn = rsInput.GetColumnName(i);
-                            if (derivedTableAlias != null)
-                                fcn = fcn.ApplyTableAlias(derivedTableAlias);
+                            FullColumnName fcn = inputFCN;
+                            if (DerivedTableAlias != null)
+                                fcn = fcn.ApplyTableAlias(DerivedTableAlias);
                             if (fcn.ColumnNameOnly() == "bookmark_key")
                                 continue;
 
@@ -67,20 +81,37 @@
                             }
 
                             effectiveColumns.Add(fcn);
-                            var node = new ExpressionOperandFromColumn(rsInput.GetColumnName(i));
-                            Expression expression = new () { node };
+                            var node = new ExpressionOperandFromColumn(inputFCN);
+                            Expression expression = new() { node };
                             selectList.AddSelectListExpressionList(expression);
                         }
                     }
                     else
                     {
                         var fcn = selectList.RowsetColumnName(resultSetColumnIndex++);
-                        if (derivedTableAlias != null)
-                            fcn = fcn.ApplyTableAlias(derivedTableAlias);
+                        if (DerivedTableAlias != null)
+                            fcn = fcn.ApplyTableAlias(DerivedTableAlias);
                         effectiveColumns.Add(fcn);
                     }
                 }
             }
+
+            foreach (var ex in selectList.SelectExpressions)
+            {
+                br = ex.Bind(engine, inputColumnNames, outerColumnNames, bindValues);
+                if (!br.IsSuccessful)
+                {
+                    throw new ExecutionException($"Binding failed: {br.ErrorMessage}");
+                }
+            }
+
+            return BindResult.Success();
+        }
+
+
+        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues)
+        {
+            ResultSet rsInput = myInput.GetRows(engine, outerAccessor, max, bindValues);
 
             ResultSet rsOutput = new (effectiveColumns);
             if (rsInput.IsEOF)
@@ -117,6 +148,16 @@
             }
 
 
+            if (rsOutput.IsEOF)
+            {
+                Console.WriteLine($" {this} produced EOF with {rsOutput.RowCount} rows");
+                rsOutput.Dump();
+            }
+            else
+            {
+                Console.WriteLine($" {this} produced {rsOutput.RowCount} rows");
+                rsOutput.Dump();
+            }
             return rsOutput;
         }
     }

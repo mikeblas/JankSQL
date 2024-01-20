@@ -1,17 +1,15 @@
 ﻿namespace JankSQL.Operators
 {
     using JankSQL.Contexts;
+    using JankSQL.Engines;
     using JankSQL.Expressions;
 
-    internal class Join : IComponentOutput
+    internal class Join : IOperatorOutput
     {
         private readonly JoinType joinType;
 
         //REVIEW: added to the right side only? Is that right?
         private readonly string? derivedTableAlias;
-
-        private IComponentOutput leftInput;
-        private IComponentOutput rightInput;
         private ResultSet? outputSet = null;
         private int outputIndex = 0;
 
@@ -24,7 +22,7 @@
         private ResultSet? rightRows = null;
 
 
-        internal Join(JoinType joinType, IComponentOutput leftInput, IComponentOutput rightInput, List<Expression> predicateExpressions, string? derivedTableAlias)
+        internal Join(JoinType joinType, IOperatorOutput leftInput, IOperatorOutput rightInput, List<Expression> predicateExpressions, string? derivedTableAlias)
         {
             this.joinType = joinType;
 
@@ -33,30 +31,22 @@
             // solution is actually more confusing.)
             if (joinType == JoinType.RIGHT_OUTER_JOIN)
             {
-                this.leftInput = rightInput;
-                this.rightInput = leftInput;
+                this.LeftInput = rightInput;
+                this.RightInput = leftInput;
             }
             else
             {
-                this.leftInput = leftInput;
-                this.rightInput = rightInput;
+                this.LeftInput = leftInput;
+                this.RightInput = rightInput;
             }
 
             PredicateExpressions = predicateExpressions;
             this.derivedTableAlias = derivedTableAlias;
         }
 
-        internal IComponentOutput LeftInput
-        {
-            get { return leftInput; }
-            set { leftInput = value; }
-        }
+        internal IOperatorOutput LeftInput { get; set; }
 
-        internal IComponentOutput RightInput
-        {
-            get { return rightInput; }
-            set { rightInput = value; }
-        }
+        internal IOperatorOutput RightInput { get; set; }
 
         internal List<Expression> PredicateExpressions { get; set; }
 
@@ -64,6 +54,45 @@
         {
             outputIndex = 0;
             // Console.WriteLine("REWIND!");
+        }
+
+        public FullColumnName[] GetOutputColumnNames()
+        {
+            FullColumnName[] leftColumns = LeftInput.GetOutputColumnNames();
+            FullColumnName[] rightColumns = RightInput.GetOutputColumnNames();
+
+            List<FullColumnName> allCols = new ();
+            foreach (var fcn in leftColumns)
+            {
+                //REVIEW: only the right side; is that correct?
+                // if (derivedTableAlias != null)
+                //  fcn.SetTableName(derivedTableAlias);
+                allCols.Add(fcn);
+                Console.WriteLine($"Left: {fcn}");
+            }
+
+            foreach (var fcn in rightColumns)
+            {
+                FullColumnName effective = fcn;
+                if (derivedTableAlias != null)
+                    effective = effective.ApplyTableAlias(derivedTableAlias);
+                allCols.Add(effective);
+                Console.WriteLine($"Right: {effective}");
+            }
+
+            return allCols.ToArray();
+        }
+
+        public BindResult Bind(IEngine engine, IList<FullColumnName> outerColumnNames, IDictionary<string, ExpressionOperand> bindValues)
+        {
+            BindResult br = this.LeftInput.Bind(engine, outerColumnNames, bindValues);
+            if (!br.IsSuccessful)
+                return br;
+            br = RightInput.Bind(engine, outerColumnNames, bindValues);
+            if (!br.IsSuccessful)
+                return br;
+
+            return BindResult.Success();
         }
 
         public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues)
@@ -119,13 +148,13 @@
 
         protected bool FillLeftRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues)
         {
-            leftRows = leftInput.GetRows(engine, outerAccessor, max, bindValues);
+            leftRows = LeftInput.GetRows(engine, outerAccessor, max, bindValues);
             return leftRows != null && leftRows.RowCount > 0;
         }
 
         protected bool FillRightRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues)
         {
-            rightRows = rightInput.GetRows(engine, outerAccessor, max, bindValues);
+            rightRows = RightInput.GetRows(engine, outerAccessor, max, bindValues);
             return rightRows != null && rightRows.RowCount > 0;
         }
 
@@ -202,7 +231,7 @@
                     if (!FillRightRows(engine, outerAccessor, max, bindValues))
                     {
                         // we exhausted right, so rewind ...
-                        rightInput.Rewind();
+                        RightInput.Rewind();
                         FillRightRows(engine, outerAccessor, max, bindValues);
 
                         // was left ever matched? handle LEFT/RIGHT OUTER JOIN accordingly ...

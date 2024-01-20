@@ -7,23 +7,18 @@
     internal class DeleteContext : IExecutableContext
     {
         private readonly FullTableName tableName;
-        private Expression? predicateExpression;
 
         internal DeleteContext(FullTableName tableName)
         {
             this.tableName = tableName;
         }
 
-        internal Expression? PredicateExpression
-        {
-            get { return predicateExpression; }
-            set { predicateExpression = value; }
-        }
+        internal Expression? PredicateExpression { get; set; }
 
         public object Clone()
         {
             DeleteContext clone = new (tableName);
-            clone.predicateExpression = predicateExpression != null ? (Expression?)predicateExpression.Clone() : null;
+            clone.PredicateExpression = PredicateExpression != null ? (Expression?)PredicateExpression.Clone() : null;
             return clone;
         }
 
@@ -31,11 +26,19 @@
         {
             Console.WriteLine($"DELETE FROM {tableName}");
 
-            if (predicateExpression == null)
+            if (PredicateExpression == null)
                 Console.WriteLine("   no predicate");
             else
-                Console.WriteLine($"       {predicateExpression}");
+                Console.WriteLine($"       {PredicateExpression}");
         }
+
+        public BindResult Bind(Engines.IEngine engine, IList<FullColumnName> outerColumnNames, IDictionary<string, ExpressionOperand> bindValues)
+        {
+            Console.WriteLine("WARNING: Bind() not implemented for DeleteContext");
+            return new(BindStatus.SUCCESSFUL);
+        }
+
+
 
         public ExecuteResult Execute(IEngine engine, IRowValueAccessor? outerAccessor, Dictionary<string, ExpressionOperand> bindValues)
         {
@@ -49,7 +52,7 @@
             {
                 // found the source table, so load it
                 TableSource source = new (tableSource);
-                Delete delete = new (tableSource, source, predicateExpression);
+                Delete delete = new (tableSource, source, PredicateExpression);
 
                 while (true)
                 {

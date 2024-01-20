@@ -4,15 +4,11 @@
     using JankSQL.Expressions;
     using JankSQL.Operators;
 
-
-
     internal class UpdateContext : IExecutableContext
     {
         private readonly FullTableName tableName;
         private readonly TSqlParser.Update_statementContext context;
         private readonly List<UpdateSetOperation> setList = new ();
-
-        private Expression? predicateExpression;
 
         internal UpdateContext(TSqlParser.Update_statementContext context, FullTableName tableName)
         {
@@ -25,20 +21,15 @@
             get { return tableName; }
         }
 
-        internal Expression? PredicateExpression
-        {
-            get { return predicateExpression; }
-            set { predicateExpression = value; }
-        }
+        internal Expression? PredicateExpression { get; set; }
 
         public object Clone()
         {
             UpdateContext clone = new (context, tableName);
 
-            clone.predicateExpression = predicateExpression != null ? (Expression)predicateExpression.Clone() : null;
+            clone.PredicateExpression = PredicateExpression != null ? (Expression)PredicateExpression.Clone() : null;
 
-            foreach (UpdateSetOperation op in setList)
-                clone.setList.Add(op);
+            clone.setList.AddRange(setList);
 
             return clone;
         }
@@ -48,10 +39,10 @@
             Console.WriteLine($"UPDATE {tableName}");
 
             Console.WriteLine("   Predicates:");
-            if (predicateExpression == null)
+            if (PredicateExpression == null)
                 Console.WriteLine("      no predicates");
             else
-                Console.WriteLine($"       {predicateExpression}");
+                Console.WriteLine($"       {PredicateExpression}");
 
             Console.WriteLine("   Assignments:");
             if (setList == null || setList.Count == 0)
@@ -67,6 +58,13 @@
             }
         }
 
+        public BindResult Bind(Engines.IEngine engine, IList<FullColumnName> outerColumnNames, IDictionary<string, ExpressionOperand> bindValues)
+        {
+            Console.WriteLine("WARNING: Bind() not implemented for UpdateContext");
+            return new(BindStatus.SUCCESSFUL);
+        }
+
+
         public ExecuteResult Execute(IEngine engine, IRowValueAccessor? outerAccessor, Dictionary<string, ExpressionOperand> bindValues)
         {
             Engines.IEngineTable? engineSource = engine.GetEngineTable(tableName);
@@ -76,7 +74,7 @@
             {
                 // found the source table, so build ourselves up
                 TableSource source = new (engineSource);
-                Update update = new (engineSource, source, predicateExpression, setList);
+                Update update = new (engineSource, source, PredicateExpression, setList);
 
                 while (true)
                 {

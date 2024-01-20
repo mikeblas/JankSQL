@@ -1,10 +1,11 @@
 ﻿namespace JankSQL.Operators
 {
+    using JankSQL.Engines;
     using JankSQL.Expressions;
 
-    internal class Sort : IComponentOutput
+    internal class Sort : IOperatorOutput
     {
-        private readonly IComponentOutput myInput;
+        private readonly IOperatorOutput myInput;
         private readonly bool[] isAscending;
         private readonly Expression[] sortExpressions;
 
@@ -12,12 +13,35 @@
         private bool inputExhausted = false;
         private bool outputExhausted = false;
 
-        public Sort(IComponentOutput myInput, List<Expression> sortKeyList, List<bool> isAscendingList)
+        public Sort(IOperatorOutput myInput, List<Expression> sortKeyList, List<bool> isAscendingList)
         {
             this.myInput = myInput;
             sortExpressions = sortKeyList.ToArray();
             isAscending = isAscendingList.ToArray();
         }
+        public FullColumnName[] GetOutputColumnNames()
+        {
+            return myInput.GetOutputColumnNames();
+        }
+
+        public BindResult Bind(IEngine engine, IList<FullColumnName> outerColumnNames, IDictionary<string, ExpressionOperand> bindValues)
+        {
+            BindResult br = myInput.Bind(engine, outerColumnNames, bindValues);
+            if (!br.IsSuccessful)
+                return br;
+
+            FullColumnName[] inputColumnNames = myInput.GetOutputColumnNames();
+
+            foreach(var expr in sortExpressions)
+            {
+                br = expr.Bind(engine, inputColumnNames, outerColumnNames, bindValues);
+                if (!br.IsSuccessful)
+                    return br;
+            }
+
+            return BindResult.Success();
+        }
+
 
         public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues)
         {

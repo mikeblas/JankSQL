@@ -1,16 +1,17 @@
 ﻿namespace JankSQL.Operators
 {
+    using JankSQL.Engines;
     using JankSQL.Expressions;
 
-    internal class Insert : IComponentOutput
+    internal class Insert : IOperatorOutput
     {
-        private readonly IComponentOutput myInput;
+        private readonly IOperatorOutput myInput;
         private readonly Engines.IEngineTable engineTable;
         private readonly Dictionary<int, int> targetIndexToInputIndex;
 
         private int rowsAffected;
 
-        internal Insert(Engines.IEngineTable destTable, IList<FullColumnName> targetColumns, IComponentOutput input)
+        internal Insert(Engines.IEngineTable destTable, IList<FullColumnName> targetColumns, IOperatorOutput input)
         {
             myInput = input;
             engineTable = destTable;
@@ -30,6 +31,17 @@
         {
             get { return rowsAffected; }
         }
+
+        public FullColumnName[] GetOutputColumnNames()
+        {
+            return myInput.GetOutputColumnNames();
+        }
+
+        public BindResult Bind(IEngine engine, IList<FullColumnName> outerColumnNames, IDictionary<string, ExpressionOperand> bindValues)
+        {
+            return BindResult.Success();
+        }
+
 
         public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues)
         {

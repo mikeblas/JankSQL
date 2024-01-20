@@ -15,6 +15,12 @@
             Console.WriteLine("ROLLBACK");
         }
 
+        public BindResult Bind(Engines.IEngine engine, IList<FullColumnName> outerColumnNames, IDictionary<string, ExpressionOperand> bindValues)
+        {
+            Console.WriteLine("WARNING: Bind() not implemented for RollbackContext");
+            return new(BindStatus.SUCCESSFUL);
+        }
+
         public ExecuteResult Execute(IEngine engine, IRowValueAccessor? accessor, Dictionary<string, ExpressionOperand> bindValues)
         {
             engine.Rollback();

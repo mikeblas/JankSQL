@@ -36,6 +36,32 @@ namespace JankSQL.Expressions
             throw new ExecutionException($"column {fcn} not found in TemporaryRowValueAccessor; available are {string.Join(",", (object[])names)}");
         }
 
+        public bool TryGetValue(FullColumnName fullColumnName, out ExpressionOperand? value)
+        {
+            int ret = -1;
+            for (int i = 0; i < names.Length; i++)
+            {
+                if (names[i].Equals(fullColumnName))
+                {
+                    if (ret != -1)
+                    {
+                        value = null;
+                        return false;
+                    }
+                    ret = i;
+                }
+            }
+
+            if (ret != -1)
+            {
+                value = rowData[ret];
+                return true;
+            }
+
+            value = null;
+            return false;
+        }
+
         void IRowValueAccessor.SetValue(FullColumnName fcn, ExpressionOperand op)
         {
             int ret = -1;

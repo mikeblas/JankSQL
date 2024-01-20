@@ -15,6 +15,7 @@
         /// <returns>ExpressionOperand with the value of that column.</returns>
         ExpressionOperand GetValue(FullColumnName fcn);
 
+        bool TryGetValue(FullColumnName fcn, out ExpressionOperand? value);
 
         /// <summary>
         /// Change the value (as in an UPDATE) in a row.

@@ -1,4 +1,5 @@
-﻿namespace JankSQL.Expressions
+﻿
+namespace JankSQL.Expressions
 {
     internal class ExpressionOperandDecimal : ExpressionOperand
     {
