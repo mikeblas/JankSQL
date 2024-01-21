@@ -389,6 +389,19 @@
             ExecuteResult resultSelect = ecSelect.ExecuteSingle(engine);
             JankAssert.RowsetExistsWithShape(resultSelect, 4, 0);
         }
+
+
+        [Test]
+        public void TestFailDeleteBadPredicate()
+        {
+            // delete all rows (identity predicate)
+            var ecDelete = Parser.ParseSQLFileFromString("DELETE FROM [mytable] WHERE badcolumn = 33;");
+            JankAssert.SuccessfulParse(ecDelete);
+
+            ExecuteResult result = ecDelete.ExecuteSingle(engine);
+            JankAssert.FailureWithMessage(result);
+        }
+
     }
 }
 

@@ -19,7 +19,7 @@
             this.ExpressionName = expressionName;
         }
 
-        internal string? ExpressionName { get; set; }
+        internal string ExpressionName { get; set; }
 
         internal Expression Expression { get; }
 

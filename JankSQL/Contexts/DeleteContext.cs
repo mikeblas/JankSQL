@@ -7,6 +7,7 @@
     internal class DeleteContext : IExecutableContext
     {
         private readonly FullTableName tableName;
+        private Delete? deleteOperator;
 
         internal DeleteContext(FullTableName tableName)
         {
@@ -34,14 +35,6 @@
 
         public BindResult Bind(Engines.IEngine engine, IList<FullColumnName> outerColumnNames, IDictionary<string, ExpressionOperand> bindValues)
         {
-            Console.WriteLine("WARNING: Bind() not implemented for DeleteContext");
-            return new(BindStatus.SUCCESSFUL);
-        }
-
-
-
-        public ExecuteResult Execute(IEngine engine, IRowValueAccessor? outerAccessor, Dictionary<string, ExpressionOperand> bindValues)
-        {
             Engines.IEngineTable? tableSource = engine.GetEngineTable(tableName);
 
             if (tableSource == null)
@@ -51,19 +44,27 @@
             else
             {
                 // found the source table, so load it
-                TableSource source = new (tableSource);
-                Delete delete = new (tableSource, source, PredicateExpression);
-
-                while (true)
-                {
-                    ResultSet batch = delete.GetRows(engine, outerAccessor, 5, bindValues);
-                    if (batch.IsEOF)
-                        break;
-                }
-
-                ExecuteResult results = ExecuteResult.SuccessWithRowsAffected(delete.RowsAffected);
-                return results;
+                TableSource source = new(tableSource);
+                deleteOperator = new(tableSource, source, PredicateExpression);
+                BindResult br = deleteOperator.Bind(engine, outerColumnNames, bindValues);
+                return br;
             }
+        }
+
+        public ExecuteResult Execute(IEngine engine, IRowValueAccessor? outerAccessor, Dictionary<string, ExpressionOperand> bindValues)
+        {
+            if (deleteOperator == null)
+                throw new InternalErrorException("DeleteOperator was not bound");
+
+            while (true)
+            {
+                ResultSet batch = deleteOperator.GetRows(engine, outerAccessor, 5, bindValues);
+                if (batch.IsEOF)
+                    break;
+            }
+
+            ExecuteResult results = ExecuteResult.SuccessWithRowsAffected(deleteOperator.RowsAffected);
+            return results;
         }
     }
 }

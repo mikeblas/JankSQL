@@ -9,6 +9,7 @@
         private readonly FullTableName tableName;
         private readonly TSqlParser.Update_statementContext context;
         private readonly List<UpdateSetOperation> setList = new ();
+        private Update? updateOperator;
 
         internal UpdateContext(TSqlParser.Update_statementContext context, FullTableName tableName)
         {
@@ -60,33 +61,34 @@
 
         public BindResult Bind(Engines.IEngine engine, IList<FullColumnName> outerColumnNames, IDictionary<string, ExpressionOperand> bindValues)
         {
-            Console.WriteLine("WARNING: Bind() not implemented for UpdateContext");
-            return new(BindStatus.SUCCESSFUL);
+            Engines.IEngineTable? tableSource = engine.GetEngineTable(tableName);
+            if (tableSource == null)
+                throw new ExecutionException($"Table {tableName} does not exist");
+            else
+            {
+                // found the source table, so load it
+                TableSource source = new(tableSource);
+                updateOperator = new(tableSource, source, PredicateExpression, setList);
+                BindResult br = updateOperator.Bind(engine, outerColumnNames, bindValues);
+                return br;
+            }
         }
 
 
         public ExecuteResult Execute(IEngine engine, IRowValueAccessor? outerAccessor, Dictionary<string, ExpressionOperand> bindValues)
         {
-            Engines.IEngineTable? engineSource = engine.GetEngineTable(tableName);
-            if (engineSource == null)
-                throw new ExecutionException($"Table {tableName} does not exist");
-            else
+            if (updateOperator == null)
+                throw new InternalErrorException("UpdateOperator was not bound");
+
+            while (true)
             {
-                // found the source table, so build ourselves up
-                TableSource source = new (engineSource);
-                Update update = new (engineSource, source, PredicateExpression, setList);
-
-                while (true)
-                {
-                    ResultSet batch = update.GetRows(engine, outerAccessor, 5, bindValues);
-                    if (batch.IsEOF)
-                        break;
-                }
-
-                ExecuteResult results = ExecuteResult.SuccessWithRowsAffected(update.RowsAffected);
-                return results;
+                ResultSet batch = updateOperator.GetRows(engine, outerAccessor, 5, bindValues);
+                if (batch.IsEOF)
+                    break;
             }
 
+            ExecuteResult results = ExecuteResult.SuccessWithRowsAffected(updateOperator.RowsAffected);
+            return results;
         }
 
         internal void AddAssignment(FullColumnName fcn, Expression x)

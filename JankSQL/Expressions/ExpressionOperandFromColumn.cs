@@ -73,8 +73,8 @@ namespace JankSQL.Expressions
 
             if (found == null)
             {
-                Console.WriteLine($"********** BY PASSING Bind() in ExpressionOperandFromColumn: {columnName} from {string.Join(", ", allColumns)}");
-                // return BindResult.Failed($"{columnName} is not known; valid column names are {string.Join(", ", allColumns)}");
+                // Console.WriteLine($"********** BY PASSING Bind() in ExpressionOperandFromColumn: {columnName} from {string.Join(", ", allColumns)}");
+                return BindResult.Failed($"{columnName} is not known; valid column names are {string.Join(", ", allColumns)}");
             }
 
             return BindResult.Success();

@@ -28,7 +28,7 @@ On the other hand, we can expect that I'll want to extend the grammar to support
 
 ### Storage
 
-The storage engine is based on the p. The engines are pluggable through the `IEngine` and `IEngineTable` interfaces. Implementations for in-memory and on-disk storage against the CSharpTest B-Tree are supplied. A limited implementation against a CSV flat-file is also supplied.
+The storage engine is based on the [CSharpTest.Net](https://github.com/csharptest/CSharpTest.Net.Collections) B-Tree implementation. The engines are pluggable through the `IEngine` and `IEngineTable` interfaces. Implementations for in-memory and on-disk storage against the CSharpTest B-Tree are supplied. A limited implementation against a CSV flat-file is also supplied.
 
 ### Tests
 
@@ -42,7 +42,7 @@ The project uses [Roslynator](https://josefpihrt.github.io/docs/roslynator/) for
 
 # Setup 
 
-This project uses .Net86.0 and therefore requires Visual Studio 2022.
+This project uses .Net 8.0 and therefore requires Visual Studio 2022.
 
 After that, the project has just two prerequisites: the Antlr tool and the external T-SQL grammar for Antlr.
 

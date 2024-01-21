@@ -40,6 +40,26 @@
 
         public BindResult Bind(IEngine engine, IList<FullColumnName> outerColumnNames, IDictionary<string, ExpressionOperand> bindValues)
         {
+            BindResult br = myInput.Bind(engine, outerColumnNames, bindValues);
+            if (!br.IsSuccessful)
+                return br;
+
+            FullColumnName[] inputColumnNames = myInput.GetOutputColumnNames();
+
+            if (predicateExpression != null)
+            {
+                br = predicateExpression.Bind(engine, inputColumnNames, outerColumnNames, bindValues);
+                if (!br.IsSuccessful)
+                    return br;
+            }
+
+            foreach (var setter in setList)
+            {
+                br = setter.Bind(engine, inputColumnNames, outerColumnNames, bindValues);
+                if (!br.IsSuccessful)
+                    return br;
+            }
+
             return BindResult.Success();
         }
 

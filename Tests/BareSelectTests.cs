@@ -1014,7 +1014,7 @@
 
 
         [Test]
-        public void TestLenStringConcat()
+        public void TestLenStringConcatenation()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT LEN('hello' + 'world');");
 

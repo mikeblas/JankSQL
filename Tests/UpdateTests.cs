@@ -4,6 +4,7 @@
 
     using JankSQL;
     using Engines = JankSQL.Engines;
+    using JankSQL.Operators;
 
     abstract public class UpdateTests
     {
@@ -44,6 +45,38 @@
 
             Assert.That(expected.Count, Is.Zero, "Expected all values to be found");
         }
+
+
+        [Test]
+        public void TestFailUpdateExpressionSource()
+        {
+            var ecUpdate = Parser.ParseSQLFileFromString("UPDATE MyTable SET Population = badcolumn * 1.2;");
+            JankAssert.SuccessfulParse(ecUpdate);
+
+            ExecuteResult result = ecUpdate.ExecuteSingle(engine);
+            JankAssert.FailureWithMessage(result);
+        }
+
+        [Test]
+        public void TestFailUpdateExpressionTarget()
+        {
+            var ecUpdate = Parser.ParseSQLFileFromString("UPDATE MyTable SET badcolumn = Population * 1.2;");
+            JankAssert.SuccessfulParse(ecUpdate);
+
+            ExecuteResult result = ecUpdate.ExecuteSingle(engine);
+            JankAssert.FailureWithMessage(result);
+        }
+
+        [Test]
+        public void TestFailUpdateExpressionBadWhere()
+        {
+            var ecUpdate = Parser.ParseSQLFileFromString("UPDATE MyTable SET Population = Population * 1.2 WHERE badcolumn = 392;");
+            JankAssert.SuccessfulParse(ecUpdate);
+
+            ExecuteResult result = ecUpdate.ExecuteSingle(engine);
+            JankAssert.FailureWithMessage(result);
+        }
+
 
 
         [Test]

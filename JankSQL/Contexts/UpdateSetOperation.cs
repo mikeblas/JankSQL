@@ -30,6 +30,12 @@
             return $"{fcn} {op} {expression}";
         }
 
+        internal BindResult Bind(Engines.IEngine engine, IList<FullColumnName> fullColumnNames, IList<FullColumnName> outerColumnNames, IDictionary<string, ExpressionOperand> bindValues)
+        {
+            BindResult br = expression.Bind(engine, fullColumnNames, outerColumnNames, bindValues);
+            return br;
+        }
+
         internal void Execute(Engines.IEngine engine, IRowValueAccessor outputaccessor, IRowValueAccessor inputAccessor, Dictionary<string, ExpressionOperand> bindValues)
         {
             if (op != UpdateSetOperator.ASSIGN)

@@ -115,7 +115,11 @@ namespace Tests
 
         public static void SuccessfulRowsAffected(ExecuteResult er, int rowsExpected)
         {
-            Assert.That(er.ExecuteStatus, Is.EqualTo(ExecuteStatus.SUCCESSFUL));
+            // Assert.That(er.ExecuteStatus, Is.EqualTo(ExecuteStatus.SUCCESSFUL));
+            if (er.ExecuteStatus != ExecuteStatus.SUCCESSFUL)
+            {
+                Assert.Fail($"expected SUCCESSFUL, but result was {er.ExecuteStatus} with message \"{er.ErrorMessage}\"");
+            }
             Assert.That(er.ErrorMessage, Is.Null);
             Assert.That(er.RowsAffected, Is.EqualTo(rowsExpected));
         }
