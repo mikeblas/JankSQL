@@ -36,7 +36,7 @@
             return br;
         }
 
-        internal void Execute(Engines.IEngine engine, IRowValueAccessor outputaccessor, IRowValueAccessor inputAccessor, Dictionary<string, ExpressionOperand> bindValues)
+        internal void Execute(Engines.IEngine engine, IRowValueAccessor outputaccessor, IRowValueAccessor inputAccessor, IDictionary<string, ExpressionOperand> bindValues)
         {
             if (op != UpdateSetOperator.ASSIGN)
                 throw new NotImplementedException();

@@ -422,6 +422,7 @@ FULLTEXTCATALOGPROPERTY                     : 'FULLTEXTCATALOGPROPERTY';
 FULLTEXTSERVICEPROPERTY                     : 'FULLTEXTSERVICEPROPERTY';
 FUNCTION                                    : 'FUNCTION';
 GB                                          : 'GB';
+// GENERATE_SERIES                             : 'GENERATE_SERIES';
 GENERATED                                   : 'GENERATED';
 GET                                         : 'GET';
 GETANCESTOR                                 : 'GETANCESTOR';
@@ -984,6 +985,7 @@ STOP_ON_ERROR                               : 'STOP_ON_ERROR';
 STR                                         : 'STR';
 STRING_AGG                                  : 'STRING_AGG';
 STRING_ESCAPE                               : 'STRING_ESCAPE';
+// STRING_SPLIT                                : 'STRING_SPLIT';
 STUFF                                       : 'STUFF';
 SUBJECT                                     : 'SUBJECT';
 SUBSCRIBE                                   : 'SUBSCRIBE';
@@ -1289,4 +1291,6 @@ fragment FullWidthLetter options {
     | '\ua000' ..'\ud7ff'
     | '\uf900' ..'\ufaff'
     | '\uff00' ..'\ufff0'
-; // | '\u20000'..'\u2FA1F'
+    // | '\u10000'..'\u1F9FF'  //not support four bytes chars
+    // | '\u20000'..'\u2FA1F'
+;

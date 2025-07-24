@@ -137,6 +137,18 @@ namespace Tests
             Assert.That(expectedSet.Count, Is.EqualTo(0), $"not all values were found in the expected set: {expectedSet} missing");
         }
 
+        public static void StringColumnMatchesSet(ResultSet rs, int columnIndex, ISet<string> expectedSet)
+        {
+            for (int i = 0; i < rs.RowCount; i++)
+            {
+                string val = rs.Row(i)[columnIndex].AsString();
+                if (!expectedSet.Remove(val))
+                    Assert.Fail($"unexpected value {val} returned");
+            }
+
+            Assert.That(expectedSet.Count, Is.EqualTo(0), $"not all values were found in the expected set: {expectedSet} missing");
+        }
+
         public static void FailureWithMessage(ExecuteResult er)
         {
             Assert.That(er.ExecuteStatus, Is.EqualTo(ExecuteStatus.FAILED));

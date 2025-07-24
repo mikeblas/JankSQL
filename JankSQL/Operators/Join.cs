@@ -95,7 +95,7 @@
             return BindResult.Success();
         }
 
-        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues)
+        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, IDictionary<string, ExpressionOperand> bindValues)
         {
             if (outputSet is null)
                 outputSet = ProduceOutputSet(engine, outerAccessor, bindValues);
@@ -146,19 +146,19 @@
             return allColumnNames;
         }
 
-        protected bool FillLeftRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues)
+        protected bool FillLeftRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, IDictionary<string, ExpressionOperand> bindValues)
         {
             leftRows = LeftInput.GetRows(engine, outerAccessor, max, bindValues);
             return leftRows != null && leftRows.RowCount > 0;
         }
 
-        protected bool FillRightRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues)
+        protected bool FillRightRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, IDictionary<string, ExpressionOperand> bindValues)
         {
             rightRows = RightInput.GetRows(engine, outerAccessor, max, bindValues);
             return rightRows != null && rightRows.RowCount > 0;
         }
 
-        protected ResultSet ProduceOutputSet(Engines.IEngine engine, IRowValueAccessor? outerAccessor, Dictionary<string, ExpressionOperand> bindValues)
+        protected ResultSet ProduceOutputSet(Engines.IEngine engine, IRowValueAccessor? outerAccessor, IDictionary<string, ExpressionOperand> bindValues)
         {
             const int max = 7;
 

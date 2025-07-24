@@ -69,7 +69,7 @@
 
         internal override int ExpectedParameters => 2;
 
-        internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
+        internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, IDictionary<string, ExpressionOperand> bindValues)
         {
             ExpressionOperand dateRight = stack.Pop();
             ExpressionOperand dateLeft = stack.Pop();

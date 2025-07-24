@@ -73,6 +73,29 @@
 
 
         [Test]
+        public void TestSelectDotStarAlias()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT X.* FROM [mytable] AS [X];");
+            JankAssert.SuccessfulParse(ec);
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 4, 3);
+            result.ResultSet.Dump();
+        }
+
+
+        [Test]
+        public void TestSelectStarAlias()
+        {
+            var ec = Parser.ParseSQLFileFromString("SELECT * FROM [mytable] AS [X];");
+            JankAssert.SuccessfulParse(ec);
+
+            ExecuteResult result = ec.ExecuteSingle(engine);
+            JankAssert.RowsetExistsWithShape(result, 4, 3);
+            result.ResultSet.Dump();
+        }
+
+        [Test]
         public void TestFailSelectBadTableName()
         {
             var ec = Parser.ParseSQLFileFromString("SELECT * FROM [BadTableName];");

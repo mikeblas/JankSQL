@@ -20,7 +20,7 @@
             return BindResult.Success();
         }
 
-        public ExecuteResult Execute(IEngine engine, IRowValueAccessor? accessor, Dictionary<string, ExpressionOperand> bindValues)
+        public ExecuteResult Execute(IEngine engine, IRowValueAccessor? accessor, IDictionary<string, ExpressionOperand> bindValues)
         {
             engine.Commit();
 

@@ -43,7 +43,7 @@
         }
 
 
-        public ExecuteResult Execute(Engines.IEngine engine, IRowValueAccessor? accessor, Dictionary<string, ExpressionOperand> bindValues)
+        public ExecuteResult Execute(Engines.IEngine engine, IRowValueAccessor? accessor, IDictionary<string, ExpressionOperand> bindValues)
         {
             if (constructors == null)
                 throw new InternalErrorException("Expected a list of constructors");

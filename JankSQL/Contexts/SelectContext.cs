@@ -45,6 +45,8 @@
 
         internal SelectContext? InputContext { get; set; }
 
+        internal IOperatorOutput ComputedSource { get; set; }
+
         public object Clone()
         {
             SelectContext clone = new (statementContext, predicateContext);
@@ -53,6 +55,7 @@
             clone.OrderByContext = OrderByContext != null ? (OrderByContext)OrderByContext.Clone() : null;
             clone.SourceTableName = SourceTableName;
             clone.DerivedTableAlias = DerivedTableAlias;
+            clone.ComputedSource = ComputedSource;
 
             clone.groupByExpressions.AddRange(groupByExpressions);
             foreach (var aggregate in aggregateContexts)
@@ -76,7 +79,7 @@
             return selectOperator.Bind(engine, outerColumnNames, bindValues);
         }
 
-        public ExecuteResult Execute(Engines.IEngine engine, IRowValueAccessor? outerAccessor, Dictionary<string, ExpressionOperand> bindValues)
+        public ExecuteResult Execute(Engines.IEngine engine, IRowValueAccessor? outerAccessor, IDictionary<string, ExpressionOperand> bindValues)
         {
             ResultSet? resultSet = null;
 
@@ -152,8 +155,17 @@
 
             if (SourceTableName == null && InputContext == null)
             {
-                // no inputs -- it's just the "dual" source
-                lastLeftOutput = new TableSource(new Engines.DualSource());
+                // some computed source?
+                if (ComputedSource != null)
+                {
+                    // but must be bound?
+                    lastLeftOutput = ComputedSource;
+                }
+                else
+                {
+                    // no inputs -- it's just the "dual" source
+                    lastLeftOutput = new TableSource(new Engines.DualSource());
+                }
             }
             else
             {

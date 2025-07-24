@@ -72,7 +72,7 @@
             return br;
         }
 
-        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues)
+        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, IDictionary<string, ExpressionOperand> bindValues)
         {
             if (outputExhausted)
             {
@@ -201,7 +201,7 @@
                 outputNames.Add(FullColumnName.FromColumnName(expressionName));
         }
 
-        protected void ReadInput(Engines.IEngine engine, IRowValueAccessor? outerAccessor, Dictionary<string, ExpressionOperand> bindValues)
+        protected void ReadInput(Engines.IEngine engine, IRowValueAccessor? outerAccessor, IDictionary<string, ExpressionOperand> bindValues)
         {
             while (!inputExhausted)
             {
@@ -242,7 +242,7 @@
             }
         }
 
-        protected Tuple EvaluateGroupByKey(IRowValueAccessor accessor, Engines.IEngine engine, Dictionary<string, ExpressionOperand> bindValues)
+        protected Tuple EvaluateGroupByKey(IRowValueAccessor accessor, Engines.IEngine engine, IDictionary<string, ExpressionOperand> bindValues)
         {
             // this key is used as an identity for non-grouped expressions
             if (groupByExpressions == null || groupByExpressions.Count == 0)

@@ -16,7 +16,7 @@ namespace JankSQL.Expressions
             return $"BindValue({targetName}";
         }
 
-        internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
+        internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, IDictionary<string, ExpressionOperand> bindValues)
         {
             if (!bindValues.TryGetValue(targetName, out bindValue))
                 throw new SemanticErrorException($"Bind target {targetName} was not bound");

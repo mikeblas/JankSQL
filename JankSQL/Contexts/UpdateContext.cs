@@ -75,7 +75,7 @@
         }
 
 
-        public ExecuteResult Execute(IEngine engine, IRowValueAccessor? outerAccessor, Dictionary<string, ExpressionOperand> bindValues)
+        public ExecuteResult Execute(IEngine engine, IRowValueAccessor? outerAccessor, IDictionary<string, ExpressionOperand> bindValues)
         {
             if (updateOperator == null)
                 throw new InternalErrorException("UpdateOperator was not bound");

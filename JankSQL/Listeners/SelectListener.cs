@@ -2,7 +2,7 @@
 {
     using Antlr4.Runtime.Misc;
     using JankSQL.Contexts;
-    using JankSQL.Expressions;
+    using JankSQL.Operators;
 
     public partial class JankListener : TSqlParserBaseListener
     {
@@ -106,7 +106,7 @@
             // figure out sources
             if (context.query_expression().query_specification().table_sources() == null)
             {
-                // no table source, so it's just from the "DUAL" table
+                // no table source at all, so it's just from the "DUAL" table
             }
             else
             {
@@ -127,16 +127,117 @@
                 }
                 else
                 {
-                    // FROM table ...
-                    FullTableName ftn = FullTableName.FromFullTableNameContext(currentTSIJ.table_source_item().full_table_name());
-                    FullTableName? ftnAlias = FullTableName.FromTableAliasContext(currentTSIJ.table_source_item().as_table_alias());
-                    Console.WriteLine($"FROM: {ftn} AS {(ftnAlias == null ? "no alias" : ftnAlias)}");
-                    leftSource = ftn.ToString();
+                    // see https://github.com/antlr/grammars-v4/issues/4551
 
-                    selectContext.SourceTableName ??= ftn;
+                    if (currentTSIJ.table_source_item().function_call() != null)
+                    {
+                        var fc = currentTSIJ.table_source_item().function_call();
+                        Console.WriteLine("FROM: function call!");
 
-                    if (ftnAlias != null)
-                        selectContext.DerivedTableAlias = ftnAlias.TableNameOnly;
+                        if (fc is TSqlParser.SCALAR_FUNCTIONContext scalarFunctionContext)
+                        {
+                            // this is a function call to a user-defined function. UDFs are not supported yet.
+                            // despite the name, SCALAR_FUNCTION seems to also be used for table-value functions.
+                            // we also end up here for built-in functions like GENERATE_SERIES.
+                            // Similar concerns in GobbleExpressionImpl().
+                            string functionName = scalarFunctionContext.scalar_function_name().func_proc_name_server_database_schema().func_proc_name_database_schema().func_proc_name_schema().procedure.GetText();
+
+                            FullTableName? ftnAlias = FullTableName.FromTableAliasContext(currentTSIJ.table_source_item().as_table_alias());
+
+                            if (functionName.Equals("GENERATE_SERIES", StringComparison.OrdinalIgnoreCase))
+                            {
+                                TSqlParser.Expression_list_Context exprContext = fc.GetChild(2) as TSqlParser.Expression_list_Context;
+                                if (exprContext == null)
+                                    throw new InternalErrorException("Arguments were not expressions");
+                                Console.WriteLine("Got it!");
+                                Expression startExpression = GobbleExpression(exprContext._exp[0]);
+                                Expression stopExpression = GobbleExpression(exprContext._exp[1]);
+                                if (exprContext._exp.Count == 3)
+                                {
+                                    Expression? stepExpression = GobbleExpression(exprContext._exp[2]);
+                                    selectContext.ComputedSource = new GeneratedSeriesRowSource(ftnAlias?.TableNameOnly, startExpression, stopExpression, stepExpression);
+                                }
+                                else
+                                {
+                                    selectContext.ComputedSource = new GeneratedSeriesRowSource(ftnAlias?.TableNameOnly, startExpression, stopExpression);
+                                }
+
+                                Console.WriteLine($"FROM: generate_series({startExpression}, {stopExpression}) AS {(ftnAlias == null ? "no alias" : ftnAlias)}");
+                                Console.WriteLine($"FROM: generate_series({startExpression}, {stopExpression})");
+
+                                leftSource = "generate_series";
+                            }
+                            else if (functionName.Equals("STRING_SPLIT", StringComparison.OrdinalIgnoreCase))
+                            {
+                                TSqlParser.Expression_list_Context exprContext = fc.GetChild(2) as TSqlParser.Expression_list_Context;
+                                if (exprContext == null)
+                                    throw new InternalErrorException("Arguments were not expressions");
+                                Console.WriteLine("Got it!");
+                                Expression stringExpression = GobbleExpression(exprContext._exp[0]);
+                                Expression separatorExpression = GobbleExpression(exprContext._exp[1]);
+                                if (exprContext._exp.Count == 3)
+                                {
+                                    Expression? enableOrdinalExpression = GobbleExpression(exprContext._exp[2]);
+                                    selectContext.ComputedSource = new StringSplitRowSource(ftnAlias?.TableNameOnly, stringExpression, separatorExpression, enableOrdinalExpression);
+                                }
+                                else
+                                {
+                                    selectContext.ComputedSource = new StringSplitRowSource(ftnAlias?.TableNameOnly, stringExpression, separatorExpression);
+                                }
+
+                                Console.WriteLine($"FROM: split_string({stringExpression}, {separatorExpression}) AS {(ftnAlias == null ? "no alias" : ftnAlias)}");
+                                Console.WriteLine($"FROM: split_string({stringExpression}, {separatorExpression})");
+
+                                leftSource = "split_string";
+                            }
+                            else
+                            {
+                                throw new NotImplementedException($"function [{functionName}] not implemented");
+                            }
+                        }
+                    }
+                    else if (currentTSIJ.table_source_item().open_xml() != null)
+                    {
+                        throw new NotImplementedException("OPENXML is not supported");
+                    }
+                    /*
+                    // FROM a series?
+                    else if (currentTSIJ.table_source_item().generate_series() != null)
+                    {
+                        Expression lowExpression = GobbleExpression(currentTSIJ.table_source_item().generate_series().expression()[0]);
+                        Expression highExpression = GobbleExpression(currentTSIJ.table_source_item().generate_series().expression()[1]);
+                        if (currentTSIJ.table_source_item().generate_series().expression().Length == 3)
+                        {
+                            Expression? stepExpression = GobbleExpression(currentTSIJ.table_source_item().generate_series().expression()[2]);
+                            selectContext.ComputedSource = new GeneratedSeriesRowSource(lowExpression, highExpression, stepExpression);
+                        }
+                        else
+                        {
+                            selectContext.ComputedSource = new GeneratedSeriesRowSource(lowExpression, highExpression);
+                        }
+
+                        FullTableName? ftnAlias = FullTableName.FromTableAliasContext(currentTSIJ.table_source_item().generate_series().as_table_alias());
+
+                        Console.WriteLine($"FROM: generate_series({lowExpression}, {highExpression}) AS {(ftnAlias == null ? "no alias" : ftnAlias)}");
+
+                        leftSource = "generate_series";
+
+                        // selectContext.InputContext = new 
+                    }
+                    */
+                    else
+                    {
+                        // FROM table ...(currentTSIJ.table_source_item().full_table_name()
+                        FullTableName ftn = FullTableName.FromFullTableNameContext(currentTSIJ.table_source_item().full_table_name());
+                        FullTableName? ftnAlias = FullTableName.FromTableAliasContext(currentTSIJ.table_source_item().as_table_alias());
+                        Console.WriteLine($"FROM: {ftn} AS {(ftnAlias == null ? "no alias" : ftnAlias)}");
+                        leftSource = ftn.ToString();
+
+                        selectContext.SourceTableName ??= ftn;
+
+                        if (ftnAlias != null)
+                            selectContext.DerivedTableAlias = ftnAlias.TableNameOnly;
+                    }
                 }
 
 
