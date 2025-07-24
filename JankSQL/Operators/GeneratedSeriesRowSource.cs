@@ -5,14 +5,14 @@
 
     internal class GeneratedSeriesRowSource : IOperatorOutput
     {
-        private readonly IList<FullColumnName> columnNames;
+        private readonly List<FullColumnName> columnNames;
 
         private readonly string? alias;
 
         private readonly Expression start;
-        private ExpressionOperand startValue;
+        private ExpressionOperand? startValue;
         private readonly Expression end;
-        private ExpressionOperand endValue;
+        private ExpressionOperand? endValue;
         private readonly Expression? step = null;
         private ExpressionOperand? stepValue = null;
         private int computedStepValue = 1;
@@ -29,7 +29,7 @@
             this.start = start;
             this.end = end;
             this.alias = alias;
-            
+
             needsRewind = true;
 
             columnNames = new List<FullColumnName>();
@@ -109,7 +109,6 @@
                 }
             }
 
-            //REVIEW: t isn't used here, so paging isn't working as expected
             int t = 0;
             while (t < max && ((!descending && endValue.AsInteger() >= currentValue) || (descending && endValue.AsInteger() <= currentValue)))
             {
@@ -125,6 +124,8 @@
                     currentValue += stepValue.AsInteger();
                 else
                     currentValue += computedStepValue;
+
+                t++;
             }
 
             return resultSet;

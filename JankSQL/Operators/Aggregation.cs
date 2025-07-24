@@ -63,6 +63,10 @@
         public FullColumnName[] GetOutputColumnNames()
         {
             BuildOutputColumnNames();
+
+            if (outputNames == null)
+                throw new ExecutionException("Aggregation not yet bound, so it has no outputs");
+
             return outputNames.ToArray();
         }
 
@@ -74,6 +78,9 @@
 
         public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, IDictionary<string, ExpressionOperand> bindValues)
         {
+            if (outputNames == null)
+                throw new ExecutionException("Aggregation not yet bound, so it has no outputs");
+
             if (outputExhausted)
             {
                 ResultSet endSet = new (outputNames);
@@ -266,4 +273,3 @@
 
     }
 }
-

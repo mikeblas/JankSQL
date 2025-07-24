@@ -31,6 +31,9 @@
 
         public FullColumnName[] GetOutputColumnNames()
         {
+            if (effectiveColumns == null)
+                throw new ExecutionException("Select operator has not been bound yet, so it has no effective columns.");
+
             return effectiveColumns.ToArray();
         }
 
@@ -74,7 +77,7 @@
 
                             // check scoped table name ...
                             // InvariantCultureIgnoreCase here so that identifiers can be localized
-                            if (tableName != null && !tableName.TableNameOnly.Equals(fcn.TableNameOnly, StringComparison.InvariantCultureIgnoreCase))
+                            if (tableName?.TableNameOnly.Equals(fcn.TableNameOnly, StringComparison.InvariantCultureIgnoreCase) == false)
                             {
                                 Console.WriteLine($"Skipping {tableName.TableNameOnly} != {fcn.TableNameOnly}");
                                 continue;
@@ -111,6 +114,9 @@
 
         public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, IDictionary<string, ExpressionOperand> bindValues)
         {
+            if (effectiveColumns == null)
+                throw new ExecutionException("Select operator has not been bound yet, so it has no effective columns.");
+
             ResultSet rsInput = myInput.GetRows(engine, outerAccessor, max, bindValues);
 
             ResultSet rsOutput = new (effectiveColumns);

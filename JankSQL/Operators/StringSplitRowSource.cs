@@ -9,9 +9,9 @@
         private readonly string? alias;
 
         private readonly Expression stringExpression;
-        private ExpressionOperand stringValue;
+        private ExpressionOperand? stringValue;
         private readonly Expression separator;
-        private ExpressionOperand separatorValue;
+        private ExpressionOperand? separatorValue;
         private readonly Expression? ordinal = null;
         private ExpressionOperand? ordinalValue = null;
 
@@ -113,9 +113,6 @@
                 else
                     match = stringValue.AsString().Substring(currentPosition, temp  - currentPosition);
 
-
-                // YOU WERE HERE AT LANDING
-
                 generatedValues[0] = ExpressionOperand.VARCHARFromString(match);
                 if (generateOrdinal)
                     generatedValues[1] = ExpressionOperand.IntegerFromInt(nextOrdinal);
@@ -128,6 +125,8 @@
                     currentPosition = temp + 1;
                 else
                     currentPosition = temp;
+
+                t++;
             }
 
             return resultSet;

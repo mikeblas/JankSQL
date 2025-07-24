@@ -146,8 +146,7 @@
 
                             if (functionName.Equals("GENERATE_SERIES", StringComparison.OrdinalIgnoreCase))
                             {
-                                TSqlParser.Expression_list_Context exprContext = fc.GetChild(2) as TSqlParser.Expression_list_Context;
-                                if (exprContext == null)
+                                if (fc.GetChild(2) is not TSqlParser.Expression_list_Context exprContext)
                                     throw new InternalErrorException("Arguments were not expressions");
                                 Console.WriteLine("Got it!");
                                 Expression startExpression = GobbleExpression(exprContext._exp[0]);
@@ -162,15 +161,14 @@
                                     selectContext.ComputedSource = new GeneratedSeriesRowSource(ftnAlias?.TableNameOnly, startExpression, stopExpression);
                                 }
 
-                                Console.WriteLine($"FROM: generate_series({startExpression}, {stopExpression}) AS {(ftnAlias == null ? "no alias" : ftnAlias)}");
+                                Console.WriteLine($"FROM: generate_series({startExpression}, {stopExpression}) AS {(object?)ftnAlias ?? "no alias"}");
                                 Console.WriteLine($"FROM: generate_series({startExpression}, {stopExpression})");
 
                                 leftSource = "generate_series";
                             }
                             else if (functionName.Equals("STRING_SPLIT", StringComparison.OrdinalIgnoreCase))
                             {
-                                TSqlParser.Expression_list_Context exprContext = fc.GetChild(2) as TSqlParser.Expression_list_Context;
-                                if (exprContext == null)
+                                if (fc.GetChild(2) is not TSqlParser.Expression_list_Context exprContext)
                                     throw new InternalErrorException("Arguments were not expressions");
                                 Console.WriteLine("Got it!");
                                 Expression stringExpression = GobbleExpression(exprContext._exp[0]);
@@ -185,7 +183,7 @@
                                     selectContext.ComputedSource = new StringSplitRowSource(ftnAlias?.TableNameOnly, stringExpression, separatorExpression);
                                 }
 
-                                Console.WriteLine($"FROM: split_string({stringExpression}, {separatorExpression}) AS {(ftnAlias == null ? "no alias" : ftnAlias)}");
+                                Console.WriteLine($"FROM: split_string({stringExpression}, {separatorExpression}) AS {(object?)ftnAlias ?? "no alias"}");
                                 Console.WriteLine($"FROM: split_string({stringExpression}, {separatorExpression})");
 
                                 leftSource = "split_string";
@@ -230,7 +228,7 @@
                         // FROM table ...(currentTSIJ.table_source_item().full_table_name()
                         FullTableName ftn = FullTableName.FromFullTableNameContext(currentTSIJ.table_source_item().full_table_name());
                         FullTableName? ftnAlias = FullTableName.FromTableAliasContext(currentTSIJ.table_source_item().as_table_alias());
-                        Console.WriteLine($"FROM: {ftn} AS {(ftnAlias == null ? "no alias" : ftnAlias)}");
+                        Console.WriteLine($"FROM: {ftn} AS {(object?)ftnAlias ?? "no alias"}");
                         leftSource = ftn.ToString();
 
                         selectContext.SourceTableName ??= ftn;

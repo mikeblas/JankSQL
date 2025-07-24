@@ -12,7 +12,7 @@ namespace Tests
             if (executeResult.ResultSet == null)
                 throw new AssertionException($"expected a non-null result set. Error message was {executeResult.ErrorMessage}");
 
-            List<string> messages = new ();
+            List<string> messages = [];
 
             if (executeResult.ResultSet.ColumnCount != expectedColumns)
                 messages.Add($"expected {expectedColumns} columns, found {executeResult.ResultSet.ColumnCount}");
