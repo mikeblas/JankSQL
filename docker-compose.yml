@@ -1,0 +1,19 @@
+services:
+  janksql:
+    build: .
+    volumes:
+      # Mount a volume for persistent data storage
+      - janksql_data:/data
+    stdin_open: true
+    tty: true
+
+  # Service for running tests
+  janksql-test:
+    build: .
+    container_name: janksql-test
+    entrypoint: ["dotnet", "test", "/app/Tests/Tests.csproj", "-c", "Release"]
+    volumes:
+      - .:/app/source:ro
+
+volumes:
+  janksql_data:

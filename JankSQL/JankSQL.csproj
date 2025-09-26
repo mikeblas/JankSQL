@@ -30,9 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="CSharpTest.Net.Collections">
-      <HintPath>..\..\CSharpTest.Net.Collections\src\CSharpTest.Net.Collections\bin\net6.0\CSharpTest.Net.Collections.dll</HintPath>
-    </Reference>
+    <PackageReference Include="CSharpTest.Net.Collections" Version="14.906.1403.1082" />
   </ItemGroup>
 
 </Project>

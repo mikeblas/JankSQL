@@ -1,0 +1,40 @@
+# Git
+.git
+.gitignore
+
+# Build outputs
+**/bin/
+**/obj/
+**/out/
+
+# Test results
+TestResults/
+*.trx
+*.coverage
+
+# IDE files
+.vs/
+.vscode/
+*.user
+*.suo
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+
+# Documentation (not needed in container)
+docs/
+README.md
+*.md
+
+# Local data directories
+data/
+*.db
+*.sqlite
+
+# Logs
+*.log
