@@ -1,3 +1,7 @@
+Parsing/TSqlLexer.interp
+Parsing/TSqlLexer.tokens
+Parsing/TSqlParser.interp
+Parsing/TSqlParser.tokens
 
 ## due to takekazuomi: https://gist.github.com/takekazuomi/10955889
 
