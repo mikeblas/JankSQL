@@ -15,21 +15,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Antlr4 Include="TSqlLexer.g4">
-      <AntlrToolJar>C:\antlr\antlr-4.12.0-complete.jar</AntlrToolJar>
-      <JavaExec>C:\Program Files\Common Files\Oracle\Java\javapath\java.exe</JavaExec>
-      <Visitor>False</Visitor>
-    </Antlr4>
-    <Antlr4 Include="TSqlParser.g4">
-      <AntlrToolJar>C:\antlr\antlr-4.12.0-complete.jar</AntlrToolJar>
-      <JavaExec>C:\Program Files\Common Files\Oracle\Java\javapath\java.exe</JavaExec>
-      <Visitor>False</Visitor>
-    </Antlr4>
+    <Antlr4 Include="TSqlLexer.g4" />
+    <Antlr4 Include="TSqlParser.g4" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Antlr4.Runtime.Standard" Version="4.12.0" />
-    <PackageReference Include="Antlr4BuildTasks" Version="12.2.0" PrivateAssets="all" />
+    <PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1" />
+    <PackageReference Include="Antlr4BuildTasks" Version="12.10.0" PrivateAssets="all" />
   </ItemGroup>
-
+	
 </Project>
