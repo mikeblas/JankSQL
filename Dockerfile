@@ -1,7 +1,9 @@
-# Clean Dockerfile without ANTLR complexity
-# Prerequisites: Run `antlr -Dlanguage=CSharp -listener -no-visitor TSqlLexer.g4 TSqlParser.g4` in Parsing/ directory
+# Dockerfile with automatic ANTLR code generation via Antlr4BuildTasks
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+
+# Install Java for Antlr4BuildTasks
+RUN apt-get update && apt-get install -y openjdk-17-jre-headless && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 

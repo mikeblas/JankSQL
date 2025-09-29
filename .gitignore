@@ -147,3 +147,9 @@ _NCrunch*
 .vs/
 
 Parsing/.antlr
+
+# Auto-generated Antlr4 C# files
+Parsing/TSqlLexer.cs
+Parsing/TSqlParser.cs
+Parsing/TSqlParserBaseListener.cs
+Parsing/TSqlParserListener.cs
