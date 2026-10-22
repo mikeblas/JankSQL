@@ -1,6 +1,6 @@
 # Dockerfile with automatic ANTLR code generation via Antlr4BuildTasks
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 
 # Install Java for Antlr4BuildTasks
 RUN apt-get update && apt-get install -y openjdk-17-jre-headless && rm -rf /var/lib/apt/lists/*
@@ -28,13 +28,13 @@ RUN dotnet build JankSQL.sln -c Release --no-restore
 # RUN dotnet test Tests/Tests.csproj -c Release --no-build --verbosity minimal
 
 # Create runtime image
-FROM mcr.microsoft.com/dotnet/runtime:8.0 AS runtime
+FROM mcr.microsoft.com/dotnet/runtime:10.0 AS runtime
 
 WORKDIR /app
 
 # Copy built applications from build stage
-COPY --from=build /app/JankSQL/bin/Release/net8.0 ./JankSQL
-COPY --from=build /app/JankSh/bin/Release/net8.0 ./JankSh
+COPY --from=build /app/JankSQL/bin/Release/net10.0 ./JankSQL
+COPY --from=build /app/JankSh/bin/Release/net10.0 ./JankSh
 
 # Create directories for data persistence
 RUN mkdir -p /data/btree

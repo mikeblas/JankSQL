@@ -42,7 +42,7 @@ The project uses [Roslynator](https://josefpihrt.github.io/docs/roslynator/) for
 
 # Setup 
 
-This project uses .Net 8.0 and therefore requires Visual Studio 2022.
+This project uses .NET 10 and therefore requires Visual Studio 2026 (or the .NET 10 SDK).
 
 After that, the project has just two prerequisites: the Antlr tool and the external T-SQL grammar for Antlr.
 
