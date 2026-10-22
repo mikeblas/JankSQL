@@ -314,8 +314,7 @@
 
         public int CompareTo(ExpressionOperandDateTime? other)
         {
-            if (other == null)
-                throw new ArgumentNullException(nameof(other));
+            ArgumentNullException.ThrowIfNull(other);
 
             if (isNull && other.isNull)
                 return 0;
@@ -330,8 +329,7 @@
 
         public override int CompareTo(ExpressionOperand? other)
         {
-            if (other == null)
-                throw new ArgumentNullException(nameof(other));
+            ArgumentNullException.ThrowIfNull(other);
             ExpressionOperandInteger o = (ExpressionOperandInteger)other;
 
             return CompareTo(o);
@@ -359,7 +357,7 @@
         internal static ExpressionOperandDateTime FromByteStream(Stream stream)
         {
             byte[] rep = new byte[8];
-            stream.Read(rep, 0, rep.Length);
+            stream.ReadExactly(rep);
 
             long ticks = BitConverter.ToInt64(rep, 0);
             return new ExpressionOperandDateTime(new DateTime(ticks, DateTimeKind.Utc));
@@ -375,4 +373,3 @@
         }
     }
 }
-
