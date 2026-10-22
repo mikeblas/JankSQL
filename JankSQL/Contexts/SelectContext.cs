@@ -45,14 +45,18 @@
 
         internal SelectContext? InputContext { get; set; }
 
+        internal IOperatorOutput? ComputedSource { get; set; }
+
         public object Clone()
         {
-            SelectContext clone = new (statementContext, predicateContext);
-
-            clone.InputContext = InputContext != null ? (SelectContext)InputContext.Clone() : null;
-            clone.OrderByContext = OrderByContext != null ? (OrderByContext)OrderByContext.Clone() : null;
-            clone.SourceTableName = SourceTableName;
-            clone.DerivedTableAlias = DerivedTableAlias;
+            SelectContext clone = new(statementContext, predicateContext)
+            {
+                InputContext = InputContext != null ? (SelectContext)InputContext.Clone() : null,
+                OrderByContext = OrderByContext != null ? (OrderByContext)OrderByContext.Clone() : null,
+                SourceTableName = SourceTableName,
+                DerivedTableAlias = DerivedTableAlias,
+                ComputedSource = ComputedSource
+            };
 
             clone.groupByExpressions.AddRange(groupByExpressions);
             foreach (var aggregate in aggregateContexts)
@@ -76,15 +80,17 @@
             return selectOperator.Bind(engine, outerColumnNames, bindValues);
         }
 
-        public ExecuteResult Execute(Engines.IEngine engine, IRowValueAccessor? outerAccessor, Dictionary<string, ExpressionOperand> bindValues)
+        public ExecuteResult Execute(Engines.IEngine engine, IRowValueAccessor? outerAccessor, IDictionary<string, ExpressionOperand> bindValues)
         {
             ResultSet? resultSet = null;
+
+            if (selectOperator == null)
+                throw new InternalErrorException("Select operator is not bound");
 
             while (true)
             {
                 ResultSet batch = selectOperator.GetRows(engine, outerAccessor, 5, bindValues);
-                if (resultSet == null)
-                    resultSet = ResultSet.NewWithShape(batch);
+                resultSet ??= ResultSet.NewWithShape(batch);
 
                 if (batch.IsEOF)
                     break;
@@ -152,8 +158,17 @@
 
             if (SourceTableName == null && InputContext == null)
             {
-                // no inputs -- it's just the "dual" source
-                lastLeftOutput = new TableSource(new Engines.DualSource());
+                // some computed source?
+                if (ComputedSource != null)
+                {
+                    // but must be bound?
+                    lastLeftOutput = ComputedSource;
+                }
+                else
+                {
+                    // no inputs -- it's just the "dual" source
+                    lastLeftOutput = new TableSource(new Engines.DualSource());
+                }
             }
             else
             {
@@ -166,9 +181,8 @@
                     if (SourceTableName == null)
                         throw new InternalErrorException("Expected valid SourceTableName");
 
-                    Engines.IEngineTable? engineSource = engine.GetEngineTable(SourceTableName);
-                    if (engineSource == null)
-                        throw new ExecutionException($"Table {SourceTableName} does not exist");
+                    Engines.IEngineTable? engineSource = engine.GetEngineTable(SourceTableName)
+                        ?? throw new ExecutionException($"Table {SourceTableName} does not exist");
 
                     // found the source table, so hook it up
                     lastLeftOutput = new TableSource(engineSource, DerivedTableAlias);
@@ -192,10 +206,8 @@
                     else if (j.OtherTableName != null)
                     {
                         // find the other table
-                        Engines.IEngineTable? otherTableSource = engine.GetEngineTable(j.OtherTableName);
-                        if (otherTableSource == null)
-                            throw new ExecutionException($"Joined table {j.OtherTableName} does not exist");
-
+                        Engines.IEngineTable? otherTableSource = engine.GetEngineTable(j.OtherTableName)
+                            ?? throw new ExecutionException($"Joined table {j.OtherTableName} does not exist");
                         joinSource = new TableSource(otherTableSource);
 
                         AccumulateTableNames(j.OtherTableName, j.DerivedTableAlias);
@@ -213,7 +225,7 @@
             }
 
             // now the filter, if needed
-            if (predicateContext != null && predicateContext.PredicateExpressionListCount > 0)
+            if (predicateContext?.PredicateExpressionListCount > 0)
             {
                 Filter filter = new (lastLeftOutput, predicateContext.PredicateExpressions);
                 lastLeftOutput = filter;
@@ -322,5 +334,3 @@
         }
     }
 }
-
-

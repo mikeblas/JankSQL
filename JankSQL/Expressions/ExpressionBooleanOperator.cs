@@ -37,7 +37,7 @@ namespace JankSQL.Expressions
             return new ExpressionBooleanOperator(BooleanOperatorType.NOT);
         }
 
-        internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
+        internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, IDictionary<string, ExpressionOperand> bindValues)
         {
             bool result = true;
 

@@ -49,7 +49,7 @@
         }
 
 
-        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues)
+        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, IDictionary<string, ExpressionOperand> bindValues)
         {
             ResultSet rsInput = Input.GetRows(engine, outerAccessor, max, bindValues);
             ResultSet rsOutput = ResultSet.NewWithShape(rsInput);

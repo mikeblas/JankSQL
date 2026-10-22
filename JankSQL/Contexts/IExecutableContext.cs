@@ -22,7 +22,7 @@
         /// <param name="engine">IEngine which provides storage and enumeration capabilities.</param>
         /// <param name="accessor">an optional IRowValueAccessor that gives a supplemental binding context for evaluations in this execution.</param>
         /// <returns>An ExecuteResult indicating the outcome.</returns>
-        ExecuteResult Execute(Engines.IEngine engine, IRowValueAccessor? accessor, Dictionary<string, ExpressionOperand> bindValues);
+        ExecuteResult Execute(Engines.IEngine engine, IRowValueAccessor? accessor, IDictionary<string, ExpressionOperand> bindValues);
 
 
         BindResult Bind(Engines.IEngine engine, IList<FullColumnName> outerColumnNames, IDictionary<string, ExpressionOperand> bindValues);

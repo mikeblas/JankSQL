@@ -11,7 +11,7 @@
 
         internal override int ExpectedParameters => 1;
 
-        internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
+        internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, IDictionary<string, ExpressionOperand> bindValues)
         {
             ExpressionOperand result;
             ExpressionOperand op1 = stack.Pop();

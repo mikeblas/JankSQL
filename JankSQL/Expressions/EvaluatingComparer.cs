@@ -6,12 +6,12 @@
         private readonly bool[] isAscending;
         private readonly FullColumnName[] columnNames;
         private readonly Engines.IEngine engine;
-        private readonly Dictionary<string, ExpressionOperand> bindValues;
+        private readonly IDictionary<string, ExpressionOperand> bindValues;
 
         private int keyComparisons = 0;
         private int rowComparisons = 0;
 
-        internal EvaluatingComparer(Engines.IEngine engine, Expression[] keyExpressions, bool[] isAscending, IEnumerable<FullColumnName> columnNames, Dictionary<string, ExpressionOperand> bindValues)
+        internal EvaluatingComparer(Engines.IEngine engine, Expression[] keyExpressions, bool[] isAscending, IEnumerable<FullColumnName> columnNames, IDictionary<string, ExpressionOperand> bindValues)
         {
             this.keyExpressions = keyExpressions;
             this.isAscending = isAscending;

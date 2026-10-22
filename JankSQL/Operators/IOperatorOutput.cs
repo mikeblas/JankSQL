@@ -18,7 +18,7 @@
         /// <param name="engine">object implementing the IEngines.Engine interface against which this object will run.</param>
         /// <param name="max">integer indicating the maximum number of rows to produce.</param>
         /// <returns>ResultSet with those rows, or null if no more data is available.</returns>
-        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, Dictionary<string, ExpressionOperand> bindValues);
+        public ResultSet GetRows(Engines.IEngine engine, IRowValueAccessor? outerAccessor, int max, IDictionary<string, ExpressionOperand> bindValues);
 
         public FullColumnName[] GetOutputColumnNames();
 

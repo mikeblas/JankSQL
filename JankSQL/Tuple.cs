@@ -1,8 +1,10 @@
 ﻿namespace JankSQL
 {
     using System.Collections;
-    using JankSQL.Expressions;
 
+    /// <summary>
+    /// A tuple is a row: a set of expression values that are bundled together.
+    /// </summary>
     public class Tuple : IEnumerable<ExpressionOperand>, IEnumerable
     {
         private ExpressionOperand[] values;
@@ -12,9 +14,9 @@
             values = Array.Empty<ExpressionOperand>();
         }
 
-        protected Tuple(int count)
+        protected Tuple(int columnCount)
         {
-            values = new ExpressionOperand[count];
+            values = new ExpressionOperand[columnCount];
         }
 
         public ExpressionOperand[] Values
@@ -32,12 +34,22 @@
             get { return values.Length; }
         }
 
+        
+        /// <summary>
+        /// Access the expression value from the ith column
+        /// </summary>
+        /// <param name="i">column ordinal to retrieve</param>
+        /// <returns>ExpressionOperand with that value</returns>
         public ExpressionOperand this[int i]
         {
             get { return values[i]; }
             set { values[i] = value; }
         }
 
+        /// <summary>
+        /// Add an expression value to the end of this tuple
+        /// </summary>
+        /// <param name="x">value to be added</param>
         public void Add(ExpressionOperand x)
         {
             ExpressionOperand[] n = new ExpressionOperand[values.Length + 1];

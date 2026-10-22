@@ -26,7 +26,7 @@
             return "IN Operator";
         }
 
-        internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
+        internal override void Evaluate(Engines.IEngine engine, IRowValueAccessor? accessor, Stack<ExpressionOperand> stack, IDictionary<string, ExpressionOperand> bindValues)
         {
             if (outerBindableColumns == null)
                 throw new InternalErrorException("ExpressionInOperator was not bound before evaluation");
@@ -44,7 +44,7 @@
             stack.Push(r);
         }
 
-        protected bool EvaluateTargets(Engines.IEngine engine, IRowValueAccessor accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
+        protected bool EvaluateTargets(Engines.IEngine engine, IRowValueAccessor accessor, Stack<ExpressionOperand> stack, IDictionary<string, ExpressionOperand> bindValues)
         {
             bool result = false;
 
@@ -68,7 +68,7 @@
             return result;
         }
 
-        protected bool EvaluateSubSelect(Engines.IEngine engine, IRowValueAccessor accessor, Stack<ExpressionOperand> stack, Dictionary<string, ExpressionOperand> bindValues)
+        protected bool EvaluateSubSelect(Engines.IEngine engine, IRowValueAccessor accessor, Stack<ExpressionOperand> stack, IDictionary<string, ExpressionOperand> bindValues)
         {
             selectContext!.Reset();
             BindResult bindResult = selectContext.Bind(engine, outerBindableColumns, bindValues);

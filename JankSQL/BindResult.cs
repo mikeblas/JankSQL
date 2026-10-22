@@ -3,6 +3,8 @@ namespace JankSQL
 {
     public class BindResult
     {
+        private readonly string? errorMessage;
+
         public BindResult()
         {
             this.BindStatus = BindStatus.NOT_BOUND;
@@ -16,12 +18,26 @@ namespace JankSQL
         public BindResult(BindStatus bs, string errorMessage)
         {
             this.BindStatus = bs;
-            this.ErrorMessage = errorMessage;
+            this.errorMessage = errorMessage;
         }
 
         public BindStatus BindStatus { get; set; }
 
-        public string? ErrorMessage { get; set; }
+        public string ErrorMessage
+        {
+            get
+            {
+                if (ErrorMessage == null)
+                    throw new InternalErrorException("BindStatus succeeded, but ErrorMessage referenced");
+                return ErrorMessage;
+            }
+            /*
+            set
+            {
+                errorMessage = value;
+            }
+            */
+        }
 
         public bool IsSuccessful => (BindStatus == BindStatus.SUCCESSFUL) || (BindStatus == BindStatus.SUCCESSFUL);
 
@@ -35,13 +51,13 @@ namespace JankSQL
 
         internal static BindResult Success()
         {
-            BindResult bindResult = new BindResult(BindStatus.SUCCESSFUL);
+            BindResult bindResult = new (BindStatus.SUCCESSFUL);
             return bindResult;
         }
 
         internal static BindResult Failed(string errorMessage)
         {
-            BindResult bindResult = new BindResult(BindStatus.FAILED, errorMessage);
+            BindResult bindResult = new (BindStatus.FAILED, errorMessage);
             return bindResult;
         }
 

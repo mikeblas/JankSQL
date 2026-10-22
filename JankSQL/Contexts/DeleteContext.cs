@@ -51,7 +51,7 @@
             }
         }
 
-        public ExecuteResult Execute(IEngine engine, IRowValueAccessor? outerAccessor, Dictionary<string, ExpressionOperand> bindValues)
+        public ExecuteResult Execute(IEngine engine, IRowValueAccessor? outerAccessor, IDictionary<string, ExpressionOperand> bindValues)
         {
             if (deleteOperator == null)
                 throw new InternalErrorException("DeleteOperator was not bound");

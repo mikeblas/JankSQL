@@ -76,7 +76,7 @@
             return fc.ColumnName;
         }
 
-        internal ExpressionOperand Evaluate(IRowValueAccessor? accessor, Engines.IEngine engine, Dictionary<string, ExpressionOperand> bindValues)
+        internal ExpressionOperand Evaluate(IRowValueAccessor? accessor, Engines.IEngine engine, IDictionary<string, ExpressionOperand> bindValues)
         {
             Stack<ExpressionOperand> stack = new ();
 
