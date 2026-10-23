@@ -15,8 +15,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Antlr4 Include="TSqlLexer.g4" />
-    <Antlr4 Include="TSqlParser.g4" />
+    <Antlr4 Include="TSqlLexer.g4">
+      <JavaExec>PATH;DOWNLOAD</JavaExec>
+    </Antlr4>
+    <Antlr4 Include="TSqlParser.g4">
+      <JavaExec>PATH;DOWNLOAD</JavaExec>
+    </Antlr4>
   </ItemGroup>
 
   <ItemGroup>
